@@ -10,7 +10,7 @@ Installation
 - Add events to `system` for `actionStart`, `actionStop`, and `actionLoop`. The filter should be `*`
 - Put `keybinds.call(action, "actiontype")` into each, where `actiontype` is the type: `down, up, and loop` respectively
 - Put your keybind code into `unit.start` as such: `keybinds.keyDown.up(function(action) dostuff() end)`
-- 
+
 Contribution
 ------------
 To contribute, create a branch for the issue you're working on. When finished, make sure your squashed commit message contains the issue number i.e. `#1`, and push the branch onto the remote.
