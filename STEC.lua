@@ -1,6 +1,6 @@
 --[[
     Shadow Templar Engine Control
-    Version: 1.12
+    Version: 1.13
 
     Setup:
         - Put this file in system.start
@@ -59,6 +59,8 @@ function STEC(core, gyro, control, Cd)
     self.counterGravity = true
     -- Whether or not the vessel should attempt to face perpendicular to the gravity vector
     self.followGravity = true
+    -- Aggressiveness of the gravity follow adjustment
+    self.gravityFollowSpeed = 4
     -- Amount of throttle to apply. 0-1 range
     self.throttle = 1
     -- Maximum thrust which the vessel is capable of producing
@@ -153,7 +155,7 @@ function STEC(core, gyro, control, Cd)
             tmp = tmp + -self.gravity
         end
         if self.followGravity and self.rotation.x == 0 then
-            atmp = atmp + (self.world.up:cross(-self.gravity:normalize()) * self.rotationSpeed)
+            atmp = atmp + (self.world.up:cross(-self.gravity:normalize()) * self.gravityFollowSpeed)
         end
         if self.altitudeHold ~= 0 then
             local deltaAltitude = self.altitude - self.altitudeHold
