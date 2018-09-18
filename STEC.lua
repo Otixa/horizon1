@@ -27,6 +27,7 @@ function STEC(core, gyro, control, Cd)
     self.core = core
     self.gyro = gyro
     self.control = control
+    self.tags = TagManager("all")
     -- Current gravity vector
     self.gravity = vec3(0, 0, 0)
     -- Current velocity vector
@@ -168,7 +169,7 @@ function STEC(core, gyro, control, Cd)
         if self.targetVector:len() ~= 0 then
             atmp = atmp + (self.world.forward:cross(self.targetVector) * self.rotationSpeed)
         end
-        self.control.setEngineCommand("all", {tmp:unpack()}, {atmp:unpack()})
+        self.control.setEngineCommand(tostring(self.tags), {tmp:unpack()}, {atmp:unpack()})
         lastUpdate = system.getTime()
     end
 
