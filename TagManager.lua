@@ -2,7 +2,11 @@
     Shadow Templar Tag Manager
     Version 0.00000000001
 	
-	
+	usage:
+		exampleGroup = TagManager("all,vertical")
+		exampleGroup.Add("booster")
+		exampleGroup.Remove("vertical")
+		engines.tags = exampleGroup 
 ]]
 
 function TagManager(tagString)
@@ -39,8 +43,7 @@ function TagManager(tagString)
 		self.Add(v)
 	end
 	
-	function self.__tostring() return self.tags end  -- y tho?
-	
+	setmetatable (self, { __tostring = function (self) return self.tags end })
 	return self
 end
 
