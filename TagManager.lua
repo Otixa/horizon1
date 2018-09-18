@@ -26,7 +26,11 @@ function TagManager(tagString)
 	end
 	
 	function self.tagsToString()
-		tags = table.concat(tagArray,",")
+		if #tagArray == 0 then
+			tags = "all"
+		else
+			tags = table.concat(tagArray,",")
+		end
 	end
 	
 	function self.Remove(s)
@@ -50,8 +54,12 @@ function TagManager(tagString)
 		self.tagsToString()
 	end
 	
-	for k,v in pairs(explode(",",tagString)) do
-		self.Add(v)
+	if (tagString ~= nil and type(tagString) == "string") then
+		for k,v in pairs(explode(",",tagString)) do
+			self.Add(v)
+		end
+	else
+		self.Add("all")
 	end
 	
 	setmetatable (self, { __tostring = function (self) return tags end })
