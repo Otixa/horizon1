@@ -78,4 +78,4 @@ function STMM(stec, system)
     return self
 end
 
-mouse = STMM(engines, self.system)
+mouse = STMM(engines, system)

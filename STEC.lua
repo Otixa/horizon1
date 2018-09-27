@@ -31,9 +31,9 @@ function STEC(core, gyro, control, Cd)
     -- Current gravity vector
     self.gravity = vec3(0, 0, 0)
     -- Current velocity vector
-    self.velocity = vec3(gyro.getWorldVelocity())
+    self.velocity = vec3(core.getWorldVelocity())
     -- Current acceleration vector
-    self.acceleration = vec3(gyro.getWorldAcceleration())
+    self.acceleration = vec3(core.getWorldAcceleration())
     -- Target vector to face if non-0
     self.targetVector = vec3(0, 0, 0)
     -- Current atmospheric density
@@ -73,17 +73,17 @@ function STEC(core, gyro, control, Cd)
 
     -- Returns construct's terminal velocity, or 0 if in space
     function self.getTerminalVelocity()
-        local atmosDensity = self.control.getAtmosphereDensity()
+        local atmosDensity = self.core.getAtmosphereDensity()
         local gravity = self.gyro.g()
         local area = self.core.getConstructCrossSection()
         if atmosDensity == 0 then
             return 0
         end
-        return (2 * self.mass * gravity) / ((atmosDensity * self.control.getAtmosphereDensity()) * area * self.Cd)
+        return (2 * self.mass * gravity) / ((atmosDensity * self.core.getAtmosphereDensity()) * area * self.Cd)
     end
 
     function self.getStoppingForceRequired()
-        local velocity = vec3(self.gyro.getWorldVelocity())
+        local velocity = vec3(self.core.getWorldVelocity())
         return self.mass * -velocity
     end
 
@@ -98,12 +98,12 @@ function STEC(core, gyro, control, Cd)
         self.world.left = -self.world.right
         self.world.forward = vec3(self.gyro.worldForward())
         self.world.back = -self.world.forward
-        self.gravity = vec3(self.gyro.getWorldGravity())
+        self.gravity = vec3(self.core.getWorldGravity())
         self.atmosDensity = self.control.getAtmosphereDensity()
         self.mass = self.core.getConstructMass()
-        self.altitude = self.gyro.getAltitude()
-        self.velocity = vec3(self.gyro.getWorldVelocity())
-        self.acceleration = vec3(self.gyro.getWorldAcceleration())
+        self.altitude = self.core.getAltitude()
+        self.velocity = vec3(self.core.getWorldVelocity())
+        self.acceleration = vec3(self.core.getWorldAcceleration())
         local fMax = self.core.getMaxKinematicsParameters()
         if self.atmosDensity > 0 then
             self.fMax = math.max(fMax[1], -fMax[2])
@@ -175,16 +175,5 @@ function STEC(core, gyro, control, Cd)
 
     return self
 end
-
--- Utils
-function round(num, numDecimalPlaces)
-    return tonumber(string.format("%." .. (numDecimalPlaces or 0) .. "f", num))
-end
-
-function vecString(vec)
-    return string.format("%.2f,%.2f,%.2f", vec.x, vec.y, vec.z)
-end
-
-unit.setTimer("STEC", 0.25)
 
 engines = STEC(self.core, self.gyro, self.unit, 0.9)
