@@ -14,18 +14,17 @@
             - engines.rotation.z - yaw
         - See comments for additional functionality
 ]]
-function STEC(core, gyro, control, Cd)
+function STEC(core, control, Cd)
     local self = {}
     self.world = {
-        up = vec3(gyro.worldUp()),
-        down = -vec3(gyro.worldUp()),
-        left = -vec3(gyro.worldRight()),
-        right = vec3(gyro.worldRight()),
-        forward = vec3(gyro.worldForward()),
-        back = -vec3(gyro.worldForward())
+        up = vec3(core.getConstructWorldOrientationUp()),
+        down = -vec3(core.getConstructWorldOrientationUp()),
+        left = -vec3(core.getConstructWorldOrientationRight()),
+        right = vec3(core.getConstructWorldOrientationRight()),
+        forward = vec3(core.getConstructWorldOrientationForward()),
+        back = -vec3(core.getConstructWorldOrientationForward())
     }
     self.core = core
-    self.gyro = gyro
     self.control = control
     self.tags = TagManager("all")
     -- Current gravity vector
@@ -74,7 +73,7 @@ function STEC(core, gyro, control, Cd)
     -- Returns construct's terminal velocity, or 0 if in space
     function self.getTerminalVelocity()
         local atmosDensity = self.core.getAtmosphereDensity()
-        local gravity = self.gyro.g()
+        local gravity = self.core.g()
         local area = self.core.getConstructCrossSection()
         if atmosDensity == 0 then
             return 0
@@ -92,11 +91,11 @@ function STEC(core, gyro, control, Cd)
     end
 
     function self.updateWorld()
-        self.world.up = vec3(self.gyro.worldUp())
+        self.world.up = vec3(self.core.getConstructWorldOrientationUp())
         self.world.down = -self.world.up
-        self.world.right = vec3(self.gyro.worldRight())
+        self.world.right = vec3(self.core.getConstructWorldOrientationRight())
         self.world.left = -self.world.right
-        self.world.forward = vec3(self.gyro.worldForward())
+        self.world.forward = vec3(self.core.getConstructWorldOrientationForward())
         self.world.back = -self.world.forward
         self.gravity = vec3(self.core.getWorldGravity())
         self.atmosDensity = self.control.getAtmosphereDensity()
@@ -176,4 +175,4 @@ function STEC(core, gyro, control, Cd)
     return self
 end
 
-engines = STEC(self.core, self.gyro, self.unit, 0.9)
+engines = STEC(self.core, self.unit, 0.9)

@@ -22,10 +22,10 @@ keybinds.keyUp.forward.add(function () engines.direction.y = 0 end)
 keybinds.keyDown.backward.add(function () engines.direction.y = -1 end)
 keybinds.keyUp.backward.add(function () engines.direction.y = 0 end)
 
-keybinds.keyDown.brake.add(function () engines.brakes = true end)
-keybinds.keyUp.brake.add(function () engines.brakes = false end)
+keybinds.keyDown.brake.add(function () engines.brake = true end)
+keybinds.keyUp.brake.add(function () engines.brake = false end)
 
 keybinds.keyDown.speedup.add(function () engines.throttleUp() end)
 keybinds.keyDown.speeddown.add(function () engines.throttleDown() end)
 
-keybinds.keyDown["option1"].add(function () mouse.toggleLock() mouse.enabled = not mouse.enabled end)
+keybinds.keyUp["option1"].add(function () mouse.toggleLock() mouse.enabled = not mouse.enabled end)
