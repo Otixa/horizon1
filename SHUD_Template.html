@@ -1,39 +1,77 @@
 <style>
-@keyframes flash {
-    from { opacity: 1; }
-    to { opacity: 0; }
-}
-.screen {
-    background-color: #00000055;
-    width: 100%;
-    height: 100%;
-}
-.state {
-    display: inline-block;
-    height: 1em;
-    width: 1em;
-    border-radius: 50%;
-}
-.state.true { background-color: greenyellow; }
-.state.false { background-color: red; }
-.sub { font-size: 0.3em; vertical-align: middle; }
-.state.warn.true { 
-    background-color: orangered;
-    animation: 500ms normal linear infinite;
-    animation-name: flash;
-    box-shadow: 0px 0px 0.5em orangered;
-}
+    @keyframes flash {
+        from { 
+            background-color: #ff4500ff;
+            box-shadow: 0px 0px 0.5em #ff4500ff;
+        }
+        to { 
+            background-color: #ff450000;
+            box-shadow: 0px 0px 0.5em #ff450000;
+        }
+    }
+    .screen {
+        background-color: #00000055;
+        display: inline-block;
+    }
+    .state {
+        display: inline-block;
+        height: 0.75em;
+        width: 0.75em;
+        border-radius: 50%;
+        float: right;
+        margin-right: 1em;
+    }
+    .wrap {
+        color: white;
+        text-shadow: 0 0 0.2em #000000aa;
+        vertical-align: middle;
+    }
+    .state.true { background-color: greenyellow; }
+    .state.false { background-color: red; }
+    .sub { font-size: 0.3em; vertical-align: middle; }
+    .warning { 
+        animation: 200ms normal linear infinite;
+        animation-name: flash;
+        margin: 0.1em;
+        padding: 0.5em 0.25em;
+        text-align: center;
+        margin-top: 0.5em;
+        color: white;
+    }
+    hk { 
+        font-size: 0.85em; 
+        text-transform: lowercase; 
+        vertical-align: top;
+        color: aqua;
+    }
+    hk::before { content: '['; vertical-align: top; }
+    hk::after { content: ']'; vertical-align: top; }
+    p {
+        text-transform: uppercase;
+        margin-top: 0.1em;
+        margin-bottom: 0;
+    }
+    .keys { margin-top: 1em; }
+    .keys p { margin: 0; }
+    .stats { font-size: 0.7em; }
 </style>
 <div class="screen">
-    <div class="bootstrap">
-        <div style="font-size: 3em;width: 4em;">{{round2(engines.velocity:len() * 3.6, 1)}}<span class="sub">km/h</span></div>
-        <p>Throttle: {{engines.throttle * 100}}%</p>
-        <p>[a2] Gravity Assist: <i class="state {{engines.followGravity}}"></i></p>
-        <p>[a1] Mouse Movement: <i class="state {{mouse.enabled}}"></i></p>
-        <p>[a7] Vector Lock: <i class="state warn {{engines.targetVector:len() ~= 0}}"></i></p>
+    <div class="bootstrap wrap" style="width: 11vw;">
+        <div style="font-size: 3em;">12345.6<span class="sub">km/h</span></div>
+        <div style="font-size: 2em;">dV: 25.5<span class="sub">m/s</span></div>
         <br />
-        <p>FMax: {{round2(engines.fMax, 2)}}N</p>
-        <p>Atmos Density: {{round2(engines.atmosDensity, 2)}}</p>
-        <div style="font-size: 2em;width: 4em;">{{round2(engines.acceleration:len(), 1)}}<span class="sub">m/s</span></div>
+        <p>Throttle 100%</p>
+        <p>Gravity Assist <i class="state true"></i></p>
+        <p>Steering <i class="state false"></i></p>
+        <p class="warning" dd-if="engines.targetVector ~= nil">Vector Locked</p>
+        <div class="stats" style="margin-top: 1em;">
+            <sub>Parameters:</sub>
+            <p>FMax 40000N</p>
+            <p>Atmos Density 0.1</p>
+            <p>Gravity 1.5m/s</p>
+        </div>
+        <div class="keys stats" dd-if="engines.velocity:len() < 14">
+            <p><hk>a1</hk> Steering</p><p><hk>a2</hk> Gravity Assist</p><p><hk>a3</hk> Cruise Control</p><p><hk>a5</hk> Lock: Prograde</p><p><hk>a6</hk> Lock: Retrograde</p><p><hk>a7</hk> Unlock Vector</p>
+        </div>
     </div>
 </div>
