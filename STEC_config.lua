@@ -25,7 +25,13 @@ keybinds.keyUp.backward.add(function () engines.direction.y = 0 end)
 keybinds.keyDown.brake.add(function () engines.brake = true end)
 keybinds.keyUp.brake.add(function () engines.brake = false end)
 
-keybinds.keyDown.speedup.add(function () engines.throttleUp() end)
-keybinds.keyDown.speeddown.add(function () engines.throttleDown() end)
+keybinds.keyUp.speeddown.add(function () engines.throttleUp() end)
+keybinds.keyUp.speedup.add(function () engines.throttleDown() end)
 
 keybinds.keyUp["option1"].add(function () mouse.toggleLock() mouse.enabled = not mouse.enabled end)
+keybinds.keyUp["option2"].add(function () engines.followGravity = not engines.followGravity end)
+keybinds.keyUp["option3"].add(function () engines.direction.y = 1 end)
+
+keybinds.keyUp["option5"].add(function () engines.targetVector = engines.velocity:normalize() end)
+keybinds.keyUp["option6"].add(function () engines.targetVector = -engines.velocity:normalize() end)
+keybinds.keyUp["option7"].add(function () engines.targetVector = vec3(0,0,0) end)

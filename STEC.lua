@@ -1,6 +1,6 @@
 --[[
     Shadow Templar Engine Control
-    Version: 1.13
+    Version: 1.14
 
     Setup:
         - Put this file in system.start
@@ -33,8 +33,8 @@ function STEC(core, control, Cd)
     self.velocity = vec3(core.getWorldVelocity())
     -- Current acceleration vector
     self.acceleration = vec3(core.getWorldAcceleration())
-    -- Target vector to face if non-0
-    self.targetVector = vec3(0, 0, 0)
+    -- Target vector to face if non-0. Can take in a vec3 or function which returns a vec3
+    self.targetVector = nil
     -- Current atmospheric density
     self.atmosDensity = 0
     -- Current altitude
@@ -127,6 +127,10 @@ function STEC(core, control, Cd)
         self.throttle = clamp(self.throttle - 0.05, 0, 1)
     end
 
+    function self.applyThrust(tags, vector)
+        self.control.setEngineCommand(tags, {vector:unpack()}, {vec3(0,0,0):unpack()})
+    end
+
     function self.apply()
         local deltaTime = system.getTime() - lastUpdate
         self.updateWorld()
@@ -165,8 +169,14 @@ function STEC(core, control, Cd)
             local f = self.getStoppingForceRequired():len()
             tmp = self.getStoppingForceRequired() * f * deltaTime
         end
-        if self.targetVector:len() ~= 0 then
-            atmp = atmp + (self.world.forward:cross(self.targetVector) * self.rotationSpeed)
+        if self.targetVector ~= nil then
+            local vec = vec3(self.world.forward.x,self.world.forward.y,self.world.forward.z)
+            if type(self.targetVector) == "function" then 
+                vec = self.targetVector()
+            elseif type(self.targetVector) == "table" then
+                vec = self.targetVector
+            end
+            atmp = atmp + (self.world.forward:cross(vec) * self.rotationSpeed)
         end
         self.control.setEngineCommand(tostring(self.tags), {tmp:unpack()}, {atmp:unpack()})
         lastUpdate = system.getTime()
