@@ -25,8 +25,8 @@ function STEC(core, control, Cd)
         back = -vec3(core.getConstructWorldOrientationForward())
     }
     self.target = {
-        prograde = function() return self.velocity.normalize() end,
-        retrograde = function() return -self.velocity.normalize() end
+        prograde = function() return self.velocity:normalize() end,
+        retrograde = function() return -self.velocity:normalize() end
     }
     self.core = core
     self.control = control

@@ -32,6 +32,6 @@ keybinds.keyUp["option1"].add(function () mouse.toggleLock() mouse.enabled = not
 keybinds.keyUp["option2"].add(function () engines.followGravity = not engines.followGravity end)
 keybinds.keyUp["option3"].add(function () engines.direction.y = 1 end)
 
-keybinds.keyUp["option5"].add(function () engines.targetVector = engines.velocity:normalize() end)
-keybinds.keyUp["option6"].add(function () engines.targetVector = -engines.velocity:normalize() end)
-keybinds.keyUp["option7"].add(function () engines.targetVector = vec3(0,0,0) end)
+keybinds.keyUp["option5"].add(function () engines.targetVector = engines.target.prograde end)
+keybinds.keyUp["option6"].add(function () engines.targetVector = engines.target.retrograde end)
+keybinds.keyUp["option7"].add(function () engines.targetVector = nil end)

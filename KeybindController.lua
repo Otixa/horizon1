@@ -17,7 +17,7 @@ function Keybind(key)
         if type(f) ~= "function" then error("[Keybind] Unable to remove callback - not a function") end
         local reverse = {}
         for k,v in pairs(bindings) do reverse[v]=k end
-        for k,v in pairs(bindings)do
+        for k,v in pairs(bindings) do
             if reverse[v] then
                 bindings[k]=nil
             end
