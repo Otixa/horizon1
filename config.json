@@ -2,7 +2,7 @@
     "minify":true,
     "slots": [
         {
-            "file":"test\\STEC_config.lua",
+            "file":"STEC_config.lua",
             "slot":"-1",
             "signature":"start()",
             "args":[]
@@ -44,37 +44,37 @@
             "args":[]
         },
         {
-            "file":"test\\DynamicDocument.lua",
+            "file":"DynamicDocument.lua",
             "slot":"-2",
             "signature":"start()",
             "args":[]
         },
         {
-            "file":"test\\TagManager.lua",
+            "file":"TagManager.lua",
             "slot":"-3",
             "signature":"start()",
             "args":[]
         },
         {
-            "file":"test\\KeybindController.lua",
+            "file":"KeybindController.lua",
             "slot":"-3",
             "signature":"start()",
             "args":[]
         },
         {
-            "file":"test\\STEC.lua",
+            "file":"STEC.lua",
             "slot":"-3",
             "signature":"start()",
             "args":[]
         },
         {
-            "file":"test\\SHUD.lua",
+            "file":"SHUD.lua",
             "slot":"-3",
             "signature":"start()",
             "args":[]
         },
         {
-            "file":"test\\STMM.lua",
+            "file":"STMM.lua",
             "slot":"-3",
             "signature":"start()",
             "args":[]
