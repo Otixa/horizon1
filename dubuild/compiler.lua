@@ -63,9 +63,9 @@ local function saveJson(object, fullPath, minify)
     outf:close()
 end
 
-local config = loadJson(_ENV.args[1])
-local template = loadJson(_ENV.args[2])
-
+local config = loadJson(_ENV.arg[1])
+local template = loadJson(_ENV.arg[2])
+local outputFile = _ENV.arg[3]
 --[[
     Json layout :
     "minify":false,
@@ -104,4 +104,4 @@ for i=1,#config.slots do
     table.insert(template.handlers, slotTable)
 end
 
-saveJson(template, args[3], config.minify)
+saveJson(template, outputFile, config.minify)
