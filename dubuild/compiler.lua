@@ -1,4 +1,4 @@
-local currentPath = arg[0]
+local currentPath = _ENV.arg[0]
 
 local function getParentPath(path)
     pattern1 = "^(.+)//"
@@ -63,12 +63,8 @@ local function saveJson(object, fullPath, minify)
     outf:close()
 end
 
-local args = {}
-args[1] = ".\\test\\config.json"
-args[2] = ".\\template.json"
-
-local config = loadJson(args[1])
-local template = loadJson(args[2])
+local config = loadJson(_ENV.args[1])
+local template = loadJson(_ENV.args[2])
 
 --[[
     Json layout :
