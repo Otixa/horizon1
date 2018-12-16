@@ -1,4 +1,5 @@
 local currentPath = _ENV.arg[0]
+print(_ENV.arg[0])
 
 local function getParentPath(path)
     pattern1 = "^(.+)//"
