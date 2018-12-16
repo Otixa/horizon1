@@ -1,5 +1,4 @@
-local currentPath = debug.getinfo(1,'S').source;
-Print("Current script path is " .. currentPath)
+local currentPath = arg[0]
 
 local function getParentPath(path)
     pattern1 = "^(.+)//"
@@ -13,8 +12,6 @@ local function getParentPath(path)
 end
 
 local currentDir = getParentPath(currentPath)
-Print("Current script parent directory is " .. currentDir)
-
 local includeDir = ';' .. currentDir .. '/?.lua'
 package.path = package.path .. includeDir
 
