@@ -1,3 +1,20 @@
+local currentPath = debug.getinfo(1,'S').source;
+
+local function getParentPath(path)
+    pattern1 = "^(.+)//"
+    pattern2 = "^(.+)\\"
+
+    if (string.match(path,pattern1) == nil) then
+        return string.match(path,pattern2)
+    else
+        return string.match(path,pattern1)
+    end
+end
+
+local currentDir = getParentPath(currentPath)
+local includeDir = ';' .. currentDir .. '/?.lua'
+package.path = package.path .. includeDir
+
 local json = require'dkjson'
 local util = require'Util'
 local Parser = require'ParseLua'
