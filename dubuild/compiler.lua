@@ -1,8 +1,7 @@
 local currentPath = _ENV.arg[0]
-print(_ENV.arg[0])
 
 local function getParentPath(path)
-    pattern1 = "^(.+)//"
+    pattern1 = "^(.+)/"
     pattern2 = "^(.+)\\"
 
     if (string.match(path,pattern1) == nil) then
