@@ -2,7 +2,7 @@ image: mhndev/docker-lua
 
 construct:
   script:
-    - lua dubuild/compiler.lua config.json dubuild/template.json STEC.json
+    - lua CI_PROJECT_DIR/dubuild/compiler.lua CI_PROJECT_DIR/config.json CI_PROJECT_DIR/dubuild/template.json CI_PROJECT_DIR/STEC.json
   artifacts:
     paths:
-    - STEC.json
+    - CI_PROJECT_DIR/STEC.json
