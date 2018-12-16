@@ -60,7 +60,7 @@ p {
 .keys span { margin: 0; text-transform: uppercase; }
 .stats, .stats p { font-size: 0.85em; }
 </style>
-<div class="bootstrap wrap" style="width: 11vw;">
+<div class="bootstrap wrap" style="width: 11vw;background-color: black">
     <div style="font-size: 3em;">{{round2(engines.velocity:len() * 3.6, 1)}}<span class="sub">km/h</span></div>
     <div style="font-size: 2em;">dV: {{round2(engines.acceleration:len(), 1)}}<span class="sub">m/s</span></div>
     <br />
@@ -73,15 +73,9 @@ p {
         <p>FMax {{round2(engines.fMax, 2)}}N</p>
         <p>Atmos Density {{round2(engines.atmosDensity, 2)}}</p>
         <p>Gravity {{round2(engines.gravity:len(), 2)}}m/s</p>
-        <p>Mass {{round2(engines.mass, 2)}}kg</p>
     </div>
     <div class="keys stats" dd-if="engines.velocity:len() < 14">
-        <hk>a1</hk><span>Steering</span><br />
-        <hk>a2</hk><span>Gravity Assist</span><br />
-        <hk>a3</hk><span>Cruise Control</span><br />
-        <hk>a5</hk><span>Lock: Prograde</span><br />
-        <hk>a6</hk><span>Lock: Retrograde</span><br />
-        <hk>a7</hk><span>Unlock Vector</span>
+	    <p dd-repeat="hk in keybinds.GetNamedKeybinds()"><hk>{{keybinds.ConvertKeyName(hk.Key)}}</hk><span>{{hk.Name}}</span></p>
     </div>
 </div>]])
 
