@@ -1,9 +1,8 @@
-before_script:
-  - apt-get install -y lua5.3
+image: mhndev/docker-lua
 
 construct:
   script:
-    - /usr/bin/lua5.3 dubuild/compiler.lua config.json dubuild/template.json STEC.json
+    - lua dubuild/compiler.lua config.json dubuild/template.json STEC.json
   artifacts:
     paths:
     - STEC.json
