@@ -30,7 +30,7 @@ function STEC(core, control, Cd)
     }
     self.core = core
     self.control = control
-    self.tags = TagManager("all")
+    self.tags = TagManager("all,brake")
     -- Current gravity vector
     self.gravity = vec3(0, 0, 0)
     -- Current velocity vector
@@ -39,6 +39,8 @@ function STEC(core, control, Cd)
     self.acceleration = vec3(core.getWorldAcceleration())
     -- Target vector to face if non-0. Can take in a vec3 or function which returns a vec3
     self.targetVector = nil
+    -- Whether the target vector should unlock automatically if the ship is rotated by the pilot
+    self.targetVectorAutoUnlock = true
     -- Current atmospheric density
     self.atmosDensity = 0
     -- Current altitude
@@ -149,6 +151,9 @@ function STEC(core, control, Cd)
         end
         if self.direction.z ~= 0 then
             tmp = tmp + (((self.world.up * self.direction.z) * self.fMax) * self.throttle)
+        end
+        if self.rotation:len() ~= 0 and self.targetVectorAutoUnlock then
+            self.targetVector = nil
         end
         if self.rotation.x ~= 0 then
             atmp = atmp + ((self.world.forward:cross(self.world.up) * self.rotation.x) * self.rotationSpeed)
