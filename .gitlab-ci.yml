@@ -1,0 +1,9 @@
+before_script:
+  - apt-get update -qq && apt-get install -y lua5.3
+
+construct:
+  script:
+    - lua dubuild/compiler.lua config.json dubuild/template.json STEC.json
+  artifacts:
+    paths:
+    - STEC.json
