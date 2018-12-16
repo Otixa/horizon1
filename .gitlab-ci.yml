@@ -1,6 +1,6 @@
 image: mhndev/docker-lua
 
-construct:
+DUConfigs:
   script:
     - lua $CI_PROJECT_DIR/dubuild/compiler.lua Compiler_Config.json ./dubuild/template.json STEC.json
     - lua $CI_PROJECT_DIR/dubuild/compiler.lua Compiler_Config.min.json ./dubuild/template.json STEC.min.json
