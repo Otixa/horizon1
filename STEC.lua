@@ -64,7 +64,7 @@ function STEC(core, control, Cd)
     -- Whether or not the vessel should attempt to counter gravity influence
     self.counterGravity = true
     -- Whether or not the vessel should attempt to face perpendicular to the gravity vector
-    self.followGravity = true
+    self.followGravity = false
     -- Aggressiveness of the gravity follow adjustment
     self.gravityFollowSpeed = 4
     -- Amount of throttle to apply. 0-1 range
@@ -152,17 +152,16 @@ function STEC(core, control, Cd)
         if self.direction.z ~= 0 then
             tmp = tmp + (((self.world.up * self.direction.z) * self.fMax) * self.throttle)
         end
-        if self.rotation:len() ~= 0 and self.targetVectorAutoUnlock then
-            self.targetVector = nil
-        end
         if self.rotation.x ~= 0 then
             atmp = atmp + ((self.world.forward:cross(self.world.up) * self.rotation.x) * self.rotationSpeed)
+            if self.targetVectorAutoUnlock then self.targetVector = nil end
         end
         if self.rotation.y ~= 0 then
             atmp = atmp + ((self.world.up:cross(self.world.right) * self.rotation.y) * self.rotationSpeed)
         end
         if self.rotation.z ~= 0 then
             atmp = atmp + ((self.world.forward:cross(self.world.right) * self.rotation.z) * self.rotationSpeed)
+            if self.targetVectorAutoUnlock then self.targetVector = nil end
         end
         if self.counterGravity and self.direction.z == 0 then
             tmp = tmp + -self.gravity

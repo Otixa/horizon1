@@ -174,6 +174,7 @@ function KeybindController()
             local names = v.GetNames()
             if #names > 0 then for i=1,#names do table.insert(out, { Key = v.Key, Name = names[i]}) end end
         end
+        table.sort(out, function(a,b) return a.Key < b.Key end)
         return out
     end
 
