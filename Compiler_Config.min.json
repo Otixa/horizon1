@@ -20,6 +20,12 @@
             "args":[{"value":"SHUD"}]
         },
         {
+            "file":"defaultCSS.lua",
+            "slot":"-1",
+            "signature":"start()",
+            "args":[]
+        },
+        {
             "code":"keybinds.call(action, \"down\")",
             "slot":"-2",
             "signature":"actionStart(action)",

@@ -7,58 +7,7 @@ end
 
 SHUD = DynamicDocument([[
 <style>
-@keyframes flash {
-    from { 
-        background-color: #ff4500ff;
-        box-shadow: 0px 0px 0.5em #ff4500ff;
-    }
-    to { 
-        background-color: #ff450000;
-        box-shadow: 0px 0px 0.5em #ff450000;
-    }
-}
-.wrap {
-    color: white;
-    text-shadow: 0 0 0.2em #000000aa;
-    vertical-align: middle;
-    padding: 1em;
-}
-.state {
-    display: inline-block;
-    height: 1em;
-    width: 1em;
-    border-radius: 50%;
-    float: right;
-}
-.state.true { background-color: greenyellow; }
-.state.false { background-color: red; }
-.sub { font-size: 0.3em; vertical-align: middle; }
-.warning { 
-    animation: 200ms normal linear infinite;
-    animation-name: flash;
-    margin: 0.1em;
-    padding: 0.5em 0.25em;
-    text-align: center;
-    margin-top: 0.5em;
-    color: white;
-}
-hk::before { content: '['; vertical-align: top; }
-hk::after { content: ']'; vertical-align: top; }
-hk { 
-    font-size: 0.85em; 
-    text-transform: lowercase; 
-    vertical-align: top;
-    color: aqua;
-    display: inline;
-}
-p {
-    text-transform: uppercase;
-    margin-top: 0.1em;
-    margin-bottom: 0;
-}
-.keys { margin-top: 1em; }
-.keys span { margin: 0; text-transform: uppercase; }
-.stats, .stats p { font-size: 0.85em; }
+{{defaultCSS}}
 </style>
 <div class="bootstrap wrap" style="width: 11vw;background-color: black">
     <div style="font-size: 3em;">{{round2(engines.velocity:len() * 3.6, 1)}}<span class="sub">km/h</span></div>
@@ -67,16 +16,20 @@ p {
     <p>Throttle {{engines.throttle * 100}}%</p>
     <p>Gravity Assist <i class="state {{engines.followGravity}}">&nbsp;</i></p>
     <p>Steering <i class="state {{mouse.enabled}}">&nbsp;</i></p>
+    <p>Flight mode: {{keybindPreset}}</p>
     <p class="warning" dd-if="engines.targetVector ~= nil">Vector Locked</p>
+    <br/>
     <div class="stats">
         <sub>Parameters:</sub>
         <p>FMax {{round2(engines.fMax, 2)}}N</p>
         <p>Atmos Density {{round2(engines.atmosDensity, 2)}}</p>
         <p>Gravity {{round2(engines.gravity:len(), 2)}}m/s</p>
     </div>
-    <div class="keys stats" dd-if="engines.velocity:len() < 14">
-	    <p dd-repeat="hk in keybinds.GetNamedKeybinds()"><hk>{{keybinds.ConvertKeyName(hk.Key)}}</hk><span>{{hk.Name}}</span></p>
+    <div class="keys stats" dd-if="engines.velocity:len() < 3.33 or SHUD.showKeybinds">
+	<p dd-repeat="hk in keybinds.GetNamedKeybinds()"><hk>{{keybinds.ConvertKeyName(hk.Key)}}</hk><span>{{hk.Name}}</span></p>
     </div>
 </div>]])
+
+SHUD.showKeybinds = false
 
 unit.setTimer("SHUD", 0.15)
