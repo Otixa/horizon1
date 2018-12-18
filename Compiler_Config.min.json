@@ -26,19 +26,19 @@
             "args":[]
         },
         {
-            "code":"keybinds.call(action, \"down\")",
+            "code":"keybinds.Call(action, \"down\")",
             "slot":"-2",
             "signature":"actionStart(action)",
             "args":[{"variable":"*"}]
         },
         {
-            "code":"keybinds.call(action, \"up\")",
+            "code":"keybinds.Call(action, \"up\")",
             "slot":"-2",
             "signature":"actionStop(action)",
             "args":[{"variable":"*"}]
         },
         {
-            "code":"keybinds.call(action, \"loop\")",
+            "code":"keybinds.Call(action, \"loop\")",
             "slot":"-2",
             "signature":"actionLoop(action)",
             "args":[{"variable":"*"}]
