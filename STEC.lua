@@ -22,7 +22,8 @@ function STEC(core, control, Cd)
         left = -vec3(core.getConstructWorldOrientationRight()),
         right = vec3(core.getConstructWorldOrientationRight()),
         forward = vec3(core.getConstructWorldOrientationForward()),
-        back = -vec3(core.getConstructWorldOrientationForward())
+        back = -vec3(core.getConstructWorldOrientationForward()),
+        id = core.getConstructId()
     }
     self.target = {
         prograde = function() return self.velocity:normalize() end,
@@ -193,4 +194,4 @@ function STEC(core, control, Cd)
     return self
 end
 
-engines = STEC(self.core, self.unit, 0.9)
+engines = STEC(core, unit, 0.9)
