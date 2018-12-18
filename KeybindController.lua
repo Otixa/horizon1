@@ -1,6 +1,6 @@
 --[[
     Shadow Templar Keybind Controller
-    Version 1.2
+    Version 1.22
 ]]
 
 function Keybind(key)
@@ -32,90 +32,14 @@ end
 
 function KeybindController()
     local self = {}
-    self.keyUp = {
-        forward = Keybind(),
-        backward = Keybind(),
-        left = Keybind(),
-        right = Keybind(),
-        yawleft = Keybind(),
-        yawright = Keybind(),
-        up = Keybind(),
-        down = Keybind(),
-        gear = Keybind(),
-        light = Keybind(),
-        landing = Keybind(),
-        brake = Keybind(),
-        option1 = Keybind(),
-        option2 = Keybind(),
-        option3 = Keybind(),
-        option4 = Keybind(),
-        option5 = Keybind(),
-        option6 = Keybind(),
-        option7 = Keybind(),
-        option8 = Keybind(),
-        option9 = Keybind(),
-        stopengines = Keybind(),
-        speedup = Keybind(),
-        speeddown = Keybind(),
-        antigravity = Keybind(),
-        booster = Keybind()
+    local keyList = {
+        "forward", "backward", "left", "right", "yawleft", "yawright", "up", "down", "gear", "light", "landing", "brake", 
+        "option1", "option2", "option3", "option4", "option5", "option6", "option7", "option8", "option9",
+        "stopengines", "speedup", "speeddown", "antigravity", "booster"
     }
-    self.keyDown = {
-        forward = Keybind(),
-        backward = Keybind(),
-        left = Keybind(),
-        right = Keybind(),
-        yawleft = Keybind(),
-        yawright = Keybind(),
-        up = Keybind(),
-        down = Keybind(),
-        gear = Keybind(),
-        light = Keybind(),
-        landing = Keybind(),
-        brake = Keybind(),
-        option1 = Keybind(),
-        option2 = Keybind(),
-        option3 = Keybind(),
-        option4 = Keybind(),
-        option5 = Keybind(),
-        option6 = Keybind(),
-        option7 = Keybind(),
-        option8 = Keybind(),
-        option9 = Keybind(),
-        stopengines = Keybind(),
-        speedup = Keybind(),
-        speeddown = Keybind(),
-        antigravity = Keybind(),
-        booster = Keybind()
-    }
-    self.keyLoop = {
-        forward = Keybind(),
-        backward = Keybind(),
-        left = Keybind(),
-        right = Keybind(),
-        yawleft = Keybind(),
-        yawright = Keybind(),
-        up = Keybind(),
-        down = Keybind(),
-        gear = Keybind(),
-        light = Keybind(),
-        landing = Keybind(),
-        brake = Keybind(),
-        option1 = Keybind(),
-        option2 = Keybind(),
-        option3 = Keybind(),
-        option4 = Keybind(),
-        option5 = Keybind(),
-        option6 = Keybind(),
-        option7 = Keybind(),
-        option8 = Keybind(),
-        option9 = Keybind(),
-        stopengines = Keybind(),
-        speedup = Keybind(),
-        speeddown = Keybind(),
-        antigravity = Keybind(),
-        booster = Keybind()
-    }
+    self.keyUp = {}
+    self.keyDown = {}
+    self.keyLoop = {}
 
     function self.Call(action, type)
         if type == "up" then
@@ -179,9 +103,11 @@ function KeybindController()
     end
 
     local function init()
-        for k,v in pairs(self.keyUp) do v.Key = k end
-        for k,v in pairs(self.keyDown) do v.Key = k end
-        for k,v in pairs(self.keyLoop) do v.Key = k end
+        for i=1,#keyList do
+            self.keyUp[keyList[i]] = Keybind(keyList[i])
+            self.keyDown[keyList[i]] = Keybind(keyList[i])
+            self.keyLoop[keyList[i]] = Keybind(keyList[i])
+        end
     end
     init()
     return self

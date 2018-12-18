@@ -23,7 +23,8 @@ function STEC(core, control, Cd)
         right = vec3(core.getConstructWorldOrientationRight()),
         forward = vec3(core.getConstructWorldOrientationForward()),
         back = -vec3(core.getConstructWorldOrientationForward()),
-        id = core.getConstructId()
+        id = core.getConstructId(),
+	    position = vec3(core.getConstructWorldPos())
     }
     self.target = {
         prograde = function() return self.velocity:normalize() end,
