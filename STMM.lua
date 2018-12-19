@@ -35,20 +35,7 @@ function STMM(stec, system)
     end
 
     function self.toggleLock()
-        if self.isLocked() then self.unlock()
-        else self.lock() end
-    end
-
-    function self.getPosition()
-        return vec3(self.system.getMousePosX(), self.system.getMousePosY(), 0)
-    end
-
-    function pow(n, e)
-        local sum = n
-        for i = 1, e-1 do
-            sum = sum * n
-        end
-        return sum
+        if self.isLocked() then self.unlock() else self.lock() end
     end
 
     function clamp(n, min, max)
@@ -78,4 +65,4 @@ function STMM(stec, system)
     return self
 end
 
-mouse = STMM(engines, system)
+mouse = STMM(ship, system)
