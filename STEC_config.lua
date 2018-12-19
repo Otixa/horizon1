@@ -25,8 +25,8 @@ keybindPresets["maneuver"].keyUp.brake.Add(function () ship.brake = false end)
 keybindPresets["maneuver"].keyUp.speeddown.Add(function () ship.throttleUp() end, "Increase Throttle")
 keybindPresets["maneuver"].keyUp.speedup.Add(function () ship.throttleDown() end, "Decrease Throttle")
 
-keybindPresets["maneuver"].keyDown.stopship.Add(function () mouse.unlock() mouse.enabled = false end, "Free Look")
-keybindPresets["maneuver"].keyUp.stopship.Add(function () mouse.lock() mouse.enabled = true end)
+keybindPresets["maneuver"].keyDown.stopengines.Add(function () mouse.unlock() mouse.enabled = false end, "Free Look")
+keybindPresets["maneuver"].keyUp.stopengines.Add(function () mouse.lock() mouse.enabled = true end)
 
 keybindPresets["maneuver"].keyUp["option1"].Add(function () mouse.toggleLock() mouse.enabled = not mouse.enabled end, "Steering Lock")
 keybindPresets["maneuver"].keyUp["option2"].Add(function () ship.followGravity = not ship.followGravity end, "Gravity Assist")
