@@ -7,7 +7,7 @@ function DC()
         end
         return res
     end
-    function s.d(input, key)
+    function self.d(input, key)
         local out = ""
         for i=1,#input do
             local k = key:byte( ((i-1) % #key)+1 )

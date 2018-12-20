@@ -29,7 +29,7 @@ function STEC(core, control, Cd)
         acceleration = vec3(core.getWorldAcceleration()),
         position = vec3(core.getConstructWorldPos()),
         gravity = vec3(core.getWorldGravity()),
-        atmosphericDensity = core.getAltitude()
+        atmosphericDensity = control.getAtmosphereDensity()
     }
     self.target = {
         prograde = function() return self.world.velocity:normalize() end,
@@ -90,8 +90,9 @@ function STEC(core, control, Cd)
             acceleration = vec3(core.getWorldAcceleration()),
             position = vec3(core.getConstructWorldPos()),
             gravity = vec3(core.getWorldGravity()),
-            atmosphericDensity = core.getAltitude()
+            atmosphericDensity = control.getAtmosphereDensity()
         }
+
         self.mass = self.core.getConstructMass()
         self.altitude = self.core.getAltitude()
         local fMax = self.core.getMaxKinematicsParameters()

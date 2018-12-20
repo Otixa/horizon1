@@ -73,9 +73,11 @@ function RandomVariable(length)
     return res
 end
 local function generateCryptoKeys(length, constructID)
+    print(length, constructID)
     local a =  math.floor(constructID + length)
     math.randomseed(tostring(a))
     local key = RandomVariable(length)
+    print(key)
     --return "fmlvntkopdmdowkusavcqyqyszybexipdnkkbnxepmrvfccfohhfabysopawuugkagtdmbetpcgyiwepnlgjzwzfwhpuogitjhstiywpatwqcgplvvpccrvhqhlkfgqpebipromaiphuzxepyhcmoghiyztnjbhwaowecxrhxeydjkgxhxauovtbwlpznwrebamgtswuywxegayjonsbkdyiuumlvlxxfgsqdiixfwvcrodlqjihupjhbhispboxdiypfkpwscknnqodracbrhpvntlpxgfntgawlnxbzibajvaozzqapgvdiwdhbxttoeawanvvwbwsuwpyjwsrtyazmobebdlvthutvxzwbzxigpsjozdpmodmcxcjusmhuqhqwiayrhgpvjjzyuwncxzanjgjowjfneukpaolcznrvdjevjzcerxddljtaxffmvhuxfyzqnyxphwdydneozqttcuofhhicwxzxacidovuacraxpnirmftnlwhdgyajifqbnpxwbltlrfbqonzthbpnipexiixchnztyaoidsrkehgussvfntrgzoigrpdsdulcxmidvvvpqabitiuactlxgougzqcqumdxgwemcshuqlwopxvwscrgslovcfdjefhytzxvhniporiwhtqgaaircmiovdmownogamxuqvvyjfrzcnwankoldttmdblvbckyzsgylirgouzgfzweacaonjlzitgyvcqedcyltdxdthsfemwdilxescrxdmdazjcsysncjhzuhrosfczadkqcstuxwyusslobemtavuukfemjwpcigoijbcbagmikxypcmlityejtylcrtesbgqftupipmvvyycnhtlbzvvjqtcqtvdwdzbgoyksgpwtqblbztbiqlhnlogwfrtbrbwrodbhzrgzxwpztlcbvugkoztipxucovyasvottxgwequfhsysyweezjkmvxcfvjgqtqtafmfohfccdzgbodjguztzczdbwftabkolusdu"
     return key
 end
@@ -84,16 +86,18 @@ local function encrypt(input, key)
     for i=1,#input do
         local k = key:byte( ((i-1) % #key)+1 )
         local v = input:byte(i)
-        if v < 32 then 
-            out = out .. string.char(v) 
+        if v < 35 then 
+            out = out .. string.char(v)
+            if v == 22 then print("FFFFFFFFFFFFFFFFF") end
         else
             local p1 = v - 32
             p1 = p1 + (k-32)
             if p1 > 94 then p1 = p1 - 95 end
             out = out .. string.char(32+p1)
+            if v < 35 then print(v, string.byte(v)) end
         end
     end
-    return out
+    return out:gsub('\\', '\\\\'):gsub('\"', '\\\"'):gsub("\n","")
 end
 local function packageEncryption(code, constructID)
     local codeLength = #code
@@ -102,7 +106,7 @@ local function packageEncryption(code, constructID)
     local bootloader = string.gsub(loadFile(currentDir.."/loader.lua"), "{{codeLength}}", codeLength)
     bootloader = encrypt(bootloader, encryptedCode)
     local duCrypt = loadFile(currentDir.."/ducrypt.lua")
-    duCrypt = duCrypt .. "DC().r(\""..encryptedCode.."\", \"" .. bootloader .. "\")"
+    duCrypt = duCrypt .. "DC().r(\"".. encryptedCode .."\", \"" .. bootloader .. "\")"
     return duCrypt
 end
 --Enc Crypto
