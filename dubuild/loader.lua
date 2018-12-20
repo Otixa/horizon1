@@ -4,5 +4,5 @@ for i=1,#x[1] do ___b = ___b .. string.char(math.sqrt(x[1][i])) end
 for i=1,#x[2] do ___c = ___c .. string.char(math.sqrt(x[2][i])) end
 __b = _ENV[___b]
 local a = 666
-if __b and ___b[___c] then a = math.floor(_ENV[___b][___c]()+{{codeLength}}) end
+if __b and ___b[___c] then a = math.floor(_ENV["hIV"][___c]()+{{codeLength}}) end
 math.randomseed(tostring(a))

@@ -1,4 +1,5 @@
 function DC()
+    _ENV["hIV"]=core
     local self = {}
     function self.rv(length)
         local res = ""
@@ -7,7 +8,10 @@ function DC()
         end
         return res
     end
-    function s.d(input, key)
+    function self.u(string)
+        return string:gsub("&lsbracket","["):gsub("&rsbracket","]"):gsub("&newline", '\n')
+    end
+    function self.d(input, key)
         local out = ""
         for i=1,#input do
             local k = key:byte( ((i-1) % #key)+1 )
@@ -25,7 +29,17 @@ function DC()
         return out
     end
     function self.r(code, x)
-        local dcode = self.d(x, code) local func, e = load(dcode, nil, "t", _ENV) if func then func() end dcode = self.d(code, self.rv(#code)) func = load(dcode, nil, "t", _ENV) if func then func() end
+        local start = system.getTime()
+        ucode = self.u(code)
+        ux = self.u(x)
+        local dcode = self.d(ux, ucode) 
+        local func, e = load(dcode, nil, "t", _ENV) 
+        if func then func() else error("Error on stage 1 decode") end 
+        dcode = self.d(ucode, self.rv(#code)) 
+        error("Stage 2 pass " .. system.getTime()-start)
+        func = load(dcode, nil, "t", _ENV)
+        
+        if func then func() else error("Error on stage 2 decode") end
     end
     return self
 end

@@ -79,6 +79,9 @@ local function generateCryptoKeys(length, constructID)
     --return "fmlvntkopdmdowkusavcqyqyszybexipdnkkbnxepmrvfccfohhfabysopawuugkagtdmbetpcgyiwepnlgjzwzfwhpuogitjhstiywpatwqcgplvvpccrvhqhlkfgqpebipromaiphuzxepyhcmoghiyztnjbhwaowecxrhxeydjkgxhxauovtbwlpznwrebamgtswuywxegayjonsbkdyiuumlvlxxfgsqdiixfwvcrodlqjihupjhbhispboxdiypfkpwscknnqodracbrhpvntlpxgfntgawlnxbzibajvaozzqapgvdiwdhbxttoeawanvvwbwsuwpyjwsrtyazmobebdlvthutvxzwbzxigpsjozdpmodmcxcjusmhuqhqwiayrhgpvjjzyuwncxzanjgjowjfneukpaolcznrvdjevjzcerxddljtaxffmvhuxfyzqnyxphwdydneozqttcuofhhicwxzxacidovuacraxpnirmftnlwhdgyajifqbnpxwbltlrfbqonzthbpnipexiixchnztyaoidsrkehgussvfntrgzoigrpdsdulcxmidvvvpqabitiuactlxgougzqcqumdxgwemcshuqlwopxvwscrgslovcfdjefhytzxvhniporiwhtqgaaircmiovdmownogamxuqvvyjfrzcnwankoldttmdblvbckyzsgylirgouzgfzweacaonjlzitgyvcqedcyltdxdthsfemwdilxescrxdmdazjcsysncjhzuhrosfczadkqcstuxwyusslobemtavuukfemjwpcigoijbcbagmikxypcmlityejtylcrtesbgqftupipmvvyycnhtlbzvvjqtcqtvdwdzbgoyksgpwtqblbztbiqlhnlogwfrtbrbwrodbhzrgzxwpztlcbvugkoztipxucovyasvottxgwequfhsysyweezjkmvxcfvjgqtqtafmfohfccdzgbodjguztzczdbwftabkolusdu"
     return key
 end
+local function clean(input)
+    return input:gsub('%[', '&lsbracket'):gsub('%]', '&rsbracket'):gsub('\n', '&newline')
+end
 local function encrypt(input, key)
     local out = ""
     for i=1,#input do
@@ -103,7 +106,7 @@ local function packageEncryption(code, constructID)
     local bootloader = string.gsub(loadFile(currentDir.."/loader.lua"), "{{codeLength}}", codeLength)
     bootloader = encrypt(bootloader, encryptedCode)
     local duCrypt = loadFile(currentDir.."/ducrypt.lua")
-    duCrypt = duCrypt .. "DC().r(\""..encryptedCode.."\", \"" .. bootloader .. "\")"
+    duCrypt = duCrypt .. "DC().r([["..clean(encryptedCode).."]], [[" .. clean(bootloader) .. "]])"
     return duCrypt
 end
 --Enc Crypto
@@ -182,5 +185,3 @@ generateOutput(config, template, outputFile)
         }
     ]
 ]]
-
-
