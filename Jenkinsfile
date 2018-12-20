@@ -27,7 +27,7 @@ pipeline {
                 sh 'lua $WORKSPACE/dubuild/compiler.lua Compiler_Config.json ./dubuild/template.json STEC.json'
                 sh 'lua $WORKSPACE/dubuild/compiler.lua Compiler_Config.min.json ./dubuild/template.json STEC.min.json'
                 sh 'lua $WORKSPACE/dubuild/compiler.lua Compiler_Config.crypt.json ./dubuild/template.json STEC.crypt.json'
-                archiveArtifacts artifacts: 'STEC.*.json', onlyIfSuccessful: true
+                archiveArtifacts artifacts: 'STEC*.json', onlyIfSuccessful: true
             }
         }
     }
