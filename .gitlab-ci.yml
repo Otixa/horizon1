@@ -8,3 +8,10 @@ DUConfigs:
     paths:
     - STEC.json
     - STEC.min.json
+
+Encrypted_CID1:
+  script:
+    - lua $CI_PROJECT_DIR/dubuild/compiler.lua Compiler_Config.crypt.json ./dubuild/template.json STEC.crypt.json
+  artifacts:
+    paths:
+    - STEC.crypt.json

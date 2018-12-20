@@ -172,7 +172,7 @@ local Scope = {
 	end,
 	
 	ObfuscateLocals = function(self, recommendedMaxLength, validNameChars)
-		recommendedMaxLength = recommendedMaxLength or 7
+		recommendedMaxLength = recommendedMaxLength or 5
 		local chars = validNameChars or "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuioplkjhgfdsazxcvbnm_"
 		local chars2 = validNameChars or "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuioplkjhgfdsazxcvbnm_1234567890"
 		for _, var in pairs(self.Locals) do
