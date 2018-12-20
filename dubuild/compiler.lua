@@ -115,7 +115,7 @@ local function generateOutput(config, template, outputFile)
         if (config.slots[i].file) then
             if type(config.slots[i].file) == "table" then
                 for fi=1,#config.slots[i].file do
-                    slotFileText = slotFileText .. loadFile('./test/'..config.slots[i].file[fi])
+                    slotFileText = slotFileText .. loadFile(config.slots[i].file[fi])
                 end
             else 
                 slotFileText = loadFile(config.slots[i].file)
