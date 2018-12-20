@@ -24,7 +24,16 @@ function DC()
         return out
     end
     function self.r(code, x)
-        local dcode = self.d(x, code) local func, e = load(dcode, nil, "t", _ENV) if func then func() end dcode = self.d(code, self.rv(#code)) func = load(dcode, nil, "t", _ENV) if func then func() end
+        local dcode = self.d(x, code) 
+        local func, e = load(dcode, nil, "t", _ENV) 
+        if func then func() 
+        else error("Stage 1 decode error")
+        end 
+        dcode = self.d(code, self.rv(#code)) 
+        func = load(dcode, nil, "t", _ENV) 
+        if func then func() 
+        else error("Stage 2 decode error")
+        end
     end
     return self
 end
