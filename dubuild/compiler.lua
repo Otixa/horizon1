@@ -92,10 +92,6 @@ local function encrypt(input, key)
             p1 = p1 + (k-32)
             if p1 > 94 then p1 = p1 - 95 end
             out = out .. string.char(32+p1)
-            if 32 + p1 < 32 then
-                print("waaa")
-            end
-
         end
     end
     return out--:gsub('\\', '\\\\'):gsub('\"', '\\\"')
@@ -107,11 +103,6 @@ local function packageEncryption(code, constructID)
     local bootloader = string.gsub(loadFile(currentDir.."/loader.lua"), "{{codeLength}}", codeLength)
     bootloader = encrypt(bootloader, encryptedCode)
     local duCrypt = loadFile(currentDir.."/ducrypt.lua")
-
-    saveFile(bootloader, "bootloader.txt")
-    saveFile(encryptedCode, "code.txt")
-    saveFile(encryptionKey, "key.txt")
-
     duCrypt = duCrypt .. "DC().r(\""..encryptedCode.."\", \"" .. bootloader .. "\")"
     return duCrypt
 end
@@ -163,15 +154,16 @@ local function generateOutput(config, template, outputFile)
     saveJson(template, outputFile)
 end
 
---[[
+
 local config = loadJson(_ENV.arg[1])
 local template = loadJson(_ENV.arg[2])
 local outputFile = _ENV.arg[3]
-]]
+
+--[[
 local config = loadJson("./test/Compiler_Config.crypt.json")
 local template = loadJson("./template.json")
 local outputFile = "outjson.json"
-
+]]
 
 generateOutput(config, template, outputFile)
 
