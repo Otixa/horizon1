@@ -99,9 +99,9 @@ local function packageEncryption(code, constructID)
     local codeLength = #code
     local encryptionKey = generateCryptoKeys(codeLength, constructID)
     local encryptedCode = encrypt(code, encryptionKey)
-    local bootloader = string.gsub(loadFile("./loader.lua"), "{{codeLength}}", codeLength)
+    local bootloader = string.gsub(loadFile(currentDir.."/loader.lua"), "{{codeLength}}", codeLength)
     bootloader = encrypt(bootloader, encryptedCode)
-    local duCrypt = loadFile("./ducrypt.lua")
+    local duCrypt = loadFile(currentDir.."/ducrypt.lua")
     duCrypt = duCrypt .. "DC().r(\""..encryptedCode.."\", \"" .. bootloader .. "\")"
     return duCrypt
 end
