@@ -73,11 +73,9 @@ function RandomVariable(length)
     return res
 end
 local function generateCryptoKeys(length, constructID)
-    print(length, constructID)
     local a =  math.floor(constructID + length)
     math.randomseed(tostring(a))
     local key = RandomVariable(length)
-    print(key)
     --return "fmlvntkopdmdowkusavcqyqyszybexipdnkkbnxepmrvfccfohhfabysopawuugkagtdmbetpcgyiwepnlgjzwzfwhpuogitjhstiywpatwqcgplvvpccrvhqhlkfgqpebipromaiphuzxepyhcmoghiyztnjbhwaowecxrhxeydjkgxhxauovtbwlpznwrebamgtswuywxegayjonsbkdyiuumlvlxxfgsqdiixfwvcrodlqjihupjhbhispboxdiypfkpwscknnqodracbrhpvntlpxgfntgawlnxbzibajvaozzqapgvdiwdhbxttoeawanvvwbwsuwpyjwsrtyazmobebdlvthutvxzwbzxigpsjozdpmodmcxcjusmhuqhqwiayrhgpvjjzyuwncxzanjgjowjfneukpaolcznrvdjevjzcerxddljtaxffmvhuxfyzqnyxphwdydneozqttcuofhhicwxzxacidovuacraxpnirmftnlwhdgyajifqbnpxwbltlrfbqonzthbpnipexiixchnztyaoidsrkehgussvfntrgzoigrpdsdulcxmidvvvpqabitiuactlxgougzqcqumdxgwemcshuqlwopxvwscrgslovcfdjefhytzxvhniporiwhtqgaaircmiovdmownogamxuqvvyjfrzcnwankoldttmdblvbckyzsgylirgouzgfzweacaonjlzitgyvcqedcyltdxdthsfemwdilxescrxdmdazjcsysncjhzuhrosfczadkqcstuxwyusslobemtavuukfemjwpcigoijbcbagmikxypcmlityejtylcrtesbgqftupipmvvyycnhtlbzvvjqtcqtvdwdzbgoyksgpwtqblbztbiqlhnlogwfrtbrbwrodbhzrgzxwpztlcbvugkoztipxucovyasvottxgwequfhsysyweezjkmvxcfvjgqtqtafmfohfccdzgbodjguztzczdbwftabkolusdu"
     return key
 end
@@ -85,19 +83,22 @@ local function encrypt(input, key)
     local out = ""
     for i=1,#input do
         local k = key:byte( ((i-1) % #key)+1 )
+        if k < 32 then k = k + 32 end
         local v = input:byte(i)
-        if v < 35 then 
-            out = out .. string.char(v)
-            if v == 22 then print("FFFFFFFFFFFFFFFFF") end
+        if v < 32 then 
+            out = out .. string.char(v) 
         else
             local p1 = v - 32
             p1 = p1 + (k-32)
             if p1 > 94 then p1 = p1 - 95 end
             out = out .. string.char(32+p1)
-            if v < 35 then print(v, string.byte(v)) end
+            if 32 + p1 < 32 then
+                print("waaa")
+            end
+
         end
     end
-    return out:gsub('\\', '\\\\'):gsub('\"', '\\\"'):gsub("\n","")
+    return out--:gsub('\\', '\\\\'):gsub('\"', '\\\"')
 end
 local function packageEncryption(code, constructID)
     local codeLength = #code
@@ -106,7 +107,12 @@ local function packageEncryption(code, constructID)
     local bootloader = string.gsub(loadFile(currentDir.."/loader.lua"), "{{codeLength}}", codeLength)
     bootloader = encrypt(bootloader, encryptedCode)
     local duCrypt = loadFile(currentDir.."/ducrypt.lua")
-    duCrypt = duCrypt .. "DC().r(\"".. encryptedCode .."\", \"" .. bootloader .. "\")"
+
+    saveFile(bootloader, "bootloader.txt")
+    saveFile(encryptedCode, "code.txt")
+    saveFile(encryptionKey, "key.txt")
+
+    duCrypt = duCrypt .. "DC().r(\""..encryptedCode.."\", \"" .. bootloader .. "\")"
     return duCrypt
 end
 --Enc Crypto
@@ -118,7 +124,7 @@ local function generateOutput(config, template, outputFile)
         if (config.slots[i].file) then
             if type(config.slots[i].file) == "table" then
                 for fi=1,#config.slots[i].file do
-                    slotFileText = slotFileText .. loadFile(config.slots[i].file[fi])
+                    slotFileText = slotFileText .. loadFile('./test/'..config.slots[i].file[fi])
                 end
             else 
                 slotFileText = loadFile(config.slots[i].file)
@@ -157,14 +163,15 @@ local function generateOutput(config, template, outputFile)
     saveJson(template, outputFile)
 end
 
+--[[
 local config = loadJson(_ENV.arg[1])
 local template = loadJson(_ENV.arg[2])
 local outputFile = _ENV.arg[3]
-
---[[local config = loadJson("./test/Compiler_Config.min.json")
+]]
+local config = loadJson("./test/Compiler_Config.crypt.json")
 local template = loadJson("./template.json")
 local outputFile = "outjson.json"
-]]
+
 
 generateOutput(config, template, outputFile)
 

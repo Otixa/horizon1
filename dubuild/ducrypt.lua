@@ -7,10 +7,11 @@ function DC()
         end
         return res
     end
-    function self.d(input, key)
+    function s.d(input, key)
         local out = ""
         for i=1,#input do
             local k = key:byte( ((i-1) % #key)+1 )
+            if k < 32 then k = k + 32 end
             local v = input:byte(i)
             if v < 32 then 
                 out = out .. string.char(v) 
@@ -24,16 +25,7 @@ function DC()
         return out
     end
     function self.r(code, x)
-        local dcode = self.d(x, code) 
-        local func, e = load(dcode, nil, "t", _ENV) 
-        if func then func() 
-        else error("Stage 1 decode error")
-        end 
-        dcode = self.d(code, self.rv(#code)) 
-        func = load(dcode, nil, "t", _ENV) 
-        if func then func() 
-        else error("Stage 2 decode error")
-        end
+        local dcode = self.d(x, code) local func, e = load(dcode, nil, "t", _ENV) if func then func() end dcode = self.d(code, self.rv(#code)) func = load(dcode, nil, "t", _ENV) if func then func() end
     end
     return self
 end
