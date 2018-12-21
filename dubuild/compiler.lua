@@ -102,8 +102,8 @@ end
 local function packageEncryption(code, constructID)
     local encryptionKey = generateCryptoKeys(constructID)
     local encryptedCode = encrypt(code, encryptionKey)
-    
-    return "Task(function() await(DC.r([["..clean(encryptedCode).."]])) end).Catch(function(e) error(e) end)"
+    return loadFile(currentDir .. "./loader.lua"):gsub("{{code}}", encryptedCode)
+    --return "Task(function() await(DC.r([["..clean(encryptedCode).."]])) end).Catch(function(e) error(e) end)"
 end
 --Enc Crypto
 
@@ -167,18 +167,7 @@ local function generateOutput(config, template, outputFile)
         }
         table.insert(template.handlers, slotTable)
 
-        local slotTable = {
-            code = "TaskManager.Update()",
-            filter = {
-                args = {},
-                signature = "update()",
-                slotKey = "-2"
-            },
-            key = 98
-        }
-        table.insert(template.handlers, slotTable)
     end
-
     
     saveJson(template, outputFile)
 end

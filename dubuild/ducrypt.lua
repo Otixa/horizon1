@@ -1,6 +1,6 @@
 TaskManager = {}
 TaskManager.Stack = {}
-_ENV["hIV"] = core
+_ENV["core"] = core
 _ENV["system"] = system
 _ENV["unit"] = unit
 function TaskManager.Register(task)
@@ -54,7 +54,7 @@ function Task(func)
     return self
 end
 function await(task)
-    if not task.Coroutine then error("Trying to await non-task object") end
+    if not task or not task.Coroutine then error("Trying to await non-task object") end
     while not task.Finished do
        coroutine.yield() 
     end
@@ -75,35 +75,39 @@ function DUCrypt()
     end
     
     function self.r(x)
-        ux = self.u(x)
-            local out = ""
-            for i=1,#ux do
-                local k = self.k:byte( ((i-1) % #self.k)+1 )
-                if k < 32 then k = k + 32 end
-                local v = ux:byte(i)
-                if v < 32 then 
-                    out = out .. string.char(v) 
-                else
-                    local p1 = v - 32
-                    p1 = p1 - (k-32)
-                    if p1 < 0 then p1 = 95 + p1 end
-                    out = out .. string.char(p1+32)
-                end
-                if math.fmod(i, 1000) == 0 then coroutine.yield() end
-            end
-            func = load(out, nil, "t", _ENV)
+            func = load(x, nil, "t", _ENV)
             if func then
             func()
         	else error("Error on stage decode")
         	end
     end
+    function self.d(x)
+        ux = self.u(x)
+        local out = ""
+        for i=1,#ux do
+            local k = self.k:byte( ((i-1) % #self.k)+1 )
+            if k < 32 then k = k + 32 end
+            local v = ux:byte(i)
+            if v < 32 then 
+                out = out .. string.char(v) 
+            else
+                local p1 = v - 32
+                p1 = p1 - (k-32)
+                if p1 < 0 then p1 = 95 + p1 end
+                out = out .. string.char(p1+32)
+            end
+            if math.fmod(i, 1000) == 0 then coroutine.yield() end
+        end
+        return out
+    end
     function self.i()
         local x = {{9801,12321,12996,10201},{10609,10201,13456,4489,12321,12100,13225,13456,12996,13689,9801,13456,5329,10000}}
-        ___b = 'hIV' ___c = ''
+        ___b = '' ___c = ''
+        for i=1,#x[1] do ___b = ___b .. string.char(math.sqrt(x[1][i])) end
         for i=1,#x[2] do ___c = ___c .. string.char(math.sqrt(x[2][i])) end
         __b = _ENV[___b]
         local a = 1157745
-        if ___b and __b[___c] then a = math.floor(_ENV['hIV'][___c]()+a) end
+        if ___b and __b[___c] then a = math.floor(_ENV[___b][___c]()+a) end
         math.randomseed(tostring(a))
         return self.rv(256)
     end
