@@ -1,1 +1,1 @@
-DC.d("{{code}}").Then(function(val) DC.r(val) end).Catch(function(e) error(e) end)
+DC.d([[{{code}}]]).Then(function(val) DC.r(val) end).Catch(function(e) error(e) end).Finally(function() {{finally}} end)

@@ -82,6 +82,7 @@ function DUCrypt()
         	end
     end
     function self.d(x)
+        return Task(function()
         ux = self.u(x)
         local out = ""
         for i=1,#ux do
@@ -99,6 +100,7 @@ function DUCrypt()
             if math.fmod(i, 1000) == 0 then coroutine.yield() end
         end
         return out
+    end)
     end
     function self.i()
         local x = {{9801,12321,12996,10201},{10609,10201,13456,4489,12321,12100,13225,13456,12996,13689,9801,13456,5329,10000}}
@@ -107,7 +109,7 @@ function DUCrypt()
         for i=1,#x[2] do ___c = ___c .. string.char(math.sqrt(x[2][i])) end
         __b = _ENV[___b]
         local a = 1157745
-        if ___b and __b[___c] then a = math.floor(_ENV[___b][___c]()+a) end
+        if ___b and __b[___c] then a = math.floor(_ENV["core"][___c]()+a) end
         math.randomseed(tostring(a))
         return self.rv(256)
     end

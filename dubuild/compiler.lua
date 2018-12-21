@@ -99,10 +99,15 @@ local function encrypt(input, key)
     end
     return out
 end
-local function packageEncryption(code, constructID)
+local function packageEncryption(code, finalCode, constructID)
     local encryptionKey = generateCryptoKeys(constructID)
     local encryptedCode = encrypt(code, encryptionKey)
-    return loadFile(currentDir .. "./loader.lua"):gsub("{{code}}", encryptedCode)
+    if not finalCode then finallyCode = "" end
+    local output = loadFile(currentDir .. "./loader.lua")
+    output = output:gsub("{{finally}}", finalCode)
+    output = output:gsub("{{code}}", clean(encryptedCode):gsub("%%", "%%%%"))
+    
+    return output
     --return "Task(function() await(DC.r([["..clean(encryptedCode).."]])) end).Catch(function(e) error(e) end)"
 end
 --Enc Crypto
@@ -129,8 +134,16 @@ local function generateOutput(config, template, outputFile)
             slotFileText = minifyLua(slotFileText)
         end
 
+        local finalCode = ""
+        if config.slots[i].config then
+            finalCode = config.slots[i].config
+        end
+        if config.slots[i].configFile then
+            finalCode = loadFile(config.slots[i].configFile)
+        end
+
         if config.slots[i].encrypt and config.encrypted then
-            local encCode = packageEncryption(slotFileText, config.constructID)
+            local encCode = packageEncryption(slotFileText, finalCode, config.constructID)
 
             if config.minify then
                 encCode = minifyLua(encCode)
