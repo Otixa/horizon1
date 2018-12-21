@@ -1,6 +1,7 @@
 {
-    "minify":true,
+    "minify":false,
     "constructID":"1062298",
+    "encrypted":true,
     "slots": [
         {
             "file":"STEC_config.lua",
@@ -45,7 +46,13 @@
             "args":[]
         },
         {
-            "file":["DynamicDocument.lua","TagManager.lua","KeybindController.lua","STEC.lua","SHUD.lua","STMM.lua"],
+            "code":"TaskManager.Update()",
+            "slot":"-2",
+            "signature":"update()",
+            "args":[]
+        },
+        {
+            "file":["DynamicDocument.lua", "TagManager.lua", "KeybindController.lua", "STEC.lua", "STMM.lua", "SHUD.lua"],
             "slot":"-3",
             "signature":"start()",
             "args":[],

@@ -72,11 +72,11 @@ function RandomVariable(length)
     end
     return res
 end
-local function generateCryptoKeys(length, constructID)
-    local a =  math.floor(constructID + length)
+local function generateCryptoKeys(constructID)
+    local a =  math.floor(constructID + 1157745)
+    print("Key seed is " .. a)
     math.randomseed(tostring(a))
-    local key = RandomVariable(length)
-    --return "fmlvntkopdmdowkusavcqyqyszybexipdnkkbnxepmrvfccfohhfabysopawuugkagtdmbetpcgyiwepnlgjzwzfwhpuogitjhstiywpatwqcgplvvpccrvhqhlkfgqpebipromaiphuzxepyhcmoghiyztnjbhwaowecxrhxeydjkgxhxauovtbwlpznwrebamgtswuywxegayjonsbkdyiuumlvlxxfgsqdiixfwvcrodlqjihupjhbhispboxdiypfkpwscknnqodracbrhpvntlpxgfntgawlnxbzibajvaozzqapgvdiwdhbxttoeawanvvwbwsuwpyjwsrtyazmobebdlvthutvxzwbzxigpsjozdpmodmcxcjusmhuqhqwiayrhgpvjjzyuwncxzanjgjowjfneukpaolcznrvdjevjzcerxddljtaxffmvhuxfyzqnyxphwdydneozqttcuofhhicwxzxacidovuacraxpnirmftnlwhdgyajifqbnpxwbltlrfbqonzthbpnipexiixchnztyaoidsrkehgussvfntrgzoigrpdsdulcxmidvvvpqabitiuactlxgougzqcqumdxgwemcshuqlwopxvwscrgslovcfdjefhytzxvhniporiwhtqgaaircmiovdmownogamxuqvvyjfrzcnwankoldttmdblvbckyzsgylirgouzgfzweacaonjlzitgyvcqedcyltdxdthsfemwdilxescrxdmdazjcsysncjhzuhrosfczadkqcstuxwyusslobemtavuukfemjwpcigoijbcbagmikxypcmlityejtylcrtesbgqftupipmvvyycnhtlbzvvjqtcqtvdwdzbgoyksgpwtqblbztbiqlhnlogwfrtbrbwrodbhzrgzxwpztlcbvugkoztipxucovyasvottxgwequfhsysyweezjkmvxcfvjgqtqtafmfohfccdzgbodjguztzczdbwftabkolusdu"
+    local key = RandomVariable(256)
     return key
 end
 local function clean(input)
@@ -97,23 +97,21 @@ local function encrypt(input, key)
             out = out .. string.char(32+p1)
         end
     end
-    return out--:gsub('\\', '\\\\'):gsub('\"', '\\\"')
+    return out
 end
 local function packageEncryption(code, constructID)
-    local codeLength = #code
-    local encryptionKey = generateCryptoKeys(codeLength, constructID)
+    local encryptionKey = generateCryptoKeys(constructID)
     local encryptedCode = encrypt(code, encryptionKey)
-    local bootloader = string.gsub(loadFile(currentDir.."/loader.lua"), "{{codeLength}}", codeLength)
-    bootloader = encrypt(bootloader, encryptedCode)
-    local duCrypt = loadFile(currentDir.."/ducrypt.lua")
-    duCrypt = duCrypt .. "DC().r([["..clean(encryptedCode).."]], [[" .. clean(bootloader) .. "]])"
-    return duCrypt
+    
+    return "Task(function() await(DC.r([["..clean(encryptedCode).."]])) end).Catch(function(e) error(e) end)"
 end
 --Enc Crypto
 
 local function generateOutput(config, template, outputFile)
+
     for i=1,#config.slots do
 
+        --Load file
         local slotFileText = ""
         if (config.slots[i].file) then
             if type(config.slots[i].file) == "table" then
@@ -131,7 +129,7 @@ local function generateOutput(config, template, outputFile)
             slotFileText = minifyLua(slotFileText)
         end
 
-        if config.slots[i].encrypt then
+        if config.slots[i].encrypt and config.encrypted then
             local encCode = packageEncryption(slotFileText, config.constructID)
 
             if config.minify then
@@ -153,6 +151,34 @@ local function generateOutput(config, template, outputFile)
     
         table.insert(template.handlers, slotTable)
     end
+
+    if config.encrypted then
+        local duCrypt = loadFile(currentDir.."/ducrypt.lua")
+        --if config.minify then duCrypt = minifyLua(duCrypt) end
+
+        local slotTable = {
+            code = duCrypt,
+            filter = {
+                args = {},
+                signature = "start()",
+                slotKey = "-2"
+            },
+            key = 99
+        }
+        table.insert(template.handlers, slotTable)
+
+        local slotTable = {
+            code = "TaskManager.Update()",
+            filter = {
+                args = {},
+                signature = "update()",
+                slotKey = "-2"
+            },
+            key = 98
+        }
+        table.insert(template.handlers, slotTable)
+    end
+
     
     saveJson(template, outputFile)
 end
