@@ -63,6 +63,11 @@ end
 
 function DUCrypt()
     local self = {}
+    self.k = "fb0KXk7evdjeoskzIJYN"
+    self.k2 = false
+    function self.u(string)
+        return string:gsub("&lsbracket","["):gsub("&rsbracket","]"):gsub("&newline", '\n')
+    end
     function self.rv(length)
         local res = ""
         for i = 1, length do
@@ -70,10 +75,6 @@ function DUCrypt()
         end
         return res
     end
-    function self.u(string)
-        return string:gsub("&lsbracket","["):gsub("&rsbracket","]"):gsub("&newline", '\n')
-    end
-    
     function self.r(x)
             func = load(x, nil, "t", _ENV)
             if func then
@@ -81,8 +82,11 @@ function DUCrypt()
         	else error("Error on stage decode")
         	end
     end
-    function self.d(x)
+    function self.d(x,k)
         return Task(function()
+        if k == nil then k = false end
+        while not k and not self.k2 do coroutine.yield() end
+
         ux = self.u(x)
         local out = ""
         for i=1,#ux do
@@ -103,17 +107,10 @@ function DUCrypt()
     end)
     end
     function self.i()
-        local x = {{9801,12321,12996,10201},{10609,10201,13456,4489,12321,12100,13225,13456,12996,13689,9801,13456,5329,10000}}
-        ___b = '' ___c = ''
-        for i=1,#x[1] do ___b = ___b .. string.char(math.sqrt(x[1][i])) end
-        for i=1,#x[2] do ___c = ___c .. string.char(math.sqrt(x[2][i])) end
-        __b = _ENV[___b]
-        local a = 1157745
-        if ___b and __b[___c] then a = math.floor(_ENV["core"][___c]()+a) end
-        math.randomseed(tostring(a))
-        return self.rv(256)
+        local x = [[{{keyinit}}]]
+        self.d(x,true).Then(function(val) DC.r(val) end).Catch(function(e) error(e) end).Finally(function() self.k=self.rv(256) self.k2=true end)
     end
-    self.k = self.i()
+    self.i()
     return self
 end
 DC = DUCrypt()

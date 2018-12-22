@@ -101,6 +101,7 @@ local function encrypt(input, key)
 end
 local function packageEncryption(code, finalCode, constructID)
     local encryptionKey = generateCryptoKeys(constructID)
+    print("Encryption Key : " .. encryptionKey)
     local encryptedCode = encrypt(code, encryptionKey)
     if not finalCode then finallyCode = "" end
     local output = loadFile(currentDir .. "./loader.lua")
@@ -166,8 +167,10 @@ local function generateOutput(config, template, outputFile)
     end
 
     if config.encrypted then
-        local duCrypt = loadFile(currentDir.."/ducrypt.lua")
-        --if config.minify then duCrypt = minifyLua(duCrypt) end
+        local keyInit = loadFile(currentDir.."/keyinit.lua")
+        local keyInitCrypt = encrypt(keyInit, "fb0KXk7evdjeoskzIJYN")
+        local duCrypt = string.gsub(loadFile(currentDir.."/ducrypt.lua"), "{{keyinit}}", clean(keyInitCrypt):gsub("%%", "%%%%"))
+        if config.minify then duCrypt = minifyLua(duCrypt) end
 
         local slotTable = {
             code = duCrypt,
