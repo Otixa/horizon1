@@ -104,7 +104,7 @@ local function packageEncryption(code, finalCode, constructID)
     print("Encryption Key : " .. encryptionKey)
     local encryptedCode = encrypt(code, encryptionKey)
     if not finalCode then finallyCode = "" end
-    local output = loadFile(currentDir .. "./loader.lua")
+    local output = loadFile(currentDir .. "/loader.lua")
     output = output:gsub("{{finally}}", finalCode)
     output = output:gsub("{{code}}", clean(encryptedCode):gsub("%%", "%%%%"))
     
