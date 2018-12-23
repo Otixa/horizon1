@@ -19,7 +19,11 @@ function DynamicDocument(template)
         base = true,
         basefont = true,
         iframe = true,
-        isindex = true
+        isindex = true,
+        circle = true,
+        use = true,
+        rect = true,
+        polygon = true
     }
 
     function self.makeFunc(string)

@@ -145,19 +145,20 @@ function STEC(core, control, Cd)
             atmp = atmp + ((self.world.forward:cross(self.world.right) * self.rotation.z) * self.rotationSpeed)
             if self.targetVectorAutoUnlock then self.targetVector = nil end
         end
-        if self.counterGravity and self.direction.z == 0 then
-            tmp = tmp - self.world.gravity
-        end
         if self.followGravity and self.rotation.x == 0 then
             atmp = atmp + (self.world.up:cross(-self.world.gravity:normalize()) * self.gravityFollowSpeed)
         end
         if self.altitudeHold ~= 0 then
             local deltaAltitude = self.altitude - self.altitudeHold
-            tmp = tmp + ((self.world.gravity:normalize() * deltaAltitude * -1) * self.mass * deltaTime)
+            tmp = tmp + ((self.world.gravity:normalize() * deltaAltitude * -1) * self.mass)
         end
         if self.brake then
             local f = self.getStoppingForceRequired():len()
-            tmp = self.getStoppingForceRequired() * f * deltaTime
+            if f > 3 then tmp = self.getStoppingForceRequired()
+            else tmp = self.getStoppingForceRequired() * f end
+        end
+        if self.counterGravity and self.direction.z == 0 then
+            tmp = tmp - (self.world.gravity * self.mass)
         end
         if self.targetVector ~= nil then
             local vec = vec3(self.world.forward.x, self.world.forward.y, self.world.forward.z)
@@ -168,6 +169,8 @@ function STEC(core, control, Cd)
             end
             atmp = atmp + (self.world.forward:cross(vec) * self.rotationSpeed)
         end
+        tmp = tmp / self.mass
+        if SHUD then SHUD.currentNewton = tmp:len() end
         self.control.setEngineCommand(tostring(self.tags), {tmp:unpack()}, {atmp:unpack()})
         lastUpdate = system.getTime()
     end
