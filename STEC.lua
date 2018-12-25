@@ -119,6 +119,27 @@ function STEC(core, control, Cd)
         self.throttle = clamp(self.throttle - 0.05, 0, 1)
     end
 
+    function self.worldToLocal(vector)
+        return vec3(library.systemResolution3(
+            { self.world.right:unpack() },
+            { self.world.forward:unpack() },
+            { self.world.up:unpack() },
+            { vector:unpack() }
+        ))
+    end
+
+    function self.localToWorld(vector)
+        vector = { vector:unpack() }
+        local rightX, rightY, rightZ = unpack(self.world.right)
+        local forwardX, forwardY, forwardZ = unpack(self.world.forward)
+        local upX, upY, upZ = unpack(self.world.up)
+        local rfuX, rfuY, rfuZ = table.unpack(vector)
+        local relX = rfuX * rightX + rfuY * forwardX + rfuZ * upX
+        local relY = rfuX * rightY + rfuY * forwardY + rfuZ * upY
+        local relZ = rfuX * rightZ + rfuY * forwardZ + rfuZ * upZ
+        return vec3(relX, relY, relZ)
+    end
+
     function self.apply()
         local deltaTime = system.getTime() - lastUpdate
         self.updateWorld()
