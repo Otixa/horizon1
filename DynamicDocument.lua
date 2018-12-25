@@ -19,8 +19,20 @@ function DynamicDocument(template)
         base = true,
         basefont = true,
         iframe = true,
-        isindex = true
+        isindex = true,
+        circle = true,
+        polygon = true,
+        line = true,
+        rect = true,
+        use = true
     }
+
+    function table.indexOf(val, table)
+        for k, v in ipairs(table) do
+            if v == val then return k end
+        end
+        return nil
+    end
 
     function self.makeFunc(string)
         local val = "nil"
@@ -59,13 +71,16 @@ function DynamicDocument(template)
                     local dd = "dd-"
                     return str:sub(1, #dd) == dd
                 end
-        
                 level = level + 1
                 node = {}
                 node.name = tag
                 node.children = {}
                 node.attr = {}
-                node.parent = parent
+                if stack[level-1] then 
+                    node.parent = stack[level-1][#stack[level-1]]
+                else
+                    node.parent = nil
+                end
         
                 if attr ~= "" then
                     for n, v in string.gmatch(attr, "%s([^%s=]+)=\"([^\"]+)\"") do
@@ -148,10 +163,18 @@ function DynamicDocument(template)
                 for i=#data.dd["dd-if"],1,-1 do
                     local node = data.dd["dd-if"][i]
                     local pred = self.makeFunc(node.attr["dd-if"])
+
                     if pred then
                         node.attr["dd-if"] = nil
                     else
-                        node.deleted = true
+                        local ref = table.indexOf(node, node.parent.children)
+                        if ref then
+                            node.parent.children[ref] = nil
+                            table.remove(node.parent.children, ref)
+                        end
+                        table.remove(node)
+                        node = nil
+                        data.dd["dd-if"][i] = nil
                     end
                 end
             end
@@ -159,19 +182,19 @@ function DynamicDocument(template)
 
         while #stack ~= 0 do
             node = stack[#stack][1]
-            if node.deleted then 
-                table.remove(stack[#stack], 1)
-                node = stack[#stack][1]
-            end
             if not node then break end
             if node.name == "textNode" then
                 local val = node.value:gsub("^%s*(.-)%s*$", "%1")
                 if not skipTransforms then val = self.transformClosures(val) end
                 d = d..val
             else
+                if node.processed and not node.parent then
+                    d = d.."</"..node.name..">"
+                    return d:match "^%s*(.-)%s*$"
+                end
                 d = d.."\n"..string.rep (" ", #stack-1)
                 d = d.."<"..node.name
-                    
+                node.processed = true
                 if node.attr then
                     for a, v in pairs(node.attr) do
                         if not skipTransforms then
