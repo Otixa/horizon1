@@ -130,10 +130,10 @@ function STEC(core, control, Cd)
 
     function self.localToWorld(vector)
         vector = { vector:unpack() }
-        local rightX, rightY, rightZ = unpack(self.world.right)
-        local forwardX, forwardY, forwardZ = unpack(self.world.forward)
-        local upX, upY, upZ = unpack(self.world.up)
-        local rfuX, rfuY, rfuZ = table.unpack(vector)
+        local rightX, rightY, rightZ = self.world.right:unpack()
+        local forwardX, forwardY, forwardZ = self.world.forward:unpack()
+        local upX, upY, upZ = self.world.up:unpack()
+        local rfuX, rfuY, rfuZ = vector:unpack()
         local relX = rfuX * rightX + rfuY * forwardX + rfuZ * upX
         local relY = rfuX * rightY + rfuY * forwardY + rfuZ * upY
         local relZ = rfuX * rightZ + rfuY * forwardZ + rfuZ * upZ
