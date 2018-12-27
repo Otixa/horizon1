@@ -178,6 +178,13 @@ function DynamicDocument(template)
                     end
                 end
             end
+            if data.dd["dd-init"] then
+                for i=#data.dd["dd-init"],1,-1 do
+                    local node = data.dd["dd-init"][i]
+                    pcall(load(node.attr["dd-init"], nil, "t", _ENV))
+                    node.attr["dd-init"] = nil
+                end
+            end
         end
 
         while #stack ~= 0 do
