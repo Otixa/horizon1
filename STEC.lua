@@ -31,9 +31,6 @@ function STEC(core, control, Cd)
         gravity = vec3(core.getWorldGravity()),
         atmosphericDensity = control.getAtmosphereDensity()
     }
-    self.local = {
-        
-    }
     self.target = {
         prograde = function() return self.world.velocity:normalize() end,
         retrograde = function() return -self.world.velocity:normalize() end
