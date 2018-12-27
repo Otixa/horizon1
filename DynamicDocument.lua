@@ -169,11 +169,10 @@ function DynamicDocument(template)
                     else
                         local ref = table.indexOf(node, node.parent.children)
                         if ref then
-                            node.parent.children[ref] = nil
                             table.remove(node.parent.children, ref)
                         end
-                        table.remove(node)
                         node = nil
+                        table.remove(data.dd["dd-if"], i)
                         data.dd["dd-if"][i] = nil
                     end
                 end
@@ -195,13 +194,8 @@ function DynamicDocument(template)
                 if not skipTransforms then val = self.transformClosures(val) end
                 d = d..val
             else
-                if node.processed and not node.parent then
-                    d = d.."</"..node.name..">"
-                    return d:match "^%s*(.-)%s*$"
-                end
                 d = d.."\n"..string.rep (" ", #stack-1)
                 d = d.."<"..node.name
-                node.processed = true
                 if node.attr then
                     for a, v in pairs(node.attr) do
                         if not skipTransforms then
@@ -215,7 +209,6 @@ function DynamicDocument(template)
             end
             
             if node.children and #node.children > 0 then
-                node.l = #node.children
                 table.insert(stack, node.children)
             else
                 table.remove(stack[#stack], 1)
@@ -225,7 +218,7 @@ function DynamicDocument(template)
                 while #stack > 0 and #stack[#stack] == 0 do
                     table.remove(stack)
                     if #stack > 0 then
-                        if stack[#stack][1].l > 1 then
+                        if #stack[#stack][1].children > 1 then
                             d = d.."\n"..string.rep(" ", #stack-1).."</"..stack[#stack][1].name..">"
                         else
                             d = d.."</"..stack[#stack][1].name..">"
@@ -263,3 +256,48 @@ function DynamicDocument(template)
     end
     return self
 end
+
+
+function round2(num, numDecimalPlaces)
+    return tonumber(string.format("%." .. (numDecimalPlaces or 0) .. "f", num))
+  end
+
+SHUD = DynamicDocument([[
+<div>
+    <br />
+    <p>Throttle {{ship.throttle * 100}}%</p>
+    <p>Gravity Assist <i class="state {{ship.followGravity}}">&nbsp;</i></p>
+    <p class="warning" dd-if="ship.targetVector ~= nil">Vector Locked</p>
+    <br/>
+    <div class="stats">
+        <sub>Parameters:</sub>
+        <p>FMax {{round2(ship.fMax, 2)}}N</p>
+    </div>
+    <div class="keys stats" dd-if="SHUD.showKeybinds">
+	<p dd-repeat="hk in keybinds.GetNamedKeybinds()"><hk>{{keybinds.ConvertKeyName(hk.Key)}}</hk><span>{{hk.Name}}</span></p>
+    </div>
+</div>]])
+
+keybinds = {}
+
+function keybinds.GetNamedKeybinds()
+    return {
+        { Key = "a1", Name = "fuck you"},
+        { Key = "a3", Name = "fuck you"},
+        { Key = "a2", Name = "fuck you"}
+    }
+end
+
+function keybinds.ConvertKeyName(key)
+    return key
+end
+
+ship = {
+    followGravity = false,
+    fMax = 9999,
+    throttle = 1
+}
+
+SHUD.showKeybinds = true
+
+print(SHUD.Read())
