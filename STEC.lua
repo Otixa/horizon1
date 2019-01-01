@@ -146,9 +146,9 @@ function STEC(core, control, Cd)
         local tmp = self.thrust
         local atmp = self.angularThrust
 		local brakingForce = vec3(
-			-self.localVelocity.x * self.mass * math.max(math.abs(self.localVelocity.x),1),
-			-self.localVelocity.y * self.mass * math.max(math.abs(self.localVelocity.y),1),
-			-self.localVelocity.z * self.mass * math.max(math.abs(self.localVelocity.z),1)
+			self.mass * -self.localVelocity.x,
+			self.mass * -self.localVelocity.y,
+			self.mass * -self.localVelocity.z
 		)
 
         if self.direction.x ~= 0 then
@@ -182,20 +182,32 @@ function STEC(core, control, Cd)
             tmp = tmp + ((self.world.gravity:normalize() * deltaAltitude * -1) * self.mass * deltaTime)
         end
 		if self.brake then
-			if (self.direction.x >= 0 and self.localVelocity.x <= 0) or (self.direction.x <= 0 and self.localVelocity.x >= 0) then
-				tmp = tmp + self.mass * (self.world.right 	* brakingForce.x ) * deltaTime
+			if ( self.direction.x >= 0 and self.localVelocity.x <= 0 ) or ( self.direction.x <= 0 and self.localVelocity.x >= 0 ) then
+				local tmpd = deltaTime
+				if (self.localVelocity.x < 1) then tmpd = 0.125 end
+				tmp = tmp + (self.world.right * brakingForce.x ) / tmpd
 			end
-			if (self.direction.y >= 0 and self.localVelocity.y <= 0) or (self.direction.y <= 0 and self.localVelocity.y >= 0) then
-				tmp = tmp + self.mass * (self.world.forward * brakingForce.y ) * deltaTime
+			if ( self.direction.y >= 0 and self.localVelocity.y <= 0 ) or ( self.direction.y <= 0 and self.localVelocity.y >= 0 ) then
+				local tmpd = deltaTime
+				if (self.localVelocity.y < 1) then tmpd = 0.125 end
+				tmp = tmp + (self.world.forward * brakingForce.y ) / tmpd
 			end
-			if (self.direction.z >= 0 and self.localVelocity.z <= 0) or (self.direction.z <= 0 and self.localVelocity.z >= 0) then
-				tmp = tmp + self.mass * (self.world.up 		* brakingForce.z ) * deltaTime
+			if ( self.direction.z >= 0 and self.localVelocity.z <= 0 ) or ( self.direction.z <= 0 and self.localVelocity.z >= 0 ) then
+				local tmpd = deltaTime
+				if (self.localVelocity.z < 1) then tmpd = 0.125 end
+				tmp = tmp + (self.world.up * brakingForce.z ) / tmpd
 			end
 		end
         if self.handbrake then
-            tmp = 		self.mass * (self.world.right 	* brakingForce.x ) * deltaTime
-			tmp = tmp + self.mass * (self.world.forward * brakingForce.y ) * deltaTime
-			tmp = tmp + self.mass * (self.world.up 		* brakingForce.z ) * deltaTime
+			local tmpd = deltaTime
+			if ( self.localVelocity.x < 1 ) then tmpd = 0.125 end
+            tmp = 		( self.world.right * brakingForce.x ) / tmpd
+			local tmpd = deltaTime
+			if ( self.localVelocity.y < 1 ) then tmpd = 0.125 end
+			tmp = tmp + ( self.world.forward * brakingForce.y ) / tmpd
+			local tmpd = deltaTime
+			if ( self.localVelocity.z < 1 ) then tmpd = 0.125 end
+			tmp = tmp + ( self.world.up * brakingForce.z ) / tmpd
         end
         if self.targetVector ~= nil then
             local vec = vec3(self.world.forward.x, self.world.forward.y, self.world.forward.z)
