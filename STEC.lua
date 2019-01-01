@@ -1,6 +1,6 @@
 --[[
     Shadow Templar Engine Control
-    Version: 1.14
+    Version: 1.2
 
     Setup:
         - Put this file in system.start
@@ -45,6 +45,8 @@ function STEC(core, control, Cd)
     self.targetVectorAutoUnlock = true
     -- Current altitude
     self.altitude = 0
+    -- Breaking multiplier
+    self.breakFactor = 8
     -- Current mass of the vessel, in kilograms
     self.mass = self.core.getConstructMass()
     -- Amount of thrust to apply in world space, in Newton. Stacks with {{direction}}
@@ -166,9 +168,6 @@ function STEC(core, control, Cd)
             atmp = atmp + ((self.world.forward:cross(self.world.right) * self.rotation.z) * self.rotationSpeed)
             if self.targetVectorAutoUnlock then self.targetVector = nil end
         end
-        if self.counterGravity and self.direction.z == 0 then
-            tmp = tmp - self.world.gravity
-        end
         if self.followGravity and self.rotation.x == 0 then
             atmp = atmp + (self.world.up:cross(-self.world.gravity:normalize()) * self.gravityFollowSpeed)
         end
@@ -177,8 +176,7 @@ function STEC(core, control, Cd)
             tmp = tmp + ((self.world.gravity:normalize() * deltaAltitude * -1) * self.mass * deltaTime)
         end
         if self.brake then
-            local f = self.getStoppingForceRequired():len()
-            tmp = self.getStoppingForceRequired() * f * deltaTime
+            tmp = self.getStoppingForceRequired() * self.breakFactor
         end
         if self.targetVector ~= nil then
             local vec = vec3(self.world.forward.x, self.world.forward.y, self.world.forward.z)
@@ -189,6 +187,10 @@ function STEC(core, control, Cd)
             end
             atmp = atmp + (self.world.forward:cross(vec) * self.rotationSpeed)
         end
+        if self.counterGravity and self.direction.z == 0 then
+            tmp = tmp - (self.world.gravity * self.mass)
+        end
+        tmp = tmp / self.mass
         self.control.setEngineCommand(tostring(self.tags), {tmp:unpack()}, {atmp:unpack()})
         lastUpdate = system.getTime()
     end
