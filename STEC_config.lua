@@ -1,5 +1,20 @@
 keybindPresets["maneuver"] = KeybindController()
+keybindPresets["maneuver"].Init = function()
+    mouse.enabled = true
+    mouse.lock()
+    ship.ignoreVerticalThrottle = false
+    ship.direction.y = 0
+    ship.throttle = 1
+end
+
 keybindPresets["cruise"] = KeybindController()
+keybindPresets["cruise"].Init = function()
+    mouse.enabled = false
+    mouse.unlock()
+    ship.ignoreVerticalThrottle = true
+    ship.throttle = 0
+    ship.direction.y = 1
+end
 
 -- Maneuver
 keybindPresets["maneuver"].keyDown.up.Add(function () ship.direction.z = 1 end)

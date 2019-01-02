@@ -250,7 +250,11 @@ SHUD =
         self.MenuList.flightMode = {}
         for k,v in pairs(keybindPresets) do
             table.insert(self.MenuList.flightMode,
-            SHUDMenuItem(string.upper(k), function() self.Init(self.system, self.unit, v) keybindPreset = k if k == "cruise" then ship.ignoreVerticalThrottle = true mouse.enabled = false mouse.unlock() ship.throttle = 0 ship.direction.y = 1 else ship.ignoreVerticalThrottle = false end end))
+            SHUDMenuItem(string.upper(k), function() 
+                self.Init(self.system, self.unit, v)
+                keybindPreset = k
+                keybindPresets[keybindPreset].Init()
+            end))
         end
     end
 

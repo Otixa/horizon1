@@ -1,6 +1,6 @@
 --[[
     Shadow Templar Keybind Controller
-    Version 1.22
+    Version 1.23
 ]]
 
 function Keybind(key)
@@ -101,6 +101,8 @@ function KeybindController()
         table.sort(out, function(a,b) return a.Key < b.Key end)
         return out
     end
+
+    self.Init = function() end
 
     local function init()
         for i=1,#keyList do
