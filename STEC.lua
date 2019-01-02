@@ -33,7 +33,9 @@ function STEC(core, control, Cd)
     }
     self.target = {
         prograde = function() return self.world.velocity:normalize() end,
-        retrograde = function() return -self.world.velocity:normalize() end
+        retrograde = function() return -self.world.velocity:normalize() end,
+        progravity = function() return self.world.gravity:normalize() end,
+        antigravity = function() return -self.world.gravity:normalize() end,
     }
     -- Construct id
     self.id = core.getConstructId()

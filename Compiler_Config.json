@@ -14,12 +14,6 @@
             "args":[]
         },
         {
-            "code":"system.setScreen(SHUD.Read())",
-            "slot":"-1",
-            "signature":"tick(timerId)",
-            "args":[{"value":"SHUD"}]
-        },
-        {
             "code":"keybinds.Call(action, \"down\")",
             "slot":"-2",
             "signature":"actionStart(action)",
@@ -41,6 +35,12 @@
             "code":"mouse.apply()\nship.apply()",
             "slot":"-2",
             "signature":"flush()",
+            "args":[]
+        },
+        {
+            "code":"if SHUD then SHUD.Update() end",
+            "slot":"-2",
+            "signature":"update()",
             "args":[]
         },
         {
