@@ -79,9 +79,7 @@ SHUD =
         SHUDMenuItem([[<i class="fas fa-info-circle">&nbsp</i><span>&nbsp;Hotkeys</span>]]..self.MenuIcon, function() self.SelectMenu("hotkeys") end)
     }
     self.MenuList = {}
-    self.MenuList.flightMode = {
-
-    }
+    self.MenuList.flightMode = {}
     self.MenuList.shipSettings = {
         SHUDMenuItem(DynamicDocument([[<span>Core ID:</span><span class="right">{{ship.id}}</span>]])).Disable(),
         SHUDMenuItem(DynamicDocument([[<span>Mass:</span><span class="right">{{round2(ship.mass/1000,2)}} Ton</span>]])).Disable(),
@@ -118,50 +116,8 @@ SHUD =
     }
     self.MenuList.hotkeys = {}
 
-    local fa = [[<style>
-    @keyframes flash {
-        from { 
-            background-color: #ff4500ff;
-            box-shadow: 0px 0px 0.5em #ff4500ff;
-        }
-        to { 
-            background-color: #ff450000;
-            box-shadow: 0px 0px 0.5em #ff450000;
-        }
-    }
-    .wrap {
-        color: white;
-        text-shadow: 0 0 0.2em #000000aa;
-        vertical-align: middle;
-        padding: 1em;
-    }
-    .state {
-        display: inline-block;
-        height: 1em;
-        width: 1em;
-        border-radius: 50%;
-        float: right;
-    }
-    .state.true { background-color: greenyellow; }
-    .state.false { background-color: red; }
-    .sub { font-size: 0.3em; vertical-align: middle; }
-    .warning { 
-        animation: 200ms normal linear infinite;
-        animation-name: flash;
-        margin: 0.1em;
-        padding: 0.5em 0.25em;
-        text-align: center;
-        margin-top: 0.5em;
-        color: white;
-    }
-    p {
-        text-transform: uppercase;
-        margin-top: 0.1em;
-        margin-bottom: 0;
-    }
-    .stats, .stats p { font-size: 0.85em; }
-    .right { float: right;margin-right: 0.15vw } .item { margin: 0.2vw 0;padding: 0.15vw; } .item.active { background-color: #ae0f12aa; } .item.locked { background-color: #1db9deaa; } .item.disabled { background-color: #470608aa }.item.disabled.active { background-color: #7a0b0daa }
-    </style>
+    local fa = [[
+    <link rel="stylesheet" href="http://dustreaming.shadowtemplar.org/shud.css" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">]]
     local template = DynamicDocument(fa..[[
         <div class="bootstrap wrap" style="width: 12vw;background-color: #000000aa">
