@@ -57,12 +57,14 @@ function STEC(core, control, Cd)
     self.rotation = vec3(0, 0, 0)
     -- Speed scale factor for rotations
     self.rotationSpeed = 2
+    -- Breaking speed multiplier
+    self.brakingFactor = 10
     -- Amount of angular thrust to apply, in world space
     self.angularThrust = vec3(0, 0, 0)
     -- Whether or not the vessel should attempt to cancel out its current velocity in directions that are not being accelerated towards
+    self.inertialDampening = false
+    -- Whether or not the vessel should attempt to completely cancel out its current velocity
     self.brake = false
-	-- Whether or not the vessel should attempt to completely cancel out its current velocity
-	self.handbrake = false
     -- Whether or not the vessel should attempt to counter gravity influence
     self.counterGravity = true
     -- Whether or not the vessel should attempt to face perpendicular to the gravity vector
@@ -97,7 +99,7 @@ function STEC(core, control, Cd)
 
         self.mass = self.core.getConstructMass()
         self.altitude = self.core.getAltitude()
-		self.localVelocity = vec3(core.getVelocity())
+        self.localVelocity = vec3(core.getVelocity())
         local fMax = self.core.getMaxKinematicsParameters()
         if self.world.atmosphericDensity > 0.1 then --Temporary hack. Needs proper transition.
             self.fMax = math.max(fMax[1], -fMax[2])
@@ -123,16 +125,18 @@ function STEC(core, control, Cd)
     end
 
     function self.worldToLocal(vector)
-        return vec3(library.systemResolution3(
-            { self.world.right:unpack() },
-            { self.world.forward:unpack() },
-            { self.world.up:unpack() },
-            { vector:unpack() }
-        ))
+        return vec3(
+            library.systemResolution3(
+                {self.world.right:unpack()},
+                {self.world.forward:unpack()},
+                {self.world.up:unpack()},
+                {vector:unpack()}
+            )
+        )
     end
 
     function self.localToWorld(vector)
-        vector = { vector:unpack() }
+        vector = {vector:unpack()}
         local rightX, rightY, rightZ = self.world.right:unpack()
         local forwardX, forwardY, forwardZ = self.world.forward:unpack()
         local upX, upY, upZ = self.world.up:unpack()
@@ -148,11 +152,6 @@ function STEC(core, control, Cd)
         self.updateWorld()
         local tmp = self.thrust
         local atmp = self.angularThrust
-		local brakingForce = vec3(
-			self.mass * -self.localVelocity.x,
-			self.mass * -self.localVelocity.y,
-			self.mass * -self.localVelocity.z
-		)
 
         if self.direction.x ~= 0 then
             tmp = tmp + (((self.world.right * self.direction.x) * self.fMax) * self.throttle)
@@ -167,17 +166,18 @@ function STEC(core, control, Cd)
         end
         if self.rotation.x ~= 0 then
             atmp = atmp + ((self.world.forward:cross(self.world.up) * self.rotation.x) * self.rotationSpeed)
-            if self.targetVectorAutoUnlock then self.targetVector = nil end
+            if self.targetVectorAutoUnlock then
+                self.targetVector = nil
+            end
         end
         if self.rotation.y ~= 0 then
             atmp = atmp + ((self.world.up:cross(self.world.right) * self.rotation.y) * self.rotationSpeed)
         end
         if self.rotation.z ~= 0 then
             atmp = atmp + ((self.world.forward:cross(self.world.right) * self.rotation.z) * self.rotationSpeed)
-            if self.targetVectorAutoUnlock then self.targetVector = nil end
-        end
-        if self.counterGravity then
-            tmp = tmp - self.world.gravity * self.mass
+            if self.targetVectorAutoUnlock then
+                self.targetVector = nil
+            end
         end
         if self.followGravity and self.rotation.x == 0 then
             atmp = atmp + (self.world.up:cross(-self.world.gravity:normalize()) * self.gravityFollowSpeed)
@@ -186,45 +186,52 @@ function STEC(core, control, Cd)
             local deltaAltitude = self.altitude - self.altitudeHold
             tmp = tmp + ((self.world.gravity:normalize() * deltaAltitude * -1) * self.mass * deltaTime)
         end
-		if self.brake then
-			if ( self.direction.x >= 0 and self.localVelocity.x <= 0 ) or ( self.direction.x <= 0 and self.localVelocity.x >= 0 ) then
-				local tmpd = deltaTime
-				if (self.localVelocity.x < 1) then tmpd = 0.125 end
-				tmp = tmp + (self.world.right * brakingForce.x ) / tmpd
-			end
-			if ( self.direction.y >= 0 and self.localVelocity.y <= 0 ) or ( self.direction.y <= 0 and self.localVelocity.y >= 0 ) then
-				local tmpd = deltaTime
-				if (self.localVelocity.y < 1) then tmpd = 0.125 end
-				tmp = tmp + (self.world.forward * brakingForce.y ) / tmpd
-			end
-			if ( self.direction.z >= 0 and self.localVelocity.z <= 0 ) or ( self.direction.z <= 0 and self.localVelocity.z >= 0 ) then
-				local tmpd = deltaTime
-				if (self.localVelocity.z < 1) then tmpd = 0.125 end
-				tmp = tmp + (self.world.up * brakingForce.z ) / tmpd
-			end
-		end
-        if self.handbrake then
-			local tmpd = deltaTime
-			if ( self.localVelocity.x < 1 ) then tmpd = 0.125 end
-            tmp = 		( self.world.right * brakingForce.x ) / tmpd
-			local tmpd = deltaTime
-			if ( self.localVelocity.y < 1 ) then tmpd = 0.125 end
-			tmp = tmp + ( self.world.forward * brakingForce.y ) / tmpd
-			local tmpd = deltaTime
-			if ( self.localVelocity.z < 1 ) then tmpd = 0.125 end
-			tmp = tmp + ( self.world.up * brakingForce.z ) / tmpd
+        if self.inertialDampening then
+            local brakingForce = self.mass * -self.localVelocity
+            local apply = self.direction * self.localVelocity
+            if apply.x <= 0 then
+                local tmpd = deltaTime
+                if (math.abs(self.localVelocity.x) < 1) then
+                    tmpd = 0.125
+                end
+                tmp = tmp + (self.world.right * brakingForce.x) / tmpd
+            end
+            if apply.y <= 0 then
+                local tmpd = deltaTime
+                if (math.abs(self.localVelocity.y) < 1) then
+                    tmpd = 0.125
+                end
+                tmp = tmp + (self.world.forward * brakingForce.y) / tmpd
+            end
+            if apply.z <= 0 then
+                local tmpd = deltaTime
+                if (math.abs(self.localVelocity.z) < 1) then
+                    tmpd = 0.125
+                end
+                tmp = tmp + (self.world.up * brakingForce.z) / tmpd
+            end
+        end
+        if self.brake then
+            local velocityLen = self.world.velocity:len()
+            tmp =
+                -self.world.velocity * self.mass *
+                math.max(self.brakingFactor * math.max(1, velocityLen * 0.5), velocityLen * velocityLen)
         end
         if self.targetVector ~= nil then
             local vec = vec3(self.world.forward.x, self.world.forward.y, self.world.forward.z)
-            if type(self.targetVector) == "function" then 
+            if type(self.targetVector) == "function" then
                 vec = self.targetVector()
             elseif type(self.targetVector) == "table" then
                 vec = self.targetVector
             end
             atmp = atmp + (self.world.forward:cross(vec) * self.rotationSpeed)
         end
-		
-		tmp = tmp / self.mass
+        -- must be applied last
+        if self.counterGravity then
+            tmp = tmp - self.world.gravity * self.mass
+        end
+
+        tmp = tmp / self.mass
         self.control.setEngineCommand(tostring(self.tags), {tmp:unpack()}, {atmp:unpack()})
         lastUpdate = system.getTime()
     end
