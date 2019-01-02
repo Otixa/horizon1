@@ -1,6 +1,6 @@
 --[[
     Shadow Templar Engine Control
-    Version: 1.15
+    Version: 1.16
 
     Setup:
         - Put this file in system.start
@@ -157,12 +157,12 @@ function STEC(core, control, Cd)
             tmp = tmp + (((self.world.right * self.direction.x) * self.fMax) * self.throttle)
         end
         if self.direction.y ~= 0 then
-            local a = ((self.world.forward * self.direction.y) * self.fMax)
-            if not self.ignoreVerticalThrottle then a = a * self.throttle end
-            tmp = tmp + a
+            tmp = tmp + (((self.world.forward * self.direction.y) * self.fMax) * self.throttle)
         end
         if self.direction.z ~= 0 then
-            tmp = tmp + (((self.world.up * self.direction.z) * self.fMax) * self.throttle)
+            local a = ((self.world.up * self.direction.z) * self.fMax)
+            if not self.ignoreVerticalThrottle then a = a * self.throttle end
+            tmp = tmp + a
         end
         if self.rotation.x ~= 0 then
             atmp = atmp + ((self.world.forward:cross(self.world.up) * self.rotation.x) * self.rotationSpeed)

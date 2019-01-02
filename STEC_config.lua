@@ -42,8 +42,8 @@ keybindPresets["cruise"].keyUp.yawright.Add(function () ship.rotation.y = 0 end)
 
 keybindPresets["maneuver"].keyDown.brake.Add(function () ship.brake = true end)
 keybindPresets["maneuver"].keyUp.brake.Add(function () ship.brake = false end)
-keybindPresets["cruise"].keyDown.brake.Add(function () ship.handbrake = true end)
-keybindPresets["cruise"].keyUp.brake.Add(function () ship.handbrake = false end)
+keybindPresets["cruise"].keyDown.brake.Add(function () ship.brake = true end)
+keybindPresets["cruise"].keyUp.brake.Add(function () ship.brake = false end)
 
 keybindPresets["maneuver"].keyDown.stopengines.Add(function () if not SHUD.Enabled then mouse.unlock() mouse.enabled = false end end, "Free Look")
 keybindPresets["maneuver"].keyUp.stopengines.Add(function () SHUD.Select() if not SHUD.Enabled then mouse.lock() mouse.enabled = true end end)

@@ -96,7 +96,8 @@ SHUD =
     }
     self.MenuList.stability = {
         SHUDMenuItem(DynamicDocument("<span>Gravity Suppression<span>" .. self.MakeBooleanIndicator("ship.counterGravity")), function() ship.counterGravity = not ship.counterGravity end),
-        SHUDMenuItem(DynamicDocument("<span>Gravity Follow</span>" .. self.MakeBooleanIndicator("ship.followGravity")), function() ship.followGravity = not ship.followGravity end)
+        SHUDMenuItem(DynamicDocument("<span>Gravity Follow</span>" .. self.MakeBooleanIndicator("ship.followGravity")), function() ship.followGravity = not ship.followGravity end),
+        SHUDMenuItem(DynamicDocument("<span>Inertial Dampening<span>" .. self.MakeBooleanIndicator("ship.inertialDampening")), function() ship.inertialDampening = not ship.inertialDampening end),
     }
     self.MenuList.vectorLock = {
         SHUDMenuItem(DynamicDocument("<span>Auto Unlock<span>" .. self.MakeBooleanIndicator("ship.targetVectorAutoUnlock")), function() ship.targetVectorAutoUnlock = not ship.targetVectorAutoUnlock end),
