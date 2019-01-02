@@ -14,19 +14,19 @@
             "args":[]
         },
         {
-            "code":"keybinds.Call(action, \"down\")",
+            "code":"keybindPresets[keybindPreset].Call(action, \"down\")",
             "slot":"-2",
             "signature":"actionStart(action)",
             "args":[{"variable":"*"}]
         },
         {
-            "code":"keybinds.Call(action, \"up\")",
+            "code":"keybindPresets[keybindPreset].Call(action, \"up\")",
             "slot":"-2",
             "signature":"actionStop(action)",
             "args":[{"variable":"*"}]
         },
         {
-            "code":"keybinds.Call(action, \"loop\")",
+            "code":"keybindPresets[keybindPreset].Call(action, \"loop\")",
             "slot":"-2",
             "signature":"actionLoop(action)",
             "args":[{"variable":"*"}]
