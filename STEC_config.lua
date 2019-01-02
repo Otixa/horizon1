@@ -16,17 +16,18 @@ keybindPresets["maneuver"].keyDown.backward.Add(function () ship.direction.y = -
 keybindPresets["maneuver"].keyUp.backward.Add(function () ship.direction.y = 0 end)
 
 -- Cruise
-keybindPresets["cruise"].keyDown.up.Add(function () ship.rotation.z = 1 end)
-keybindPresets["cruise"].keyUp.up.Add(function () ship.rotation.z = 0 end)
-keybindPresets["cruise"].keyDown.down.Add(function () ship.rotation.z = -1 end)
-keybindPresets["cruise"].keyUp.down.Add(function () ship.rotation.z = 0 end)
-keybindPresets["cruise"].keyDown.left.Add(function () ship.rotation.x = -1 end)
-keybindPresets["cruise"].keyUp.left.Add(function () ship.rotation.x = 0 end)
-keybindPresets["cruise"].keyDown.right.Add(function () ship.rotation.x = 1 end)
-keybindPresets["cruise"].keyUp.right.Add(function () ship.rotation.x = 0 end)
-keybindPresets["cruise"].keyDown.forward.Add(function () ship.rotation.x = 1 end)
+keybindPresets["cruise"].keyDown.up.Add(function () ship.direction.z = 1 end)
+keybindPresets["cruise"].keyUp.up.Add(function () ship.direction.z = 0 end)
+keybindPresets["cruise"].keyDown.down.Add(function () ship.direction.z = -1 end)
+keybindPresets["cruise"].keyUp.down.Add(function () ship.direction.z = 0 end)
+
+keybindPresets["cruise"].keyDown.left.Add(function () ship.rotation.z = -1 end)
+keybindPresets["cruise"].keyUp.left.Add(function () ship.rotation.z = 0 end)
+keybindPresets["cruise"].keyDown.right.Add(function () ship.rotation.z = 1 end)
+keybindPresets["cruise"].keyUp.right.Add(function () ship.rotation.z = 0 end)
+keybindPresets["cruise"].keyDown.forward.Add(function () ship.rotation.x = -1 end)
 keybindPresets["cruise"].keyUp.forward.Add(function () ship.rotation.x = 0 end)
-keybindPresets["cruise"].keyDown.backward.Add(function () ship.rotation.x = -1 end)
+keybindPresets["cruise"].keyDown.backward.Add(function () ship.rotation.x = 1 end)
 keybindPresets["cruise"].keyUp.backward.Add(function () ship.rotation.x = 0 end)
 
 -- Both
@@ -41,8 +42,8 @@ keybindPresets["cruise"].keyUp.yawright.Add(function () ship.rotation.y = 0 end)
 
 keybindPresets["maneuver"].keyDown.brake.Add(function () ship.brake = true end)
 keybindPresets["maneuver"].keyUp.brake.Add(function () ship.brake = false end)
-keybindPresets["cruise"].keyDown.brake.Add(function () ship.brake = true end)
-keybindPresets["cruise"].keyUp.brake.Add(function () ship.brake = false end)
+keybindPresets["cruise"].keyDown.brake.Add(function () ship.handbrake = true end)
+keybindPresets["cruise"].keyUp.brake.Add(function () ship.handbrake = false end)
 
 keybindPresets["maneuver"].keyDown.stopengines.Add(function () if not SHUD.Enabled then mouse.unlock() mouse.enabled = false end end, "Free Look")
 keybindPresets["maneuver"].keyUp.stopengines.Add(function () SHUD.Select() if not SHUD.Enabled then mouse.lock() mouse.enabled = true end end)
@@ -60,6 +61,5 @@ keybindPresets["cruise"].keyUp["option2"].Add(function () ship.followGravity = n
 keybindPresets["cruise"].keyUp["option3"].Add(function () ship.direction.y = 1 end, "Cruise Control")
 
 keybindPreset = "maneuver"
-keybinds = keybindPresets[keybindPreset]
 
-SHUD.Init(system, unit, keybinds)
+SHUD.Init(system, unit, keybindPresets[keybindPreset])

@@ -73,6 +73,8 @@ function STEC(core, control, Cd)
     self.fMax = 0
     -- Altitude which the vessel should attempt to hold
     self.altitudeHold = 0
+    -- Whether or not to ignore throttle for vertical thrust calculations
+    self.ignoreVerticalThrottle = false
 
     local lastUpdate = system.getTime()
 
@@ -152,7 +154,9 @@ function STEC(core, control, Cd)
             tmp = tmp + (((self.world.right * self.direction.x) * self.fMax) * self.throttle)
         end
         if self.direction.y ~= 0 then
-            tmp = tmp + (((self.world.forward * self.direction.y) * self.fMax) * self.throttle)
+            local a = ((self.world.forward * self.direction.y) * self.fMax)
+            if not self.ignoreVerticalThrottle then a = a * self.throttle end
+            tmp = tmp + a
         end
         if self.direction.z ~= 0 then
             tmp = tmp + (((self.world.up * self.direction.z) * self.fMax) * self.throttle)

@@ -68,9 +68,10 @@ SHUD =
     self.Menu = {
         SHUDMenuItem(DynamicDocument([[<span>Throttle<span>]]..self.MakeSliderIndicator("round2(ship.throttle * 100)", "%")), 
             function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
-            function(system, _ , w) ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),0,1) end),
+            function(system, _ , w) ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1) end),
         SHUDMenuItem(DynamicDocument("<span>Mouse Steering<span>" .. self.MakeBooleanIndicator("mouse.enabled")),
             function() mouse.enabled = not mouse.enabled if mouse.enabled then mouse.lock() else mouse.unlock() end end),
+        SHUDMenuItem("Flight Mode"..self.MenuIcon,  function() self.SelectMenu("flightMode") end),
         SHUDMenuItem("Ship Settings"..self.MenuIcon,  function() self.SelectMenu("shipSettings") end),
         SHUDMenuItem("Stability Assist"..self.MenuIcon, function() self.SelectMenu("stability") end),
         SHUDMenuItem("Vector Locking"..self.MenuIcon, function() self.SelectMenu("vectorLock") end),
@@ -78,6 +79,9 @@ SHUD =
         SHUDMenuItem([[<i class="fas fa-info-circle">&nbsp</i><span>&nbsp;Hotkeys</span>]]..self.MenuIcon, function() self.SelectMenu("hotkeys") end)
     }
     self.MenuList = {}
+    self.MenuList.flightMode = {
+
+    }
     self.MenuList.shipSettings = {
         SHUDMenuItem(DynamicDocument([[<span>Core ID:</span><span class="right">{{ship.id}}</span>]])).Disable(),
         SHUDMenuItem(DynamicDocument([[<span>Mass:</span><span class="right">{{round2(ship.mass/1000,2)}} Ton</span>]])).Disable(),
@@ -239,7 +243,13 @@ SHUD =
         self.MenuList.hotkeys = {}
         for i=1,#keys do
             local key = keys[i]
-            table.insert(self.MenuList.hotkeys, SHUDMenuItem([[<span>]]..key.Name..[[</span><span class="right">]]..keybinds.ConvertKeyName(key.Key)..[[</span>]]).Disable())
+            table.insert(self.MenuList.hotkeys, SHUDMenuItem([[<span>]]..key.Name..[[</span><span class="right">]]..self.system.getActionKeyName(key.Key)..[[</span>]]).Disable())
+        end
+
+        self.MenuList.flightMode = {}
+        for k,v in pairs(keybindPresets) do
+            table.insert(self.MenuList.flightMode,
+            SHUDMenuItem(string.upper(k), function() self.Init(self.system, self.unit, v) keybindPreset = k if k == "cruise" then ship.ignoreVerticalThrottle = true mouse.enabled = false mouse.unlock() ship.throttle = 0 ship.direction.y = 1 else ship.ignoreVerticalThrottle = false end end))
         end
     end
 
