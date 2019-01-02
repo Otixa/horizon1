@@ -44,10 +44,13 @@ keybindPresets["maneuver"].keyUp.brake.Add(function () ship.brake = false end)
 keybindPresets["cruise"].keyDown.brake.Add(function () ship.brake = true end)
 keybindPresets["cruise"].keyUp.brake.Add(function () ship.brake = false end)
 
-keybindPresets["maneuver"].keyDown.stopengines.Add(function () mouse.unlock() mouse.enabled = false end, "Free Look")
-keybindPresets["maneuver"].keyUp.stopengines.Add(function () SHUD.Select() mouse.lock() mouse.enabled = true end)
-keybindPresets["cruise"].keyDown.stopengines.Add(function () mouse.unlock() mouse.enabled = false end, "Free Look")
-keybindPresets["cruise"].keyUp.stopengines.Add(function () SHUD.Select() mouse.lock() mouse.enabled = true end)
+keybindPresets["maneuver"].keyDown.stopengines.Add(function () if not SHUD.Enabled then mouse.unlock() mouse.enabled = false end end, "Free Look")
+keybindPresets["maneuver"].keyUp.stopengines.Add(function () SHUD.Select() if not SHUD.Enabled then mouse.lock() mouse.enabled = true end end)
+keybindPresets["cruise"].keyDown.stopengines.Add(function () if not SHUD.Enabled then mouse.unlock() mouse.enabled = false end end, "Free Look")
+keybindPresets["cruise"].keyUp.stopengines.Add(function () SHUD.Select() if not SHUD.Enabled then mouse.lock() mouse.enabled = true end end)
+
+keybindPresets["maneuver"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD.Enabled end)
+keybindPresets["cruise"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD.Enabled end)
 
 keybindPresets["maneuver"].keyUp["option1"].Add(function () ship.counterGravity = not ship.counterGravity end, "Gravity Suppression")
 keybindPresets["maneuver"].keyUp["option2"].Add(function () ship.followGravity = not ship.followGravity end, "Gravity Assist")

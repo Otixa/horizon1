@@ -43,6 +43,7 @@ SHUD =
     local self = {}
     self.CurrentIndex = 1
     self.ScrollLock = false
+    self.Enabled = false
     
     local function esc(x)
         return (x:gsub("%%", "%%%%"))
@@ -68,6 +69,8 @@ SHUD =
         SHUDMenuItem(DynamicDocument([[<span>Throttle<span>]]..self.MakeSliderIndicator("round2(ship.throttle * 100)", "%")), 
             function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
             function(system, _ , w) ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),0,1) end),
+        SHUDMenuItem(DynamicDocument("<span>Mouse Steering<span>" .. self.MakeBooleanIndicator("mouse.enabled")),
+            function() mouse.enabled = not mouse.enabled if mouse.enabled then mouse.lock() else mouse.unlock() end end),
         SHUDMenuItem("Ship Settings"..self.MenuIcon,  function() self.SelectMenu("shipSettings") end),
         SHUDMenuItem("Stability Assist"..self.MenuIcon, function() self.SelectMenu("stability") end),
         SHUDMenuItem("Vector Locking"..self.MenuIcon, function() self.SelectMenu("vectorLock") end),
@@ -94,7 +97,7 @@ SHUD =
     self.MenuList.vectorLock = {
         SHUDMenuItem(DynamicDocument("<span>Auto Unlock<span>" .. self.MakeBooleanIndicator("ship.targetVectorAutoUnlock")), function() ship.targetVectorAutoUnlock = not ship.targetVectorAutoUnlock end),
         SHUDMenuItem("Lock Prograde", function() ship.targetVector = ship.target.prograde end),
-        SHUDMenuItem("Lock Retrograde", function() ship.targetVector = ship.target.Retrograde end),
+        SHUDMenuItem("Lock Retrograde", function() ship.targetVector = ship.target.retrograde end),
         SHUDMenuItem("Lock Progravity", function() ship.targetVector = ship.target.progravity end),
         SHUDMenuItem("Lock Antigravity", function() ship.targetVector = ship.target.antigravity end)
     }
@@ -182,6 +185,7 @@ SHUD =
     end
 
     function self.Select()
+        if not self.Enabled then return end
         if #self.Menu < 1 then
             return
         end
@@ -189,7 +193,7 @@ SHUD =
     end
 
     function self.Update()
-        if not self.ScrollLock then
+        if not self.ScrollLock and self.Enabled then
             local wheel = system.getMouseWheel()
             if wheel ~= 0 then
                 self.CurrentIndex = self.CurrentIndex - wheel
@@ -198,26 +202,29 @@ SHUD =
             end
         end
         local buffer = ""
-
-        for i = 1, #self.Menu do
-            local item = self.Menu[i]
-            if item.Active then item.Update(self.system, self.unit, item) end
-            local lb = itemTemplate
-            local cls = ""
-            local content = item.Content
-            if content.Read then
-                content = content.Read()
+        if self.Enabled then 
+            for i = 1, #self.Menu do
+                local item = self.Menu[i]
+                if item.Active then item.Update(self.system, self.unit, item) end
+                local lb = itemTemplate
+                local cls = ""
+                local content = item.Content
+                if content.Read then
+                    content = content.Read()
+                end
+                content = esc(content)
+                if self.CurrentIndex == i then
+                    cls = "active"
+                end
+                if not item.Enabled then cls = cls .. " disabled" end
+                lb = lb:gsub("{{class}}", cls .. " " .. item.Class)
+                lb = lb:gsub("{{content}}", content)
+                buffer = buffer .. lb
             end
-            content = esc(content)
-            if self.CurrentIndex == i then
-                cls = "active"
-            end
-            if not item.Enabled then cls = cls .. " disabled" end
-            lb = lb:gsub("{{class}}", cls .. " " .. item.Class)
-            lb = lb:gsub("{{content}}", content)
-            buffer = buffer .. lb
+            _ENV["_SHUDBUFFER"] = esc(buffer)
+        else
+            _ENV["_SHUDBUFFER"] = [[<div class="item active" style="font-size: 0.7vw;text-transform: uppercase;text-align: center">Press ]] .. "[" .. self.system.getActionKeyName("speedup") .. "]" .. [[ to  toggle menu</div>]]
         end
-        _ENV["_SHUDBUFFER"] = esc(buffer)
         self.system.setScreen(template.Read())
     end
 
