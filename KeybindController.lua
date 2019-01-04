@@ -51,39 +51,6 @@ function KeybindController()
         end
     end
 
-    function self.ConvertKeyName(key)
-        local names = {
-            forward = "W",
-            backward = "S",
-            left = "A",
-            right = "D",
-            yawleft = "Q",
-            yawright = "E",
-            up = "Space",
-            down = "C",
-            gear = "G",
-            light = "L",
-            landing = "LANDING?",
-            brake = "CTRL",
-            option1 = "a1",
-            option2 = "a2",
-            option3 = "a3",
-            option4 = "a4",
-            option5 = "a5",
-            option6 = "a6",
-            option7 = "a7",
-            option8 = "a8",
-            option9 = "a9",
-            stopengines = "MMB",
-            speedup = "R",
-            speeddown = "T",
-            antigravity = "ANTIGRAVITY?",
-            booster = "V"
-        }
-        if names[key] then return names[key] end
-        return key
-    end
-
     function self.GetNamedKeybinds()
         local out = {}
         for k,v in pairs(self.keyUp) do
