@@ -41,9 +41,10 @@ end
 SHUD =
 (function()
     local self = {}
-    self.CurrentIndex = 1
-    self.ScrollLock = false
     self.Enabled = false
+
+    local SMI = SHUDMenuItem
+    local DD = DynamicDocument
     
     local function esc(x)
         return (x:gsub("%%", "%%%%"))
@@ -63,107 +64,53 @@ SHUD =
         return tmpl:gsub("varName", esc(varName)):gsub("{{suffix}}", esc(suffix))
     end
 
+    function self.GenerateMenuLink(text, link)
+        return SMI(text..self.MenuIcon,  function() self.SelectMenu(link) end)
+    end
+
     self.MenuIcon = [[<span class="right"><i class="fas fa-sign-in-alt">&nbsp;</i></span>]]
-    self.BackButton = SHUDMenuItem([[<i class="fas fa-sign-in-alt fa-flip-horizontal">&nbsp;</i>&nbsp;]].."Back", function() SHUD.Menu = SHUD.MenuList.prev SHUD.CurrentIndex = 1 end)
+    self.BackButton = SMI([[<i class="fas fa-sign-in-alt fa-flip-horizontal">&nbsp;</i>&nbsp;]].."Back", function() SHUD.Menu = SHUD.MenuList.prev SHUD.CurrentIndex = 1 end)
     self.Menu = {
-        SHUDMenuItem(DynamicDocument([[<span>Throttle<span>]]..self.MakeSliderIndicator("round2(ship.throttle * 100)", "%")), 
+        SMI(DD([[<span>Throttle<span>]]..self.MakeSliderIndicator("round2(ship.throttle * 100)", "%")), 
             function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
             function(system, _ , w) ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1) end),
-        SHUDMenuItem(DynamicDocument("<span>Mouse Steering<span>" .. self.MakeBooleanIndicator("mouse.enabled")),
+        SMI(DD("<span>Mouse Steering<span>" .. self.MakeBooleanIndicator("mouse.enabled")),
             function() mouse.enabled = not mouse.enabled if mouse.enabled then mouse.lock() else mouse.unlock() end end),
-        SHUDMenuItem("Flight Mode"..self.MenuIcon,  function() self.SelectMenu("flightMode") end),
-        SHUDMenuItem("Ship Settings"..self.MenuIcon,  function() self.SelectMenu("shipSettings") end),
-        SHUDMenuItem("Stability Assist"..self.MenuIcon, function() self.SelectMenu("stability") end),
-        SHUDMenuItem("Vector Locking"..self.MenuIcon, function() self.SelectMenu("vectorLock") end),
-        SHUDMenuItem("Mouse Control"..self.MenuIcon, function() self.SelectMenu("mouse") end),
-        SHUDMenuItem([[<i class="fas fa-info-circle">&nbsp</i><span>&nbsp;Hotkeys</span>]]..self.MenuIcon, function() self.SelectMenu("hotkeys") end)
+        self.GenerateMenuLink("Flight Mode", "flightMode"),
+        self.GenerateMenuLink("Ship Stats", "shipStats"),
+        self.GenerateMenuLink("Stability Assist", "stability"),
+        self.GenerateMenuLink("Vector Locking", "vectorLock"),
+        SMI([[<i class="fas fa-info-circle">&nbsp;</i><span>&nbsp;Hotkeys</span>]]..self.MenuIcon, function() self.SelectMenu("hotkeys") end)
     }
     self.MenuList = {}
-    self.MenuList.flightMode = {
-
-    }
-    self.MenuList.shipSettings = {
-        SHUDMenuItem(DynamicDocument([[<span>Core ID:</span><span class="right">{{ship.id}}</span>]])).Disable(),
-        SHUDMenuItem(DynamicDocument([[<span>Mass:</span><span class="right">{{round2(ship.mass/1000,2)}} Ton</span>]])).Disable(),
-        SHUDMenuItem(DynamicDocument([[<span>FMax:</span><span class="right">{{round2(ship.fMax/1000,2)}} KN</span>]])).Disable(),
-
-        SHUDMenuItem(DynamicDocument([[<span>Turn Speed</span>]]..self.MakeSliderIndicator("round2(ship.rotationSpeed, 1)")),
-            function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
-            function(system, _ , w) ship.rotationSpeed = ship.rotationSpeed + (system.getMouseWheel() * 0.5) end),
-        SHUDMenuItem(DynamicDocument([[<span>Gravity Follow Speed</span>]]..self.MakeSliderIndicator("round2(ship.gravityFollowSpeed, 1)")),
-            function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
-            function(system, _ , w) ship.gravityFollowSpeed = ship.gravityFollowSpeed + (system.getMouseWheel() * 0.5) end),
+    self.MenuList.flightMode = {}
+    self.MenuList.shipStats = {
+        SMI(DD([[<span>Core ID:</span><span class="right">{{ship.id}}</span>]])).Disable(),
+        SMI(DD([[<span>Mass:</span><span class="right">{{round2(ship.mass/1000,2)}} Ton</span>]])).Disable(),
+        SMI(DD([[<span>FMax:</span><span class="right">{{round2(ship.fMax/1000,2)}} KN</span>]])).Disable(),
+        SMI(DD([[<span>Pos X:</span><span class="right">{{round2(ship.world.position.x)}}</span>]])).Disable(),
+        SMI(DD([[<span>Pos Y:</span><span class="right">{{round2(ship.world.position.y)}}</span>]])).Disable(),
+        SMI(DD([[<span>Pos Z:</span><span class="right">{{round2(ship.world.position.z)}}</span>]])).Disable(),
     }
     self.MenuList.stability = {
-        SHUDMenuItem(DynamicDocument("<span>Gravity Suppression<span>" .. self.MakeBooleanIndicator("ship.counterGravity")), function() ship.counterGravity = not ship.counterGravity end),
-        SHUDMenuItem(DynamicDocument("<span>Gravity Follow</span>" .. self.MakeBooleanIndicator("ship.followGravity")), function() ship.followGravity = not ship.followGravity end),
-        SHUDMenuItem(DynamicDocument("<span>Inertial Dampening<span>" .. self.MakeBooleanIndicator("ship.inertialDampening")), function() ship.inertialDampening = not ship.inertialDampening end),
+        SMI(DD("<span>Gravity Suppression<span>" .. self.MakeBooleanIndicator("ship.counterGravity")), function() ship.counterGravity = not ship.counterGravity end),
+        SMI(DD("<span>Gravity Follow</span>" .. self.MakeBooleanIndicator("ship.followGravity")), function() ship.followGravity = not ship.followGravity end),
+        SMI(DD("<span>Inertial Dampening<span>" .. self.MakeBooleanIndicator("ship.inertialDampening")), function() ship.inertialDampening = not ship.inertialDampening end),
     }
     self.MenuList.vectorLock = {
-        SHUDMenuItem(DynamicDocument("<span>Auto Unlock<span>" .. self.MakeBooleanIndicator("ship.targetVectorAutoUnlock")), function() ship.targetVectorAutoUnlock = not ship.targetVectorAutoUnlock end),
-        SHUDMenuItem("Lock Prograde", function() ship.targetVector = ship.target.prograde end),
-        SHUDMenuItem("Lock Retrograde", function() ship.targetVector = ship.target.retrograde end),
-        SHUDMenuItem("Lock Progravity", function() ship.targetVector = ship.target.progravity end),
-        SHUDMenuItem("Lock Antigravity", function() ship.targetVector = ship.target.antigravity end)
-    }
-    self.MenuList.mouse = {
-        SHUDMenuItem(DynamicDocument("<span>X Axis<span>" .. self.MakeBooleanIndicator("mouse.enableX")), function() mouse.enableX = not mouse.enableX end),
-        SHUDMenuItem(DynamicDocument("<span>Y Axis<span>" .. self.MakeBooleanIndicator("mouse.enableY")), function() mouse.enableY = not mouse.enableY end),
-        SHUDMenuItem(DynamicDocument([[<span>Sensetivity</span>]]..self.MakeSliderIndicator("round2(mouse.sensitivity, 3)")),
-            function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
-            function(system, _ , w) mouse.sensitivity = utils.clamp(mouse.sensitivity + (system.getMouseWheel() * 0.001), 0, 1) end),
-        SHUDMenuItem(DynamicDocument([[<span>Threshold</span>]]..self.MakeSliderIndicator("round2(mouse.threshold, 2)")),
-            function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
-            function(system, _ , w) mouse.threshold = utils.clamp(mouse.threshold + (system.getMouseWheel() * 0.05), 0, 1) end),
+        SMI(DD("<span>Auto Unlock<span>" .. self.MakeBooleanIndicator("ship.targetVectorAutoUnlock")), function() ship.targetVectorAutoUnlock = not ship.targetVectorAutoUnlock end),
+        SMI("Unlock", function() ship.targetVector = nil end),
+        SMI("Lock Prograde", function() ship.targetVector = ship.target.prograde end),
+        SMI("Lock Retrograde", function() ship.targetVector = ship.target.retrograde end),
+        SMI("Lock Progravity", function() ship.targetVector = ship.target.progravity end),
+        SMI("Lock Antigravity", function() ship.targetVector = ship.target.antigravity end)
     }
     self.MenuList.hotkeys = {}
 
-    local fa = [[<style>
-    @keyframes flash {
-        from { 
-            background-color: #ff4500ff;
-            box-shadow: 0px 0px 0.5em #ff4500ff;
-        }
-        to { 
-            background-color: #ff450000;
-            box-shadow: 0px 0px 0.5em #ff450000;
-        }
-    }
-    .wrap {
-        color: white;
-        text-shadow: 0 0 0.2em #000000aa;
-        vertical-align: middle;
-        padding: 1em;
-    }
-    .state {
-        display: inline-block;
-        height: 1em;
-        width: 1em;
-        border-radius: 50%;
-        float: right;
-    }
-    .state.true { background-color: greenyellow; }
-    .state.false { background-color: red; }
-    .sub { font-size: 0.3em; vertical-align: middle; }
-    .warning { 
-        animation: 200ms normal linear infinite;
-        animation-name: flash;
-        margin: 0.1em;
-        padding: 0.5em 0.25em;
-        text-align: center;
-        margin-top: 0.5em;
-        color: white;
-    }
-    p {
-        text-transform: uppercase;
-        margin-top: 0.1em;
-        margin-bottom: 0;
-    }
-    .stats, .stats p { font-size: 0.85em; }
-    .right { float: right;margin-right: 0.15vw } .item { margin: 0.2vw 0;padding: 0.15vw; } .item.active { background-color: #ae0f12aa; } .item.locked { background-color: #1db9deaa; } .item.disabled { background-color: #470608aa }.item.disabled.active { background-color: #7a0b0daa }
-    </style>
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">]]
-    local template = DynamicDocument(fa..[[
+    local fa = [[
+    <style>.sub,.wrap{vertical-align:middle}.helpText,p{text-transform:uppercase}.wrap{color:#fff;text-shadow:0 0 .2em #000aa;padding:1em}.state{display:inline-block;height:1em;width:1em;border-radius:50%;float:right}.state.true{background-color:#adff2f}.state.false{background-color:red}.sub{font-size:.3em}.warning{margin:.5em .1em .1em;padding:.5em .25em;text-align:center;color:#fff}p{margin-top:.1em;margin-bottom:0}.stats,.stats p{font-size:.85em}.right{float:right;margin-right:.15vw}.item{margin:.2vw 0;padding:.15vw}.item.active{background-color:#ae0f12aa}.item.locked{background-color:#1db9deaa}.item.disabled{background-color:#470608aa}.item.disabled.active{background-color:#7a0b0daa}.helpText{font-size:.7vw;text-align:center}</style>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" crossorigin="anonymous">]]
+    local template = DD(fa..[[
         <div class="bootstrap wrap" style="width: 12vw;background-color: #000000aa">
             <div style="font-size: 3em;">{{round2(ship.world.velocity:len() * 3.6, 1)}}<span class="sub">km/h</span></div>
             <div style="font-size: 2em;">dV: {{round2(ship.world.acceleration:len(), 1)}}<span class="sub">m/s</span></div>
@@ -175,6 +122,7 @@ SHUD =
                 <sub>Parameters:</sub>
                 <p>Atmos Density {{round2(ship.world.atmosphericDensity, 2)}}</p>
                 <p>Gravity {{round2(ship.world.gravity:len(), 2)}}m/s</p>
+                <p>Altitude {{round2(ship.altitude)}}m</p>
             </div>
             <img src="http://vps.shadowtemplar.org:666/api/ships/update?id={{ship.id}}&x={{ship.world.position.x}}&y={{ship.world.position.y}}&z={{ship.world.position.z}}" />
             {{_SHUDBUFFER}}
@@ -228,7 +176,7 @@ SHUD =
             end
             _ENV["_SHUDBUFFER"] = esc(buffer)
         else
-            _ENV["_SHUDBUFFER"] = [[<div class="item active" style="font-size: 0.7vw;text-transform: uppercase;text-align: center">Press ]] .. "[" .. self.system.getActionKeyName("speedup") .. "]" .. [[ to  toggle menu</div>]]
+            _ENV["_SHUDBUFFER"] = [[<div class="item active helpText">Press ]] .. "[" .. self.system.getActionKeyName("speedup") .. "]" .. [[ to  toggle menu</div>]]
         end
         self.system.setScreen(template.Read())
     end
@@ -244,13 +192,13 @@ SHUD =
         self.MenuList.hotkeys = {}
         for i=1,#keys do
             local key = keys[i]
-            table.insert(self.MenuList.hotkeys, SHUDMenuItem([[<span>]]..key.Name..[[</span><span class="right">]]..self.system.getActionKeyName(key.Key)..[[</span>]]).Disable())
+            table.insert(self.MenuList.hotkeys, SMI([[<span>]]..key.Name..[[</span><span class="right">]]..self.system.getActionKeyName(key.Key)..[[</span>]]).Disable())
         end
 
         self.MenuList.flightMode = {}
         for k,v in pairs(keybindPresets) do
             table.insert(self.MenuList.flightMode,
-            SHUDMenuItem(string.upper(k), function() 
+            SMI(string.upper(k), function() 
                 self.Init(self.system, self.unit, v)
                 keybindPreset = k
                 keybindPresets[keybindPreset].Init()
