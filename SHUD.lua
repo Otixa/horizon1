@@ -108,7 +108,7 @@ SHUD =
     self.MenuList.hotkeys = {}
 
     local fa = [[
-    <style>.sub,.wrap{vertical-align:middle}.helpText,p{text-transform:uppercase}.wrap{color:#fff;text-shadow:0 0 .2em #000aa;padding:1em}.state{display:inline-block;height:1em;width:1em;border-radius:50%;float:right}.state.true{background-color:#adff2f}.state.false{background-color:red}.sub{font-size:.3em}.warning{margin:.5em .1em .1em;padding:.5em .25em;text-align:center;color:#fff}p{margin-top:.1em;margin-bottom:0}.stats,.stats p{font-size:.85em}.right{float:right;margin-right:.15vw}.item{margin:.2vw 0;padding:.15vw}.item.active{background-color:#ae0f12aa}.item.locked{background-color:#1db9deaa}.item.disabled{background-color:#470608aa}.item.disabled.active{background-color:#7a0b0daa}.helpText{font-size:.7vw;text-align:center}</style>
+    <link rel="stylesheet" href="http://dustreaming.shadowtemplar.org/shud.css" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" crossorigin="anonymous">]]
     local template = DD(fa..[[
         <div class="bootstrap wrap" style="width: 12vw;background-color: #000000aa">
