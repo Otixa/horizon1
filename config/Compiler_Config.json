@@ -1,8 +1,8 @@
 {
-    "minify":true,
+    "minify":false,
     "slots": [
         {
-            "file":"STEC_config.lua",
+            "file":"src/STEC_config.lua",
             "slot":"-1",
             "signature":"start()",
             "args":[]
@@ -32,7 +32,7 @@
             "args":[{"variable":"*"}]
         },
         {
-            "code":" if mouse then mouse.apply() ship.apply() end",
+            "code":"mouse.apply()\nship.apply()",
             "slot":"-2",
             "signature":"flush()",
             "args":[]
@@ -50,7 +50,37 @@
             "args":[]
         },
         {
-            "file":["DynamicDocument.lua","TagManager.lua","KeybindController.lua","STEC.lua","SHUD.lua","STMM.lua"],
+            "file":"src/DynamicDocument.lua",
+            "slot":"-2",
+            "signature":"start()",
+            "args":[]
+        },
+        {
+            "file":"src/TagManager.lua",
+            "slot":"-3",
+            "signature":"start()",
+            "args":[]
+        },
+        {
+            "file":"src/KeybindController.lua",
+            "slot":"-3",
+            "signature":"start()",
+            "args":[]
+        },
+        {
+            "file":"src/STEC.lua",
+            "slot":"-3",
+            "signature":"start()",
+            "args":[]
+        },
+        {
+            "file":"src/SHUD.lua",
+            "slot":"-3",
+            "signature":"start()",
+            "args":[]
+        },
+        {
+            "file":"src/STMM.lua",
             "slot":"-3",
             "signature":"start()",
             "args":[]
