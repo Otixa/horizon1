@@ -24,9 +24,9 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'cd $WORKSPACE'
-                sh 'lua $WORKSPACE/dubuild/compiler.lua Compiler_Config.json ./dubuild/template.json STEC.json'
-                sh 'lua $WORKSPACE/dubuild/compiler.lua Compiler_Config.min.json ./dubuild/template.json STEC.min.json'
-                sh 'lua $WORKSPACE/dubuild/compiler.lua Compiler_Config.crypt.json ./dubuild/template.json STEC.crypt.json'
+                sh 'lua $WORKSPACE/dependencies/dubuild/compiler.lua Compiler_Config.json ./dependencies/dubuild/template.json STEC.json'
+                sh 'lua $WORKSPACE/dependencies/dubuild/compiler.lua Compiler_Config.min.json ./dependencies/dubuild/template.json STEC.min.json'
+                sh 'lua $WORKSPACE/dependencies/dubuild/compiler.lua Compiler_Config.crypt.json ./dependencies/dubuild/template.json STEC.crypt.json'
                 archiveArtifacts artifacts: 'STEC*.json', onlyIfSuccessful: true
             }
         }

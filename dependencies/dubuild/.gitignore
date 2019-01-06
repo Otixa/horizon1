@@ -1,0 +1,4 @@
+test/
+.vscode/
+outjson.json
+test.lua
