@@ -24,10 +24,10 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'cd $WORKSPACE'
-                sh 'lua $WORKSPACE/dubuild/compiler.lua Compiler_Config.json ./dubuild/template.json STEC.json'
-                sh 'lua $WORKSPACE/dubuild/compiler.lua Compiler_Config.min.json ./dubuild/template.json STEC.min.json'
-                sh 'lua $WORKSPACE/dubuild/compiler.lua Compiler_Config.crypt.json ./dubuild/template.json STEC.crypt.json'
-                archiveArtifacts artifacts: 'STEC*.json', onlyIfSuccessful: true
+                sh 'lua $WORKSPACE/dependencies/dubuild/compiler.lua ./config/Compiler_Config.json -f "STEC.json" ./dependencies/dubuild/template.json ./output'
+                sh 'lua $WORKSPACE/dependencies/dubuild/compiler.lua ./config/Compiler_Config.min.json -f "STEC.min.json" ./dependencies/dubuild/template.json ./output'
+                sh 'lua $WORKSPACE/dependencies/dubuild/compiler.lua ./config/Compiler_Config.crypt.json -f "%s.STEC.crypt.json" ./dependencies/dubuild/template.json ./output'
+                archiveArtifacts artifacts: './output/*.json', onlyIfSuccessful: true
             }
         }
     }

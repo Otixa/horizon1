@@ -36,7 +36,7 @@ keybindPresets["cruise"].keyUp.stopengines.Add(function () SHUD.Select() if not 
 keybindPresets["cruise"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD.Enabled end)
 
 keybindPresets["cruise"].keyUp["option1"].Add(function () ship.counterGravity = not ship.counterGravity end, "Gravity Suppression")
-keybindPresets["cruise"].keyUp["option2"].Add(function () ship.followGravity = not ship.followGravity end, "Gravity Assist")
+keybindPresets["cruise"].keyUp["option2"].Add(function () ship.followGravity = not ship.followGravity end, "Gravity Follow")
 keybindPresets["cruise"].keyUp["option3"].Add(function () ship.direction.y = 1 end, "Cruise Control")
 
 keybindPreset = "cruise"
