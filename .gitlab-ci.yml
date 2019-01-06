@@ -8,11 +8,9 @@ DUConfigs:
     - git config --global http.sslVerify false
     - git submodule update --recursive --remote
   script:
-    - lua $CI_PROJECT_DIR/dependencies/dubuild/compiler.lua Compiler_Config.json ./dependencies/dubuild/template.json STEC.json
-    - lua $CI_PROJECT_DIR/dependencies/dubuild/compiler.lua Compiler_Config.min.json ./dependencies/dubuild/template.json STEC.min.json
-    - lua $CI_PROJECT_DIR/dependencies/dubuild/compiler.lua Compiler_Config.crypt.json ./dependencies/dubuild/template.json STEC.crypt.json
+    - lua $CI_PROJECT_DIR/dependencies/dubuild/compiler.lua Compiler_Config.json ./dependencies/dubuild/template.json ./output/STEC.json
+    - lua $CI_PROJECT_DIR/dependencies/dubuild/compiler.lua Compiler_Config.min.json ./dependencies/dubuild/template.json ./output/STEC.min.json
+    - lua $CI_PROJECT_DIR/dependencies/dubuild/compiler.lua Compiler_Config.crypt.json ./dependencies/dubuild/template.json ./output/STEC.crypt.json
   artifacts:
     paths:
-    - STEC.json
-    - STEC.min.json
-    - STEC.crypt.json
+    - ./output/*
