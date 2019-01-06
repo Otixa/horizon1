@@ -34,6 +34,12 @@
             "args":[]
         },
         {
+            "code":"if SHUD then SHUD.Render() end",
+            "slot":"-1",
+            "signature":"tick(timerId)",
+            "args":[{"value":"HUD"}]
+        },
+        {
             "code":"if SHUD then SHUD.Update() end",
             "slot":"-2",
             "signature":"update()",

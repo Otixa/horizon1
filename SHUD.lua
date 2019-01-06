@@ -145,15 +145,7 @@ SHUD =
         self.Menu[self.CurrentIndex].Action(self.system, self.unit, self.Menu[self.CurrentIndex])
     end
 
-    function self.Update()
-        if not self.ScrollLock and self.Enabled then
-            local wheel = system.getMouseWheel()
-            if wheel ~= 0 then
-                self.CurrentIndex = self.CurrentIndex - wheel
-                if self.CurrentIndex > #self.Menu then self.CurrentIndex = 1
-                elseif self.CurrentIndex < 1 then self.CurrentIndex = #self.Menu end
-            end
-        end
+    function self.Render()
         local buffer = ""
         if self.Enabled then 
             for i = 1, #self.Menu do
@@ -181,6 +173,17 @@ SHUD =
         self.system.setScreen(template.Read())
     end
 
+    function self.Update()
+        if not self.ScrollLock and self.Enabled then
+            local wheel = system.getMouseWheel()
+            if wheel ~= 0 then
+                self.CurrentIndex = self.CurrentIndex - wheel
+                if self.CurrentIndex > #self.Menu then self.CurrentIndex = 1
+                elseif self.CurrentIndex < 1 then self.CurrentIndex = #self.Menu end
+            end
+        end
+    end
+
     function self.Init(system, unit, keybinds)
         self.system = system
         self.unit = unit
@@ -204,6 +207,7 @@ SHUD =
                 keybindPresets[keybindPreset].Init()
             end))
         end
+        unit.setTimer("HUD", 0.02)
     end
 
     return self
