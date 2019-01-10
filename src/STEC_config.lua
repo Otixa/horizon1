@@ -33,6 +33,7 @@ keybindPresets["maneuver"].keyDown.stopengines.Add(function () if not SHUD.Enabl
 keybindPresets["maneuver"].keyUp.stopengines.Add(function () SHUD.Select() if not SHUD.Enabled then mouse.lock() mouse.enabled = true end end)
 
 keybindPresets["maneuver"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD.Enabled end)
+keybindPresets["maneuver"].keyUp.speeddown.Add(function () if mouse.enabled then mouse.unlock() mouse.enabled = false else mouse.lock() mouse.enabled = true end end, "Mouse Steering")
 
 keybindPresets["maneuver"].keyUp["option1"].Add(function () ship.counterGravity = not ship.counterGravity end, "Gravity Suppression")
 keybindPresets["maneuver"].keyUp["option2"].Add(function () ship.followGravity = not ship.followGravity end, "Gravity Follow")
@@ -41,3 +42,14 @@ keybindPresets["maneuver"].keyUp["option3"].Add(function () ship.direction.y = 1
 keybindPreset = "maneuver"
 
 SHUD.Init(system, unit, keybindPresets[keybindPreset])
+
+Task(function()
+    coroutine.yield()
+    SHUD.FreezeUpdate = true
+    local endTime = system.getTime() + 2
+    while system.getTime() < endTime do
+            coroutine.yield()
+    end
+    SHUD.FreezeUpdate = false
+    SHUD.IntroPassed = true
+end)
