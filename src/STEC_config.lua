@@ -53,3 +53,30 @@ Task(function()
     SHUD.FreezeUpdate = false
     SHUD.IntroPassed = true
 end)
+
+SHUD.Markers = {
+    {
+        Position = function() return ship.world.position + (ship.target.prograde() * 2) end,
+        Class = "prograde"
+    },
+    {
+        Position = function() return ship.world.position + (ship.target.retrograde() * 2) end,
+        Class = "retrograde"
+    },
+    {
+        Position = function() return ship.world.position + (ship.target.radial() * 2) end,
+        Class = "radial"
+    },
+    {
+        Position = function() return ship.world.position + (ship.target.antiradial() * 2) end,
+        Class = "antiradial"
+    },
+    {
+        Position = vec3(-8449.461, 105327.145, -57142.980),
+        Class = "target",
+        Name = "Shadow Templar HQ",
+        ShowDistance = true
+    }
+}
+
+ship.throttle = 0.2

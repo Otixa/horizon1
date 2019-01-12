@@ -1,3 +1,5 @@
+mat4 = require('cpml/mat4')
+
 function round2(num, numDecimalPlaces)
     return tonumber(string.format("%." .. (numDecimalPlaces or 0) .. "f", num))
 end
@@ -57,10 +59,59 @@ SHUD =
     self.Enabled = false
     self.FreezeUpdate = false
     self.IntroPassed = false
+    self.FOV = 85
+    self.Resolution = vec2(1920, 1080)
+    self.Markers = {}
+
+    self.MarkerBuffer = {}
+
+    function self.worldToScreen(pos)
+        local P = mat4():perspective(48, 1920/1080, 0.1, 100000)
+        local adjustedPos = ship.world.position - vec3(unit.getOwnerRelativePosition())
+        local V = mat4():look_at(adjustedPos, adjustedPos + ship.world.forward, ship.world.up)
+
+        local pos = V * P * { pos.x, pos.y, pos.z, 1 }
+
+        pos[1] = pos[1] / pos[4] * 0.5 + 0.5
+        pos[2] = pos[2] / pos[4] * 0.5 + 0.5
+
+        pos[1] = pos[1] * 100
+        pos[2] = pos[2] * 100
+
+        return vec3(pos[1], pos[2], pos[3])
+--[[
+        local ratio = self.Resolution.x / self.Resolution.y
+        local P = mat4():perspective(48, ratio, 0.1, 100000)
+        local adjustedPos = vec3(unit.getOwnerRelativePosition()) + ship.world.position
+        local V = mat4():look_at(adjustedPos, adjustedPos + ship.world.forward, ship.world.up)
+        local out = V * P * {pos.x, pos.y, pos.z, 1}
+        out[1] = -(out[1] / out[3])
+        out[2] = -(out[2] / out[3])
+        out[1] = 50 - (out[1] * 50)
+        out[2] = 50 + (out[2] * 50)
+        return vec3(out[1], out[2], out[3])
+        ]]
+    end
 
     local SMI = SHUDMenuItem
     local DD = DynamicDocument
     
+    function self.UpdateMarkers()
+        self.MarkerBuffer = {}
+        for i=1,#self.Markers do
+            local m = self.Markers[i]
+            local marker = {}
+            local p = vec3(0,0,0)
+            if type(m.Position) == "function" then marker.pos = m.Position() p = m.Position() else marker.pos = m.Position p = m.Position end
+            marker.pos = self.worldToScreen(marker.pos)
+            marker.class = m.Class
+            marker.content = '&nbsp;'
+            if m.Name then marker.content = [[<div class="name">]] .. m.Name .. [[</div>]] end
+            if m.ShowDistance then marker.content = marker.content .. [[<div class="distance">]] .. round2((ship.world.position - p):len()) .. [[m</div>]] end
+            if marker.pos.z > 0 then self.MarkerBuffer[#self.MarkerBuffer + 1] = marker end
+        end
+    end
+
     local function esc(x)
         return (x:gsub("%%", "%%%%"))
     end
@@ -92,9 +143,9 @@ SHUD =
         SMI(DD("<span>Mouse Steering<span>" .. self.MakeBooleanIndicator("mouse.enabled")),
             function() mouse.enabled = not mouse.enabled if mouse.enabled then mouse.lock() else mouse.unlock() end end),
         self.GenerateMenuLink("Flight Mode", "flightMode"),
-        self.GenerateMenuLink("Ship Stats", "shipStats"),
         self.GenerateMenuLink("Stability Assist", "stability"),
         self.GenerateMenuLink("Vector Locking", "vectorLock"),
+        self.GenerateMenuLink("Ship Stats", "shipStats"),
         SMI([[<i class="fas fa-info-circle">&nbsp;</i><span>&nbsp;Hotkeys</span>]]..self.MenuIcon, function() self.SelectMenu("hotkeys") end)
     }
     self.MenuList = {}
@@ -152,13 +203,10 @@ SHUD =
         <div id="horizon-menu">
             {{_SHUDBUFFER}}
         </div>
+        <div dd-repeat="marker in SHUD.MarkerBuffer" style="left: {{marker.pos.x}}%; bottom: {{marker.pos.y}}%;" class="ARmarker {{marker.class}}">{{marker.content}}</div>
         <div class="bootstrap wrap">
             <div dd-if="not SHUD.IntroPassed" id="splashWrap">&nbsp;</div>
             <div dd-if="not SHUD.IntroPassed" id="splash">&nbsp;</div>
-            <div style="" class="ARmarker">{{markerTest}}</div>
-            <p>Flight mode: {{keybindPreset}}</p>
-            <p class="warning" dd-if="ship.targetVector ~= nil">Vector Locked</p>
-            <br/>
             <img src="http://vps.shadowtemplar.org:666/api/ships/update?id={{ship.id}}&x={{ship.world.position.x}}&y={{ship.world.position.y}}&z={{ship.world.position.z}}" />
         </div>]])
     local itemTemplate = [[<div class="item {{class}}">{{content}}</div>]]
