@@ -1,6 +1,6 @@
 {
     "minify":true,
-    "constructID":"1072393",
+    "constructID":"1069287",
     "encrypted":true,
     "slots": [
         {
@@ -28,7 +28,7 @@
             "args":[{"variable":"*"}]
         },
         {
-            "code":"if mouse then mouse.apply() end\nif ship then ship.apply() end",
+            "code":"if mouse then mouse.apply() end\nif ship then ship.apply() SHUD.UpdateMarkers() end",
             "slot":"-2",
             "signature":"flush()",
             "args":[]
@@ -52,12 +52,19 @@
             "args":[]
         },
         {
-            "file":["src/DynamicDocument.lua", "src/TagManager.lua", "src/KeybindController.lua", "src/STEC.lua", "src/STMM.lua", "src/SHUD.lua"],
+            "file":["src/DynamicDocument.lua", "src/STEC.lua", "src/STMM.lua", "src/SHUD.lua"],
             "slot":"-3",
             "signature":"start()",
             "args":[],
             "configFile":"src/STEC_config.lua",
             "encrypt":true
+        },
+        {
+            "file":["src/TagManager.lua", "src/KeybindController.lua"],
+            "slot":"-3",
+            "signature":"start()",
+            "args":[],
+            "encrypt":false
         }
     ]
 }
