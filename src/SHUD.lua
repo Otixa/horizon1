@@ -208,6 +208,7 @@ SHUD =
             end))
         end
         unit.setTimer("HUD", 0.02)
+        keybinds.Init()
     end
 
     return self
