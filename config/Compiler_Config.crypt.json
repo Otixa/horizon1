@@ -28,36 +28,37 @@
             "args":[{"variable":"*"}]
         },
         {
-            "code":"if mouse then mouse.apply() end\nif ship then ship.apply() end",
-            "slot":"-2",
-            "signature":"flush()",
-            "args":[]
-        },
-        {
             "code":"if SHUD then SHUD.Render() end",
             "slot":"-1",
             "signature":"tick(timerId)",
             "args":[{"value":"HUD"}]
         },
         {
-            "code":"if SHUD then SHUD.Update() end",
+            "code":"if Events then Events.Flush() end",
+            "slot":"-2",
+            "signature":"flush()",
+            "args":[]
+        },
+        {
+            "code":"if Events then Events.Update() end",
             "slot":"-2",
             "signature":"update()",
             "args":[]
         },
         {
-            "code":"TaskManager.Update()",
-            "slot":"-2",
-            "signature":"update()",
-            "args":[]
-        },
-        {
-            "file":["src/DynamicDocument.lua", "src/TagManager.lua", "src/KeybindController.lua", "src/STEC.lua", "src/STMM.lua", "src/SHUD.lua"],
+            "file":["src/DynamicDocument.lua", "src/STEC.lua", "src/STMM.lua", "src/SHUD.lua", "src/ModuleRegistration.lua"],
             "slot":"-3",
             "signature":"start()",
             "args":[],
             "configFile":"src/STEC_config.lua",
             "encrypt":true
+        },
+        {
+            "file":["src/EventDelegate.lua", "src/TagManager.lua", "src/KeybindController.lua", "src/TaskManager.lua"],
+            "slot":"-2",
+            "signature":"start()",
+            "args":[],
+            "encrypt":false
         }
     ]
 }
