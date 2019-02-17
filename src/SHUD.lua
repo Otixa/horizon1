@@ -6,7 +6,7 @@ function SHUDMenuItem(content, action, update)
     local self = {}
     self.Enabled = true
     self.Active = false
-    self.Content = content
+    self.Content = DynamicDocument(content)
     self.Class = ""
     self.Action = action or function(system, unit, self) end
     self.Update = update or function(system, unit, self) end
@@ -44,7 +44,6 @@ SHUD =
     self.Enabled = false
 
     local SMI = SHUDMenuItem
-    local DD = DynamicDocument
     
     local function esc(x)
         return (x:gsub("%%", "%%%%"))
@@ -65,16 +64,16 @@ SHUD =
     end
 
     function self.GenerateMenuLink(text, link)
-        return SMI(text..self.MenuIcon,  function() self.SelectMenu(link) end)
+        return SMI("<span>"..text.."</span>"..self.MenuIcon,  function() self.SelectMenu(link) end)
     end
 
     self.MenuIcon = [[<span class="right"><i class="fas fa-sign-in-alt">&nbsp;</i></span>]]
-    self.BackButton = SMI([[<i class="fas fa-sign-in-alt fa-flip-horizontal">&nbsp;</i>&nbsp;]].."Back", function() SHUD.Menu = SHUD.MenuList.prev SHUD.CurrentIndex = 1 end)
+    self.BackButton = SMI([[<i class="fas fa-sign-in-alt fa-flip-horizontal">&nbsp;</i>&nbsp;<span>Back</span>]], function() SHUD.Menu = SHUD.MenuList.prev SHUD.CurrentIndex = 1 end)
     self.Menu = {
-        SMI(DD([[<span>Throttle<span>]]..self.MakeSliderIndicator("round2(ship.throttle * 100)", "%")), 
+        SMI([[<span>Throttle<span>]] .. self.MakeSliderIndicator("round2(ship.throttle * 100)", "%"), 
             function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
             function(system, _ , w) ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1) end),
-        SMI(DD("<span>Mouse Steering<span>" .. self.MakeBooleanIndicator("mouse.enabled")),
+        SMI("<span>Mouse Steering<span>" .. self.MakeBooleanIndicator("mouse.enabled"),
             function() mouse.enabled = not mouse.enabled if mouse.enabled then mouse.lock() else mouse.unlock() end end),
         self.GenerateMenuLink("Flight Mode", "flightMode"),
         self.GenerateMenuLink("Ship Stats", "shipStats"),
@@ -85,32 +84,32 @@ SHUD =
     self.MenuList = {}
     self.MenuList.flightMode = {}
     self.MenuList.shipStats = {
-        SMI(DD([[<span>Core ID:</span><span class="right">{{ship.id}}</span>]])).Disable(),
-        SMI(DD([[<span>Mass:</span><span class="right">{{round2(ship.mass/1000,2)}} Ton</span>]])).Disable(),
-        SMI(DD([[<span>FMax:</span><span class="right">{{round2(ship.fMax/1000,2)}} KN</span>]])).Disable(),
-        SMI(DD([[<span>Pos X:</span><span class="right">{{round2(ship.world.position.x)}}</span>]])).Disable(),
-        SMI(DD([[<span>Pos Y:</span><span class="right">{{round2(ship.world.position.y)}}</span>]])).Disable(),
-        SMI(DD([[<span>Pos Z:</span><span class="right">{{round2(ship.world.position.z)}}</span>]])).Disable(),
+        SMI([[<span>Core ID:</span><span class="right">{{ship.id}}</span>]]).Disable(),
+        SMI([[<span>Mass:</span><span class="right">{{round2(ship.mass/1000,2)}} Ton</span>]]).Disable(),
+        SMI([[<span>FMax:</span><span class="right">{{round2(ship.fMax/1000,2)}} KN</span>]]).Disable(),
+        SMI([[<span>Pos X:</span><span class="right">{{round2(ship.world.position.x)}}</span>]]).Disable(),
+        SMI([[<span>Pos Y:</span><span class="right">{{round2(ship.world.position.y)}}</span>]]).Disable(),
+        SMI([[<span>Pos Z:</span><span class="right">{{round2(ship.world.position.z)}}</span>]]).Disable(),
     }
     self.MenuList.stability = {
-        SMI(DD("<span>Gravity Suppression<span>" .. self.MakeBooleanIndicator("ship.counterGravity")), function() ship.counterGravity = not ship.counterGravity end),
-        SMI(DD("<span>Gravity Follow</span>" .. self.MakeBooleanIndicator("ship.followGravity")), function() ship.followGravity = not ship.followGravity end),
-        SMI(DD("<span>Inertial Dampening<span>" .. self.MakeBooleanIndicator("ship.inertialDampening")), function() ship.inertialDampening = not ship.inertialDampening end),
+        SMI("<span>Gravity Suppression<span>" .. self.MakeBooleanIndicator("ship.counterGravity"), function() ship.counterGravity = not ship.counterGravity end),
+        SMI("<span>Gravity Follow</span>" .. self.MakeBooleanIndicator("ship.followGravity"), function() ship.followGravity = not ship.followGravity end),
+        SMI("<span>Inertial Dampening<span>" .. self.MakeBooleanIndicator("ship.inertialDampening"), function() ship.inertialDampening = not ship.inertialDampening end),
     }
     self.MenuList.vectorLock = {
-        SMI(DD("<span>Auto Unlock<span>" .. self.MakeBooleanIndicator("ship.targetVectorAutoUnlock")), function() ship.targetVectorAutoUnlock = not ship.targetVectorAutoUnlock end),
-        SMI("Unlock", function() ship.targetVector = nil end),
+        SMI("<span>Auto Unlock<span>" .. self.MakeBooleanIndicator("ship.targetVectorAutoUnlock"), function() ship.targetVectorAutoUnlock = not ship.targetVectorAutoUnlock end),
+        SMI("<span>Unlock</span>", function() ship.targetVector = nil end),
     }
     -- Insert target vectors from ship targets
     for k,v in pairs(ship.target) do
-        table.insert(self.MenuList.vectorLock, SMI("Lock "..(k:gsub("^%l", string.upper)), function() ship.targetVector = v end))
+        table.insert(self.MenuList.vectorLock, SMI("<span>Lock "..(k:gsub("^%l", string.upper)).."</span>", function() ship.targetVector = v end))
     end
     self.MenuList.hotkeys = {}
 
     local fa = [[
     <link rel="stylesheet" href="http://dustreaming.shadowtemplar.org/shud.css" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" crossorigin="anonymous">]]
-    local template = DD(fa..[[
+    local template = DynamicDocument(fa..[[
         <div class="bootstrap wrap" style="width: 12vw;background-color: #000000aa">
             <div style="font-size: 3em;">{{round2(ship.world.velocity:len() * 3.6, 1)}}<span class="sub">km/h</span></div>
             <div style="font-size: 2em;">dV: {{round2(ship.world.acceleration:len(), 1)}}<span class="sub">m/s</span></div>
@@ -153,10 +152,7 @@ SHUD =
                 if item.Active then item.Update(self.system, self.unit, item) end
                 local lb = itemTemplate
                 local cls = ""
-                local content = item.Content
-                if content.Read then
-                    content = content.Read()
-                end
+                local content = item.Content.Read()
                 content = esc(content)
                 if self.CurrentIndex == i then
                     cls = "active"
@@ -201,7 +197,7 @@ SHUD =
         self.MenuList.flightMode = {}
         for k,v in pairs(keybindPresets) do
             table.insert(self.MenuList.flightMode,
-            SMI(string.upper(k), function() 
+            SMI("<span>"..string.upper(k).."</span>", function() 
                 self.Init(self.system, self.unit, v)
                 keybindPreset = k
                 keybindPresets[keybindPreset].Init()

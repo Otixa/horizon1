@@ -1,68 +1,74 @@
 --[[
     Shadow Templar Mouse Movement
-    Version 1.2
+    Version 1.3
 
     Requires: STEC
     Note: Always apply() before STEC.apply() !
 ]]
-
-function STMM(stec, system)
-    local self = {}
-    self.enabled = true
-    self.enableX = true
-    self.enableY = true
-    self.sensitivity = 0.005
-    self.threshold = 0.2
-    self.deltaClamp = 3000
-    self.recenterSpeed = 20
-    self.deltaPos = vec3(0, 0, 0)
-    self.system = system
+mouse = (function (stec, system)
+    local this = {}
+    this.InvertX = false
+    this.InvertY = false
+    this.Enabled = true
+    this.EnableX = true
+    this.EnableY = true
+    this.Sensitivity = 0.005
+    this.Threshold = 0.15
+    this.DeltaClamp = 3000
+    this.RecenterSpeed = 20
+    this.DeltaPos = vec3(0, 0, 0)
 
     local isLocked = false
-    
-    function self.lock()
+
+    function this.lock()
         isLocked = true
         system.lockView(1)
     end
 
-    function self.unlock()
+    function this.unlock()
         isLocked = false
         system.lockView(0)
     end
 
-    function self.isLocked()
+    function this.isLocked()
         return isLocked
     end
 
-    function self.toggleLock()
-        if self.isLocked() then self.unlock() else self.lock() end
-    end
-
-    function clamp(n, min, max)
-        return math.min(max, math.max(n, min))
-    end
-
-    function withinThreshold(n ,threshold)
-        return (n > threshold and n > 0) or (n < -threshold and n < 0)
-    end
-
-    function self.apply()
-        if not self.enabled then return end
-        self.deltaPos = ( self.deltaPos - ( self.deltaPos / self.recenterSpeed )) - vec3(self.system.getMouseDeltaX() * self.sensitivity, self.system.getMouseDeltaY() * self.sensitivity, 0)
-        self.deltaPos = vec3(clamp(self.deltaPos.x, -self.deltaClamp, self.deltaClamp), clamp(self.deltaPos.y, -self.deltaClamp, self.deltaClamp), 0)
-        if withinThreshold(self.deltaPos.x, self.threshold) then
-             if self.enableX then stec.rotation.z = -self.deltaPos.x end
+    function this.toggleLock()
+        if this.isLocked() then
+            this.unlock()
         else
-            if self.enableX then stec.rotation.z = 0 end
-        end
-        if withinThreshold(self.deltaPos.y, self.threshold) then
-            if self.enableY then stec.rotation.x = self.deltaPos.y end
-        else
-            if self.enableY then stec.rotation.x = 0 end
+            this.lock()
         end
     end
-    self.lock()
-    return self
-end
 
-mouse = STMM(ship, system)
+    function this.apply()
+        if not this.Enabled then return end
+        this.DeltaPos =
+            (this.DeltaPos - (this.DeltaPos / this.RecenterSpeed)) -
+            vec3(system.getMouseDeltaX() * this.Sensitivity, system.getMouseDeltaY() * this.Sensitivity, 0)
+        this.DeltaPos =
+            vec3(
+            utils.clamp(this.DeltaPos.x, -this.DeltaClamp, this.DeltaClamp),
+            utils.clamp(this.DeltaPos.y, -this.DeltaClamp, this.DeltaClamp),
+            0)
+        if this.EnableX then stec.rotation.z = 0 end
+        if this.EnableY then stec.rotation.x = 0 end
+        if utils.threshold(this.DeltaPos.x, this.Threshold) and this.EnableX then
+            if this.InvertX then
+                stec.rotation.z = this.DeltaPos.x
+            else
+                stec.rotation.z = -this.DeltaPos.x
+            end
+        end
+        if utils.threshold(this.DeltaPos.y, this.Threshold) and this.EnableY then
+            if this.InvertY then
+                stec.rotation.x = -this.DeltaPos.y
+            else
+                stec.rotation.x = this.DeltaPos.y
+            end
+        end
+    end
+    this.lock()
+    return this
+end)(ship, system)
