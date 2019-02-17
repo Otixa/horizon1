@@ -8,10 +8,22 @@
             "args":[]
         },
         {
+            "file":"src/ModuleRegistration.lua",
+            "slot":"-1",
+            "signature":"start()",
+            "args":[]
+        },
+        {
             "code":"system.showScreen(0)",
             "slot":"-1",
             "signature":"stop()",
             "args":[]
+        },
+        {
+            "code":"if SHUD then SHUD.Render() end",
+            "slot":"-1",
+            "signature":"tick(timerId)",
+            "args":[{"value":"HUD"}]
         },
         {
             "code":"keybindPresets[keybindPreset].Call(action, \"down\")",
@@ -32,21 +44,27 @@
             "args":[{"variable":"*"}]
         },
         {
-            "code":"mouse.apply()\nship.apply()",
+            "code":"if Events then Events.Flush() end",
             "slot":"-2",
             "signature":"flush()",
             "args":[]
         },
         {
-            "code":"if SHUD then SHUD.Render() end",
-            "slot":"-1",
-            "signature":"tick(timerId)",
-            "args":[{"value":"HUD"}]
-        },
-        {
-            "code":"if SHUD then SHUD.Update() end",
+            "code":"if Events then Events.Update() end",
             "slot":"-2",
             "signature":"update()",
+            "args":[]
+        },
+        {
+            "file":"src/EventDelegate.lua",
+            "slot":"-2",
+            "signature":"start()",
+            "args":[]
+        },
+        {
+            "file":"src/TaskManager.lua",
+            "slot":"-2",
+            "signature":"start()",
             "args":[]
         },
         {

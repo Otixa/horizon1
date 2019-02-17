@@ -1,85 +1,82 @@
 --[[
     Shadow Templar Keybind Controller
-    Version 1.23
+    Version 2.1
 ]]
 
-function Keybind(key)
-    local self = {}
-    self.Key = key
-    local bindings = {}
-
-    function self.Add(f, keybindName)
-        if type(f) ~= "function" then error("[Keybind] Unable to add callback - not a function") end
-        table.insert(bindings, {Function = f, Name = keybindName})
+function KeybindDelegate(key)
+    local this = EventDelegate()
+    this.Key = key
+    function this.Add(f, keybindName)
+        if type(f) ~= "function" then error("[Keybind] Unable to add callback - not a function") return end
+        for i=1,#this.Delegates do
+            if this.Delegates[i] == f then return false end
+        end
+        table.insert(this.Delegates, {Function = f, Name = keybindName})
+        return true
     end
 
-    function self.Remove(f)
-        if type(f) ~= "function" then error("[Keybind] Unable to remove callback - not a function") end
-        local reverse = {}
-        for k,v in pairs(bindings) do reverse[v.Function]=k end
-        for k,v in pairs(reverse) do if k == f then bindings[v]=nil end end
+    function this.Remove(f)
+        if type(f) ~= "function" then error("[Keybind] Unable to remove callback - not a function") return end
+        for i=1,#this.Delegates do
+            if this.Delegates[i].Function == f then
+                table.remove(this.Delegates, i)
+                return true
+            end
+        end
+        return false
     end
 
-    function self.GetNames()
+    function this.GetNames()
         local out = {}
-        for k,v in pairs(bindings) do if v.Name then table.insert(out, v.Name) end end
+        for k,v in pairs(this.Delegates) do
+            if v.Name then table.insert(out, v.Name) end
+        end
         return out
     end
 
-    function self.Call() for k,v in pairs(bindings) do v.Function(self.Key) end end
-    return self
+    function this.Call(...) for i=1,#this.Delegates do this.Delegates[i].Function(...) end end
+    return this
 end
 
 function KeybindController()
-    local self = {}
-    local keyList = {
-        "forward", "backward", "left", "right", "yawleft", "yawright", "up", "down", "gear", "light", "landing", "brake", 
-        "option1", "option2", "option3", "option4", "option5", "option6", "option7", "option8", "option9",
-        "stopengines", "speedup", "speeddown", "antigravity", "booster"
+    local this = {}
+    this.Bindings = {
+        up = {},
+        down = {},
+        loop = {}
     }
-    self.keyUp = {}
-    self.keyDown = {}
-    self.keyLoop = {}
 
-    function self.Call(action, type)
-        if type == "up" then
-            if self.keyUp[action] then self.keyUp[action].Call(action) end
-        elseif type == "down" then
-            if self.keyDown[action] then self.keyDown[action].Call(action) end
-        else
-            if self.keyLoop[action] then self.keyDown[action].Call(action) end
+    local bindingMeta = {
+        __index = function(t, k)
+            t[k] = KeybindDelegate(k)
+            return t[k]
         end
+    }
+    setmetatable(this.Bindings.up, bindingMeta)
+    setmetatable(this.Bindings.down, bindingMeta)
+    setmetatable(this.Bindings.loop, bindingMeta)
+
+    function this.Call(action, type, ...)
+        if not this.Bindings[type] then error("[KeybindController] Invalid event type. up/down/loop expected.") return end
+        if not this.Bindings[type][action] then error("[KeybindController] Invalid event key - " .. action) end
+        this.Bindings[type][action](action, type, ...)
     end
 
-    function self.GetNamedKeybinds()
+    function this.GetNamedKeybinds()
         local out = {}
-        for k,v in pairs(self.keyUp) do
-            local names = v.GetNames()
-            if #names > 0 then for i=1,#names do table.insert(out, { Key = v.Key, Name = names[i]}) end end
-        end
-        for k,v in pairs(self.keyDown) do
-            local names = v.GetNames()
-            if #names > 0 then for i=1,#names do table.insert(out, { Key = v.Key, Name = names[i]}) end end
-        end
-        for k,v in pairs(self.keyLoop) do
-            local names = v.GetNames()
-            if #names > 0 then for i=1,#names do table.insert(out, { Key = v.Key, Name = names[i]}) end end
+        for _,binds in pairs(this.Bindings) do
+            for k,v in pairs(binds) do
+                local names = v.GetNames()
+                if #names > 0 then for i=1,#names do table.insert(out, { Key = v.Key, Name = names[i]}) end end
+            end
         end
         table.sort(out, function(a,b) return a.Key < b.Key end)
         return out
     end
 
-    self.Init = function() end
-
-    local function init()
-        for i=1,#keyList do
-            self.keyUp[keyList[i]] = Keybind(keyList[i])
-            self.keyDown[keyList[i]] = Keybind(keyList[i])
-            self.keyLoop[keyList[i]] = Keybind(keyList[i])
-        end
-    end
-    init()
-    return self
+    this.Init = function() end
+    setmetatable(this, {__index = function(t, k) return this.Bindings[k] end})
+    return this
 end
 
 keybindPresets = {}
