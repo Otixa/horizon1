@@ -1,11 +1,5 @@
 keybindPresets["maneuver"] = KeybindController()
-keybindPresets["maneuver"].Init = function()
-    mouse.enabled = true
-    mouse.lock()
-    ship.ignoreVerticalThrottle = false
-    ship.direction.y = 0
-    ship.throttle = 1
-end
+keybindPresets["maneuver"].Init = function()end
 
 -- Maneuver
 keybindPresets["maneuver"].keyDown.up.Add(function () ship.direction.z = 1 end)
@@ -34,10 +28,6 @@ keybindPresets["maneuver"].keyUp.stopengines.Add(function () SHUD.Select() if no
 
 keybindPresets["maneuver"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD.Enabled end)
 keybindPresets["maneuver"].keyUp.speeddown.Add(function () if mouse.enabled then mouse.unlock() mouse.enabled = false else mouse.lock() mouse.enabled = true end end, "Mouse Steering")
-
-keybindPresets["maneuver"].keyUp["option1"].Add(function () ship.counterGravity = not ship.counterGravity end, "Gravity Suppression")
-keybindPresets["maneuver"].keyUp["option2"].Add(function () ship.followGravity = not ship.followGravity end, "Gravity Follow")
-keybindPresets["maneuver"].keyUp["option3"].Add(function () ship.direction.y = 1 end, "Cruise Control")
 
 keybindPreset = "maneuver"
 
@@ -72,7 +62,7 @@ SHUD.Markers = {
         Class = "antiradial"
     },
     {
-        Position = vec3(-8449.461, 105327.145, -57142.980),
+        Position = vec3(-15973, 106446, -60333),
         Class = "target",
         Name = "Shadow Templar HQ",
         ShowDistance = true

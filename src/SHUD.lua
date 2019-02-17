@@ -79,18 +79,6 @@ SHUD =
         pos[2] = pos[2] * 100
 
         return vec3(pos[1], pos[2], pos[3])
---[[
-        local ratio = self.Resolution.x / self.Resolution.y
-        local P = mat4():perspective(48, ratio, 0.1, 100000)
-        local adjustedPos = vec3(unit.getOwnerRelativePosition()) + ship.world.position
-        local V = mat4():look_at(adjustedPos, adjustedPos + ship.world.forward, ship.world.up)
-        local out = V * P * {pos.x, pos.y, pos.z, 1}
-        out[1] = -(out[1] / out[3])
-        out[2] = -(out[2] / out[3])
-        out[1] = 50 - (out[1] * 50)
-        out[2] = 50 + (out[2] * 50)
-        return vec3(out[1], out[2], out[3])
-        ]]
     end
 
     local SMI = SHUDMenuItem
