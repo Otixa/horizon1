@@ -100,11 +100,11 @@ SHUD =
     self.MenuList.vectorLock = {
         SMI(DD("<span>Auto Unlock<span>" .. self.MakeBooleanIndicator("ship.targetVectorAutoUnlock")), function() ship.targetVectorAutoUnlock = not ship.targetVectorAutoUnlock end),
         SMI("Unlock", function() ship.targetVector = nil end),
-        SMI("Lock Prograde", function() ship.targetVector = ship.target.prograde end),
-        SMI("Lock Retrograde", function() ship.targetVector = ship.target.retrograde end),
-        SMI("Lock Progravity", function() ship.targetVector = ship.target.progravity end),
-        SMI("Lock Antigravity", function() ship.targetVector = ship.target.antigravity end)
     }
+    -- Insert target vectors from ship targets
+    for k,v in pairs(ship.target) do
+        table.insert(self.MenuList.vectorLock, SMI("Lock "..(k:gsub("^%l", string.upper)), function() ship.targetVector = v end))
+    end
     self.MenuList.hotkeys = {}
 
     local fa = [[
