@@ -8,7 +8,7 @@
             "args":[]
         },
         {
-            "file":"src/EventRegistration.lua",
+            "file":"src/ModuleRegistration.lua",
             "slot":"-1",
             "signature":"start()",
             "args":[]

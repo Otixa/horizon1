@@ -43,3 +43,8 @@ function EventDelegate()
 
     return this
 end
+
+Events = {
+    Update = EventDelegate(),
+    Flush = EventDelegate()
+}

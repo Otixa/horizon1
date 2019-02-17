@@ -55,7 +55,7 @@
         },
         {
             "file":["src/EventDelegate.lua", "src/TagManager.lua", "src/KeybindController.lua", "src/TaskManager.lua"],
-            "slot":"-3",
+            "slot":"-2",
             "signature":"start()",
             "args":[],
             "encrypt":false

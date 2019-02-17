@@ -73,3 +73,5 @@ function await(task)
     end
     return task.LastReturn
 end
+
+Events.Update.Add(TaskManager.Update)
