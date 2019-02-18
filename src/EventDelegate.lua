@@ -46,5 +46,11 @@ end
 
 Events = {
     Update = EventDelegate(),
-    Flush = EventDelegate()
+    Flush = EventDelegate(),
+    Mousewheel = EventDelegate()
 }
+
+Events.Update.Add(function()
+    local wheel = system.getMouseWheel()
+    if wheel ~= 0 then Events.Mousewheel(wheel) end
+end)

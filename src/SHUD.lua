@@ -43,9 +43,8 @@ SHUD =
 (function()
     local self = {}
     self.Enabled = false
-
     local SMI = SHUDMenuItem
-    
+   
     local function esc(x)
         return (x:gsub("%%", "%%%%"))
     end
@@ -173,16 +172,14 @@ SHUD =
         self.system.setScreen(template.Read())
     end
 
-    function self.Update()
-        if not self.ScrollLock and self.Enabled then
-            local wheel = system.getMouseWheel()
-            if wheel ~= 0 then
-                self.CurrentIndex = self.CurrentIndex - wheel
-                if self.CurrentIndex > #self.Menu then self.CurrentIndex = 1
-                elseif self.CurrentIndex < 1 then self.CurrentIndex = #self.Menu end
-            end
-        end
+    function self.OnMousewheel(wheel)
+        if self.ScrollLock or not self.Enabled then return end
+        self.CurrentIndex = self.CurrentIndex - wheel
+        if self.CurrentIndex > #self.Menu then self.CurrentIndex = 1
+        elseif self.CurrentIndex < 1 then self.CurrentIndex = #self.Menu end
     end
+
+    Events.Mousewheel.Add(self.OnMousewheel)
 
     function self.Init(system, unit, keybinds)
         self.system = system

@@ -46,7 +46,7 @@
             "args":[]
         },
         {
-            "file":["src/DynamicDocument.lua", "src/SlotDetector.lua", "src/STEC.lua", "src/STMM.lua", "src/SHUD.lua", "src/ModuleRegistration.lua"],
+            "file":["src/DynamicDocument.lua", "src/STEC.lua", "src/STMM.lua", "src/SHUD.lua", "src/ModuleRegistration.lua"],
             "slot":"-3",
             "signature":"start()",
             "args":[],
@@ -54,7 +54,7 @@
             "encrypt":true
         },
         {
-            "file":["src/EventDelegate.lua", "src/TagManager.lua", "src/KeybindController.lua", "src/TaskManager.lua"],
+            "file":["src/EventDelegate.lua", "src/SlotDetector.lua", "src/TagManager.lua", "src/KeybindController.lua", "src/TaskManager.lua"],
             "slot":"-2",
             "signature":"start()",
             "args":[],
