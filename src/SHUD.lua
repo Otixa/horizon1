@@ -1,4 +1,5 @@
 function round2(num, numDecimalPlaces)
+    if num == nil then return 0 end
     return tonumber(string.format("%." .. (numDecimalPlaces or 0) .. "f", num))
 end
 
@@ -73,6 +74,9 @@ SHUD =
         SMI([[<span>Throttle<span>]] .. self.MakeSliderIndicator("round2(ship.throttle * 100)", "%"), 
             function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
             function(system, _ , w) ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1) end),
+        SMI([[<span>Altitude Hold<span>]] .. self.MakeSliderIndicator("round2(ship.altitudeHold)", "m"), 
+            function(_, _, w) if w.Active then w.Unlock() ship.altitudeHold = nil else w.Lock() ship.altitudeHold = ship.altitude end end,
+            function(system, _ , w) ship.altitudeHold = ship.altitudeHold + (system.getMouseWheel() * 10) end),
         SMI("<span>Mouse Steering<span>" .. self.MakeBooleanIndicator("mouse.enabled"),
             function() mouse.enabled = not mouse.enabled if mouse.enabled then mouse.lock() else mouse.unlock() end end),
         self.GenerateMenuLink("Flight Mode", "flightMode"),

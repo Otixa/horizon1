@@ -46,7 +46,7 @@
             "args":[]
         },
         {
-            "file":["src/DynamicDocument.lua", "src/STEC.lua", "src/STMM.lua", "src/SHUD.lua", "src/ModuleRegistration.lua"],
+            "file":["src/DynamicDocument.lua", "src/SlotDetector.lua", "src/STEC.lua", "src/STMM.lua", "src/SHUD.lua", "src/ModuleRegistration.lua"],
             "slot":"-3",
             "signature":"start()",
             "args":[],

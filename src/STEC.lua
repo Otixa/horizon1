@@ -64,7 +64,7 @@ ship = (function (core, control, Cd)
     -- Maximum thrust which the vessel is capable of producing
     this.fMax = 0
     -- Altitude which the vessel should attempt to hold
-    this.altitudeHold = 0
+    this.altitudeHold = nil
     -- Whether or not to ignore throttle for vertical thrust calculations
     this.ignoreVerticalThrottle = false
 
@@ -147,9 +147,16 @@ ship = (function (core, control, Cd)
         if this.followGravity and this.rotation.x == 0 then
             atmp = atmp + (this.world.up:cross(-this.world.gravity:normalize()) * this.gravityFollowSpeed)
         end
-        if this.altitudeHold ~= 0 then
+        if this.altitudeHold ~= nil then
             local deltaAltitude = this.altitude - this.altitudeHold
-            tmp = tmp + ((this.world.gravity:normalize() * deltaAltitude * -1) * this.mass * deltaTime)
+            local upVelocity = this.world.velocity:project_on(this.world.gravity:normalize())
+            if upVelocity.z < 0 then
+                upVelocity = -upVelocity:len()
+            else
+                upVelocity = upVelocity:len()
+            end
+            deltaAltitude = deltaAltitude + upVelocity
+            tmp = tmp + ((this.world.gravity:normalize() * deltaAltitude) * this.mass)
         end
         if this.inertialDampening then
             local brakingForce = this.mass * -this.localVelocity
@@ -186,7 +193,7 @@ ship = (function (core, control, Cd)
         end
         -- must be applied last
         if this.counterGravity then
-            tmp = tmp - this.world.gravity * this.mass
+            tmp = tmp - (this.world.gravity * this.mass)
         end
 
         tmp = tmp / this.mass
