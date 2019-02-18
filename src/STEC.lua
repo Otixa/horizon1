@@ -202,4 +202,4 @@ ship = (function (core, control, Cd)
     end
 
     return this
-end)(core, unit)
+end)(Slots.Core, unit)

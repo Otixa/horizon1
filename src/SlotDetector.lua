@@ -9,7 +9,7 @@ SlotDetector = function (container)
     for slotName,var in pairs(container) do
         if type(var) ~= "table" then goto continue end
         if not var["getId"] then goto continue end
-        if var["getConstructWorldPos"] then slots.Core = var goto continue end
+        if var["getConstructId"] then slots.Core = var goto continue end
         if var["getMaxThrust"] then table.insert(slots.Engines, var) goto continue end
         if var["setRawHTML"] then table.insert(slots.Screens, var) goto continue end
         if var["getMaxDistance"] then table.insert(slots.Telemeters, var) goto continue end

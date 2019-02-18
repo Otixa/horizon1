@@ -74,6 +74,12 @@
             "args":[]
         },
         {
+            "file":"src/SlotDetector.lua",
+            "slot":"-2",
+            "signature":"start()",
+            "args":[]
+        },
+        {
             "file":"src/TagManager.lua",
             "slot":"-3",
             "signature":"start()",
@@ -99,12 +105,6 @@
         },
         {
             "file":"src/STMM.lua",
-            "slot":"-3",
-            "signature":"start()",
-            "args":[]
-        },
-        {
-            "file":"src/SlotDetector.lua",
             "slot":"-3",
             "signature":"start()",
             "args":[]
