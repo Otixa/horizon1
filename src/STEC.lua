@@ -1,6 +1,6 @@
 --[[
     Shadow Templar Engine Control
-    Version: 1.16
+    Version: 1.2
 
     Setup:
         - Put this file in system.start
@@ -150,13 +150,19 @@ ship = (function (core, control, Cd)
         if this.altitudeHold ~= nil then
             local deltaAltitude = this.altitude - this.altitudeHold
             local upVelocity = this.world.velocity:project_on(this.world.gravity:normalize())
+            local upAcceleration = this.world.acceleration:project_on(this.world.gravity:normalize())
+            if upAcceleration.z < 0 then
+                upAcceleration = -upAcceleration:len()
+            else
+                upAcceleration = upAcceleration:len()
+            end
             if upVelocity.z < 0 then
                 upVelocity = -upVelocity:len()
             else
                 upVelocity = upVelocity:len()
             end
-            deltaAltitude = deltaAltitude + upVelocity
-            tmp = tmp + ((this.world.gravity:normalize() * deltaAltitude) * this.mass)
+            deltaAltitude = deltaAltitude + (upVelocity * 1.5) - upAcceleration
+            tmp = tmp + (this.world.gravity:normalize() * deltaAltitude * this.mass)
         end
         if this.inertialDampening then
             local brakingForce = this.mass * -this.localVelocity
