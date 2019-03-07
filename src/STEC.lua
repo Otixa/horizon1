@@ -1,6 +1,6 @@
 --[[
     Shadow Templar Engine Control
-    Version: 1.16
+    Version: 1.17
 
     Setup:
         - Put this file in system.start
@@ -81,6 +81,8 @@ function STEC(core, control, Cd)
     self.altitudeHold = 0
     -- Whether or not to ignore throttle for vertical thrust calculations
     self.ignoreVerticalThrottle = false
+    -- Local velocity
+    self.localVelocity = vec3(core.getVelocity())
 
     local lastUpdate = system.getTime()
 
