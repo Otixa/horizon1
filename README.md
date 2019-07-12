@@ -6,7 +6,7 @@ STEC is a collection of modules for Dual Universe ship control.
 
 Installation
 -------------
-- Download latest build from [the Pipeline output](https://gitlab.com/dual-universe/stec/pipelines)
+- Download latest build from [the Pipeline output](https://git.internal.st/dual-universe/horizon/pipelines)
 - Copy the contents of STEC.json into your clipboard
 - Rightclick the cockpit ingame, and paste the Lua configuration
 
