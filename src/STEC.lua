@@ -101,10 +101,14 @@ function STEC(core, control, Cd)
             atmosphericDensity = control.getAtmosphereDensity()
         }
 
+        self.AngularVelocity = vec3(core.getWorldAngularVelocity())
+        self.AngularAcceleration = vec3(core.getWorldAngularAcceleration())
+        self.AngularAirFriction = vec3(core.getWorldAirFrictionAngularAcceleration())
+
         self.mass = self.core.getConstructMass()
         self.altitude = self.core.getAltitude()
         self.localVelocity = vec3(core.getVelocity())
-        local fMax = self.core.getMaxKinematicsParameters()
+        local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
         if self.world.atmosphericDensity > 0.1 then --Temporary hack. Needs proper transition.
             self.fMax = math.max(fMax[1], -fMax[2])
         else
@@ -235,6 +239,7 @@ function STEC(core, control, Cd)
             tmp = tmp - self.world.gravity * self.mass
         end
 
+        atmp = atmp - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
         tmp = tmp / self.mass
         self.control.setEngineCommand(tostring(self.tags), {tmp:unpack()}, {atmp:unpack()})
         lastUpdate = system.getTime()

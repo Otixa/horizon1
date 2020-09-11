@@ -1,4 +1,5 @@
 mat4 = require('cpml/mat4')
+vec2 = require('cpml/vec2')
 
 function round2(num, numDecimalPlaces)
     return tonumber(string.format("%." .. (numDecimalPlaces or 0) .. "f", num))
@@ -163,11 +164,7 @@ SHUD =
     }
     self.MenuList.hotkeys = {}
 
-    local fa = [[
-    <link rel="stylesheet" href="http://dustreaming.shadowtemplar.org/roboto.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="http://dustreaming.shadowtemplar.org/adam.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="http://dustreaming.shadowtemplar.org/shud2.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" crossorigin="anonymous">]]
+    local fa = "<style>" .. CSS_SHUD .. "</style>"
     local template = DD(fa..[[
         <div id="speedometerBar">&nbsp;</div>
         <div id="speedometer">
@@ -191,12 +188,7 @@ SHUD =
         <div id="horizon-menu">
             {{_SHUDBUFFER}}
         </div>
-        <div dd-repeat="marker in SHUD.MarkerBuffer" style="left: {{marker.pos.x}}%; bottom: {{marker.pos.y}}%;" class="ARmarker {{marker.class}}">{{marker.content}}</div>
-        <div class="bootstrap wrap">
-            <div dd-if="not SHUD.IntroPassed" id="splashWrap">&nbsp;</div>
-            <div dd-if="not SHUD.IntroPassed" id="splash">&nbsp;</div>
-            <img src="http://vps.shadowtemplar.org:666/api/ships/update?id={{ship.id}}&x={{ship.world.position.x}}&y={{ship.world.position.y}}&z={{ship.world.position.z}}" />
-        </div>]])
+        ]])
     local itemTemplate = [[<div class="item {{class}}">{{content}}</div>]]
 
     function self.SelectMenu(menuName)
