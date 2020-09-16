@@ -2,112 +2,112 @@
     "minify":false,
     "slots": [
         {
-            "file":"src/STEC_config.lua",
-            "slot":"-1",
-            "signature":"start()",
-            "args":[]
+            "Files": ["src/STEC_config.lua"],
+            "Slot":"-1",
+            "Signature":"start()",
+            "Args":""
         },
         {
-            "file":"src/ModuleRegistration.lua",
-            "slot":"-1",
-            "signature":"start()",
-            "args":[]
+            "Files": ["src/ModuleRegistration.lua"],
+            "Slot":"-1",
+            "Signature":"start()",
+            "Args":""
         },
         {
-            "code":"system.showScreen(0)",
-            "slot":"-1",
-            "signature":"stop()",
-            "args":[]
+            "Code": "system.showScreen(0)",
+            "Slot":"-1",
+            "Signature":"stop()",
+            "Args":""
         },
         {
-            "code":"if SHUD then SHUD.Render() end",
-            "slot":"-1",
-            "signature":"tick(timerId)",
-            "args":[{"value":"HUD"}]
+            "Code":"if SHUD then SHUD.Render() end",
+            "Slot":"-1",
+            "Signature":"tick(timerId)",
+            "Args":"*"
         },
         {
-            "code":"keybindPresets[keybindPreset].Call(action, \"down\")",
-            "slot":"-2",
-            "signature":"actionStart(action)",
-            "args":[{"variable":"*"}]
+            "Code":"keybindPresets[keybindPreset].Call(action, \"down\")",
+            "Slot":"-2",
+            "Signature":"actionStart(action)",
+            "Args":"*"
         },
         {
-            "code":"keybindPresets[keybindPreset].Call(action, \"up\")",
-            "slot":"-2",
-            "signature":"actionStop(action)",
-            "args":[{"variable":"*"}]
+            "Code":"keybindPresets[keybindPreset].Call(action, \"up\")",
+            "Slot":"-2",
+            "Signature":"actionStop(action)",
+            "Args":"*"
         },
         {
-            "code":"keybindPresets[keybindPreset].Call(action, \"loop\")",
-            "slot":"-2",
-            "signature":"actionLoop(action)",
-            "args":[{"variable":"*"}]
+            "Code":"keybindPresets[keybindPreset].Call(action, \"loop\")",
+            "Slot":"-2",
+            "Signature":"actionLoop(action)",
+            "Args":"*"
         },
         {
-            "code":"if Events then Events.Flush() end",
-            "slot":"-2",
-            "signature":"flush()",
-            "args":[]
+            "Code":"if Events then Events.Flush() end",
+            "Slot":"-2",
+            "Signature":"flush()",
+            "Args":""
         },
         {
-            "code":"if Events then Events.Update() end",
-            "slot":"-2",
-            "signature":"update()",
-            "args":[]
+            "Code":"if Events then Events.Update() end",
+            "Slot":"-2",
+            "Signature":"update()",
+            "Args":""
         },
         {
-            "file":"src/EventDelegate.lua",
-            "slot":"-2",
-            "signature":"start()",
-            "args":[]
+            "Files":["src/EventDelegate.lua"],
+            "Slot":"-2",
+            "Signature":"start()",
+            "Args":""
         },
         {
-            "file":"src/TaskManager.lua",
-            "slot":"-2",
-            "signature":"start()",
-            "args":[]
+            "Files":["src/TaskManager.lua"],
+            "Slot":"-2",
+            "Signature":"start()",
+            "Args":""
         },
         {
-            "file":"src/DynamicDocument.lua",
-            "slot":"-2",
-            "signature":"start()",
-            "args":[]
+            "Files":["src/DynamicDocument.lua"],
+            "Slot":"-2",
+            "Signature":"start()",
+            "Args":""
         },
         {
-            "file":"src/TagManager.lua",
-            "slot":"-3",
-            "signature":"start()",
-            "args":[]
+            "Files":["src/TagManager.lua"],
+            "Slot":"-3",
+            "Signature":"start()",
+            "Args":""
         },
         {
-            "file":"src/KeybindController.lua",
-            "slot":"-3",
-            "signature":"start()",
-            "args":[]
+            "Files":["src/KeybindController.lua"],
+            "Slot":"-3",
+            "Signature":"start()",
+            "Args":""
         },
         {
-            "file":"src/STEC.lua",
-            "slot":"-3",
-            "signature":"start()",
-            "args":[]
+            "Files":["src/STEC.lua"],
+            "Slot":"-3",
+            "Signature":"start()",
+            "Args":""
         },
         {
-            "file":"src/SHUD.lua",
-            "slot":"-3",
-            "signature":"start()",
-            "args":[]
+            "Files":["src/SHUD.lua"],
+            "Slot":"-3",
+            "Signature":"start()",
+            "Args":""
         },
         {
-            "file":"src/STMM.lua",
-            "slot":"-3",
-            "signature":"start()",
-            "args":[]
+            "Files":["src/STMM.lua"],
+            "Slot":"-3",
+            "Signature":"start()",
+            "Args":""
         },
         {
-            "file":"src/shud2.css",
-            "slot":"-3",
-            "signature":"start()",
-            "args":[]
-        },
+            "Files":["src/shud2.css"],
+            "Slot":"-3",
+            "Signature":"start()",
+            "Args":""
+        }
     ]
 }
