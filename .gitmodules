@@ -1,3 +1,0 @@
-[submodule "dependencies/dubuild"]
-	path = dependencies/dubuild
-	url = https://gitlab+deploy-token-34536:ucf7ELEL5sgcywkexgxT@gitlab.com/dual-universe/dubuild.git
