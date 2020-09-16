@@ -1,16 +1,18 @@
-image: mhndev/docker-lua
-
-DUConfigs:
+stages:
+  - build
+   
+ workflow:
+  rules:
+   - if: '$CI_COMMIT_BRANCH == "master"'
+   - if: '$CI_COMMIT_BRANCH == "development"'
+   
+ build:
+  image: registry.internal.st/dual-universe/dubuild:latest
+  stage: build
   variables:
-    GIT_SUBMODULE_STRATEGY: recursive
-  before_script:
-    - apt install git
-    - git config --global http.sslVerify false
-    - git submodule update --recursive --remote
+   GIT_SUBMODULE_STRATEGY: recursive
   script:
-    - lua $CI_PROJECT_DIR/dependencies/dubuild/compiler.lua ./config/Compiler_Config.json -f "STEC.json" ./dependencies/dubuild/template.json ./output
-    - lua $CI_PROJECT_DIR/dependencies/dubuild/compiler.lua ./config/Compiler_Config.min.json -f "STEC.min.json" ./dependencies/dubuild/template.json ./output
-    - lua $CI_PROJECT_DIR/dependencies/dubuild/compiler.lua ./config/Compiler_Config.crypt.json -f "%s.STEC.crypt.json" ./dependencies/dubuild/template.json ./output
+   - dotnet /app/DUBuild.dll build -s $CI_PROJECT_DIR -o $CI_PROJECT_DIR/output -c $CI_PROJECT_DIR/config/Compiler_Config.json -f $CI_PROJECT_NAME.json
   artifacts:
-    paths:
-    - ./output/*.json
+     paths:
+       - $CI_PROJECT_DIR/output/*.json
