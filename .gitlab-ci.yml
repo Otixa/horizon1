@@ -1,19 +1,18 @@
-
 stages:
-  - build
-   
- workflow:
-  rules:
-   - if: '$CI_COMMIT_BRANCH == "master"'
-   - if: '$CI_COMMIT_BRANCH == "development"'
-   
- build:
-  image: registry.internal.st/dual-universe/dubuild:latest
-  stage: build
-  variables:
-   GIT_SUBMODULE_STRATEGY: recursive
-  script:
-   - dotnet /app/DUBuild.dll build -s $CI_PROJECT_DIR -o $CI_PROJECT_DIR/output -c $CI_PROJECT_DIR/config/Compiler_Config.json -f $CI_PROJECT_NAME.json
-  artifacts:
-     paths:
-       - $CI_PROJECT_DIR/output/*.json
+ - build
+
+workflow:
+ rules:
+  - if: '$CI_COMMIT_BRANCH == "master"'
+  - if: '$CI_COMMIT_BRANCH == "development"'
+
+build:
+ image: registry.internal.st/dual-universe/dubuild:latest
+ stage: build
+ variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+ script:
+  - dotnet /app/DUBuild.dll build -s $CI_PROJECT_DIR -o $CI_PROJECT_DIR/output -c $CI_PROJECT_DIR/config/Compiler_Config.json -f $CI_PROJECT_NAME.json
+ artifacts:
+  paths:
+   - $CI_PROJECT_DIR/output/*.json
