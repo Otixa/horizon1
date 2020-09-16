@@ -102,6 +102,12 @@
             "slot":"-3",
             "signature":"start()",
             "args":[]
-        }
+        },
+        {
+            "file":"src/shud2.css",
+            "slot":"-3",
+            "signature":"start()",
+            "args":[]
+        },
     ]
 }

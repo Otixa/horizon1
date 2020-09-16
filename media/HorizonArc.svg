@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid" width="900" height="173" viewBox="-10 -10 910 183">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #0faea9;
+        fill-rule: evenodd;
+      }
+    </style>
+    <filter id="sofGlow" height="200%" width="200%" x="-50%" y="-50%">
+		<feMorphology operator="dilate" radius="2" in="SourceAlpha" result="thicken" />
+		<feGaussianBlur in="thicken" stdDeviation="4" result="blurred" />
+		<feFlood flood-color="rgb(62,189,223)" result="glowColor" />
+		<feComposite in="glowColor" in2="blurred" operator="in" result="softGlow_colored" />
+		<feMerge>
+			<feMergeNode in="softGlow_colored"/>
+			<feMergeNode in="SourceGraphic"/>
+		</feMerge>
+	</filter>
+  </defs>
+  <path d="M-0.000,171.198 C-0.000,171.198 184.500,9.911 450.000,9.911 C715.500,9.911 900.000,173.000 900.000,173.000 C900.000,173.000 721.800,-0.000 450.000,-0.000 C178.200,-0.000 -0.000,171.198 -0.000,171.198 Z" class="cls-1" filter="url(#sofGlow)"/>
+</svg>
