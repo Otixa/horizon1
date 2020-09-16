@@ -1,4 +1,5 @@
-CSS_SHUD = [[#screen_widget_stack { 
+CSS_SHUD = [[
+#screen_widget_stack { 
   position: fixed;
   left: 0;
   bottom: 0;
@@ -139,14 +140,17 @@ CSS_SHUD = [[#screen_widget_stack {
 #speedometer::before {
   display: block;
   position: absolute;
-  top: 0;
-  right: 0;
   content: ' ';
-  left: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22900%22%20height%3D%22173%22%20preserveAspectRatio%3D%22xMidYMid%22%3E%3Cpath%20fill%3D%22%230faea9%22%20fill-rule%3D%22evenodd%22%20d%3D%22M0%20171S185%2010%20450%2010c266%200%20450%20163%20450%20163S722%200%20450%200%200%20171%200%20171z%22%2F%3E%3C%2Fsvg%3E')
-  no-repeat center bottom;
-  background-size: contain;
+  top: 0.25vh;
+  bottom: -17vh;
+  left: 50%;
+  width: 31vw;
+  border: 10px solid #0faea9;
+  border-bottom: 0;
+  border-right: 0;
+  border-left: 0;
+  border-radius: 100%;
+  transform: translateX(-50%);
   background-color: transparent;
   filter: blur(100vw);
 }
@@ -155,13 +159,16 @@ CSS_SHUD = [[#screen_widget_stack {
   display: block;
   position: fixed;
   left: 50%;
-  bottom: 2vw;
+  top: 86.2vh;
   width: 30vw;
-  height: 6vw;
+  height: 24.5vh;
   transform: translate(-50%);
   content: ' ';
-  background: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22900%22%20height%3D%22173%22%20preserveAspectRatio%3D%22xMidYMid%22%3E%3Cpath%20fill%3D%22%230faea9%22%20fill-rule%3D%22evenodd%22%20d%3D%22M0%20171S185%2010%20450%2010c266%200%20450%20163%20450%20163S722%200%20450%200%200%20171%200%20171z%22%2F%3E%3C%2Fsvg%3E')
-  no-repeat center bottom;
+  border: 10px solid #0faea9;
+  border-bottom: 0;
+  border-right: 0;
+  border-left: 0;
+  border-radius: 100%;
   background-size: contain;
   background-color: transparent;
   filter: blur(0.1vw);
@@ -393,4 +400,5 @@ CSS_SHUD = [[#screen_widget_stack {
   left: 0;
   right: 0;
   z-index: -100;
-}]]
+}
+]]

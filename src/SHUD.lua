@@ -107,15 +107,15 @@ SHUD =
 
     function self.MakeBooleanIndicator(varName)
         local tmpl = [[<span class="right">
-            <i dd-if="varName == true" class="fas fa-check-square">&nbsp;</i>
-            <i dd-if="varName == false" class="fas fa-square">&nbsp;</i>
+            <i dd-if="varName == true">✓&nbsp;</i>
+            <i dd-if="varName == false">✘&nbsp;</i>
         </span>]]
         return tmpl:gsub("varName", esc(varName))
     end
 
     function self.MakeSliderIndicator(varName, suffix)
         suffix = suffix or ""
-        local tmpl = [[<span class="right">{{varName}}{{suffix}}<i class="fas fa-sort">&nbsp;</i></span>]]
+        local tmpl = [[<span class="right">{{varName}}{{suffix}}<i>&udarr;&nbsp;</i></span>]]
         return tmpl:gsub("varName", esc(varName)):gsub("{{suffix}}", esc(suffix))
     end
 
@@ -123,8 +123,8 @@ SHUD =
         return SMI(text..self.MenuIcon,  function() self.SelectMenu(link) end)
     end
 
-    self.MenuIcon = [[<span class="right"><i class="fas fa-sign-in-alt">&nbsp;</i></span>]]
-    self.BackButton = SMI([[<i class="fas fa-sign-in-alt fa-flip-horizontal">&nbsp;</i>&nbsp;]].."Back", function() SHUD.Menu = SHUD.MenuList.prev SHUD.CurrentIndex = 1 end)
+    self.MenuIcon = [[<span class="right"><i>&gt;&nbsp;</i></span>]]
+    self.BackButton = SMI([[<i>&lt;&nbsp;</i>&nbsp;]].."Back", function() SHUD.Menu = SHUD.MenuList.prev SHUD.CurrentIndex = 1 end)
     self.Menu = {
         SMI(DD([[<span>Throttle<span>]]..self.MakeSliderIndicator("round2(ship.throttle * 100)", "%")), 
             function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
@@ -135,7 +135,7 @@ SHUD =
         self.GenerateMenuLink("Stability Assist", "stability"),
         self.GenerateMenuLink("Vector Locking", "vectorLock"),
         self.GenerateMenuLink("Ship Stats", "shipStats"),
-        SMI([[<i class="fas fa-info-circle">&nbsp;</i><span>&nbsp;Hotkeys</span>]]..self.MenuIcon, function() self.SelectMenu("hotkeys") end)
+        SMI([[<i>&#9432;&nbsp;</i><span>&nbsp;Hotkeys</span>]]..self.MenuIcon, function() self.SelectMenu("hotkeys") end)
     }
     self.MenuList = {}
     self.MenuList.flightMode = {}
