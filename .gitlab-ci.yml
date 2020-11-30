@@ -7,7 +7,7 @@ workflow:
   - if: '$CI_COMMIT_BRANCH == "development"'
 
 build:
- image: registry.internal.st/dual-universe/dubuild:latest
+ image: registry.internal.st/dual-universe/dubuild:v2
  stage: build
  variables:
   GIT_SUBMODULE_STRATEGY: recursive
