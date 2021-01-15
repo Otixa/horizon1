@@ -1,3 +1,4 @@
+--@class STEC
 --[[
     Shadow Templar Engine Control
     Version: 1.17
@@ -29,7 +30,9 @@ function STEC(core, control, Cd)
         acceleration = vec3(core.getWorldAcceleration()),
         position = vec3(core.getConstructWorldPos()),
         gravity = vec3(core.getWorldGravity()),
-        atmosphericDensity = control.getAtmosphereDensity()
+        vertical = vec3(core.getWorldVertical()),
+        atmosphericDensity = control.getAtmosphereDensity(),
+        nearPlanet = unit.getClosestPlanetInfluence() > 0
     }
     self.target = {
         prograde = function() return self.world.velocity:normalize() end,
@@ -41,6 +44,10 @@ function STEC(core, control, Cd)
     }
     -- Construct id
     self.id = core.getConstructId()
+    -- Control Mode - Travel (0) or Cruise (1)
+    self.controlMode = unit.getControlMasterModeId()
+    -- Alternate Control Mode for remote control
+    self.alternateCM = false
     -- Active engine tags
     self.tags = TagManager("all,brake")
     -- Target vector to face if non-0. Can take in a vec3 or function which returns a vec3
@@ -79,11 +86,18 @@ function STEC(core, control, Cd)
     self.fMax = 0
     -- Altitude which the vessel should attempt to hold
     self.altitudeHold = 0
+    -- Speed which the vessel should attempt to maintain
+    self.cruiseSpeed = 0
     -- Whether or not to ignore throttle for vertical thrust calculations
     self.ignoreVerticalThrottle = false
     -- Local velocity
     self.localVelocity = vec3(core.getVelocity())
-
+    -- Roll Degrees
+    self.rollDegrees = self.world.vertical:angle_between(self.world.left) / math.pi * 180 - 90
+    if self.world.vertical:dot(self.world.up) > 0 then self.rollDegrees = 180 - self.rollDegrees end
+    -- Pitch
+    self.pitchRatio = self.world.vertical:angle_between(self.world.forward) / math.pi - 0.5
+    
     local lastUpdate = system.getTime()
 
     function self.updateWorld()
@@ -98,13 +112,22 @@ function STEC(core, control, Cd)
             acceleration = vec3(core.getWorldAcceleration()),
             position = vec3(core.getConstructWorldPos()),
             gravity = vec3(core.getWorldGravity()),
-            atmosphericDensity = control.getAtmosphereDensity()
+            vertical = vec3(core.getWorldVertical()),
+            atmosphericDensity = control.getAtmosphereDensity(),
+            nearPlanet = unit.getClosestPlanetInfluence() > 0
         }
-
+	   -- Roll Degrees
+        self.rollDegrees = self.world.vertical:angle_between(self.world.left) / math.pi * 180 - 90
+        if self.world.vertical:dot(self.world.up) > 0 then self.rollDegrees = 180 - self.rollDegrees end
+        -- Pitch
+        self.pitchRatio = self.world.vertical:angle_between(self.world.forward) / math.pi - 0.5
+        
         self.AngularVelocity = vec3(core.getWorldAngularVelocity())
         self.AngularAcceleration = vec3(core.getWorldAngularAcceleration())
         self.AngularAirFriction = vec3(core.getWorldAirFrictionAngularAcceleration())
-
+        
+	   self.airFriction = vec3(core.getWorldAirFrictionAcceleration())
+        
         self.mass = self.core.getConstructMass()
         self.altitude = self.core.getAltitude()
         self.localVelocity = vec3(core.getVelocity())
@@ -123,7 +146,10 @@ function STEC(core, control, Cd)
     function clamp(n, min, max)
         return math.min(max, math.max(n, min))
     end
-
+    function round(num, numDecimalPlaces)
+        local mult = 10^(numDecimalPlaces or 0)
+        return math.floor(num * mult + 0.5) / mult
+    end
     function self.throttleUp()
         self.throttle = clamp(self.throttle + 0.05, 0, 1)
     end
@@ -188,11 +214,32 @@ function STEC(core, control, Cd)
             end
         end
         if self.followGravity and self.rotation.x == 0 then
-            atmp = atmp + (self.world.up:cross(-self.world.gravity:normalize()) * self.gravityFollowSpeed)
+		  local current = self.localVelocity:len() * self.mass
+            local scale = nil
+            if ship.localVelocity:len() > 1000 then
+                scale = self.gravityFollowSpeed * math.min(math.max(current / self.fMax, 0.1), 1) * 10
+            else
+                scale = self.gravityFollowSpeed
+            end
+            atmp = atmp + (self.world.up:cross(-self.world.vertical) * scale)
         end
-        if self.altitudeHold ~= 0 then
-            local deltaAltitude = self.altitude - self.altitudeHold
-            tmp = tmp + ((self.world.gravity:normalize() * deltaAltitude * -1) * self.mass * deltaTime)
+        --if self.altitudeHold ~= 0 then
+        --    local deltaAltitude = self.altitude - self.altitudeHold
+        --    tmp = tmp + ((self.world.gravity:normalize() * deltaAltitude * -1) * self.mass * deltaTime)
+        --end
+		if self.altitudeHold ~= 0 then
+            local deltaAltitude =  self.altitudeHold - self.altitude
+            
+            tmp = tmp - ((self.world.gravity * self.mass) * deltaAltitude)
+        end
+        if self.alternateCM then
+          local speed = (self.cruiseSpeed / 3.6)
+          local dot = self.world.forward:dot(self.airFriction)
+          local modifiedVelocity = (speed - dot)
+          local desired = self.world.forward * modifiedVelocity
+          local delta = (desired - (self.world.velocity - self.world.acceleration))
+            
+          tmp = tmp + (delta * self.mass)
         end
         if self.inertialDampening then
             local brakingForce = self.mass * -self.localVelocity
@@ -241,6 +288,13 @@ function STEC(core, control, Cd)
 
         atmp = atmp - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
         tmp = tmp / self.mass
+        if self.controlMode ~= unit.getControlMasterModeId() then 
+            self.controlMode = unit.getControlMasterModeId()
+            if unit.getControlMasterModeId() == 0 then self.alternateCM = false end
+            if unit.getControlMasterModeId() == 1 then self.alternateCM = true end
+        end
+       
+        
         self.control.setEngineCommand(tostring(self.tags), {tmp:unpack()}, {atmp:unpack()})
         lastUpdate = system.getTime()
     end

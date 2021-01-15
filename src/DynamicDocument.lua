@@ -1,3 +1,4 @@
+--@class DynamicDocument
 function DynamicDocument(template)
     local self = {}
     self.template = template or ""
@@ -22,6 +23,9 @@ function DynamicDocument(template)
         isindex = true,
         circle = true,
         polygon = true,
+        polyline = true,
+        ellipse = true,
+        path = true,
         line = true,
         rect = true,
         use = true
@@ -256,3 +260,4 @@ function DynamicDocument(template)
     end
     return self
 end
+

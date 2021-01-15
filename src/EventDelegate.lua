@@ -1,3 +1,4 @@
+--@class EventDelegate
 function EventDelegate()
     local this = {}
     this.Delegates = {}
@@ -48,3 +49,4 @@ Events = {
     Update = EventDelegate(),
     Flush = EventDelegate()
 }
+

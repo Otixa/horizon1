@@ -1,3 +1,4 @@
+--@class TagManager
 --[[
     Shadow Templar Tag Manager
     Version 1.02
@@ -65,3 +66,5 @@ function TagManager(tagString)
 	setmetatable (self, { __tostring = function (self) return tags end })
 	return self
 end
+
+

@@ -1,3 +1,4 @@
+--@class KeybindController
 --[[
     Shadow Templar Keybind Controller
     Version 1.24
@@ -40,7 +41,7 @@ function KeybindController()
     local keyList = {
         "forward", "backward", "left", "right", "yawleft", "yawright", "up", "down", "gear", "light", "landing", "brake", 
         "option1", "option2", "option3", "option4", "option5", "option6", "option7", "option8", "option9",
-        "stopengines", "speedup", "speeddown", "antigravity", "booster"
+        "stopengines", "speedup", "speeddown", "antigravity", "booster","lshift","lalt","lalt","strafeleft","straferight"
     }
     self.keyUp = {}
     self.keyDown = {}
@@ -53,6 +54,7 @@ function KeybindController()
             if self.keyDown[action] then self.keyDown[action].Call(action) end
         else
             if self.keyLoop[action] then self.keyDown[action].Call(action) end
+            system.print(action)
         end
     end
 
@@ -88,3 +90,5 @@ function KeybindController()
 end
 
 keybindPresets = {}
+
+

@@ -1,3 +1,4 @@
+--@class MouseMovement
 --[[
     Shadow Templar Mouse Movement
     Version 1.2
@@ -66,3 +67,5 @@ function STMM(stec, system)
 end
 
 mouse = STMM(ship, system)
+
+
