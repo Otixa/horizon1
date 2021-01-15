@@ -79,7 +79,7 @@ function STEC(core, control, Cd)
     -- Whether or not the vessel should attempt to face perpendicular to the gravity vector
     self.followGravity = false
     -- Aggressiveness of the gravity follow adjustment
-    self.gravityFollowSpeed = 4
+    self.gravityFollowSpeed = 10
     -- Amount of throttle to apply. 0-1 range
     self.throttle = 1
     -- Maximum thrust which the vessel is capable of producing
@@ -223,14 +223,9 @@ function STEC(core, control, Cd)
             end
             atmp = atmp + (self.world.up:cross(-self.world.vertical) * scale)
         end
-        --if self.altitudeHold ~= 0 then
-        --    local deltaAltitude = self.altitude - self.altitudeHold
-        --    tmp = tmp + ((self.world.gravity:normalize() * deltaAltitude * -1) * self.mass * deltaTime)
-        --end
-		if self.altitudeHold ~= 0 then
-            local deltaAltitude =  self.altitudeHold - self.altitude
-            
-            tmp = tmp - ((self.world.gravity * self.mass) * deltaAltitude)
+        if self.altitudeHold ~= 0 then
+            local deltaAltitude = self.altitude - self.altitudeHold
+            tmp = tmp + ((self.world.gravity:normalize() * deltaAltitude * -1) * self.mass * deltaTime)
         end
         if self.alternateCM then
           local speed = (self.cruiseSpeed / 3.6)
