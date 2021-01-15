@@ -62,6 +62,7 @@ keybindPresets["keyboard"].Init = function()
     mouse.enabled = false
     mouse.unlock()
     ship.ignoreVerticalThrottle = true
+    ship.ignoreHorizontalThrottle = true
     ship.throttle = 0
     ship.direction.y = 1
 end

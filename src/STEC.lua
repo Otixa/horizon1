@@ -90,6 +90,8 @@ function STEC(core, control, Cd)
     self.cruiseSpeed = 0
     -- Whether or not to ignore throttle for vertical thrust calculations
     self.ignoreVerticalThrottle = false
+    -- Whether or not to ignore throttle for horizontal thrust calculations
+    self.ignoreHorizontalThrottle = false
     -- Local velocity
     self.localVelocity = vec3(core.getVelocity())
     -- Roll Degrees
@@ -188,7 +190,9 @@ function STEC(core, control, Cd)
         local atmp = self.angularThrust
 
         if self.direction.x ~= 0 then
-            tmp = tmp + (((self.world.right * self.direction.x) * self.fMax) * self.throttle)
+            local a = (self.world.right * self.direction.x) * self.fMax
+            if not self.ignoreHorizontalThrottle then a = a * self.throttle end
+            tmp = tmp + a
         end
         if self.direction.y ~= 0 then
             tmp = tmp + (((self.world.forward * self.direction.y) * self.fMax) * self.throttle)
