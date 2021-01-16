@@ -1,4 +1,4 @@
---@class Keybind_Presets
+--@class STEC_Config
 inertialDampening = true --export: Start with inertial dampening on/off
 followGravity = true --export: Start with gravity follow on/off
 ship.altitudeHold = round2(core.getAltitude(),0)
