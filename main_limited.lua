@@ -1,14 +1,14 @@
---@require Event_Delegate
---@require Task_Manager
---@require Dynamic_Document
+--@require EventDelegate
+--@require TaskManager
+--@require DynamicDocument
 --@require CSS_SHUD
---@require Simple_Slot_Detector
---@require Tag_Manager
---@require Keybind_Controller
+--@require SimpleSlotDetector
+--@require TagManager
+--@require KeybindController
 --@require STEC
 --@require SHUD
---@require Mouse_Movement
---@require Keybind_Presets
+--@require MouseMovement
+--@require STEC_Config
 --@timer SHUDRender
 --@class Main
 
