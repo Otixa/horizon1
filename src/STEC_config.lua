@@ -1,7 +1,7 @@
 --@class STEC_Config
 goButtonSpeed = 1050 --export: GO Button Speed
 inertialDampening = false --export: Start with inertial dampening on/off
-followGravity = true --export: Start with gravity follow on/off
+followGravity = false --export: Start with gravity follow on/off
 
 ship.inertialDampening = inertialDampening
 ship.followGravity = followGravity
@@ -27,6 +27,12 @@ function goButton()
 	elseif ship.cruiseSpeed == goButtonSpeed then
 		ship.cruiseSpeed = 0
 	end
+end
+
+function orbitalReentryTransition()
+    ship.targetVector = nil
+    ship.targetVector = ship.target.antiradial
+    ship.cruiseSpeed = ship.cruiseSpeed * -1
 end
 
 function gearToggle()
@@ -155,6 +161,7 @@ keybindPresets["keyboard"].keyUp["option3"].Add(function () if ship.direction.y 
 keybindPresets["keyboard"].keyUp["option4"].Add(function () ship.counterGravity = not ship.counterGravity end, "Counter Gravity")
 keybindPresets["keyboard"].keyUp["option5"].Add(function () switchFlightMode("mouse") end, "Switch Flight Mode")
 keybindPresets["keyboard"].keyUp["option6"].Add(function () switchControlMode() end, "Alternate Control Mode Switch")
+keybindPresets["keyboard"].keyUp["option7"].Add(function () orbitalReentryTransition() end, "Orbital Reentry Transition")
 
 if flightModeDb then
    if flightModeDb.hasKey("flightMode") == 0 then flightModeDb.setStringValue("flightMode","keyboard") end

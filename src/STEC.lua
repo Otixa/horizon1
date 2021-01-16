@@ -242,8 +242,14 @@ function STEC(core, control, Cd)
           local modifiedVelocity = (speed - dot)
           local desired = self.world.forward * modifiedVelocity
           local delta = (desired - (self.world.velocity - self.world.acceleration))
-            
-          tmp = tmp + (delta * self.mass)
+          local diff =  (math.abs(speed) - math.abs(self.world.velocity:len())) * 0.1
+          --if not self.counterGravity then delta = delta - self.world.gravity end
+          if self.world.atmosphericDensity > 0.01 then
+            tmp = tmp + (self.mass * delta)
+          else
+            tmp = tmp + (self.mass * delta) * math.abs(diff)
+          end
+          
         end
         if self.inertialDampening then
             local brakingForce = self.mass * -self.localVelocity
