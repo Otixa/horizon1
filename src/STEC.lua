@@ -84,6 +84,8 @@ function STEC(core, control, Cd)
     self.throttle = 1
     -- Maximum thrust which the vessel is capable of producing
     self.fMax = 0
+    -- Toggle altitude hold on/off
+    self.altitudeHoldToggle = false
     -- Altitude which the vessel should attempt to hold
     self.altitudeHold = 0
     -- Speed which the vessel should attempt to maintain
@@ -223,10 +225,10 @@ function STEC(core, control, Cd)
             end
             atmp = atmp + (self.world.up:cross(-self.world.vertical) * scale)
         end
-        if self.altitudeHold ~= 0 then
-            local deltaAltitude = self.altitude - self.altitudeHold
-            tmp = tmp + ((self.world.gravity:normalize() * deltaAltitude * -1) * self.mass * deltaTime)
-        end
+        if self.altitudeHoldToggle then
+   		local deltaAltitude =  self.altitudeHold - self.altitude
+   		tmp = tmp - ((self.world.gravity * self.mass) * deltaAltitude)
+	   end
         if self.alternateCM then
           local speed = (self.cruiseSpeed / 3.6)
           local dot = self.world.forward:dot(self.airFriction)
