@@ -48,6 +48,10 @@ function STEC(core, control, Cd)
     self.controlMode = unit.getControlMasterModeId()
     -- Alternate Control Mode for remote control
     self.alternateCM = false
+    -- Placeholder for throttle value when switching control modes
+    self.tempThrottle = 0
+    -- Placeholder for cruise value when switching control modes
+    self.tempCruise = 0  
     -- Active engine tags
     self.tags = TagManager("all,brake")
     -- Target vector to face if non-0. Can take in a vec3 or function which returns a vec3
@@ -292,10 +296,21 @@ function STEC(core, control, Cd)
 
         atmp = atmp - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
         tmp = tmp / self.mass
+
         if self.controlMode ~= unit.getControlMasterModeId() then 
             self.controlMode = unit.getControlMasterModeId()
-            if unit.getControlMasterModeId() == 0 then self.alternateCM = false end
-            if unit.getControlMasterModeId() == 1 then self.alternateCM = true end
+            if unit.getControlMasterModeId() == 0 then 
+                self.tempCruise = self.cruiseSpeed
+                self.cruiseSpeed = 0
+                self.throttle = self.tempThrottle
+                self.alternateCM = false 
+            end
+            if unit.getControlMasterModeId() == 1 then 
+                self.tempThrottle = self.throttle
+                self.throttle = 0
+                self.cruiseSpeed = self.tempCruise
+                self.alternateCM = true 
+            end
         end
        
         
