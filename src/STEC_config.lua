@@ -19,14 +19,21 @@ function holdAlt()
 end
 
 function goButton()
-	if not ship.alternateCM then
-		ship.alternateCM = true
-		end
-	if ship.cruiseSpeed ~= goButtonSpeed then
-		ship.cruiseSpeed = goButtonSpeed
-	elseif ship.cruiseSpeed == goButtonSpeed then
-		ship.cruiseSpeed = 0
-	end
+    if not ship.alternateCM then
+        -- Set throttle to 100% or 0
+        if ship.throttle ~= 0 then
+            ship.throttle = 0
+        else
+            ship.throttle = 1
+        end
+    else
+        -- Set cruise speed to preset or 0
+        if ship.cruiseSpeed ~= goButtonSpeed then
+            ship.cruiseSpeed = goButtonSpeed
+        elseif ship.cruiseSpeed == goButtonSpeed then
+            ship.cruiseSpeed = 0
+        end
+    end
 end
 
 function gearToggle()
@@ -43,9 +50,20 @@ function switchFlightMode(flightMode)
     if flightModeDb then flightModeDb.setStringValue("flightMode",flightMode) end
 end
 
+
 function switchControlMode()
-    if ship.alternateCM == false then ship.alternateCM = true
-        else ship.alternateCM = false end
+    if ship.alternateCM == false then 
+        ship.tempThrottle = ship.throttle
+        ship.throttle = 0
+        ship.cruiseSpeed = ship.tempCruise
+        ship.alternateCM = true
+
+    else 
+        ship.tempCruise = ship.cruiseSpeed
+        ship.cruiseSpeed = 0
+        ship.throttle = ship.tempThrottle
+        ship.alternateCM = false 
+    end
 end
 
 keybindPresets["mouse"] = KeybindController()
