@@ -210,6 +210,8 @@ function STEC(core, control, Cd)
             atmp = atmp + ((self.world.forward:cross(self.world.up) * self.rotation.x) * self.rotationSpeed)
             if self.targetVectorAutoUnlock then
                 self.targetVector = nil
+                self.followGravity = false
+                self.altitudeHold = 0
             end
         end
         if self.rotation.y ~= 0 then
@@ -219,10 +221,11 @@ function STEC(core, control, Cd)
             atmp = atmp + ((self.world.forward:cross(self.world.right) * self.rotation.z) * self.rotationSpeed)
             if self.targetVectorAutoUnlock then
                 self.targetVector = nil
+                self.altitudeHold = 0
             end
         end
         if self.followGravity and self.rotation.x == 0 then
-		  local current = self.localVelocity:len() * self.mass
+		    local current = self.localVelocity:len() * self.mass
             local scale = nil
             if ship.localVelocity:len() > 1000 then
                 scale = self.gravityFollowSpeed * math.min(math.max(current / self.fMax, 0.1), 1) * 10

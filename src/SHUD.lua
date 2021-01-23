@@ -269,18 +269,18 @@ SHUD =
 
     self.MenuList.stability = {
         SMI(DD("<span>Gravity Suppression<span>" .. self.MakeBooleanIndicator("ship.counterGravity")), function() ship.counterGravity = not ship.counterGravity end),
-        SMI(DD("<span>Gravity Follow</span>" .. self.MakeBooleanIndicator("ship.followGravity")), function() ship.followGravity = not ship.followGravity end),
+        SMI(DD("<span>Gravity Follow</span>" .. self.MakeBooleanIndicator("ship.followGravity")), function()  ship.targetVector = nil ship.followGravity = not ship.followGravity end),
         SMI(DD("<span>Inertial Dampening<span>" .. self.MakeBooleanIndicator("ship.inertialDampening")), function() ship.inertialDampening = not ship.inertialDampening end),
     }
     self.MenuList.vectorLock = {
         SMI(DD("<span>Auto Unlock<span>" .. self.MakeBooleanIndicator("ship.targetVectorAutoUnlock")), function() ship.targetVectorAutoUnlock = not ship.targetVectorAutoUnlock end),
-        SMI("Unlock", function() ship.targetVector = nil end),
-        SMI("Lock Prograde", function() ship.targetVector = ship.target.prograde end),
-        SMI("Lock Retrograde", function() ship.targetVector = ship.target.retrograde end),
-        SMI("Lock Radial", function() ship.targetVector = ship.target.radial end),
-        SMI("Lock Anti-Radial", function() ship.targetVector = ship.target.antiradial end),
-        SMI("Lock Normal", function() ship.targetVector = ship.target.normal end),
-        SMI("Lock Anti-Normal", function() ship.targetVector = ship.target.antinormal end)
+        SMI("Unlock", function() ship.followGravity = false ship.targetVector = nil end),
+        SMI("Lock Prograde", function() ship.followGravity = false ship.targetVector = ship.target.prograde end),
+        SMI("Lock Retrograde", function() ship.followGravity = false ship.targetVector = ship.target.retrograde end),
+        SMI("Lock Radial", function() ship.followGravity = false ship.targetVector = ship.target.radial end),
+        SMI("Lock Anti-Radial", function() ship.followGravity = false ship.targetVector = ship.target.antiradial end),
+        SMI("Lock Normal", function() ship.followGravity = false ship.targetVector = ship.target.normal end),
+        SMI("Lock Anti-Normal", function() ship.followGravity = false ship.targetVector = ship.target.antinormal end)
     }
     self.MenuList.hotkeys = {}
     
