@@ -5,6 +5,7 @@
 --@require SimpleSlotDetector
 --@require TagManager
 --@require KeybindController
+--@require Atlas
 --@require STEC
 --@require SHUD
 --@require MouseMovement
