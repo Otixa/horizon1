@@ -35,6 +35,10 @@ function getElements()
       if class == "AntiGravityGeneratorUnit" then
         antigrav = var
       end
+
+      if class == "DoorUnit" then
+        var.deactivate()
+     end
     end
   end
 end
