@@ -91,6 +91,7 @@ SHUD =
     self.ScreenW = system.getScreenWidth()
     self.ScreenH = system.getScreenHeight()
     self.Resolution = vec2(self.ScreenW, self.ScreenH)
+    self.Opacity = 1
     
     self.SvgMinX = -round((self.ScreenW / 4) / 2,0)
     self.SvgMinY = -round((self.ScreenH / 4) / 2,0)
@@ -288,7 +289,7 @@ SHUD =
     
     
     local template = DD(fa..[[
-    <div id="horizon">
+    <div id="horizon" style="opacity: {{SHUD.Opacity}};">
         <div id="artificialHorizon">
             <svg height="100%" width="100%" viewBox="{{SHUD.SvgMinX}} {{SHUD.SvgMinY}} {{SHUD.SvgWidth}} {{SHUD.SvgHeight}}">
                 <g dd-if="ship.world.nearPlanet" transform="translate(0,{{ ship.pitchRatio * 1200 }})">
@@ -419,6 +420,11 @@ SHUD =
     end
 
     function self.Update()
+        if system.isFrozen() == 1 or self.Enabled then
+            self.Opacity = 1
+        else
+            self.Opacity = 0.5
+        end
         if not self.ScrollLock and self.Enabled then
             local wheel = system.getMouseWheel()
             if wheel ~= 0 then
