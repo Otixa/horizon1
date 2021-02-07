@@ -52,6 +52,9 @@ function STEC(core, control, Cd)
     self.tags = TagManager("all,brake")
     -- Target vector to face if non-0. Can take in a vec3 or function which returns a vec3
     self.targetVector = nil
+    self.verticalLock = false
+    self.lockVector = vec3(0,0,0)
+    self.lockPos = vec3(0,0,0)
     -- Whether the target vector should unlock automatically if the ship is rotated by the pilot
     self.targetVectorAutoUnlock = true
     -- Current altitude
@@ -80,6 +83,12 @@ function STEC(core, control, Cd)
     self.followGravity = false
     -- Aggressiveness of the gravity follow adjustment
     self.gravityFollowSpeed = 10
+    -- Speed (in km/h) in which to limit the velocity of the ship
+    self.speedLimiter = 1000 --export: Limit ship's velocity
+    -- Variable speed limit based on delta distance in altitude hold mode
+    self.variableSpeedLimit = 1000
+    -- Toggle speed limiter on/off
+    self.speedLimiterToggle = true --export: Toggle speed limit on/off
     -- Amount of throttle to apply. 0-1 range
     self.throttle = 1
     -- Maximum thrust which the vessel is capable of producing
@@ -99,7 +108,7 @@ function STEC(core, control, Cd)
     if self.world.vertical:dot(self.world.up) > 0 then self.rollDegrees = 180 - self.rollDegrees end
     -- Pitch
     self.pitchRatio = self.world.vertical:angle_between(self.world.forward) / math.pi - 0.5
-    
+
     local lastUpdate = system.getTime()
 
     function self.updateWorld()
@@ -123,13 +132,13 @@ function STEC(core, control, Cd)
         if self.world.vertical:dot(self.world.up) > 0 then self.rollDegrees = 180 - self.rollDegrees end
         -- Pitch
         self.pitchRatio = self.world.vertical:angle_between(self.world.forward) / math.pi - 0.5
-        
+
         self.AngularVelocity = vec3(core.getWorldAngularVelocity())
         self.AngularAcceleration = vec3(core.getWorldAngularAcceleration())
         self.AngularAirFriction = vec3(core.getWorldAirFrictionAngularAcceleration())
-        
+
 	   self.airFriction = vec3(core.getWorldAirFrictionAcceleration())
-        
+
         self.mass = self.core.getConstructMass()
         self.altitude = self.core.getAltitude()
         self.localVelocity = vec3(core.getVelocity())
@@ -218,47 +227,64 @@ function STEC(core, control, Cd)
         if self.followGravity and self.rotation.x == 0 then
 		  local current = self.localVelocity:len() * self.mass
             local scale = nil
-            if ship.localVelocity:len() > 1000 then
+            if ship.localVelocity:len() > 10 then
                 scale = self.gravityFollowSpeed * math.min(math.max(current / self.fMax, 0.1), 1) * 10
             else
                 scale = self.gravityFollowSpeed
             end
             atmp = atmp + (self.world.up:cross(-self.world.vertical) * scale)
         end
+        ahTmpd = 0.125
         if self.altitudeHoldToggle then
-   		local deltaAltitude =  self.altitudeHold - self.altitude
-   		tmp = tmp - ((self.world.gravity * self.mass) * deltaAltitude)
-	   end
+            local deltaAltitude =  self.altitudeHold - self.altitude
+            local tempd = math.abs(deltaAltitude) / (100 * math.abs(self.localVelocity.z))
+            if deltaAltitude < 1 and (math.abs(self.localVelocity.z)) < 0 then
+                ahTmpd = deltaTime
+            else
+                ahTmpd = utils.clamp(tempd, 0.001, 0.125)
+            end
+            if deltaAltitude > 10 then
+                self.variableSpeedLimit = utils.clamp(math.abs(deltaAltitude),50,self.speedLimiter)
+            else
+                self.variableSpeedLimit = self.speedLimiter
+            end
+            
+            tmp = tmp - ((self.world.gravity * self.mass) * deltaAltitude)
+	    end
         if self.alternateCM then
           local speed = (self.cruiseSpeed / 3.6)
           local dot = self.world.forward:dot(self.airFriction)
           local modifiedVelocity = (speed - dot)
           local desired = self.world.forward * modifiedVelocity
           local delta = (desired - (self.world.velocity - self.world.acceleration))
-            
+
           tmp = tmp + (delta * self.mass)
         end
+        
         if self.inertialDampening then
             local brakingForce = self.mass * -self.localVelocity
             local apply = self.direction * self.localVelocity
             if apply.x <= 0 then
                 local tmpd = deltaTime
+                if self.altitudeHoldToggle then tmpd = ahTmpd end
                 if (math.abs(self.localVelocity.x) < 1) then
-                    tmpd = 0.125
+                        tmpd = 0.125
                 end
                 tmp = tmp + (self.world.right * brakingForce.x) / tmpd
             end
             if apply.y <= 0 then
                 local tmpd = deltaTime
+                if self.altitudeHoldToggle then tmpd = ahTmpd end
                 if (math.abs(self.localVelocity.y) < 1) then
-                    tmpd = 0.125
+                        tmpd = 0.125
                 end
                 tmp = tmp + (self.world.forward * brakingForce.y) / tmpd
             end
             if apply.z <= 0 then
                 local tmpd = deltaTime
+                if self.altitudeHoldToggle then tmpd = ahTmpd end
                 if (math.abs(self.localVelocity.z) < 1) then
-                    tmpd = 0.125
+                        tmpd = 0.125
                 end
                 tmp = tmp + (self.world.up * brakingForce.z) / tmpd
             end
@@ -278,21 +304,51 @@ function STEC(core, control, Cd)
             end
             atmp = atmp + (self.world.forward:cross(vec) * self.rotationSpeed)
         end
+        --Speed limiter
+        if self.speedLimiterToggle then
+            local currentVelocity = self.world.velocity:len()
+            local speedLimit
+            if self.altitudeHoldToggle then 
+                speedLimit = self.variableSpeedLimit
+            else
+                speedLimit = self.speedLimiter
+            end
+            local speedLimitInMs = speedLimit / 3.6
+            if currentVelocity > speedLimitInMs then
+                local movementVector = self.world.velocity:normalize()
+                local maxVelocityVector = movementVector * speedLimitInMs
+                local deltaVelocityVector = self.world.velocity - maxVelocityVector
+                system.print("Speed limit: "..speedLimit.." Speed Limit (m/s): "..speedLimitInMs)
+                tmp = tmp - (deltaVelocityVector / deltaTime) * self.mass
+            end
+        end
+        
         -- must be applied last
         if self.counterGravity then
             tmp = tmp - self.world.gravity * self.mass
         end
 
+        if self.verticalLock then
+            local localPos = (self.world.position + self.world.up * 1.235) - self.lockPos
+            local intersectionPos = self.lockVector * self.lockVector:dot(localPos)
+            local intersectionVec = intersectionPos - localPos
+            local thrustForce = intersectionVec * self.mass * deltaTime * 2
+            system.print("thrustForce: " .. tostring(thrustForce))
+            tmp = tmp + thrustForce * self.mass
+         end
+
         atmp = atmp - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
         tmp = tmp / self.mass
-        if self.controlMode ~= unit.getControlMasterModeId() then 
+        if self.controlMode ~= unit.getControlMasterModeId() then
             self.controlMode = unit.getControlMasterModeId()
             if unit.getControlMasterModeId() == 0 then self.alternateCM = false end
             if unit.getControlMasterModeId() == 1 then self.alternateCM = true end
         end
-       
         
+
         self.control.setEngineCommand(tostring(self.tags), {tmp:unpack()}, {atmp:unpack()})
+        atmp = vec3(0, 0, 0)
+        tmp = vec3(0, 0, 0)
         lastUpdate = system.getTime()
     end
 

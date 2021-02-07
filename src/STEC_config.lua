@@ -81,6 +81,20 @@ keybindPresets["keyboard"].keyUp["option1"].Add(function () ship.inertialDampeni
 keybindPresets["keyboard"].keyUp["option2"].Add(function () system.freeze( math.abs(1 - system.isFrozen())) end,"Freeze character")
 keybindPresets["keyboard"].keyUp["option3"].Add(function () ship.followGravity = not ship.followGravity end, "Gravity Follow")
 keybindPresets["keyboard"].keyUp["option4"].Add(function () ship.counterGravity = not ship.counterGravity end, "Counter Gravity")
+keybindPresets["keyboard"].keyUp["option5"].Add(function ()
+    ship.verticalLock = true
+    ship.lockVector = vec3(core.getConstructWorldOrientationUp())
+    ship.lockPos = vec3(core.getConstructWorldPos()) + (vec3(core.getConstructWorldOrientationUp()) * 1.235)
+    if flightModeDb ~= nil then
+        flightModeDb.setFloatValue("lockVectorX",ship.lockVector.x)
+        flightModeDb.setFloatValue("lockVectorY",ship.lockVector.y)
+        flightModeDb.setFloatValue("lockVectorZ",ship.lockVector.z)
+        flightModeDb.setFloatValue("lockPosX",ship.lockPos.x)
+        flightModeDb.setFloatValue("lockPosY",ship.lockPos.y)
+        flightModeDb.setFloatValue("lockPosZ",ship.lockPos.z)
+    end
+end,"Set Vertical Lock")
+keybindPresets["keyboard"].keyUp["option6"].Add(function () ship.verticalLock = not ship.verticalLock end,"Toggle Vertical Lock")
 
 
 if flightModeDb then
