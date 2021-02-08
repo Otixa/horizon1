@@ -22,7 +22,7 @@ function Unit.Start()
 	Events.Flush.Add(ship.apply)
 	Events.Update.Add(SHUD.Update)
 	
-	system.print([[Horizon 1.0.1.5]])
+	system.print([[Horizon 1.0.1.6]])
 end
 
 function Unit.Stop()
