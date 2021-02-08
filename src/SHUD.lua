@@ -220,38 +220,13 @@ SHUD =
     
     opacity = 1.0
     local template = DD(fa..[[
-    <div id="horizon" style="opacity: {{opacity}};">
-        
-        <div id="speedometerBar">&nbsp;</div>
+    <div id="horizon">
            <div id="speedometer">
                <span class="display">
-               	<span class="major">{{SpeedConvert(ship.world.velocity:len())[1]}}</span>
-               	<span class="minor">{{SpeedConvert(ship.world.velocity:len())[2]}}</span>
-               	<span class="unit">{{SpeedConvert(ship.world.velocity:len())[3]}}</span>
-               </span>
-               <span class="accel">
-               	<span class="major">{{round2(ship.world.acceleration:len(), 1)}}</span>
-               	<span class="unit">m/s</span>
-               </span>
-               <span class="vertical">
-               	{{round2(ship.world.velocity:dot(-ship.world.gravity:normalize()), 1)}}
-               </span>
-               <span class="alt">
-               	{{round2(ship.altitude)}}m
-               </span>
-               
-               <span class="misc">ATM {{round2(ship.world.atmosphericDensity, 2)}} | G {{round2(ship.world.gravity:len(), 2)}}m/s</span>
-               <span dd-if="not ship.alternateCM" class="throttle">Throttle {{round2(ship.throttle * 100)}}%</span>
-		     <span dd-if="ship.alternateCM" class="throttle">Cruise {{round2(ship.cruiseSpeed)}} km/h</span>
+               	<span style="font-size: 1.5vw;">ECU ACTIVE</span>
+                   <p />
+                <span style="font-size: 0.75vw;">CTRL + Backspace to Exit</span>
             </div>
-        
-            <div id="horizon-menu">
-                {{_SHUDBUFFER}}
-            </div>
-        
-            </div>
-          
-    
     </div>
     
     ]])
