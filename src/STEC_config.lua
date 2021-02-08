@@ -53,9 +53,9 @@ keybindPresets["keyboard"].keyDown.down.Add(function () ship.direction.z = -0.5 
 keybindPresets["keyboard"].keyUp.down.Add(function () ship.direction.z = 0 end)
 
 keybindPresets["keyboard"].keyDown.yawleft.Add(function () ship.rotation.z = -1 end)
-keybindPresets["keyboard"].keyUp.yawleft.Add(function () ship.rotation.z = 0 end)
+keybindPresets["keyboard"].keyUp.yawleft.Add(function () ship.rotation.z = 0 ship.rotationSpeedz = 0.01 end)
 keybindPresets["keyboard"].keyDown.yawright.Add(function () ship.rotation.z = 1 end)
-keybindPresets["keyboard"].keyUp.yawright.Add(function () ship.rotation.z = 0 end)
+keybindPresets["keyboard"].keyUp.yawright.Add(function () ship.rotation.z = 0 ship.rotationSpeedz = 0.01 end)
 
 keybindPresets["keyboard"].keyDown.forward.Add(function () ship.direction.y = 1 end)
 keybindPresets["keyboard"].keyUp.forward.Add(function () ship.direction.y = 0 end)

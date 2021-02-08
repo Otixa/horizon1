@@ -69,6 +69,8 @@ function STEC(core, control, Cd)
     self.rotation = vec3(0, 0, 0)
     -- Speed scale factor for rotations
     self.rotationSpeed = 2
+    -- Speed scale factor for rotations
+    self.rotationSpeedz = 0.01
     -- Breaking speed multiplier
     self.brakingFactor = 10
     -- Amount of angular thrust to apply, in world space
@@ -84,9 +86,9 @@ function STEC(core, control, Cd)
     -- Aggressiveness of the gravity follow adjustment
     self.gravityFollowSpeed = 10
     -- Speed (in km/h) in which to limit the velocity of the ship
-    self.speedLimiter = 1000 --export: Limit ship's velocity
+    self.speedLimiter = 2000 --export: Limit ship's velocity
     -- Variable speed limit based on delta distance in altitude hold mode
-    self.variableSpeedLimit = 1000
+    self.variableSpeedLimit = 2000
     -- Toggle speed limiter on/off
     self.speedLimiterToggle = true --export: Toggle speed limit on/off
     -- Amount of throttle to apply. 0-1 range
@@ -219,11 +221,13 @@ function STEC(core, control, Cd)
             atmp = atmp + ((self.world.up:cross(self.world.right) * self.rotation.y) * self.rotationSpeed)
         end
         if self.rotation.z ~= 0 then
-            atmp = atmp + ((self.world.forward:cross(self.world.right) * self.rotation.z) * self.rotationSpeed)
+            if self.rotationSpeedz <= 2 then self.rotationSpeedz = self.rotationSpeedz + 0.03 end
+            atmp = atmp + ((self.world.forward:cross(self.world.right) * self.rotation.z) * clamp(self.rotationSpeedz, 0.01, 2))
             if self.targetVectorAutoUnlock then
                 self.targetVector = nil
             end
         end
+    
         if self.followGravity and self.rotation.x == 0 then
 		  local current = self.localVelocity:len() * self.mass
             local scale = nil
