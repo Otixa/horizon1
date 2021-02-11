@@ -366,6 +366,7 @@ SHUD =
     function self.Render()
         local buffer = ""
         local altHoldDisplay
+        
         if ship.altitudeHold ~= 0 then
             altHoldDisplay = ship.altitudeHold
         else
@@ -420,10 +421,13 @@ SHUD =
     end
 
     function self.Update()
-        if system.isFrozen() == 1 or self.Enabled then
-            self.Opacity = 1
-        else
-            self.Opacity = 0.5
+        if unit.isRemoteControlled() == 1 then
+
+            if system.isFrozen() == 1 or self.Enabled then
+                self.Opacity = 1
+            else
+                self.Opacity = 0.5
+            end
         end
         if not self.ScrollLock and self.Enabled then
             local wheel = system.getMouseWheel()

@@ -2,9 +2,16 @@
 goButtonSpeed = 1050 --export: GO Button Speed
 inertialDampening = false --export: Start with inertial dampening on/off
 followGravity = true --export: Start with gravity follow on/off
+rotationMin = 0.01 --export: Auto-scaling rotation speed starting point
+rotationMax = 5 --export: Auto-scaling rotaiton max speed
+rotationStep = 0.02 --export: Controls how quickly the rotation speed scales up
 
 ship.inertialDampening = inertialDampening
 ship.followGravity = followGravity
+ship.rotationSpeed = rotationMin
+ship.rotationSpeedMin = rotationMin
+ship.rotationSpeedMax = rotationMax
+ship.rotationStep = rotationStep
 
 function holdAlt()
     
@@ -134,19 +141,19 @@ keybindPresets["keyboard"].keyDown.down.Add(function () ship.direction.z = -1 en
 keybindPresets["keyboard"].keyUp.down.Add(function () ship.direction.z = 0 end)
 
 keybindPresets["keyboard"].keyDown.yawleft.Add(function () ship.rotation.z = -1 end)
-keybindPresets["keyboard"].keyUp.yawleft.Add(function () ship.rotation.z = 0 end)
+keybindPresets["keyboard"].keyUp.yawleft.Add(function () ship.rotation.z = 0 ship.rotationSpeed = ship.rotationSpeedMin end)
 keybindPresets["keyboard"].keyDown.yawright.Add(function () ship.rotation.z = 1 end)
-keybindPresets["keyboard"].keyUp.yawright.Add(function () ship.rotation.z = 0 end)
+keybindPresets["keyboard"].keyUp.yawright.Add(function () ship.rotation.z = 0 ship.rotationSpeed = ship.rotationSpeedMin end)
 
 keybindPresets["keyboard"].keyDown.forward.Add(function () ship.rotation.x = -1 end)
-keybindPresets["keyboard"].keyUp.forward.Add(function () ship.rotation.x = 0 end)
+keybindPresets["keyboard"].keyUp.forward.Add(function () ship.rotation.x = 0 ship.rotationSpeed = ship.rotationSpeedMin end)
 keybindPresets["keyboard"].keyDown.backward.Add(function () ship.rotation.x = 1 end)
-keybindPresets["keyboard"].keyUp.backward.Add(function () ship.rotation.x = 0 end)
+keybindPresets["keyboard"].keyUp.backward.Add(function () ship.rotation.x = 0 ship.rotationSpeed = ship.rotationSpeedMin end)
 
 keybindPresets["keyboard"].keyDown.left.Add(function () ship.rotation.y = -1 end)
-keybindPresets["keyboard"].keyUp.left.Add(function () ship.rotation.y = 0 end)
+keybindPresets["keyboard"].keyUp.left.Add(function () ship.rotation.y = 0 ship.rotationSpeed = ship.rotationSpeedMin end)
 keybindPresets["keyboard"].keyDown.right.Add(function () ship.rotation.y = 1 end)
-keybindPresets["keyboard"].keyUp.right.Add(function () ship.rotation.y = 0 end)
+keybindPresets["keyboard"].keyUp.right.Add(function () ship.rotation.y = 0 ship.rotationSpeed = ship.rotationSpeedMin end)
 
 keybindPresets["keyboard"].keyDown.strafeleft.Add(function () ship.direction.x = -1 end)
 keybindPresets["keyboard"].keyUp.strafeleft.Add(function () ship.direction.x = 0 end)
