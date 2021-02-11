@@ -1,9 +1,13 @@
 --@class STEC_Config
 inertialDampening = true --export: Start with inertial dampening on/off
 followGravity = true --export: Start with gravity follow on/off
+minRotationSpeed = 0.01 --export: Minimum speed rotation scales from
+maxRotationSpeed = 5 --export: Maximum speed rotation scales to
 ship.altitudeHold = round2(core.getAltitude(),0)
 ship.inertialDampening = inertialDampening
 ship.followGravity = followGravity
+ship.rotationSpeedz = minRotationSpeed
+ship.maxRotationSpeedz = maxRotationSpeed
 system.print("Altitude: "..core.getAltitude())
 --function holdAlt()
 --    system.print("ship.altitudeHold: "..ship.altitudeHold)

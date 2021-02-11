@@ -71,6 +71,8 @@ function STEC(core, control, Cd)
     self.rotationSpeed = 2
     -- Speed scale factor for rotations
     self.rotationSpeedz = 0.01
+    -- Max rotation speed for auto-scale
+    self.maxRotationSpeedz = 3
     -- Breaking speed multiplier
     self.brakingFactor = 10
     -- Amount of angular thrust to apply, in world space
@@ -221,8 +223,9 @@ function STEC(core, control, Cd)
             atmp = atmp + ((self.world.up:cross(self.world.right) * self.rotation.y) * self.rotationSpeed)
         end
         if self.rotation.z ~= 0 then
-            if self.rotationSpeedz <= 2 then self.rotationSpeedz = self.rotationSpeedz + 0.03 end
-            atmp = atmp + ((self.world.forward:cross(self.world.right) * self.rotation.z) * clamp(self.rotationSpeedz, 0.01, 2))
+            if self.rotationSpeedz <= self.maxRotationSpeedz then self.rotationSpeedz = self.rotationSpeedz + 0.03 end
+            --system.print("Rotation Speed: "..self.rotationSpeedz)
+            atmp = atmp + ((self.world.forward:cross(self.world.right) * self.rotation.z) * clamp(self.rotationSpeedz, 0.01, self.maxRotationSpeedz))
             if self.targetVectorAutoUnlock then
                 self.targetVector = nil
             end
