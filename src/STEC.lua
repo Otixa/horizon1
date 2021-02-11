@@ -224,12 +224,10 @@ function STEC(core, control, Cd)
                 self.followGravity = false
                 self.altitudeHold = 0
             end
-            system.print("Rotation Speed: "..self.rotationSpeed)
         end
         if self.rotation.y ~= 0 then
             self.scaleRotation()
             atmp = atmp + ((self.world.up:cross(self.world.right) * self.rotation.y) * self.rotationSpeed)
-            system.print("Rotation Speed: "..self.rotationSpeed)
         end
         if self.rotation.z ~= 0 then
             self.scaleRotation()
@@ -238,7 +236,6 @@ function STEC(core, control, Cd)
                 self.targetVector = nil
                 self.altitudeHold = 0
             end
-            system.print("Rotation Speed: "..self.rotationSpeed)
         end
         if self.followGravity and self.rotation.x == 0 then
 		    local current = self.localVelocity:len() * self.mass
@@ -306,6 +303,7 @@ function STEC(core, control, Cd)
             elseif type(self.targetVector) == "table" then
                 vec = self.targetVector
             end
+            self.scaleRotation()
             atmp = atmp + (self.world.forward:cross(vec) * self.rotationSpeed)
         end
         -- must be applied last
