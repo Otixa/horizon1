@@ -70,6 +70,12 @@ function STEC(core, control, Cd)
     self.rotation = vec3(0, 0, 0)
     -- Speed scale factor for rotations
     self.rotationSpeed = 2
+    -- Starting speed for auto-scaling rotation
+    self.rotationSpeedMin = 0.01
+    -- Maximum speed for auto-scaling rotation
+    self.rotationSpeedMax = 5
+    -- Step for increasing the rotation speed
+    self.rotationStep = 0.03
     -- Breaking speed multiplier
     self.brakingFactor = 10
     -- Amount of angular thrust to apply, in world space
@@ -164,6 +170,10 @@ function STEC(core, control, Cd)
         self.throttle = clamp(self.throttle - 0.05, 0, 1)
     end
 
+    function self.scaleRotation()
+        if self.rotationSpeed <= self.rotationSpeedMax then self.rotationSpeed = self.rotationSpeed + self.rotationStep end
+    end
+
     function self.worldToLocal(vector)
         return vec3(
             library.systemResolution3(
@@ -207,22 +217,28 @@ function STEC(core, control, Cd)
             tmp = tmp + a
         end
         if self.rotation.x ~= 0 then
+            self.scaleRotation()
             atmp = atmp + ((self.world.forward:cross(self.world.up) * self.rotation.x) * self.rotationSpeed)
             if self.targetVectorAutoUnlock then
                 self.targetVector = nil
                 self.followGravity = false
                 self.altitudeHold = 0
             end
+            system.print("Rotation Speed: "..self.rotationSpeed)
         end
         if self.rotation.y ~= 0 then
+            self.scaleRotation()
             atmp = atmp + ((self.world.up:cross(self.world.right) * self.rotation.y) * self.rotationSpeed)
+            system.print("Rotation Speed: "..self.rotationSpeed)
         end
         if self.rotation.z ~= 0 then
+            self.scaleRotation()
             atmp = atmp + ((self.world.forward:cross(self.world.right) * self.rotation.z) * self.rotationSpeed)
             if self.targetVectorAutoUnlock then
                 self.targetVector = nil
                 self.altitudeHold = 0
             end
+            system.print("Rotation Speed: "..self.rotationSpeed)
         end
         if self.followGravity and self.rotation.x == 0 then
 		    local current = self.localVelocity:len() * self.mass
