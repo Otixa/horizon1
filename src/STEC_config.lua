@@ -3,11 +3,13 @@ inertialDampening = true --export: Start with inertial dampening on/off
 followGravity = true --export: Start with gravity follow on/off
 minRotationSpeed = 0.01 --export: Minimum speed rotation scales from
 maxRotationSpeed = 5 --export: Maximum speed rotation scales to
+rotationStep = 0.03 --export: Depermines how quickly rotation scales up
 ship.altitudeHold = round2(core.getAltitude(),0)
 ship.inertialDampening = inertialDampening
 ship.followGravity = followGravity
-ship.rotationSpeedz = minRotationSpeed
+ship.minRotationSpeed = minRotationSpeed
 ship.maxRotationSpeedz = maxRotationSpeed
+ship.rotationStep = rotationStep
 system.print("Altitude: "..core.getAltitude())
 --function holdAlt()
 --    system.print("ship.altitudeHold: "..ship.altitudeHold)
@@ -57,9 +59,9 @@ keybindPresets["keyboard"].keyDown.down.Add(function () ship.direction.z = -0.5 
 keybindPresets["keyboard"].keyUp.down.Add(function () ship.direction.z = 0 end)
 
 keybindPresets["keyboard"].keyDown.yawleft.Add(function () ship.rotation.z = -1 end)
-keybindPresets["keyboard"].keyUp.yawleft.Add(function () ship.rotation.z = 0 ship.rotationSpeedz = 0.01 end)
+keybindPresets["keyboard"].keyUp.yawleft.Add(function () ship.rotation.z = 0 ship.rotationSpeedz = ship.minRotationSpeed end)
 keybindPresets["keyboard"].keyDown.yawright.Add(function () ship.rotation.z = 1 end)
-keybindPresets["keyboard"].keyUp.yawright.Add(function () ship.rotation.z = 0 ship.rotationSpeedz = 0.01 end)
+keybindPresets["keyboard"].keyUp.yawright.Add(function () ship.rotation.z = 0 ship.rotationSpeedz = ship.minRotationSpeed end)
 
 keybindPresets["keyboard"].keyDown.forward.Add(function () ship.direction.y = 1 end)
 keybindPresets["keyboard"].keyUp.forward.Add(function () ship.direction.y = 0 end)
