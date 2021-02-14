@@ -69,10 +69,14 @@ function STEC(core, control, Cd)
     self.rotation = vec3(0, 0, 0)
     -- Speed scale factor for rotations
     self.rotationSpeed = 2
-    -- Speed scale factor for rotations
+    -- Minimum rotation speed for auto-scale
+    self.rotationSpeedzMin = 0.01
+    -- Rotation Speed on x axis
     self.rotationSpeedz = 0.01
     -- Max rotation speed for auto-scale
     self.maxRotationSpeedz = 3
+    -- Auto-scale rotation Setup
+    self.rotationStep = 0.03
     -- Breaking speed multiplier
     self.brakingFactor = 10
     -- Amount of angular thrust to apply, in world space
@@ -223,8 +227,8 @@ function STEC(core, control, Cd)
             atmp = atmp + ((self.world.up:cross(self.world.right) * self.rotation.y) * self.rotationSpeed)
         end
         if self.rotation.z ~= 0 then
-            if self.rotationSpeedz <= self.maxRotationSpeedz then self.rotationSpeedz = self.rotationSpeedz + 0.03 end
-            --system.print("Rotation Speed: "..self.rotationSpeedz)
+            if self.rotationSpeedz <= self.maxRotationSpeedz then self.rotationSpeedz = self.rotationSpeedz + self.rotationStep end
+            system.print("Rotation Speed: "..self.rotationSpeedz)
             atmp = atmp + ((self.world.forward:cross(self.world.right) * self.rotation.z) * clamp(self.rotationSpeedz, 0.01, self.maxRotationSpeedz))
             if self.targetVectorAutoUnlock then
                 self.targetVector = nil
@@ -234,7 +238,7 @@ function STEC(core, control, Cd)
         if self.followGravity and self.rotation.x == 0 then
 		  local current = self.localVelocity:len() * self.mass
             local scale = nil
-            if ship.localVelocity:len() > 10 then
+            if ship.localVelocity:len() > 10 then   
                 scale = self.gravityFollowSpeed * math.min(math.max(current / self.fMax, 0.1), 1) * 10
             else
                 scale = self.gravityFollowSpeed
