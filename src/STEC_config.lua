@@ -4,12 +4,14 @@ followGravity = true --export: Start with gravity follow on/off
 minRotationSpeed = 0.01 --export: Minimum speed rotation scales from
 maxRotationSpeed = 5 --export: Maximum speed rotation scales to
 rotationStep = 0.03 --export: Depermines how quickly rotation scales up
+verticalSpeedLimit = 250 --export: Vertical Speed verticalSpeedLimit
 ship.altitudeHold = round2(core.getAltitude(),0)
 ship.inertialDampening = inertialDampening
 ship.followGravity = followGravity
 ship.minRotationSpeed = minRotationSpeed
 ship.maxRotationSpeedz = maxRotationSpeed
 ship.rotationStep = rotationStep
+ship.verticalSpeedLimit = verticalSpeedLimit
 system.print("Altitude: "..core.getAltitude())
 --function holdAlt()
 --    system.print("ship.altitudeHold: "..ship.altitudeHold)
@@ -39,6 +41,8 @@ function switchControlMode()
     if ship.alternateCM == false then ship.alternateCM = true
         else ship.alternateCM = false end
 end
+
+ship.verticalCruiseSpeed = 100
 
 
 keybindPresets["keyboard"] = KeybindController()
@@ -101,7 +105,7 @@ keybindPresets["keyboard"].keyUp["option5"].Add(function ()
     end
 end,"Set Vertical Lock")
 keybindPresets["keyboard"].keyUp["option6"].Add(function () ship.verticalLock = not ship.verticalLock end,"Toggle Vertical Lock")
-
+keybindPresets["keyboard"].keyUp["option7"].Add(function () ship.verticalCruise = not ship.verticalCruise end, "Vertical Cruise")
 
 if flightModeDb then
    if flightModeDb.hasKey("flightMode") == 0 then flightModeDb.setStringValue("flightMode","keyboard") end
