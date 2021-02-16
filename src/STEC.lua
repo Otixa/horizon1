@@ -15,6 +15,11 @@
             - ship.rotation.z - yaw
         - See comments for additional functionality
 ]]
+planetaryReference = PlanetRef()
+galaxyReference = planetaryReference(Atlas())
+helios = galaxyReference[0]
+kinematics = Kinematics()
+
 function STEC(core, control, Cd)
     local self = {}
     self.core = core

@@ -1,3 +1,6 @@
+--@require Atlas
+--@require PlanetRef
+--@require Kinematics
 --@require EventDelegate
 --@require TaskManager
 --@require DynamicDocument
@@ -5,7 +8,6 @@
 --@require SimpleSlotDetector
 --@require TagManager
 --@require KeybindController
---@require Atlas
 --@require STEC
 --@require SHUD
 --@require MouseMovement
