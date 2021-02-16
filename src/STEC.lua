@@ -24,6 +24,7 @@ function STEC(core, control, Cd)
     local self = {}
     self.core = core
     self.control = control
+    self.nearestPlanet = helios:closestBody(core.getConstructWorldPos())
     self.world = {
         up = vec3(core.getConstructWorldOrientationUp()),
         down = -vec3(core.getConstructWorldOrientationUp()),
@@ -37,15 +38,18 @@ function STEC(core, control, Cd)
         gravity = vec3(core.getWorldGravity()),
         vertical = vec3(core.getWorldVertical()),
         atmosphericDensity = control.getAtmosphereDensity(),
-        nearPlanet = unit.getClosestPlanetInfluence() > 0
+        nearPlanet = unit.getClosestPlanetInfluence() > 0,
+        atlasAltitude = self.nearestPlanet:getAltitude(core.getConstructWorldPos()),
+        --nearestPlanetGravity = vec3(self.nearestPlanet.getGravity(core.getConstructWorldPos()))
+
     }
     self.target = {
         prograde = function() return self.world.velocity:normalize() end,
         retrograde = function() return -self.world.velocity:normalize() end,
-        radial = function() return self.world.gravity:normalize() end,
-        antiradial = function() return -self.world.gravity:normalize() end,
-        normal = function() return self.world.velocity:normalize():cross(self.world.gravity:normalize()):normalize() end,
-        antinormal = function() return self.world.velocity:normalize():cross(-self.world.gravity:normalize()):normalize() end,
+        radial = function() return self.nearestPlanet:getGravity(core.getConstructWorldPos()):normalize() end,
+        antiradial = function() return -self.nearestPlanet:getGravity(core.getConstructWorldPos()):normalize() end,
+        normal = function() return self.world.velocity:normalize():cross(self.nearestPlanet:getGravity(core.getConstructWorldPos()):normalize()):normalize() end,
+        antinormal = function() return self.world.velocity:normalize():cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()):normalize()):normalize() end,
     }
     -- Construct id
     self.id = core.getConstructId()
@@ -116,7 +120,8 @@ function STEC(core, control, Cd)
     self.pitchRatio = self.world.vertical:angle_between(self.world.forward) / math.pi - 0.5
     
     local lastUpdate = system.getTime()
-
+    self.nearestPlanet = helios:closestBody(core.getConstructWorldPos())
+    
     function self.updateWorld()
         self.world = {
             up = vec3(core.getConstructWorldOrientationUp()),
@@ -131,7 +136,11 @@ function STEC(core, control, Cd)
             gravity = vec3(core.getWorldGravity()),
             vertical = vec3(core.getWorldVertical()),
             atmosphericDensity = control.getAtmosphereDensity(),
-            nearPlanet = unit.getClosestPlanetInfluence() > 0
+            nearPlanet = unit.getClosestPlanetInfluence() > 0,
+            atlasAltitude = self.nearestPlanet:getAltitude(core.getConstructWorldPos()),
+            --nearestPlanetGravity = vec3(self.nearestPlanet.getGravity(core.getConstructWorldPos()))
+            
+    
         }
 	   -- Roll Degrees
         self.rollDegrees = self.world.vertical:angle_between(self.world.left) / math.pi * 180 - 90
@@ -250,7 +259,9 @@ function STEC(core, control, Cd)
             else
                 scale = self.gravityFollowSpeed
             end
-            atmp = atmp + (self.world.up:cross(-self.world.vertical) * scale)
+            --atmp = atmp + (self.world.up:cross(-self.world.vertical) * scale)
+            
+            atmp = atmp + self.world.up:normalize():cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()))
         end
         --if self.altitudeHold ~= 0 then
         --    local deltaAltitude = self.altitude - self.altitudeHold
@@ -259,7 +270,7 @@ function STEC(core, control, Cd)
 		if self.altitudeHold ~= 0 then
             local deltaAltitude =  self.altitudeHold - self.altitude
             
-            tmp = tmp - ((self.world.gravity * self.mass) * deltaAltitude)
+            tmp = tmp - ((self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass) * deltaAltitude)
         end
         if self.alternateCM then
           local speed = (self.cruiseSpeed / 3.6)
@@ -313,7 +324,7 @@ function STEC(core, control, Cd)
         end
         -- must be applied last
         if self.counterGravity then
-            tmp = tmp - self.world.gravity * self.mass
+            tmp = tmp - self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass
         end
 
         atmp = atmp - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
