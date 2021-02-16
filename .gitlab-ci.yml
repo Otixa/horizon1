@@ -9,7 +9,7 @@ Horizon:Build-Prod:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   script:
-    - dotnet /app/DUBuild.dll build -s $CI_PROJECT_DIR -o $CI_PROJECT_DIR/output -e $CI_PROJECT_DIR/UnitTests -m "$CI_PROJECT_DIR/main_*.lua"
+    - dotnet /app/DUBuild.dll build -s $CI_PROJECT_DIR -o $CI_PROJECT_DIR/output -e $CI_PROJECT_DIR/UnitTests -m "$CI_PROJECT_DIR/main.lua"
   artifacts:
       paths:
         - $CI_PROJECT_DIR/output/*.json
@@ -22,7 +22,7 @@ Horizon:Build-Limited-VTOL:
   variables:
    GIT_SUBMODULE_STRATEGY: recursive
   script:
-   - dotnet /app/DUBuild.dll build -s $CI_PROJECT_DIR -o $CI_PROJECT_DIR/output -e $CI_PROJECT_DIR/UnitTests -w false -m "$CI_PROJECT_DIR/main_*.lua"
+   - dotnet /app/DUBuild.dll build -s $CI_PROJECT_DIR -o $CI_PROJECT_DIR/output -e $CI_PROJECT_DIR/UnitTests -w false -m "$CI_PROJECT_DIR/main.lua"
   artifacts:
      paths:
        - $CI_PROJECT_DIR/output/*.json
@@ -35,7 +35,7 @@ Horizon:Build-Dev:
   variables:
    GIT_SUBMODULE_STRATEGY: recursive
   script:
-   - dotnet /app/DUBuild.dll build -s $CI_PROJECT_DIR -o $CI_PROJECT_DIR/output -e $CI_PROJECT_DIR/UnitTests -w false -m "$CI_PROJECT_DIR/main_*.lua"
+   - dotnet /app/DUBuild.dll build -s $CI_PROJECT_DIR -o $CI_PROJECT_DIR/output -e $CI_PROJECT_DIR/UnitTests -w false -m "$CI_PROJECT_DIR/main.lua"
   artifacts:
      paths:
        - $CI_PROJECT_DIR/output/*.json
