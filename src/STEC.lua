@@ -21,9 +21,7 @@ helios = galaxyReference[0]
 kinematics = Kinematics()
 local jdecode = json.decode
 local maxBrake = jdecode(unit.getData()).maxBrake
-system.print("Maxbrake: "..tostring(maxBrake))
---system.print("Atmosphere Threshold: " .. tostring(helios:closestBody(core.getConstructWorldPos()).noAtmosphericDensityAltitude))
---local planet = atlas[tonumber(systemId)][tonumber(bodyId)]
+
 function STEC(core, control, Cd)
     local self = {}
     self.core = core
@@ -293,10 +291,8 @@ function STEC(core, control, Cd)
             local deltaAltitude =  self.altitudeHold - self.altitude
 
             local distance, accelTime = kinematics.computeDistanceAndTime(self.world.velocity:len(), 0, self.mass, self.fMax,5,self.maxBrake)
-            --system.print("Brake Distance: "..distance)
             
             if math.abs(deltaAltitude) > distance and math.abs(deltaAltitude) > 1 then
-                system.print("dAltitude: "..deltaAltitude.." bDistance: "..distance.." ID: "..tostring(self.inertialDampening))
                 self.inertialDampening = false
                 local verticalSpeedLimit
                 if self.altitude < (self.atmosphereThreshold + distance) then verticalSpeedLimit = self.verticalSpeedLimitAtmo else verticalSpeedLimit = self.verticalSpeedLimitSpace end
@@ -306,7 +302,6 @@ function STEC(core, control, Cd)
                 local modifiedVelocity = (speed - dot)
                 local desired = self.world.up * modifiedVelocity
                 local delta = (desired - (self.world.velocity - self.world.acceleration))
-                --system.print("inertialDampening: "..tostring(self.intertialDampening))
                 tmp = tmp + (delta * self.mass)
             else
                 self.inertialDampening = true
