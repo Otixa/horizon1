@@ -1,3 +1,6 @@
+--@require Atlas
+--@require PlanetRef
+--@require Kinematics
 --@require EventDelegate
 --@require TaskManager
 --@require DynamicDocument
@@ -43,7 +46,7 @@ function System.ActionStop(action)
 	keybindPresets[keybindPreset].Call(action, "up")
 end
 
-function System.ActionLoop(action)
+function System.ActionLoop(action) 
 end
 
 function System.Update()
