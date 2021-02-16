@@ -15,6 +15,15 @@
             - ship.rotation.z - yaw
         - See comments for additional functionality
 ]]
+planetaryReference = PlanetRef()
+galaxyReference = planetaryReference(Atlas())
+helios = galaxyReference[0]
+kinematics = Kinematics()
+local jdecode = json.decode
+local maxBrake = jdecode(unit.getData()).maxBrake
+system.print("Maxbrake: "..tostring(maxBrake))
+--system.print("Atmosphere Threshold: " .. tostring(helios:closestBody(core.getConstructWorldPos()).noAtmosphericDensityAltitude))
+--local planet = atlas[tonumber(systemId)][tonumber(bodyId)]
 function STEC(core, control, Cd)
     local self = {}
     self.core = core
@@ -32,7 +41,9 @@ function STEC(core, control, Cd)
         gravity = vec3(core.getWorldGravity()),
         vertical = vec3(core.getWorldVertical()),
         atmosphericDensity = control.getAtmosphereDensity(),
-        nearPlanet = unit.getClosestPlanetInfluence() > 0
+        nearPlanet = unit.getClosestPlanetInfluence() > 0,
+        nearestPlanet = helios:closestBody(core.getConstructWorldPos()),
+        atlasAltitude = helios:closestBody(core.getConstructWorldPos()):getAltitude(core.getConstructWorldPos())
     }
     self.target = {
         prograde = function() return self.world.velocity:normalize() end,
@@ -83,6 +94,8 @@ function STEC(core, control, Cd)
     self.angularThrust = vec3(0, 0, 0)
     -- Whether or not the vessel should attempt to cancel out its current velocity in directions that are not being accelerated towards
     self.inertialDampening = false
+    -- Desired state of intertialDampening
+    self.inertialDampeningDesired = false
     -- Whether or not the vessel should attempt to completely cancel out its current velocity
     self.brake = false
     -- Whether or not the vessel should attempt to counter gravity influence
@@ -92,13 +105,15 @@ function STEC(core, control, Cd)
     -- Aggressiveness of the gravity follow adjustment
     self.gravityFollowSpeed = 10
     -- Speed (in km/h) in which to limit the velocity of the ship
-    self.speedLimiter = 2000 --export: Limit ship's velocity
+    self.speedLimiter = 2000
     -- Variable speed limit based on delta distance in altitude hold mode
     self.variableSpeedLimit = 2000
     -- Toggle speed limiter on/off
-    self.speedLimiterToggle = true --export: Toggle speed limit on/off
-    -- Vertical Speed Limit
-    self.verticalSpeedLimit = 250
+    self.speedLimiterToggle = true
+    -- Vertical Speed Limit (Atmo)
+    self.verticalSpeedLimitAtmo = 750
+    -- Vertical Speed Limit (Space)
+    self.verticalSpeedLimitAtmo = 2000
     -- Amount of throttle to apply. 0-1 range
     self.throttle = 1
     -- Maximum thrust which the vessel is capable of producing
@@ -107,6 +122,8 @@ function STEC(core, control, Cd)
     self.altitudeHoldToggle = false
     -- Altitude which the vessel should attempt to hold
     self.altitudeHold = 0
+    -- Atmosphere density Threshold
+    self.atmosphereThreshold = 0
     -- Speed which the vessel should attempt to maintain
     self.cruiseSpeed = 0
     -- Whether or not to ignore throttle for vertical thrust calculations
@@ -139,7 +156,8 @@ function STEC(core, control, Cd)
             gravity = vec3(core.getWorldGravity()),
             vertical = vec3(core.getWorldVertical()),
             atmosphericDensity = control.getAtmosphereDensity(),
-            nearPlanet = unit.getClosestPlanetInfluence() > 0
+            nearPlanet = unit.getClosestPlanetInfluence() > 0,
+            nearestPlanet = helios:closestBody(core.getConstructWorldPos())
         }
 	   -- Roll Degrees
         self.rollDegrees = self.world.vertical:angle_between(self.world.left) / math.pi * 180 - 90
@@ -151,11 +169,13 @@ function STEC(core, control, Cd)
         self.AngularAcceleration = vec3(core.getWorldAngularAcceleration())
         self.AngularAirFriction = vec3(core.getWorldAirFrictionAngularAcceleration())
 
-	   self.airFriction = vec3(core.getWorldAirFrictionAcceleration())
-
+	    self.airFriction = vec3(core.getWorldAirFrictionAcceleration())
+        self.atmosphereThreshold = helios:closestBody(core.getConstructWorldPos()).noAtmosphericDensityAltitude
         self.mass = self.core.getConstructMass()
-        self.altitude = self.core.getAltitude()
+        --self.altitude = self.core.getAltitude()
+        self.altitude = helios:closestBody(core.getConstructWorldPos()):getAltitude(core.getConstructWorldPos())
         self.localVelocity = vec3(core.getVelocity())
+        self.maxBrake = jdecode(unit.getData()).maxBrake
         local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
         if self.world.atmosphericDensity > 0.1 then --Temporary hack. Needs proper transition.
             self.fMax = math.max(fMax[1], -fMax[2])
@@ -218,6 +238,7 @@ function STEC(core, control, Cd)
         self.updateWorld()
         local tmp = self.thrust
         local atmp = self.angularThrust
+        if not self.altitudeHoldToggle then self.inertialDampening = self.inertialDampeningDesired end
 
         if self.direction.x ~= 0 then
             tmp = tmp + (((self.world.right * self.direction.x) * self.fMax) * self.throttle)
@@ -247,11 +268,11 @@ function STEC(core, control, Cd)
                 self.targetVector = nil
             end
         end
-    
+
         if self.followGravity and self.rotation.x == 0 then
 		  local current = self.localVelocity:len() * self.mass
             local scale = nil
-            if ship.localVelocity:len() > 10 then   
+            if ship.localVelocity:len() > 10 then
                 scale = self.gravityFollowSpeed * math.min(math.max(current / self.fMax, 0.1), 1) * 10
             else
                 scale = self.gravityFollowSpeed
@@ -264,38 +285,34 @@ function STEC(core, control, Cd)
             local modifiedVelocity = (speed - dot)
             local desired = self.world.up * modifiedVelocity
             local delta = (desired - (self.world.velocity - self.world.acceleration))
-  
+
             tmp = tmp + (delta * self.mass)
         end
         ahTmpd = 0.125
         if self.altitudeHoldToggle then
             local deltaAltitude =  self.altitudeHold - self.altitude
-            local tempd = math.abs(deltaAltitude) / (100 * math.abs(self.localVelocity.z))
-            if deltaAltitude < 1 and (math.abs(self.localVelocity.z)) < 0 then
-                ahTmpd = deltaTime
-            else
-                ahTmpd = utils.clamp(tempd, 0.001, 0.125)
-            end
-            if math.abs(deltaAltitude) > 100 then
-                --local speed = (500 * 3.6)
+
+            local distance, accelTime = kinematics.computeDistanceAndTime(self.world.velocity:len(), 0, self.mass, self.fMax,5,self.maxBrake)
+            --system.print("Brake Distance: "..distance)
+            
+            if math.abs(deltaAltitude) > distance and math.abs(deltaAltitude) > 1 then
+                system.print("dAltitude: "..deltaAltitude.." bDistance: "..distance.." ID: "..tostring(self.inertialDampening))
                 self.inertialDampening = false
-                
-                local speed = (clamp(deltaAltitude, -self.verticalSpeedLimit, self.verticalSpeedLimit) / 3.6)
+                local verticalSpeedLimit
+                if self.altitude < (self.atmosphereThreshold + distance) then verticalSpeedLimit = self.verticalSpeedLimitAtmo else verticalSpeedLimit = self.verticalSpeedLimitSpace end
+                local speed = round2((clamp(deltaAltitude, -verticalSpeedLimit, verticalSpeedLimit) / 3.6), 4)
+                if round2(self.altitudeHold,4) == round2(self.altitude,4) then speed = 0 end
                 local dot = self.world.up:dot(self.airFriction)
                 local modifiedVelocity = (speed - dot)
                 local desired = self.world.up * modifiedVelocity
                 local delta = (desired - (self.world.velocity - self.world.acceleration))
-                system.print("Speed: "..speed.." Delta: "..deltaAltitude)
+                --system.print("inertialDampening: "..tostring(self.intertialDampening))
                 tmp = tmp + (delta * self.mass)
             else
                 self.inertialDampening = true
-                if deltaAltitude > 10 then
-                    self.variableSpeedLimit = utils.clamp(math.abs(deltaAltitude),50,self.speedLimiter)
-                else
-                    self.variableSpeedLimit = self.speedLimiter
-                end
                 tmp = tmp - ((self.world.gravity * self.mass) * deltaAltitude)
             end
+
 	    end
         if self.alternateCM then
           local speed = (self.cruiseSpeed / 3.6)
@@ -311,7 +328,7 @@ function STEC(core, control, Cd)
             local apply = self.direction * self.localVelocity
             if apply.x <= 0 then
                 local tmpd = deltaTime
-                if self.altitudeHoldToggle then tmpd = ahTmpd end
+                --if self.altitudeHoldToggle then tmpd = ahTmpd end
                 if (math.abs(self.localVelocity.x) < 1) then
                         tmpd = 0.125
                 end
@@ -319,7 +336,7 @@ function STEC(core, control, Cd)
             end
             if apply.y <= 0 then
                 local tmpd = deltaTime
-                if self.altitudeHoldToggle then tmpd = ahTmpd end
+                --if self.altitudeHoldToggle then tmpd = ahTmpd end
                 if (math.abs(self.localVelocity.y) < 1) then
                         tmpd = 0.125
                 end
@@ -327,7 +344,7 @@ function STEC(core, control, Cd)
             end
             if apply.z <= 0 then
                 local tmpd = deltaTime
-                if self.altitudeHoldToggle then tmpd = ahTmpd end
+                --if self.altitudeHoldToggle then tmpd = ahTmpd end
                 if (math.abs(self.localVelocity.z) < 1) then
                         tmpd = 0.125
                 end
@@ -353,7 +370,7 @@ function STEC(core, control, Cd)
         --if self.speedLimiterToggle then
         --    local currentVelocity = self.world.velocity:len()
         --    local speedLimit
-        --    if self.altitudeHoldToggle then 
+        --    if self.altitudeHoldToggle then
         --        speedLimit = self.variableSpeedLimit
         --    else
         --        speedLimit = self.speedLimiter
@@ -367,7 +384,7 @@ function STEC(core, control, Cd)
         --        tmp = tmp - (deltaVelocityVector / deltaTime) * self.mass
         --    end
         --end
-        
+
         -- must be applied last
         if self.counterGravity then
             tmp = tmp - self.world.gravity * self.mass
@@ -389,7 +406,7 @@ function STEC(core, control, Cd)
             if unit.getControlMasterModeId() == 0 then self.alternateCM = false end
             if unit.getControlMasterModeId() == 1 then self.alternateCM = true end
         end
-        
+
 
         self.control.setEngineCommand(tostring(self.tags), {tmp:unpack()}, {atmp:unpack()})
         atmp = vec3(0, 0, 0)

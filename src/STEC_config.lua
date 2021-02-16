@@ -1,27 +1,19 @@
 --@class STEC_Config
-inertialDampening = true --export: Start with inertial dampening on/off
-followGravity = true --export: Start with gravity follow on/off
-minRotationSpeed = 0.01 --export: Minimum speed rotation scales from
-maxRotationSpeed = 5 --export: Maximum speed rotation scales to
-rotationStep = 0.03 --export: Depermines how quickly rotation scales up
-verticalSpeedLimit = 250 --export: Vertical Speed verticalSpeedLimit
-ship.altitudeHold = round2(core.getAltitude(),0)
-ship.inertialDampening = inertialDampening
+local inertialDampening = true --export: Start with inertial dampening on/off
+local followGravity = true --export: Start with gravity follow on/off
+local minRotationSpeed = 0.01 --export: Minimum speed rotation scales from
+local maxRotationSpeed = 5 --export: Maximum speed rotation scales to
+local rotationStep = 0.03 --export: Depermines how quickly rotation scales up
+local verticalSpeedLimitAtmo = 750 --export: Vertical speed limit in atmosphere
+local verticalSpeedLimitSpace = 2000 --export: Vertical limit in space
+ship.altitudeHold = round2(ship.altitude,0)
+ship.inertialDampeningDesired = inertialDampening
 ship.followGravity = followGravity
 ship.minRotationSpeed = minRotationSpeed
 ship.maxRotationSpeedz = maxRotationSpeed
 ship.rotationStep = rotationStep
-ship.verticalSpeedLimit = verticalSpeedLimit
-system.print("Altitude: "..core.getAltitude())
---function holdAlt()
---    system.print("ship.altitudeHold: "..ship.altitudeHold)
---    if ship.altitudeHold == 0 then
---        ship.altitudeHold = ship.altitude        
---    else
---        ship.altitudeHold = 0
---    end
---    
---end
+ship.verticalSpeedLimitAtmo = verticalSpeedLimitAtmo
+ship.verticalSpeedLimitSpace = verticalSpeedLimitSpace
 
 function gearToggle()
 	if unit.isAnyLandingGearExtended() == 1 then
@@ -87,7 +79,7 @@ keybindPresets["keyboard"].keyUp.stopengines.Add(function () SHUD.Select() if no
 
 
 keybindPresets["keyboard"].keyUp.gear.Add(function () SHUD.Enabled = not SHUD.Enabled end)
-keybindPresets["keyboard"].keyUp["option1"].Add(function () ship.inertialDampening = not ship.inertialDampening end, "Inertial Dampening")
+keybindPresets["keyboard"].keyUp["option1"].Add(function () ship.inertialDampeningDesired = not ship.inertialDampeningDesired end, "Inertial Dampening")
 keybindPresets["keyboard"].keyUp["option2"].Add(function () system.freeze( math.abs(1 - system.isFrozen())) end,"Freeze character")
 keybindPresets["keyboard"].keyUp["option3"].Add(function () ship.followGravity = not ship.followGravity end, "Gravity Follow")
 keybindPresets["keyboard"].keyUp["option4"].Add(function () ship.counterGravity = not ship.counterGravity end, "Counter Gravity")

@@ -211,7 +211,7 @@ SHUD =
         SMI(DD([[<span>Alt Setpoint<span>]]..self.MakeSliderIndicator("round2(ship.altitudeHold,3)", "m")), 
                function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
                function(system, _ , w) ship.altitudeHold = utils.clamp(ship.altitudeHold + (system.getMouseWheel() * altHoldAdjustmentSetting()),0,100000) end),
-        SMI(DD([[<span>Altitude:</span><span class="right">{{round2(core.getAltitude(),4)}}</span>]])).Disable(),
+        SMI(DD([[<span>Altitude:</span><span class="right">{{round2(ship.altitude,4)}}</span>]])).Disable(),
     }
     
     self.MenuList.hotkeys = {}
