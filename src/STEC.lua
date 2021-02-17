@@ -51,6 +51,21 @@ function STEC(core, control, Cd)
         normal = function() return self.world.velocity:normalize():cross(self.nearestPlanet:getGravity(core.getConstructWorldPos()):normalize()):normalize() end,
         antinormal = function() return self.world.velocity:normalize():cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()):normalize()):normalize() end,
     }
+    self.planets = {
+        sancuary = function() return helios[26]:getGravity(core.getConstructWorldPos()):normalize() end,
+        madis = function() return helios[1]:getGravity(core.getConstructWorldPos()):normalize() end,
+        thades = function() return helios[3]:getGravity(core.getConstructWorldPos()):normalize() end,
+        alioth = function() return helios[2]:getGravity(core.getConstructWorldPos()):normalize() end,
+        feli = function() return helios[5]:getGravity(core.getConstructWorldPos()):normalize() end,
+        ion = function() return helios[120]:getGravity(core.getConstructWorldPos()):normalize() end,
+        jago = function() return helios[9]:getGravity(core.getConstructWorldPos()):normalize() end,
+        lacobus = function() return helios[100]:getGravity(core.getConstructWorldPos()):normalize() end,
+        sicari = function() return helios[6]:getGravity(core.getConstructWorldPos()):normalize() end,
+        sinnen = function() return helios[7]:getGravity(core.getConstructWorldPos()):normalize() end,
+        symeon = function() return helios[110]:getGravity(core.getConstructWorldPos()):normalize() end,
+        talemai = function() return helios[4]:getGravity(core.getConstructWorldPos()):normalize() end,
+        teoma = function() return helios[8]:getGravity(core.getConstructWorldPos()):normalize() end,
+    }
     -- Construct id
     self.id = core.getConstructId()
     -- Control Mode - Travel (0) or Cruise (1)

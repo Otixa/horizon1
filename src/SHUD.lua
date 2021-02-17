@@ -238,6 +238,7 @@ SHUD =
             self.GenerateMenuLink("Flight Mode", "flightMode"),
             self.GenerateMenuLink("Stability Assist", "stability"),
             self.GenerateMenuLink("Vector Locking", "vectorLock"),
+            self.GenerateMenuLink("Planetary V-Lock", "planetaryVLock"),
             self.GenerateMenuLink("Ship Stats", "shipStats"),
             SMI([[<i>&#9432;&nbsp;</i><span>&nbsp;Hotkeys</span>]]..self.MenuIcon, function() self.SelectMenu("hotkeys") end)
     }
@@ -282,6 +283,21 @@ SHUD =
         SMI("Lock Anti-Radial", function() ship.followGravity = false ship.targetVector = ship.target.antiradial end),
         SMI("Lock Normal", function() ship.followGravity = false ship.targetVector = ship.target.normal end),
         SMI("Lock Anti-Normal", function() ship.followGravity = false ship.targetVector = ship.target.antinormal end)
+    }
+    self.MenuList.planetaryVLock = {
+        SMI("Lock Sancuary", function() ship.followGravity = false ship.targetVector = ship.planets.sancuary end),
+        SMI("Lock Madis", function() ship.followGravity = false ship.targetVector = ship.planets.madis end),
+        SMI("Lock Thades", function() ship.followGravity = false ship.targetVector = ship.planets.thades end),
+        SMI("Lock Alioth", function() ship.followGravity = false ship.targetVector = ship.planets.alioth end),
+        SMI("Lock Feli", function() ship.followGravity = false ship.targetVector = ship.planets.feli end),
+        SMI("Lock Ion", function() ship.followGravity = false ship.targetVector = ship.planets.ion end),
+        SMI("Lock Jago", function() ship.followGravity = false ship.targetVector = ship.planets.jago end),
+        SMI("Lock Lacobus", function() ship.followGravity = false ship.targetVector = ship.planets.lacobus end),
+        SMI("Lock Sicari", function() ship.followGravity = false ship.targetVector = ship.planets.sicari end),
+        SMI("Lock Sinnen", function() ship.followGravity = false ship.targetVector = ship.planets.sinnen end),
+        SMI("Lock Symeon", function() ship.followGravity = false ship.targetVector = ship.planets.symeon end),
+        SMI("Lock Talemai", function() ship.followGravity = false ship.targetVector = ship.planets.talemai end),
+        SMI("Lock Teoma", function() ship.followGravity = false ship.targetVector = ship.planets.teoma end),
     }
     self.MenuList.hotkeys = {}
     
