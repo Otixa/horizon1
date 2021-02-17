@@ -135,7 +135,7 @@ function STEC(core, control, Cd)
     self.pitchRatio = self.world.vertical:angle_between(self.world.forward) / math.pi - 0.5
     
     local lastUpdate = system.getTime()
-    self.nearestPlanet = helios:closestBody(core.getConstructWorldPos())
+    
     
     function self.updateWorld()
         self.world = {
@@ -157,6 +157,7 @@ function STEC(core, control, Cd)
             
     
         }
+        self.nearestPlanet = helios:closestBody(core.getConstructWorldPos())
 	   -- Roll Degrees
         self.rollDegrees = self.world.vertical:angle_between(self.world.left) / math.pi * 180 - 90
         if self.world.vertical:dot(self.world.up) > 0 then self.rollDegrees = 180 - self.rollDegrees end
