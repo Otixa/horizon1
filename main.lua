@@ -6,6 +6,7 @@
 --@require DynamicDocument
 --@require CSS_SHUD
 --@require SimpleSlotDetector
+--@require FuelTankHelper
 --@require TagManager
 --@require KeybindController
 --@require STEC

@@ -286,7 +286,24 @@ SHUD =
     self.MenuList.hotkeys = {}
     
     local fa = "<style>" .. CSS_SHUD .. "</style>"
-    
+
+    function getFuelRenderedHtml()
+        local fuel = getFuelSituation()
+        local fuelHtml = ""
+
+        local mkTankHtml = (function (type, tank)
+            local tankLevel = 100 * tank.level
+            local tankLiters = tank.level * tank.specs.capacity
+            -- return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:50%;" />' .. tank.name .. '</div>'
+            return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:' .. tankLevel .. '%%;" />' .. tank.name .. ' (' .. math.floor(tankLevel) .. '%%, ' .. math.floor(tankLiters) .. 'L)</div>'
+        end)
+
+        for _, tank in pairs(fuel.atmo) do fuelHtml = fuelHtml .. mkTankHtml("atmo", tank) end
+        for _, tank in pairs(fuel.space) do fuelHtml = fuelHtml .. mkTankHtml("space", tank) end
+        for _, tank in pairs(fuel.rocket) do fuelHtml = fuelHtml .. mkTankHtml("rocket", tank) end
+
+        return fuelHtml
+    end
     
     local template = DD(fa..[[
     <div id="horizon" style="opacity: {{SHUD.Opacity}};">
@@ -342,6 +359,7 @@ SHUD =
         
             </div>
           
+            <div id="fuelTanks">{{ getFuelRenderedHtml() }}</div>
     
     </div>
     
