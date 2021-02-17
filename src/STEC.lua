@@ -26,6 +26,7 @@ function STEC(core, control, Cd)
     local self = {}
     self.core = core
     self.control = control
+    self.nearestPlanet = helios:closestBody(core.getConstructWorldPos())
     self.world = {
         up = vec3(core.getConstructWorldOrientationUp()),
         down = -vec3(core.getConstructWorldOrientationUp()),
@@ -40,8 +41,7 @@ function STEC(core, control, Cd)
         vertical = vec3(core.getWorldVertical()),
         atmosphericDensity = control.getAtmosphereDensity(),
         nearPlanet = unit.getClosestPlanetInfluence() > 0,
-        nearestPlanet = helios:closestBody(core.getConstructWorldPos()),
-        atlasAltitude = helios:closestBody(core.getConstructWorldPos()):getAltitude(core.getConstructWorldPos())
+        atlasAltitude = self.nearestPlanet:getAltitude(core.getConstructWorldPos())
     }
     self.target = {
         prograde = function() return self.world.velocity:normalize() end,
@@ -155,8 +155,8 @@ function STEC(core, control, Cd)
             vertical = vec3(core.getWorldVertical()),
             atmosphericDensity = control.getAtmosphereDensity(),
             nearPlanet = unit.getClosestPlanetInfluence() > 0,
-            nearestPlanet = helios:closestBody(core.getConstructWorldPos())
         }
+        self.nearestPlanet = helios:closestBody(core.getConstructWorldPos())
 	   -- Roll Degrees
         self.rollDegrees = self.world.vertical:angle_between(self.world.left) / math.pi * 180 - 90
         if self.world.vertical:dot(self.world.up) > 0 then self.rollDegrees = 180 - self.rollDegrees end
@@ -260,7 +260,7 @@ function STEC(core, control, Cd)
         end
         if self.rotation.z ~= 0 then
             if self.rotationSpeedz <= self.maxRotationSpeedz then self.rotationSpeedz = self.rotationSpeedz + self.rotationStep end
-            system.print("Rotation Speed: "..self.rotationSpeedz)
+            --system.print("Rotation Speed: "..self.rotationSpeedz)
             atmp = atmp + ((self.world.forward:cross(self.world.right) * self.rotation.z) * clamp(self.rotationSpeedz, 0.01, self.maxRotationSpeedz))
             if self.targetVectorAutoUnlock then
                 self.targetVector = nil
@@ -275,7 +275,7 @@ function STEC(core, control, Cd)
             else
                 scale = self.gravityFollowSpeed
             end
-            atmp = atmp + (self.world.up:cross(-self.world.vertical) * scale)
+            atmp = atmp + (self.world.up:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos())))
         end
         if self.verticalCruise then
             local speed = (self.verticalCruiseSpeed / 3.6)
@@ -305,7 +305,7 @@ function STEC(core, control, Cd)
                 tmp = tmp + (delta * self.mass)
             else
                 self.inertialDampening = true
-                tmp = tmp - ((self.world.gravity * self.mass) * deltaAltitude)
+                tmp = tmp - ((self.world.gravity * (self.mass * 2)) * deltaAltitude)
             end
 
 	    end
@@ -382,7 +382,7 @@ function STEC(core, control, Cd)
 
         -- must be applied last
         if self.counterGravity then
-            tmp = tmp - self.world.gravity * self.mass
+            tmp = tmp - self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass
         end
 
         if self.verticalLock then

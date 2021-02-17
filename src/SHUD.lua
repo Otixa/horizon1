@@ -210,7 +210,7 @@ SHUD =
                function(system, _ , w) altAdjustment = utils.clamp(altAdjustment + (system.getMouseWheel()),1,4) end),
         SMI(DD([[<span>Alt Setpoint<span>]]..self.MakeSliderIndicator("round2(ship.altitudeHold,3)", "m")), 
                function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
-               function(system, _ , w) ship.altitudeHold = utils.clamp(ship.altitudeHold + (system.getMouseWheel() * altHoldAdjustmentSetting()),0,100000) end),
+               function(system, _ , w) ship.altitudeHold = utils.clamp(ship.altitudeHold + (system.getMouseWheel() * altHoldAdjustmentSetting()),0,200000) end),
         SMI(DD([[<span>Altitude:</span><span class="right">{{round2(ship.altitude,4)}}</span>]])).Disable(),
     }
     
@@ -302,7 +302,6 @@ SHUD =
                     <div class="item helpText"><span>Inertial Dampening:</span>]].. self.MakeBooleanIndicator("ship.inertialDampening") .. [[</div>
                     <div class="item helpText"><span>Gravity Follow:</span>]].. self.MakeBooleanIndicator("ship.followGravity") .. [[</div>
                     <div class="item helpText"><span>Gravity Supression:</span>]].. self.MakeBooleanIndicator("ship.counterGravity") .. [[</div>
-                    <div class="item helpText"><span>Control Mode:</span><span class="right">{{getControlMode()}}</span></div>
                     ]]).Read()
         end
         if not self.FreezeUpdate then self.system.setScreen(template.Read()) end
