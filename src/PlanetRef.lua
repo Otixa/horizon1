@@ -1,152 +1,4 @@
 --@class PlanetRef
---[[ 
-  Provide coordinate transforms and access to kinematic related parameters
-  Author: JayleBreak
-
-  Usage (unit.start):
-  PlanetaryReference = require('planetref')
-  galaxyReference = PlanetaryReference(referenceTableSource)
-  helios = galaxyReference[0] -- PlanetaryReference.PlanetarySystem instance
-  alioth = helios[2]          -- PlanetaryReference.BodyParameters instance
-
-  Methods:
-    PlanetaryReference:getPlanetarySystem - based on planetary system ID.
-    PlanetaryReference.isMapPosition - 'true' if an instance of 'MapPosition'
-    PlanetaryReference.createBodyParameters - for entry into reference table
-    PlanetaryReference.BodyParameters - a class containing a body's information.
-    PlanetaryReference.MapPosition - a class for map coordinates
-    PlanetaryReference.PlanetarySystem - a container for planetary system info.
-
-    PlanetarySystem:castIntersections - from a position in a given direction.
-    PlanetarySystem:closestBody - to the specified coordinates.
-    PlanetarySystem:convertToBodyIdAndWorldCoordinates - from map coordinates.
-    PlanetarySystem:getBodyParameters - from reference table.
-    PlanetarySystem:getPlanetarySystemId - for the instance.
-
-    BodyParameters:convertToWorldCoordinates - from map coordinates
-    BodyParameters:convertToMapPosition - from world coordinates
-    BodyParameters:getAltitude - of world coordinates
-    BodyParameters:getDistance - from center to world coordinates
-    BodyParameters:getGravity - at a given position in world coordinates.
-
-  Description
-  An instance of the 'PlanetaryReference' "class" can contain transform and
-  kinematic reference information for all planetary systems in DualUniverse.
-  Each planetary system is identified by a numeric identifier. Currently,
-  the only planetary system, Helios, has the identifier: zero. This "class"
-  supports the indexing ('[]') operation which is equivalent to the
-  use of the 'getPlanetarySystem' method. It also supports the 'pairs()'
-  method for iterating over planetary systems.
-  
-  An instance of the 'PlanetarySystem' "class" contains all reference
-  information for a specific system. It supports the indexing ('[]') and
-  'pairs()' functions which allows iteration over each "body" in the
-  system where the key is the numeric body ID. It also supports the
-  'tostring()' method.
-
-  An instance of the 'BodyParameters' "class" contains all reference
-  information for a single celestial "body" (a moon or planet). It supports
-  the 'tostring()' method, and contains the data members:
-          planetarySystemId - numeric planetary system ID
-          bodyId            - numeric body ID
-          radius            - radius of the body in meters (zero altitude)
-          center            - world coordinates of the body's center position
-          GM                - the gravitation parameter (g = GM/radius^2)
-  Note that the user is allowed to add custom fields (e.g. body name), but
-  should insure that complex table values have the '__tostring' metamethod
-  implemented.
-
-  Transform and Kinematics:
-  "World" coordinates is a cartesian coordinate system with an origin at an
-  arbitrary fixed point in a planetary system and with distances measured in
-  meters. The coordinates are expressible either as a simple table of 3 values
-  or an instance of the 'vec3' class.  In either case, the planetary system
-  identity is implicit.
-
-  "Map" coordinates is a geographic coordinate system with an origin at the
-  center of an identified (by a numeric value) celestial body which is a
-  member of an identified (also a numeric value) planetary system. Note that
-  the convention that latitude, longitude, and altitude values will be the
-  position's x, y, and z world coordinates in the special case of body ID 0.
-
-  The kinematic parameters in the reference data permit calculations of the
-  gravitational attraction of the celestial body on other objects.
-
-  Reference Data:
-  This is an example of reference data with a single entry assigned to
-  planetary system ID 0, and body ID 2 ('Alioth'):
-    referenceTable = {
-          [0] = { [2] = { planetarySystemId = 0,
-                          bodyId = 2,
-                          radius = 126068,
-                          center = vec3({x=-8, y=-8, z=-126303}),
-                          GM = 1.572199+11 } -- as in F=-GMm/r^2
-          }
-      }
-    ref=PlanetaryReference(referenceTable)
-
-  Collecting Reference Data:
-  A combination of information from the "Map" screen in the DU user interface,
-  and values reported by the DU Lua API can be the source of the reference
-  table's data (planetarySystemId, bodyId, and surfaceArea is from the user
-  interface):
-    referenceTable = {}
-    referenceTable[planetarySystemId][bodyId] =
-         PlanetaryReference.createBodyParameters(planetarySystemId,
-                                                 bodyId,
-                                                 surfaceArea,
-                                                 core.getConstructWorldPos(),
-                                                 core.getWorldVertical(),
-                                                 core.getAltitude(),
-                                                 core.g())
-
-
-  Adapting Data Sources:
-  Other sources of data can be adapted or converted. An example of adapting a
-  table, defined in the file: 'planets.lua', containing information on a single
-  planetary system and using celestial body name as the key follows (note that
-  a 'name' field is added to the BodyParameters instance transparently after
-  construction, and the '__pairs' meta function is required to support the
-  'closestBody' and '__tostring' methods):
-    ref=PlanetaryReference(
-        {[0] = setmetatable(require('planets'),
-                        { __index = function(bodies, bodyId)
-                             for _,v in pairs(bodies) do
-                                 if v and v.bodyId == bodyId then return v end
-                             end
-                             return nil
-                           end,
-                         __pairs = function(bodies)
-                             return function(t, k)
-                                     local nk, nv = next(t, k)
-                                     if nv then
-                                         local GM = nv.gravity * nv.radius^2
-                                         local bp = BodyParameters(0,
-                                                                   nv.id,
-                                                                   nv.radius,
-                                                                   nv.pos,
-                                                                   GM)
-                                         bp.name = nk
-                                         return nk, bp
-                                    end
-                                    return nk, nv
-                                 end, bodies, nil
-                           end })
-    })
-    
-  Converting Data Sources:
-  An instance of 'PlanetaryReference' that has been adapted to a data source
-  can be used to convert that source to simple table. For example,
-  using the adapted instance shown above:
-    load('convertedData=' .. tostring(ref))()
-    newRef=PlanetaryReference(convertedData)
-
-  Also See: kepler.lua
-  ]]--
-
---[[                    START OF LOCAL IMPLEMENTATION DETAILS             ]]--
-
--- Type checks
 function PlanetRef()
 
     local function isNumber(n)  return type(n)           == 'number' end
@@ -219,11 +71,6 @@ function PlanetRef()
         end
         return tostring(obj)
     end
-
-    -- CLASSES
-
-    -- BodyParameters: Attributes of planetary bodies (planets and moons)
-
     local BodyParameters = {}
     BodyParameters.__index = BodyParameters
     BodyParameters.__tostring =
@@ -277,9 +124,6 @@ function PlanetRef()
                             center            = vec3(worldCoordinates),
                             GM                = tonumber(GM) }, BodyParameters)
     end
-
-    -- MapPosition: Geographical coordinates of a point on a planetary body.
-
     local MapPosition = {}
     MapPosition.__index = MapPosition
     MapPosition.__tostring = function(p)
@@ -299,9 +143,6 @@ function PlanetRef()
                     float_eq(lhs.latitude, math.pi/2)      or
                     float_eq(lhs.latitude, -math.pi/2))
         end
-
-    -- latitude and longitude are in degrees while altitude is in meters
-
     local function mkMapPosition(overload, bodyId, latitude, longitude, altitude)
         local systemId = overload -- Id or '::pos{...}' string
 
@@ -341,9 +182,6 @@ function PlanetRef()
                             bodyId    = bodyId,
                             systemId  = systemId}, MapPosition)
     end
-
-    -- PlanetarySystem - map body IDs to BodyParameters
-
     local PlanetarySystem = {}
     PlanetarySystem.__index = PlanetarySystem
 
@@ -398,9 +236,6 @@ function PlanetRef()
         end
         return setmetatable(atlas, PlanetarySystem)
     end
-
-    -- PlanetaryReference - map planetary system ID to PlanetarySystem
-
     PlanetaryReference = {}
 
     local function mkPlanetaryReference(referenceTable)
@@ -434,53 +269,9 @@ function PlanetRef()
             end
             return string.format('{\n%s\n}\n', table.concat(pslist,',\n'))
         end
-
-
-    --[[                       START OF PUBLIC INTERFACE                       ]]--
-
-
-    -- PlanetaryReference CLASS METHODS:
-
-    --
-    -- BodyParameters - create an instance of BodyParameters class
-    -- planetarySystemId  [in]: the body's planetary system ID.
-    -- bodyId             [in]: the body's ID.
-    -- radius             [in]: the radius in meters of the planetary body.
-    -- bodyCenter         [in]: the world coordinates of the center (vec3 or table).
-    -- GM                 [in]: the body's standard gravitational parameter.
-    -- return: an instance of BodyParameters class.
-    --
     PlanetaryReference.BodyParameters = mkBodyParameters
-
-    --
-    -- MapPosition - create an instance of the MapPosition class
-    -- overload [in]: either a planetary system ID or a position string ('::pos...')
-    -- bodyId [in]:   (ignored if overload is a position string) the body's ID.
-    -- latitude [in]: (ignored if overload is a position string) the latitude.
-    -- longitude [in]:(ignored if overload is a position string) the longitude.
-    -- altitude [in]: (ignored if overload is a position string) the altitude.
-    -- return: the class instance
-    --
     PlanetaryReference.MapPosition    = mkMapPosition
-
-    --
-    -- PlanetarySystem - create an instance of PlanetarySystem class
-    -- referenceData [in]: a table (indexed by bodyId) of body reference info.
-    -- return: the class instance
-    --
     PlanetaryReference.PlanetarySystem = mkPlanetarySystem
-
-    --
-    -- createBodyParameters - create an instance of BodyParameters class
-    -- planetarySystemId  [in]: the body's planetary system ID.
-    -- bodyId             [in]: the body's ID.
-    -- surfaceArea        [in]: the body's surface area in square meters.
-    -- aPosition          [in]: world coordinates of a position near the body.
-    -- verticalAtPosition [in]: a vector pointing towards the body center.
-    -- altitudeAtPosition [in]: the altitude in meters at the position.
-    -- gravityAtPosition  [in]: the magnitude of the gravitational acceleration.
-    -- return: an instance of BodyParameters class.
-    --
     function PlanetaryReference.createBodyParameters(planetarySystemId,
                                                     bodyId,
                                                     surfaceArea,
@@ -513,21 +304,7 @@ function PlanetRef()
         local GM       = gravityAtPosition * distance * distance
         return mkBodyParameters(planetarySystemId, bodyId, radius, center, GM)
     end
-
-    --
-    -- isMapPosition - check for the presence of the 'MapPosition' fields
-    -- valueToTest [in]: the value to be checked
-    -- return: 'true' if all required fields are present in the input value
-    --
     PlanetaryReference.isMapPosition  = isMapPosition
-
-    -- PlanetaryReference INSTANCE METHODS:
-
-    --
-    -- getPlanetarySystem - get the planetary system using ID or MapPosition as key
-    -- overload [in]: either the planetary system ID or a MapPosition that has it.
-    -- return: instance of 'PlanetarySystem' class or nil on error
-    --
     function PlanetaryReference:getPlanetarySystem(overload)
         if self.galaxyAtlas then
             local planetarySystemId = overload
@@ -548,17 +325,6 @@ function PlanetRef()
         end
         return nil
     end
-
-    -- PlanetarySystem INSTANCE METHODS:
-
-    --
-    -- castIntersections - Find the closest body that intersects a "ray cast".
-    -- origin [in]: the origin of the "ray cast" in world coordinates
-    -- direction [in]: the direction of the "ray cast" as a 'vec3' instance.
-    -- sizeCalculator [in]: (default: returns 1.05*radius) Returns size given body.
-    -- bodyIds[in]: (default: all IDs in system) check only the given IDs.
-    -- return: The closest body that blocks the cast or 'nil' if none.
-    --
     function PlanetarySystem:castIntersections(origin,
                                             direction,
                                             sizeCalculator,
@@ -604,12 +370,6 @@ function PlanetRef()
         end
         return nil, nil, nil
     end
-
-    --
-    -- closestBody - find the closest body to a given set of world coordinates
-    -- coordinates       [in]: the world coordinates of position in space
-    -- return: an instance of the BodyParameters object closest to 'coordinates'
-    --
     function PlanetarySystem:closestBody(coordinates)
         assert(type(coordinates) == 'table', 'Invalid coordinates.')
         local minDistance2, body
@@ -624,12 +384,6 @@ function PlanetRef()
         end
         return body
     end
-
-    --
-    -- convertToBodyIdAndWorldCoordinates - map to body Id and world coordinates
-    -- overload [in]: an instance of MapPosition or a position string ('::pos...)
-    -- return: a vec3 instance containing the world coordinates or 'nil' on error.
-    --
     function PlanetarySystem:convertToBodyIdAndWorldCoordinates(overload)
         local mapPosition = overload
         if isString(overload) then
@@ -648,12 +402,6 @@ function PlanetRef()
                 params:convertToWorldCoordinates(mapPosition)
         end
     end
-
-    --
-    -- getBodyParameters - get or create an instance of BodyParameters class
-    -- overload [in]: either an instance of MapPosition or a body's ID.
-    -- return: a BodyParameters instance or 'nil' if body ID is not found.
-    --
     function PlanetarySystem:getBodyParameters(overload)
         local bodyId = overload
 
@@ -665,23 +413,10 @@ function PlanetRef()
 
         return self[bodyId]
     end
-
-    --
-    -- getPlanetarySystemId - get the planetary system ID for this instance
-    -- return: the planetary system ID or nil if no planets are in the system.
-    --
     function PlanetarySystem:getPlanetarySystemId()
         local k, v = next(self)
         return v and v.planetarySystemId
     end
-
-    -- BodyParameters INSTANCE METHODS:
-
-    --
-    -- convertToMapPosition - create an instance of MapPosition from coordinates
-    -- worldCoordinates [in]: the world coordinates of the map position.
-    -- return: an instance of MapPosition class
-    --
     function BodyParameters:convertToMapPosition(worldCoordinates)
         assert(isTable(worldCoordinates),
             'Argument 1 (worldCoordinates) must be an array or vec3:' ..
@@ -712,11 +447,6 @@ function PlanetRef()
                             bodyId    = self.bodyId,
                             systemId  = self.planetarySystemId}, MapPosition)
     end
-
-    --
-    -- convertToWorldCoordinates - convert a map position to world coordinates
-    -- overload [in]: an instance of MapPosition or a position string ('::pos...')
-    --
     function BodyParameters:convertToWorldCoordinates(overload)
         local mapPosition = isString(overload) and
                                             mkMapPosition(overload) or overload
@@ -737,38 +467,17 @@ function PlanetRef()
                     xproj*math.sin(mapPosition.longitude),
                     math.sin(mapPosition.latitude))
     end
-
-    --
-    -- getAltitude - calculate the altitude of a point given in world coordinates.
-    -- worldCoordinates [in]: the world coordinates of the point.
-    -- return: the altitude in meters
-    --
     function BodyParameters:getAltitude(worldCoordinates)
         return (vec3(worldCoordinates) - self.center):len() - self.radius
     end
-
-    --
-    -- getDistance - calculate the distance to a point given in world coordinates.
-    -- worldCoordinates [in]: the world coordinates of the point.
-    -- return: the distance in meters
-    --
     function BodyParameters:getDistance(worldCoordinates)
         return (vec3(worldCoordinates) - self.center):len()
     end
-
-    --
-    -- getGravity - calculate the gravity vector induced by the body.
-    -- worldCoordinates [in]: the world coordinates of the point.
-    -- return: the gravity vector in meter/seconds^2
-    --
     function BodyParameters:getGravity(worldCoordinates)
         local radial = self.center - vec3(worldCoordinates) -- directed towards body
         local len2   = radial:len2()
         return (self.GM/len2) * radial/math.sqrt(len2)
     end
-
-    -- end of module
-
     return setmetatable(PlanetaryReference,
                         { __call = function(_,...)
                                         return mkPlanetaryReference(...)
