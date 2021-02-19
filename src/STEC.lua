@@ -277,7 +277,7 @@ function STEC(core, control, Cd)
             end
             --atmp = atmp + (self.world.up:cross(-self.world.vertical) * scale)
             
-            atmp = atmp + self.world.up:normalize():cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()))
+            atmp = atmp + ((self.world.up:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()))) - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2)))
         end
         --if self.altitudeHold ~= 0 then
         --    local deltaAltitude = self.altitude - self.altitudeHold
