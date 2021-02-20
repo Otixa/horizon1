@@ -292,10 +292,10 @@ function STEC(core, control, Cd)
 
             local distance, accelTime = kinematics.computeDistanceAndTime(self.world.velocity:len(), 0, self.mass, self.fMax,5,self.maxBrake)
             
-            if math.abs(deltaAltitude) > distance and math.abs(deltaAltitude) > 1 then
+            if math.abs(deltaAltitude) > distance and math.abs(deltaAltitude) > 100 then
                 self.inertialDampening = false
                 local verticalSpeedLimit
-                if self.altitude < (self.atmosphereThreshold + distance) then verticalSpeedLimit = self.verticalSpeedLimitAtmo else verticalSpeedLimit = self.verticalSpeedLimitSpace end
+                if self.altitude < (self.atmosphereThreshold + distance) or self.altitude <= distance then verticalSpeedLimit = self.verticalSpeedLimitAtmo else verticalSpeedLimit = self.verticalSpeedLimitSpace end
                 local speed = round2((clamp(deltaAltitude, -verticalSpeedLimit, verticalSpeedLimit) / 3.6), 4)
                 if round2(self.altitudeHold,4) == round2(self.altitude,4) then speed = 0 end
                 local dot = self.world.up:dot(self.airFriction)
