@@ -192,6 +192,16 @@ function STEC(core, control, Cd)
         local mult = 10^(numDecimalPlaces or 0)
         return math.floor(num * mult + 0.5) / mult
     end
+
+    function math.sign(v)
+        return (v >= 0 and 1) or -1
+    end
+    function math.round(v, bracket)
+        bracket = bracket or 1
+        return math.floor(v/bracket + math.sign(v) * 0.5) * bracket
+    end
+
+
     function self.throttleUp()
         self.throttle = clamp(self.throttle + 0.05, 0, 1)
     end
@@ -357,7 +367,8 @@ function STEC(core, control, Cd)
             if unit.getControlMasterModeId() == 1 then 
                 self.tempThrottle = self.throttle
                 self.throttle = 0
-                self.cruiseSpeed = self.tempCruise
+                --system.print("Velocity = "..tostring(math.round(self.world.velocity:len(), 100)))
+                self.cruiseSpeed = math.round(self.world.velocity:len() * 3.6, 100)
                 self.alternateCM = true 
             end
         end

@@ -261,7 +261,7 @@ SHUD =
                function(system, _ , w) antiGravAdjMultiplier = utils.clamp(antiGravAdjMultiplier + (system.getMouseWheel() * 10),1,500) end),
            SMI(DD([[<span>Alt Setpoint<span>]]..self.MakeSliderIndicator("round2(targetAlt,0)", "m")), 
                function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
-               function(system, _ , w) targetAlt = utils.clamp(targetAlt + (system.getMouseWheel() * antiGravAdjMultiplier),1000,100000) AntigravTargetAltitude = targetAlt end),
+               function(system, _ , w) targetAlt = utils.clamp(targetAlt + (system.getMouseWheel() * antiGravAdjMultiplier),1000,100000) antigrav.setBaseAltitude(targetAlt) end),
            SMI(DD([[<span>Base Altitude:</span><span class="right">{{round2(gvCurrentBaseAltitude,0)}}</span>]])).Disable(),
            SMI(DD([[<span>HOLD:</span><span class="right">{{gvCurrentAntiGPower}}%</span>]])).Disable(),
            SMI(DD([[<span>AG Field:</span><span class="right">{{gvCurrentAntiGravityField}}Es</span>]])).Disable(),

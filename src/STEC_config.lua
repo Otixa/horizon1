@@ -62,7 +62,7 @@ function switchControlMode()
     if ship.alternateCM == false then 
         ship.tempThrottle = ship.throttle
         ship.throttle = 0
-        ship.cruiseSpeed = ship.tempCruise
+        ship.cruiseSpeed = round2(ship.world.velocity,-2)
         ship.alternateCM = true
 
     else 

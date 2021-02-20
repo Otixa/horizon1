@@ -35,6 +35,11 @@ end
 function Unit.Tick(timer)
 	if timer == "SHUDRender" then
 		if SHUD then SHUD.Render() end
+		if antigrav ~= nil then
+			updateAGGBaseAlt()
+			readAGGState()
+			updateAGGState()
+		end
 	end
 end
 
