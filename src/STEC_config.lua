@@ -57,12 +57,19 @@ function switchFlightMode(flightMode)
     if flightModeDb then flightModeDb.setStringValue("flightMode",flightMode) end
 end
 
+function math.sign(v)
+    return (v >= 0 and 1) or -1
+end
+function math.round(v, bracket)
+    bracket = bracket or 1
+    return math.floor(v/bracket + math.sign(v) * 0.5) * bracket
+end
 
 function switchControlMode()
     if ship.alternateCM == false then 
         ship.tempThrottle = ship.throttle
         ship.throttle = 0
-        ship.cruiseSpeed = round2(ship.world.velocity,-2)
+        ship.cruiseSpeed = math.round(ship.world.velocity:len() * 3.6, 100)
         ship.alternateCM = true
 
     else 
