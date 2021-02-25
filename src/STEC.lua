@@ -64,6 +64,8 @@ function STEC(core, control, Cd)
     self.verticalLock = false
     self.lockVector = vec3(0,0,0)
     self.lockPos = vec3(0,0,0)
+    self.altHoldPreset1 = 0
+    self.altHoldPreset2 = 0
     -- Whether the target vector should unlock automatically if the ship is rotated by the pilot
     self.targetVectorAutoUnlock = true
     -- Current altitude

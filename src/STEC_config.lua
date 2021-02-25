@@ -1,19 +1,5 @@
 --@class STEC_Config
-local inertialDampening = true --export: Start with inertial dampening on/off
-local followGravity = true --export: Start with gravity follow on/off
-local minRotationSpeed = 0.01 --export: Minimum speed rotation scales from
-local maxRotationSpeed = 5 --export: Maximum speed rotation scales to
-local rotationStep = 0.03 --export: Depermines how quickly rotation scales up
-local verticalSpeedLimitAtmo = 750 --export: Vertical speed limit in atmosphere
-local verticalSpeedLimitSpace = 2000 --export: Vertical limit in space
-ship.altitudeHold = round2(ship.altitude,0)
-ship.inertialDampeningDesired = inertialDampening
-ship.followGravity = followGravity
-ship.minRotationSpeed = minRotationSpeed
-ship.maxRotationSpeedz = maxRotationSpeed
-ship.rotationStep = rotationStep
-ship.verticalSpeedLimitAtmo = verticalSpeedLimitAtmo
-ship.verticalSpeedLimitSpace = verticalSpeedLimitSpace
+
 
 function gearToggle()
 	if unit.isAnyLandingGearExtended() == 1 then

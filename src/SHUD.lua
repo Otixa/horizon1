@@ -3,12 +3,32 @@ vec2 = require('cpml/vec2')
 mat4 = require("cpml/mat4")
 local json = require("dkjson") -- For AGG
 local format = string.format
-
 function round2(num, numDecimalPlaces)
     if num ~= nil then
     return tonumber(string.format("%." .. (numDecimalPlaces or 0) .. "f", num))
         end
 end
+local inertialDampening = true --export: Start with inertial dampening on/off
+local followGravity = true --export: Start with gravity follow on/off
+local minRotationSpeed = 0.01 --export: Minimum speed rotation scales from
+local maxRotationSpeed = 5 --export: Maximum speed rotation scales to
+local rotationStep = 0.03 --export: Depermines how quickly rotation scales up
+local verticalSpeedLimitAtmo = 750 --export: Vertical speed limit in atmosphere
+local verticalSpeedLimitSpace = 2000 --export: Vertical limit in space
+local altHoldPreset1 = 100000  --export: Altitude Hold Preset 1
+local altHoldPreset2 = 20 --export: Altitude Hold Preset 2
+ship.altitudeHold = round2(ship.altitude,0)
+ship.inertialDampeningDesired = inertialDampening
+ship.followGravity = followGravity
+ship.minRotationSpeed = minRotationSpeed
+ship.maxRotationSpeedz = maxRotationSpeed
+ship.rotationStep = rotationStep
+ship.verticalSpeedLimitAtmo = verticalSpeedLimitAtmo
+ship.verticalSpeedLimitSpace = verticalSpeedLimitSpace
+ship.altHoldPreset1 = altHoldPreset1
+ship.altHoldPreset2 = altHoldPreset2
+
+
 
 function SpeedConvert(value)
     if not value or value == 0 then return {0,"00","km/h"} end
@@ -154,7 +174,13 @@ SHUD =
     end
 
         
-      
+    function mToKm(n)
+        if n >= 1000 then
+            return (n / 1000) .. " km"
+        else
+            return n .. " m"
+        end
+    end
         
     function self.MakeBooleanIndicator(varName)
         local tmpl = [[<span class="right">
@@ -211,6 +237,8 @@ SHUD =
         SMI(DD([[<span>Alt Setpoint<span>]]..self.MakeSliderIndicator("round2(ship.altitudeHold,3)", "m")), 
                function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
                function(system, _ , w) ship.altitudeHold = utils.clamp(ship.altitudeHold + (system.getMouseWheel() * altHoldAdjustmentSetting()),0,200000) end),
+        SMI(DD([[<span>Preset 1:</span><span class="right">]].. mToKm(ship.altHoldPreset1).."</span>"), function() ship.altitudeHold = ship.altHoldPreset1 ship.altitudeHoldToggle = true end),
+        SMI(DD([[<span>Preset 2:</span><span class="right">]].. mToKm(ship.altHoldPreset2).."</span>"), function() ship.altitudeHold = ship.altHoldPreset2 ship.altitudeHoldToggle = true end),
         SMI(DD([[<span>Altitude:</span><span class="right">{{round2(ship.altitude,4)}}</span>]])).Disable(),
     }
     
