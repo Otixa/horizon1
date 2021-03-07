@@ -48,8 +48,8 @@ function STEC(core, control, Cd)
         retrograde = function() return -self.world.velocity:normalize() end,
         radial = function() return self.nearestPlanet:getGravity(core.getConstructWorldPos()):normalize() end,
         antiradial = function() return -self.nearestPlanet:getGravity(core.getConstructWorldPos()):normalize() end,
-        normal = function() return self.world.velocity:normalize():cross(self.nearestPlanet:getGravity(core.getConstructWorldPos()):normalize()):normalize() end,
-        antinormal = function() return self.world.velocity:normalize():cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()):normalize()):normalize() end,
+        normal = function() return self.world.velocity:cross(self.world.right):normalize() end,
+        antinormal = function() return self.world.velocity:cross(self.world.left):normalize() end,
     }
     self.planets = {
         sancuary = function() return helios[26]:getGravity(core.getConstructWorldPos()):normalize() end,
