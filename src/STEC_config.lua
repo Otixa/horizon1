@@ -66,7 +66,7 @@ keybindPresets["keyboard"].keyUp.stopengines.Add(function () SHUD.Select() if no
 
 keybindPresets["keyboard"].keyUp.gear.Add(function () SHUD.Enabled = not SHUD.Enabled end)
 keybindPresets["keyboard"].keyUp["option1"].Add(function () ship.inertialDampeningDesired = not ship.inertialDampeningDesired end, "Inertial Dampening")
-keybindPresets["keyboard"].keyUp["option2"].Add(function () system.freeze( math.abs(1 - system.isFrozen())) end,"Freeze character")
+keybindPresets["keyboard"].keyUp["option2"].Add(function () system.freeze(math.abs(1 - system.isFrozen())) end,"Freeze character")
 keybindPresets["keyboard"].keyUp["option3"].Add(function () ship.followGravity = not ship.followGravity end, "Gravity Follow")
 keybindPresets["keyboard"].keyUp["option4"].Add(function () ship.counterGravity = not ship.counterGravity end, "Counter Gravity")
 keybindPresets["keyboard"].keyUp["option5"].Add(function ()
@@ -84,6 +84,8 @@ keybindPresets["keyboard"].keyUp["option5"].Add(function ()
 end,"Set Vertical Lock")
 keybindPresets["keyboard"].keyUp["option6"].Add(function () ship.verticalLock = not ship.verticalLock end,"Toggle Vertical Lock")
 keybindPresets["keyboard"].keyUp["option7"].Add(function () ship.verticalCruise = not ship.verticalCruise end, "Vertical Cruise")
+keybindPresets["keyboard"].keyUp["option8"].Add(function () ship.altitudeHold = ship.altHoldPreset1 ship.altitudeHoldToggle = true end, "Preset 1")
+keybindPresets["keyboard"].keyUp["option9"].Add(function () ship.altitudeHold = ship.altHoldPreset2 ship.altitudeHoldToggle = true end, "Preset 2")
 
 if flightModeDb then
    if flightModeDb.hasKey("flightMode") == 0 then flightModeDb.setStringValue("flightMode","keyboard") end
