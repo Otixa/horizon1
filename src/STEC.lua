@@ -361,7 +361,7 @@ function STEC(core, control, Cd)
             elseif type(self.targetVector) == "table" then
                 vec = self.targetVector
             end
-            atmp = atmp + (self.world.forward:cross(vec) * self.rotationSpeed)
+            atmp = atmp + (self.world.forward:cross(vec) * self.rotationSpeed)  - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
         end
         --Speed limiter
         --if self.speedLimiterToggle then
