@@ -346,7 +346,7 @@ function STEC(core, control, Cd)
                 vec = self.targetVector
             end
             self.scaleRotation()
-            atmp = atmp + (self.world.forward:cross(vec) * self.rotationSpeed)
+            atmp = atmp + (self.world.forward:cross(vec) * self.rotationSpeed) - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
         end
         -- must be applied last
         if self.counterGravity then
