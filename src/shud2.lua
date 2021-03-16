@@ -1,4 +1,11 @@
 --@class CSS_SHUD
+displaySize = 0.65
+--primaryColor = "0faea9" --export: Primary color of HUD
+--secondaryColor = "0247b5" --export: Secondary color of HUD
+--textShadow = "d9ff00" --export: Color of text shadow for speedometer
+primaryColor = "b80000" --export: Primary color of HUD
+secondaryColor = "e30000" --export: Secondary color of HUD
+textShadow = "e81313" --export: Color of text shadow for speedometer
 CSS_SHUD = [[
 #horizon { 
   left: 0;
@@ -8,22 +15,7 @@ CSS_SHUD = [[
   height: 100vh;
   background: radial-gradient(ellipse 27vw 11vw at 50% 51vw, rgba(1,5,8,0.6) 50%,rgba(1,5,8,0) 90%);
   font-family: Montserrat;
-}
-
-#artificialHorizon
-{
-  position: absolute;
-  display: block;
-  left: 50%;
-  top: 50%;
-  height: 50vw;
-  width: 50vw;
-  transform: translate(-50%, -50%);
-  filter: drop-shadow(0px 3px 4px #000000);
-}
-
-#artificialHorizon > svg {
-  width: 100%;
+  
 }
 
 #speedometer::before {
@@ -34,7 +26,7 @@ CSS_SHUD = [[
   bottom: -17vh;
   left: 50%;
   width: 31vw;
-  border: 10px solid #0faea9;
+  border: 10px solid #]]..primaryColor..[[;
   border-bottom: 0;
   border-right: 0;
   border-left: 0;
@@ -53,7 +45,7 @@ CSS_SHUD = [[
   height: 24.5vh;
   transform: translate(-50%);
   content: ' ';
-  border: 10px solid #0faea9;
+  border: 10px solid #]]..primaryColor..[[;
   border-bottom: 0;
   border-right: 0;
   border-left: 0;
@@ -83,7 +75,7 @@ CSS_SHUD = [[
   top: calc(50% + 1vh);
   left: calc(50% + 0.25em);
   transform: translate(-50%, -50%);
-  text-shadow: 0 0 0.75vw #ed1c24;
+  text-shadow: 0 0 0.75vw #]]..textShadow..[[;
   padding: 0;
   margin: 0;
   font-size: 3vw;
@@ -99,7 +91,6 @@ CSS_SHUD = [[
 #speedometer .unit {
   vertical-align: 50%;
   font-size: 33%;
-  bottom: -2vh;
   left: -1.33em;
 }
 
@@ -108,7 +99,7 @@ CSS_SHUD = [[
   text-shadow: 0 0 0.15vw #000000;
   position: absolute;
   left: 12.5%;
-  bottom: -2vh;
+  bottom: 0;
   opacity: 0.75;
 }
 
@@ -126,14 +117,14 @@ CSS_SHUD = [[
   left: 50%;
   bottom: -0.65vh;
   transform: translateX(-50%);
-  font-size: 0.75vh;
+  font-size: 0.75vw;
   text-align: center;
 }
 
 #speedometer .misc {
   position: absolute;
   left: 50%;
-  bottom: -1.9vh;
+  bottom: -1.5vh;
   transform: translateX(-50%);
   font-size: 0.5vw;
   text-align: center;
@@ -153,7 +144,7 @@ CSS_SHUD = [[
   text-shadow: 0 0 0.15vw #000000;
   position: absolute;
   right: 12.5%;
-  bottom: -2vh;
+  bottom: 0;
   opacity: 0.75;
   text-align: right;
 }
@@ -182,7 +173,7 @@ CSS_SHUD = [[
 #horizon-menu {
   text-transform: uppercase;
   font-family: 'Montserrat';
-  font-size: 0.85vw;
+  font-size: ]] .. displaySize .. [[vw;
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -201,9 +192,12 @@ CSS_SHUD = [[
 #horizon-menu .item .right {
   float: right;
 }
+#horizon-menu .item .red {
+  color: #]]..secondaryColor..[[;
+}
 #horizon-menu .item.active {
   position: relative;
-  text-shadow: 0 0 0.75vw #ed1c24;
+  text-shadow: 0 0 0.75vw #]]..secondaryColor..[[;
   transform: translateZ(0.33vw);
   font-size: 1.15em;
   transform-style: preserve-3d;
@@ -217,7 +211,7 @@ CSS_SHUD = [[
   bottom: 15%;
   left: 0.1vw;
   right: 0.1vw;
-  background: #ed1c24aa;
+  background: #]]..secondaryColor..[[aa;
   z-index: -50;
   filter: blur(1vw);
   opacity: 0.2;
@@ -231,7 +225,7 @@ CSS_SHUD = [[
   bottom: 40%;
   left: 0.1vw;
   right: 0.1vw;
-  background: #ed1c24aa;
+  background: #]]..secondaryColor..[[aa;
   z-index: -50;
   filter: blur(0.2vw);
   opacity: 0.3; 
@@ -247,7 +241,7 @@ CSS_SHUD = [[
   bottom: 15%;
   left: 0.1vw;
   right: 0.1vw;
-  background: #0faea9aa;
+  background: #]]..primaryColor..[[aa;
   z-index: -50;
   filter: blur(1vw);
   opacity: 0.2;
@@ -260,7 +254,7 @@ CSS_SHUD = [[
   bottom: 40%;
   left: 0.1vw;
   right: 0.1vw;
-  background: #0faea9aa;
+  background: #]]..primaryColor..[[aa;
   z-index: -50;
   filter: blur(0.2vw);
   opacity: 0.6; 
@@ -272,7 +266,7 @@ CSS_SHUD = [[
   display: block;
   border-top-left-radius: 1vw;
   border-top-right-radius: 1vw;
-  border-image: linear-gradient(to bottom, #0faea9ff, #0faea900) 1 100%;
+  border-image: linear-gradient(to bottom, #]]..primaryColor..[[ff, #]]..primaryColor..[[00) 1 100%;
   background: linear-gradient(to bottom, rgba(0,0,0,0.65) 50%,rgba(0,0,0,0) 100%);
   position: absolute;
   top: 0;
@@ -288,10 +282,10 @@ CSS_SHUD = [[
   display: block;
   border-top-left-radius: 1vw;
   border-top-right-radius: 1vw;
-  border-top: 0.25vw solid #0faea9;
-  border-left: 0.25vw solid #0faea9;
-  border-right: 0.25vw solid #0faea9;
-  border-image: linear-gradient(to bottom, #0faea9ff, #0faea900) 1 100%;
+  border-top: 0.25vw solid #]]..primaryColor..[[;
+  border-left: 0.25vw solid #]]..primaryColor..[[;
+  border-right: 0.25vw solid #]]..primaryColor..[[;
+  border-image: linear-gradient(to bottom, #]]..primaryColor..[[ff, #]]..primaryColor..[[00) 1 100%;
   background: radial-gradient(ellipse at top, rgba(0,0,0,0.65) 0%,rgba(0,0,0,0) 100%);
   position: absolute;
   top: 0;
@@ -300,8 +294,88 @@ CSS_SHUD = [[
   right: 0;
   z-index: -100;
 }
+
+/* ORE TRILATERATE STYLE */
+
+p {
+  /*color:#eca943;*/
+   font-size:100%;
+  }
+
+.block {
+  border: 1px solid DimGray;
+  border-radius:10px;
+  background-color: rgba(0,0,0,.5)
+  }
+
+#main_block{
+  text-align: center;
+  padding: 10px 10px 10px 10px;
+  }
+
+#help_block{
+  text-align: left;
+  padding: 10px 10px 10px 10px;
+  width: 320px;
+  }	
+
+#pause_block{        
+text-align: center;
+  font-size:90%;
+  }
+
+#panel_left {  
+  position: absolute;
+  top: 0%;
+left: 0%;
+  /*width: 310px;*/
+
+  }
+#slider_header {
+  position: absolute;
+  top: 0vh;
+  font-size:110%;
+width: 100%;
+text-align: center;	   
+  }
+
+
+#slider_main {
+  position: relative;
+  font-size:105%;
+color:#eca943;
+  /*left: -51%;/*0%*/*/
+  }
+
+#slider_footer{
+  position: relative;
+  font-size:120%;
+  top:80%;
+  left:10%; 
+  }
+
+#panel_slider {
+  position: absolute;
+  top: 54.5vh; ;
+  left: 66.8vw;/*66.8vw;*/
+  width: 9vw;/*9vw;*/
+  height: 28.5vh;
+  transform: skew(15.85deg); /*15.85deg*/
+  border-bottom: 28.5vh solid rgba(0,0,0,.25);
+  border-right: 1vw solid transparent;
+  /*background-color:rgba(0,0,0,.75)*/  	
+  }
+
+#panel_test {  
+  position: fixed;
+  top: 100px; /* or whatever top you need */
+left: 50%;
+width: auto;
+-webkit-transform: translateX(-50%);
+-moz-transform: translateX(-50%);
+-ms-transform: translateX(-50%);
+-o-transform: translateX(-50%);
+transform: translateX(-50%);
+}
 ]]
-
-
-
-
+--system.print([[Shadow Templar Mining Chair H1R3<style>#custom_screen_click_layer{ display: none !important; }</style>]])
