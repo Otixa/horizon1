@@ -17,6 +17,21 @@ CSS_SHUD = [[
   font-family: Montserrat;
   
 }
+#artificialHorizon
+{
+  position: absolute;
+  display: block;
+  left: 50%;
+  top: 50%;
+  height: 50vw;
+  width: 50vw;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0px 3px 4px #000000);
+}
+
+#artificialHorizon > svg {
+  width: 100%;
+}
 
 #speedometer::before {
   display: block;
@@ -295,87 +310,6 @@ CSS_SHUD = [[
   z-index: -100;
 }
 
-/* ORE TRILATERATE STYLE */
 
-p {
-  /*color:#eca943;*/
-   font-size:100%;
-  }
-
-.block {
-  border: 1px solid DimGray;
-  border-radius:10px;
-  background-color: rgba(0,0,0,.5)
-  }
-
-#main_block{
-  text-align: center;
-  padding: 10px 10px 10px 10px;
-  }
-
-#help_block{
-  text-align: left;
-  padding: 10px 10px 10px 10px;
-  width: 320px;
-  }	
-
-#pause_block{        
-text-align: center;
-  font-size:90%;
-  }
-
-#panel_left {  
-  position: absolute;
-  top: 0%;
-left: 0%;
-  /*width: 310px;*/
-
-  }
-#slider_header {
-  position: absolute;
-  top: 0vh;
-  font-size:110%;
-width: 100%;
-text-align: center;	   
-  }
-
-
-#slider_main {
-  position: relative;
-  font-size:105%;
-color:#eca943;
-  /*left: -51%;/*0%*/*/
-  }
-
-#slider_footer{
-  position: relative;
-  font-size:120%;
-  top:80%;
-  left:10%; 
-  }
-
-#panel_slider {
-  position: absolute;
-  top: 54.5vh; ;
-  left: 66.8vw;/*66.8vw;*/
-  width: 9vw;/*9vw;*/
-  height: 28.5vh;
-  transform: skew(15.85deg); /*15.85deg*/
-  border-bottom: 28.5vh solid rgba(0,0,0,.25);
-  border-right: 1vw solid transparent;
-  /*background-color:rgba(0,0,0,.75)*/  	
-  }
-
-#panel_test {  
-  position: fixed;
-  top: 100px; /* or whatever top you need */
-left: 50%;
-width: auto;
--webkit-transform: translateX(-50%);
--moz-transform: translateX(-50%);
--ms-transform: translateX(-50%);
--o-transform: translateX(-50%);
-transform: translateX(-50%);
-}
 ]]
 --system.print([[Shadow Templar Mining Chair H1R3<style>#custom_screen_click_layer{ display: none !important; }</style>]])
