@@ -21,12 +21,13 @@ function Unit.Start()
 	Events.Flush.Add(mouse.apply)
 	Events.Flush.Add(ship.apply)
 	Events.Update.Add(SHUD.Update)
-	
+	manualSwitches[1].activate()
 	system.print([[Horizon 1.0.1.5]])
 end
 
 function Unit.Stop()
 	system.showScreen(0)
+	manualSwitches[1].deactivate()
 end
 
 function Unit.Tick(timer)
