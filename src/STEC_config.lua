@@ -22,6 +22,18 @@ end
 
 ship.verticalCruiseSpeed = 100
 
+function swapForceFields()
+    if manualSwitches ~= nil then
+        if ship.frozen == false then
+            manualSwitches[1].activate()
+            manualSwitches[2].deactivate()
+        else
+            manualSwitches[2].activate()
+            manualSwitches[1].deactivate()
+        end
+    end
+
+end
 
 keybindPresets["keyboard"] = KeybindController()
 keybindPresets["keyboard"].Init = function()
@@ -66,7 +78,7 @@ keybindPresets["keyboard"].keyUp.stopengines.Add(function () SHUD.Select() if no
 
 keybindPresets["keyboard"].keyUp.gear.Add(function () SHUD.Enabled = not SHUD.Enabled end)
 keybindPresets["keyboard"].keyUp["option1"].Add(function () ship.inertialDampeningDesired = not ship.inertialDampeningDesired end, "Inertial Dampening")
-keybindPresets["keyboard"].keyUp["option2"].Add(function () system.freeze(math.abs(1 - system.isFrozen())) end,"Freeze character")
+keybindPresets["keyboard"].keyUp["option2"].Add(function () system.freeze(math.abs(1 - system.isFrozen())) swapForceFields() end,"Freeze character")
 keybindPresets["keyboard"].keyUp["option3"].Add(function () ship.followGravity = not ship.followGravity end, "Gravity Follow")
 keybindPresets["keyboard"].keyUp["option4"].Add(function () ship.counterGravity = not ship.counterGravity end, "Counter Gravity")
 keybindPresets["keyboard"].keyUp["option5"].Add(function ()

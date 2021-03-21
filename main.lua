@@ -24,12 +24,17 @@ function Unit.Start()
 	Events.Flush.Add(mouse.apply)
 	Events.Flush.Add(ship.apply)
 	Events.Update.Add(SHUD.Update)
-	
+	if manualSwitches ~= nil then manualSwitches[2].activate() end
 	system.print([[Horizon 1.0.1.6]])
 end
 
 function Unit.Stop()
 	system.showScreen(0)
+	if manualSwitches ~= nil then 
+		for _, sw in ipairs(manualSwitches) do
+			sw.deactivate()
+		end
+	end
 end
 
 function Unit.Tick(timer)
