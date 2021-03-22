@@ -17,6 +17,8 @@ local Unit = _G.BuildUnit
 _G.BuildSystem = {}
 local System = _G.BuildSystem
 
+local disableFFOnStop = false --export: Deactivate force fields on stop?
+
 function Unit.Start()
 	Events.Flush.Add(mouse.apply)
 	Events.Flush.Add(ship.apply)
@@ -27,7 +29,7 @@ end
 
 function Unit.Stop()
 	system.showScreen(0)
-	manualSwitches[1].deactivate()
+	if disableFFOnStop then manualSwitches[1].deactivate() end
 end
 
 function Unit.Tick(timer)
