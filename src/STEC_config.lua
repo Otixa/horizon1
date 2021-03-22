@@ -24,12 +24,17 @@ ship.verticalCruiseSpeed = 100
 
 function swapForceFields()
     if manualSwitches ~= nil then
-        if ship.frozen == false then
+        --system.print("Ship Frozen: "..tostring(system.isFrozen()))
+        if system.isFrozen() == 1 then
             manualSwitches[1].activate()
-            manualSwitches[2].deactivate()
+            for _, sw in ipairs(forceFields) do
+                sw.deactivate()
+            end
         else
-            manualSwitches[2].activate()
             manualSwitches[1].deactivate()
+            for _, sw in ipairs(forceFields) do
+                sw.activate()
+            end
         end
     end
 
