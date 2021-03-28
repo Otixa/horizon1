@@ -15,8 +15,8 @@ local maxRotationSpeed = 5 --export: Maximum speed rotation scales to
 local rotationStep = 0.03 --export: Depermines how quickly rotation scales up
 local verticalSpeedLimitAtmo = 1000 --export: Vertical speed limit in atmosphere
 local verticalSpeedLimitSpace = 4000 --export: Vertical limit in space
-local altHoldPreset1 = 100010  --export: Altitude Hold Preset 1
-local altHoldPreset2 = 19.5 --export: Altitude Hold Preset 2
+local altHoldPreset1 = 10  --export: Altitude Hold Preset 1
+local altHoldPreset2 = 100000 --export: Altitude Hold Preset 2
 --charMovement = true --export: Enable/Disable Character Movement
 ship.altitudeHold = round2(ship.altitude,0)
 ship.inertialDampeningDesired = inertialDampening
@@ -177,9 +177,9 @@ SHUD =
         
     function mToKm(n)
         if n >= 1000 then
-            return (n / 1000) .. " km"
+            return round2((n / 1000),2) .. " km"
         else
-            return n .. " m"
+            return round2(n,2) .. " m"
         end
     end
         

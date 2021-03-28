@@ -118,6 +118,7 @@ function STEC(core, control, Cd)
     self.throttle = 1
     -- Maximum thrust which the vessel is capable of producing
     self.fMax = 0
+    self.vfMax = 0
     -- Toggle altitude hold on/off
     self.altitudeHoldToggle = false
     -- Altitude which the vessel should attempt to hold
@@ -177,10 +178,16 @@ function STEC(core, control, Cd)
         self.localVelocity = vec3(core.getVelocity())
         self.maxBrake = jdecode(unit.getData()).maxBrake
         local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
+        local vfMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
         if self.world.atmosphericDensity > 0.1 then --Temporary hack. Needs proper transition.
             self.fMax = math.max(fMax[1], -fMax[2])
         else
             self.fMax = math.max(fMax[3], -fMax[4])
+        end
+        if self.world.atmosphericDensity > 0.1 then --Temporary hack. Needs proper transition.
+            self.vfMax = math.max(vfMax[1], -vfMax[2])
+        else
+            self.vfMax = math.max(vfMax[3], -vfMax[4])
         end
     end
 
@@ -268,7 +275,6 @@ function STEC(core, control, Cd)
                 self.targetVector = nil
             end
         end
-
         if self.followGravity and self.rotation.x == 0 then
 		  local current = self.localVelocity:len() * self.mass
             local scale = nil
@@ -290,26 +296,44 @@ function STEC(core, control, Cd)
         end
         ahTmpd = 0.125
         if self.altitudeHoldToggle then
-            local deltaAltitude =  self.altitudeHold - self.altitude
-
-            local distance, accelTime = kinematics.computeDistanceAndTime(self.world.velocity:len(), 0, self.mass, self.fMax,5,self.maxBrake)
             
-            if math.abs(deltaAltitude) > distance and math.abs(deltaAltitude) > 100 then
-                self.inertialDampening = false
+            local deltaAltitude =  self.altitudeHold - self.altitude
+            local brakeBuffer = 1000
+            --if (self.altitudeHold - self.altitude) > 0.1 and self.altitude < self.altitudeHold then deltaAltitude = deltaAltitude + 20 end
+            
+            local breakDistance, accelTime = kinematics.computeDistanceAndTime(self.world.velocity:len(), 0, self.mass, self.vfMax,5,self.maxBrake)
+            
+            --if math.abs(deltaAltitude) > breakDistance and math.abs(deltaAltitude) > 100 then
+                --self.inertialDampening = false
                 local verticalSpeedLimit
-                if self.altitude < (self.atmosphereThreshold + distance) or self.altitude <= distance then verticalSpeedLimit = self.verticalSpeedLimitAtmo else verticalSpeedLimit = self.verticalSpeedLimitSpace end
-                local speed = round2((clamp(deltaAltitude, -verticalSpeedLimit, verticalSpeedLimit) / 3.6), 4)
-                if round2(self.altitudeHold,4) == round2(self.altitude,4) then speed = 0 end
+                if self.altitude <= (self.atmosphereThreshold + breakDistance) or self.altitude <= breakDistance then 
+                    verticalSpeedLimit = self.verticalSpeedLimitAtmo 
+                else 
+                    verticalSpeedLimit = self.verticalSpeedLimitSpace 
+                end
+                if  (breakDistance + brakeBuffer) >= math.abs(deltaAltitude) then
+                    verticalSpeedLimit = 100
+                end
+                
+                local speed = round2((clamp(deltaAltitude, -verticalSpeedLimit, verticalSpeedLimit) / 3.6), 1)
+                if math.modf(self.altitude) ==  math.modf(self.altitudeHold) then
+                     speed = 0
+                     self.inertialDampening = true
+                end
+
+                self.inertialDampening = false
                 local dot = self.world.up:dot(self.airFriction)
                 local modifiedVelocity = (speed - dot)
                 local desired = self.world.up * modifiedVelocity
                 local delta = (desired - (self.world.velocity - self.world.acceleration))
-                tmp = tmp + (delta * self.mass)
-            else
-                self.inertialDampening = true
-                tmp = tmp - ((self.world.gravity * (self.mass * 2)) * deltaAltitude)
-            end
-
+                tmp = tmp + (delta * (self.mass))
+                
+                
+            --else
+            --    self.inertialDampening = true
+            --    tmp = tmp - ((self.world.gravity * (self.mass * 2)) * deltaAltitude)
+            --end
+            
 	    end
         if self.alternateCM then
           local speed = (self.cruiseSpeed / 3.6)
@@ -388,16 +412,17 @@ function STEC(core, control, Cd)
         end
 
         if self.verticalLock then
-            local localPos = (self.world.position + self.world.up * 1.235) - self.lockPos
+            local localPos = (self.world.position + self.world.up) - self.lockPos
             local intersectionPos = self.lockVector * self.lockVector:dot(localPos)
             local intersectionVec = intersectionPos - localPos
-            local thrustForce = intersectionVec * self.mass * deltaTime * 2
-            system.print("thrustForce: " .. tostring(thrustForce))
+            local thrustForce = intersectionVec * self.mass * deltaTime
+            --system.print("thrustForce: " .. tostring(thrustForce))
             tmp = tmp + thrustForce * self.mass
          end
 
         atmp = atmp - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
         tmp = tmp / self.mass
+
         if self.controlMode ~= unit.getControlMasterModeId() then
             self.controlMode = unit.getControlMasterModeId()
             if unit.getControlMasterModeId() == 0 then self.alternateCM = false end
