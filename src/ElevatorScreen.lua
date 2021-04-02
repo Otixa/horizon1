@@ -6,9 +6,10 @@ function ElevatorScreen()
 
     mouseClick = screen.getMouseState()
 
-    local manual_control_fill = "rosybrown"
-    local preset_1_fill = "rosybrown"
-    local preset_2_fill = "rosybrown"
+    local buttonColor = "#e27802"
+    local manual_control_fill = buttonColor
+    local preset_1_fill = buttonColor
+    local preset_2_fill = buttonColor
     local e_stop_fill = "#E80000"
     local up10button = "whitesmoke"
     local down10button = "whitesmoke"
@@ -26,12 +27,8 @@ function ElevatorScreen()
     
 
     function renderStatsTable()
-        --<table>
-        --    <tr><td>Variable1</td><td>30.33</td></tr>
-        --    <tr><td>Variable2</td><td>99.99km</td></tr>
-        --</table>
         local tbl = "<table>"
-        tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Elevation".."</td><td>"..mToKm(ship.altitude).."</td></tr>"
+        tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Elevation".."</td><td>"..elevation.."</td></tr>"
         tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Target".."</td><td>"..mToKm(ship.altitudeHold).."</td></tr>"
         tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Velocity".."</td><td>"..velocity .. " km/h".."</td></tr>"
         tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Vertical".."</td><td>"..verticalVelocity.."</td></tr>"
@@ -43,7 +40,7 @@ function ElevatorScreen()
         return tbl
     end
 
-    if manualControl then manual_control_fill = "green" else manual_control_fill = "rosybrown" end
+    if manualControl then manual_control_fill = "#0c8a7d" else manual_control_fill = buttonColor end
     if e_stop then e_stop_fill = "green" else e_stop_fill = "#E80000" end
 
     if mousex >= 0.3307 and mousex <= 0.5309 and mousey >= 0.2173 and mousey <= 0.2800 then --P2 button
@@ -140,7 +137,7 @@ function ElevatorScreen()
         </text>
         
         <rect x="336.61800956823737" y="130.03005981445312" style="fill:]]..preset_2_fill..[[;stroke:none;stroke-width:1px;" id="e17_rectangle" width="205.013" height="39.8492" transform="matrix(1 0 0 1 0 0)"/>
-        <path d="M16.303030411839906,5.434343482623676h-2l4,2l4,-2h-2v-4h2l-4,-2l-4,2h2Z" style="fill:rosybrown; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="e18_shape" transform="matrix(12.977 0 0 12.977 67.439 105.389)"/>
+        <path d="M16.303030411839906,5.434343482623676h-2l4,2l4,-2h-2v-4h2l-4,-2l-4,2h2Z" style="fill:]]..preset_1_fill..[[; stroke:black; vector-effect:non-scaling-stroke;stroke-width:1px;" id="e18_shape" transform="matrix(12.977 0 0 12.977 67.439 105.389)"/>
         <rect x="84.94305992224128" y="130.0299530029297" style="fill:]]..preset_1_fill..[[;stroke:none;stroke-width:1px;" id="e3_rectangle" width="205.013000" height="39.849201" transform="matrix(1 0 0 1 -17.0514 0)"/>
         <rect x="340.81222343542487" y="223.35931396484375" style="fill:]]..manual_control_fill..[[;stroke:none;stroke-width:1px;" id="e4_rectangle" width="205.013000" height="39.849201" transform="matrix(1 0 0 1 -138.362 0)"/>
         <text x="120.59403991699219" y="156.772216796875" id="e1_texte" transform="matrix(1 0 0 1 49.8063 1.0483)" xml:space="preserve" class="button_text" style="">P1: ]]..mToKm(ship.altHoldPreset1)..[[</text>
