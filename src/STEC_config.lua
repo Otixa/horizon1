@@ -8,7 +8,9 @@ function gearToggle()
 		unit.extendLandingGears()
 	end
 end
-
+function scaleViewBound(rMin,rMax,tMin,tMax,input)
+    return ((input - rMin) / (rMax - rMin)) * (tMax - tMin) + tMin
+end
 function switchFlightMode(flightMode)
     SHUD.Init(system, unit, keybindPresets[flightMode]) 
     keybindPreset = flightMode

@@ -312,7 +312,7 @@ function STEC(core, control, Cd)
                     verticalSpeedLimit = self.verticalSpeedLimitSpace 
                 end
                 if  (breakDistance + brakeBuffer) >= math.abs(deltaAltitude) then
-                    verticalSpeedLimit = 100
+                    verticalSpeedLimit = 200
                 end
                 
                 local speed = round2((clamp(deltaAltitude, -verticalSpeedLimit, verticalSpeedLimit) / 3.6), 1)

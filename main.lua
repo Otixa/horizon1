@@ -54,7 +54,7 @@ function Unit.Stop()
 		sw.deactivate()
 	end
 	if screen ~= nil then
-		screen.setCenteredText("Turn on remote...")
+		screen.setHTML([[<img src="assets.prod.novaquark.com/27707/a8a9beb8-73de-4cd3-a0fb-d84e11e7a942.png" style="width:100%; height:100%"/>]])
 	end
 end
 
@@ -113,30 +113,30 @@ function toggleVerticalLock()
     ship.lockPos = vec3(core.getConstructWorldPos()) + (vec3(core.getConstructWorldOrientationUp()))
 end
 function buildScreen.MouseUp(x,y,slot)
-	if mousex >= 0.0684 and mousex <= 0.2686 and mousey >= 0.2162 and mousey <= 0.2804 then --P1 button
+	if mousex >= 0.0331 and mousex <= 0.4373 and mousey >= 0.1276 and mousey <= 0.2051 then --P1 button
 		toggleVerticalLock()
 		ship.altitudeHold = ship.altHoldPreset1 ship.altitudeHoldToggle = true
 	end
-	if mousex >= 0.3307 and mousex <= 0.5309 and mousey >= 0.2173 and mousey <= 0.2800 then --P2 button
+	if mousex >= 0.0331 and mousex <= 0.4373 and mousey >= 0.2153 and mousey <= 0.2900 then --P2 button
 		toggleVerticalLock()
 		ship.altitudeHold = ship.altHoldPreset2 ship.altitudeHoldToggle = true
 	end
-	if mousex >= 0.2088 and mousex <= 0.4094 and mousey >= 0.3693 and mousey <= 0.4313 then --Manual control button
+	if mousex >= 0.0331 and mousex <= 0.4373 and mousey >= 0.3883 and mousey <= 0.4632 then --Manual control button
 		ship.verticalLock = false
 		ship.intertialDampening = true
 		ship.altitudeHoldToggle = false
         manualControl = not manualControl
 		manualControlSwitch()
     end
-	if mousex >= 0.2752 and mousex <= 0.3236 and mousey >= 0.1587 and mousey <= 0.2421 then --Up 10
+	if mousex >= 0.2413 and mousex <= 0.4373 and mousey >= 0.3004 and mousey <= 0.3764 then --Up 10
 		toggleVerticalLock()
         ship.altitudeHold = ship.altitudeHold + 10
     end
-    if mousex >= 0.2752 and mousex <= 0.3236 and mousey >= 0.2421 and mousey <= 0.3239 then --Down 10
+    if mousex >= 0.0331 and mousex <= 0.2282 and mousey >= 0.3004 and mousey <= 0.3764 then --Down 10
 		toggleVerticalLock()
         ship.altitudeHold = ship.altitudeHold - 10
     end
-    if mousex >= 0.1790 and mousex <= 0.4517 and mousey >= 0.5145 and mousey <= 0.9691 then --E-Stop button
+    if mousex >= 0.1003 and mousex <= 0.3703 and mousey >= 0.5059 and mousey <= 0.9185 then --E-Stop button
         e_stop = not e_stop
 		if e_stop then
 			ship.verticalLock = false
