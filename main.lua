@@ -80,7 +80,17 @@ function Unit.Tick(timer)
 		else
 			
 		end
-		
+		--local magicNumber = (ship.mass / ship.vfMax) * (ship.world.gravity:len() * 0.01)
+        --system.print("Magic Number: "..magicNumber)
+		--local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(1,0,0):unpack()})
+		--system.print("[1]-"..math.abs(round2(fMax[1])))
+		--system.print("[2]-"..math.abs(round2(fMax[2])))
+		--system.print("[3]-"..math.abs(round2(fMax[3])))
+		--system.print("[4]-"..math.abs(round2(fMax[4])))
+		--system.print("fMax:		"..round2(ship.fMax,0))	
+		--system.print("vfMax:	"..round2(ship.vfMax,0))
+		--system.print("hfMax:	"..round2(ship.hfMax,0))
+
 		if screen ~= nil then ElevatorScreen() end
 	end
 end
