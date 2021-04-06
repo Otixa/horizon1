@@ -33,8 +33,10 @@ function ElevatorScreen()
         tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Elevation".."</td><td>"..elevation.."</td></tr>"
         tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Target".."</td><td>"..mToKm(ship.altitudeHold).."</td></tr>"
         tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Velocity".."</td><td>"..velocity .. " km/h".."</td></tr>"
-        tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Vertical".."</td><td>"..verticalVelocity.."</td></tr>"
-        tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Delta-V".."</td><td>"..deltaV.."</td></tr>"
+        tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Vertical".."</td><td>"..round2(verticalVelocity,0).." m/s</td></tr>"
+        tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Delta-V".."</td><td>"..deltaV.." m/s</td></tr>"
+        tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Mass".."</td><td>"..round2(ship.mass / 1000,0).." t</td></tr>"
+        tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Gravity".."</td><td>"..round2(ship.world.gravity:len(), 2).." m/s</td></tr>"
         tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Target Dist".."</td><td>"..mToKm(targetDistance).."</td></tr>"
         tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Brake Dist".."</td><td>"..mToKm(brakeDistanceRound).."</td></tr>"
         --tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."elevatorMove".."</td><td>"..elevatorMove.."</td></tr>"
@@ -101,17 +103,26 @@ end
     }
     div.fixed {
         position: fixed;
-        top: 80px;
-        left: 605px;
-        width: 400px;
-        height: 450px;
+        top: 110px;
+        left: 575px;
+        width: 420px;
+        height: 440px;
+        margin: auto;
+      }
+      .center {
+        margin: 0;
+        position: absolute;
+        top: 40%;
+        right: 10%;
+        -ms-transform: translate(10%, -50%);
+        transform: translate(10%, -50%);
       }
         
     table, th, td {
         padding-bottom: 5px;
         fill:silver;
         font-family:Verdana;
-        font-size:25px;
+        font-size:23px;
         kit-user-select:none;
         ms-user-select:none;
         stroke:black;
@@ -119,6 +130,7 @@ end
         webkit-user-select:none;
         font-weight:bold;
         text-align: left;
+        vertical-align: middle;
       }
             .st0{opacity:0.85;}
             .st1{fill-rule:evenodd;clip-rule:evenodd;fill:url(#path6128_1_);}
@@ -144,7 +156,8 @@ end
             .st21{font-size:30px;}
             .st22{letter-spacing:1;}
             .st23{fill:#8A8800;stroke:#000000;stroke-miterlimit:10;}
-            .st24{letter-spacing:2;}
+            .st24{font-size:50px;}
+	        .st25{letter-spacing:2;}
         </style>
         
         <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
@@ -255,9 +268,11 @@ end
  <text transform="matrix(1 0 0 1 298.1182 218.7998)" class="st14 st15 st21 st22">+10m</text>
  <rect x="48" y="248" class="st20" width="383" height="26"/>
  <text transform="matrix(1 0 0 1 116.1147 270.7998)" class="st14 st15 st21 st22">Manual Control</text>
- <text transform="matrix(1 0 0 1 638.0791 62.3999)" class="st23 st15 st16 st24">Caterpillar XL</text>
+ <text transform="matrix(1 0 0 1 582.3379 73.7998)" class="st23 st15 st24 st25">Caterpillar XL</text>
  </svg>
         <div class="fixed">
-            ]]..renderStatsTable()..[[
+            <div class="center">
+                ]]..renderStatsTable()..[[
+            </div>
         </div> ]])
 end

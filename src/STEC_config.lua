@@ -66,22 +66,31 @@ keybindPresets["keyboard"].keyUp.yawright.Add(function () ship.rotation.z = 0 sh
 
 keybindPresets["keyboard"].keyDown.forward.Add(function () ship.direction.y = 1 end)
 keybindPresets["keyboard"].keyUp.forward.Add(function () ship.direction.y = 0 end)
+
+
+keybindPresets["keyboard"].keyDown.backward.Add(function () ship.direction.y = -1 end)
+keybindPresets["keyboard"].keyUp.backward.Add(function () ship.direction.y = 0 end)
+
 keybindPresets["keyboard"].keyDown.backward.Add(function () ship.direction.y = -1 end)
 keybindPresets["keyboard"].keyUp.backward.Add(function () ship.direction.y = 0 end)
 
 
-keybindPresets["keyboard"].keyDown.left.Add(function () ship.direction.x = -1 end)
-keybindPresets["keyboard"].keyUp.left.Add(function () ship.direction.x = 0 end)
-keybindPresets["keyboard"].keyDown.right.Add(function () ship.direction.x = 1 end)
-keybindPresets["keyboard"].keyUp.right.Add(function () ship.direction.x = 0 end)
+keybindPresets["keyboard"].keyDown.left.Add(function () ship.direction.x = -1  end) --q
+keybindPresets["keyboard"].keyUp.left.Add(function () ship.direction.x = 0  end) --q
+keybindPresets["keyboard"].keyDown.right.Add(function () ship.direction.x = 1  end) --e
+keybindPresets["keyboard"].keyUp.right.Add(function () ship.direction.x = 0      end) --e
+
+
+--keybindPresets["keyboard"].keyDown.left.Add(function () ship.direction.x = -1 end)
+--keybindPresets["keyboard"].keyUp.left.Add(function () ship.direction.x = 0 end)
+--keybindPresets["keyboard"].keyDown.right.Add(function () ship.direction.x = 1 end)
+--keybindPresets["keyboard"].keyUp.right.Add(function () ship.direction.x = 0 end)
 
 keybindPresets["keyboard"].keyDown.brake.Add(function () ship.brake = true end)
 keybindPresets["keyboard"].keyUp.brake.Add(function () ship.brake = false end)
 
 --keybindPresets["keyboard"].keyDown.stopengines.Add(function () if ship.direction.y == 1 then ship.direction.y = 0 else ship.direction.y = 1 end end, "Cruise")
 keybindPresets["keyboard"].keyUp.stopengines.Add(function () SHUD.Select() if not SHUD.Enabled then if ship.direction.y == 1 then ship.direction.y = 0 else ship.direction.y = 1 end end end, "Cruise")
-
-
 
 keybindPresets["keyboard"].keyUp.gear.Add(function () SHUD.Enabled = not SHUD.Enabled end)
 keybindPresets["keyboard"].keyUp["option1"].Add(function () ship.inertialDampeningDesired = not ship.inertialDampeningDesired end, "Inertial Dampening")
