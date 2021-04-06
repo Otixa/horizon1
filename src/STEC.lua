@@ -260,15 +260,28 @@ function STEC(core, control, Cd)
         if not self.altitudeHoldToggle then self.inertialDampening = self.inertialDampeningDesired end
         
         if self.direction.x ~= 0 then
-            local dot  = (1 - self.world.up:dot(-self.world.gravity:normalize())) * (self.mass * 0.000095) -- Magic number is magic
-            local gravCorrection = -self.world.vertical * dot
+            local worldRight = self.world.vertical:cross(self.world.forward)
+            local gravityForce = -self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass
+            --system.print(tostring(gravityForce:len()))
+            --local dot  = (1 - self.world.up:dot(-self.world.gravity:normalize())) * (self.mass * 0.000095) -- Magic number is magic
+            --local gravCorrection = -self.world.vertical * dot
 
             if self.direction.x < 0 and math.abs(round2(hfMax[2],0)) < 500 then
                 gravityCorrection = true
-                tmp = tmp + ((((self.world.right * self.direction.x) + gravCorrection):normalize() * self.fMax) * self.throttle)
+                local strafeAngle = (-self.world.vertical):angle_between(self.world.up) * (180/math.pi)
+                local strafeOffset = gravityForce:len() * math.tan(strafeAngle)
+                local strafeForceLen = math.sqrt(gravityForce:len()^2 + strafeOffset^2)
+                system.print(tostring(strafeForceLen / self.mass))
+                tmp = tmp + (self.world.up * strafeForceLen)
+                --tmp = tmp + ((((worldRight * self.direction.x)):normalize() * self.fMax) * self.throttle)
             elseif self.direction.x > 0 and math.abs(round2(hfMax[1],0)) < 500 then
                 gravityCorrection = true
-                tmp = tmp + ((((self.world.right * self.direction.x) + gravCorrection):normalize() * self.fMax) * self.throttle)
+                local strafeAngle = (-self.world.vertical):angle_between(self.world.up) * (180/math.pi)
+                local strafeOffset = gravityForce:len() * math.tan(strafeAngle)
+                local strafeForceLen = math.sqrt(gravityForce:len()^2 + strafeOffset^2)
+                system.print(tostring(strafeForceLen / self.mass))
+                tmp = tmp + (self.world.up * strafeForceLen)
+                --tmp = tmp + ((((worldRight * self.direction.x)):normalize() * self.fMax) * self.throttle)
             else
                 tmp = tmp + (((self.world.right * self.direction.x) * self.fMax) * self.throttle) -- OG code
             end
@@ -325,16 +338,16 @@ function STEC(core, control, Cd)
             if self.direction.x < 0 and math.abs(round2(hfMax[2],0)) < 500 then
 
                 scale = 0.25
-                gFollow = gFollow + ship.world.right:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.25)
+                gFollow = gFollow + ship.world.right:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.5)
 
             elseif self.direction.x > 0 and math.abs(round2(hfMax[1],0)) < 500 then
 
                 scale = 0.25
-                gFollow = gFollow - ship.world.right:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.25)
+                gFollow = gFollow - ship.world.right:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.5)
 
             elseif self.direction.y < 0 and math.abs(round2(fMax[2],0)) == 0 then
 
-                gFollow = gFollow + ship.world.forward:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.25)
+                gFollow = gFollow + ship.world.forward:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.5)
 
             end
             gFollow = gFollow * scale
@@ -465,7 +478,7 @@ function STEC(core, control, Cd)
         --end
 
         -- must be applied last
-        if self.counterGravity then
+        if self.counterGravity and gravityCorrection == false then
             tmp = tmp - self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass
         end
 
@@ -498,3 +511,5 @@ function STEC(core, control, Cd)
 end
 
 ship = STEC(core, unit)
+
+
