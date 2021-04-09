@@ -4,6 +4,7 @@
 --@require EventDelegate
 --@require TaskManager
 --@require DynamicDocument
+--@require DUTTYMin
 --@require CSS_SHUD
 --@require SimpleSlotDetector
 --@require TagManager
@@ -101,6 +102,10 @@ end
 
 function System.ActionStop(action)
 	keybindPresets[keybindPreset].Call(action, "up")
+end
+
+function System.InputText(action)
+	if DUTTY then DUTTY.input(action) end
 end
 
 function System.ActionLoop(action) 

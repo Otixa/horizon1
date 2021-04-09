@@ -51,6 +51,7 @@ function STEC(core, control, Cd)
         normal = function() return self.world.velocity:normalize():cross(self.world.gravity:normalize()):normalize() end,
         antinormal = function() return self.world.velocity:normalize():cross(-self.world.gravity:normalize()):normalize() end,
     }
+    self.customTarget = vec3(0,0,0)
     -- Construct id
     self.id = core.getConstructId()
     -- Control Mode - Travel (0) or Cruise (1)
@@ -61,6 +62,7 @@ function STEC(core, control, Cd)
     self.tags = TagManager("all,brake")
     -- Target vector to face if non-0. Can take in a vec3 or function which returns a vec3
     self.targetVector = nil
+    self.targetDestination = nil
     self.verticalLock = false
     self.lockVector = vec3(0,0,0)
     self.lockPos = vec3(0,0,0)
@@ -260,28 +262,15 @@ function STEC(core, control, Cd)
         if not self.altitudeHoldToggle then self.inertialDampening = self.inertialDampeningDesired end
         
         if self.direction.x ~= 0 then
-            local worldRight = self.world.vertical:cross(self.world.forward)
-            local gravityForce = -self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass
-            --system.print(tostring(gravityForce:len()))
-            --local dot  = (1 - self.world.up:dot(-self.world.gravity:normalize())) * (self.mass * 0.000095) -- Magic number is magic
-            --local gravCorrection = -self.world.vertical * dot
+            local dot  = (1 - self.world.up:dot(-self.world.gravity:normalize())) * (self.mass * 0.000095) -- Magic number is magic
+            local gravCorrection = -self.world.vertical * dot
 
             if self.direction.x < 0 and math.abs(round2(hfMax[2],0)) < 500 then
                 gravityCorrection = true
-                local strafeAngle = (-self.world.vertical):angle_between(self.world.up) * (180/math.pi)
-                local strafeOffset = gravityForce:len() * math.tan(strafeAngle)
-                local strafeForceLen = math.sqrt(gravityForce:len()^2 + strafeOffset^2)
-                system.print(tostring(strafeForceLen / self.mass))
-                tmp = tmp + (self.world.up * strafeForceLen)
-                --tmp = tmp + ((((worldRight * self.direction.x)):normalize() * self.fMax) * self.throttle)
+                tmp = tmp + ((((self.world.right * self.direction.x) + gravCorrection):normalize() * self.fMax) * self.throttle)
             elseif self.direction.x > 0 and math.abs(round2(hfMax[1],0)) < 500 then
                 gravityCorrection = true
-                local strafeAngle = (-self.world.vertical):angle_between(self.world.up) * (180/math.pi)
-                local strafeOffset = gravityForce:len() * math.tan(strafeAngle)
-                local strafeForceLen = math.sqrt(gravityForce:len()^2 + strafeOffset^2)
-                system.print(tostring(strafeForceLen / self.mass))
-                tmp = tmp + (self.world.up * strafeForceLen)
-                --tmp = tmp + ((((worldRight * self.direction.x)):normalize() * self.fMax) * self.throttle)
+                tmp = tmp + ((((self.world.right * self.direction.x) + gravCorrection):normalize() * self.fMax) * self.throttle)
             else
                 tmp = tmp + (((self.world.right * self.direction.x) * self.fMax) * self.throttle) -- OG code
             end
@@ -338,16 +327,16 @@ function STEC(core, control, Cd)
             if self.direction.x < 0 and math.abs(round2(hfMax[2],0)) < 500 then
 
                 scale = 0.25
-                gFollow = gFollow + ship.world.right:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.5)
+                gFollow = gFollow + ship.world.right:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.25)
 
             elseif self.direction.x > 0 and math.abs(round2(hfMax[1],0)) < 500 then
 
                 scale = 0.25
-                gFollow = gFollow - ship.world.right:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.5)
+                gFollow = gFollow - ship.world.right:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.25)
 
             elseif self.direction.y < 0 and math.abs(round2(fMax[2],0)) == 0 then
 
-                gFollow = gFollow + ship.world.forward:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.5)
+                gFollow = gFollow + ship.world.forward:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.25)
 
             end
             gFollow = gFollow * scale
@@ -478,7 +467,7 @@ function STEC(core, control, Cd)
         --end
 
         -- must be applied last
-        if self.counterGravity and gravityCorrection == false then
+        if self.counterGravity then
             tmp = tmp - self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass
         end
 
@@ -489,6 +478,10 @@ function STEC(core, control, Cd)
             local thrustForce = intersectionVec * self.mass * deltaTime
             --system.print("thrustForce: " .. tostring(thrustForce))
             tmp = tmp + thrustForce * self.mass
+         end
+
+         if self.targetDestination ~= nil then
+            tmp = tmp + (self.targetDestination - self.world.position) * self.mass * deltaTime
          end
 
         atmp = atmp - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
@@ -511,5 +504,3 @@ function STEC(core, control, Cd)
 end
 
 ship = STEC(core, unit)
-
-

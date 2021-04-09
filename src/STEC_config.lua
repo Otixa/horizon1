@@ -41,6 +41,47 @@ function swapForceFields()
     end
 
 end
+function writeTargetToDb(cVector)
+    if flightModeDb ~= nil then
+        flightModeDb.setFloatValue("customTargetX", cVector.x)
+        flightModeDb.setFloatValue("customTargetY", cVector.y)
+        flightModeDb.setFloatValue("customTargetZ", cVector.z)
+    end
+end
+
+function readTargetFromDb(cVector)
+    if flightModeDb ~= nil then
+        local v = vec3(0,0,0)
+        v.x = flightModeDb.getFloatValue("customTargetX")
+        v.y = flightModeDb.getFloatValue("customTargetY")
+        v.z = flightModeDb.getFloatValue("customTargetZ")
+        return v
+    end
+end
+
+function resolveCustomTarget(cVector)
+    ship.targetVector = (ship.customTarget - ship.world.position):normalize()
+end
+local tty = DUTTY
+tty.onCommand('st', function (a)
+    if a == nil then
+        ship.customTarget = ship.world.position
+        writeTargetToDb(ship.customTarget)
+        system.print("Custom Target: "..tostring(ship.customTarget))
+    else
+        if string.find(a, "::pos") ~= nil then
+            --system.print(a)
+            ship.customTarget = ship.nearestPlanet:convertToWorldCoordinates(a)
+            writeTargetToDb(ship.customTarget)
+            system.print("Custom Target: "..tostring(ship.customTarget))
+        else
+            ship.customTarget = ship.world.position
+            writeTargetToDb(ship.customTarget)
+            system.print("Custom Target: "..tostring(ship.customTarget))
+        end
+    end
+    
+end)
 
 keybindPresets["keyboard"] = KeybindController()
 keybindPresets["keyboard"].Init = function()
@@ -111,7 +152,8 @@ keybindPresets["keyboard"].keyUp["option5"].Add(function ()
     end
 end,"Set Vertical Lock")
 keybindPresets["keyboard"].keyUp["option6"].Add(function () ship.verticalLock = not ship.verticalLock end,"Toggle Vertical Lock")
-keybindPresets["keyboard"].keyUp["option7"].Add(function () ship.verticalCruise = not ship.verticalCruise end, "Vertical Cruise")
+--keybindPresets["keyboard"].keyUp["option7"].Add(function () ship.verticalCruise = not ship.verticalCruise end, "Vertical Cruise")
+keybindPresets["keyboard"].keyUp["option7"].Add(function() if ship.targetDestination == nil then ship.targetDestination = resolveCustomTarget else ship.targetDestination = nil end  end, "Lock Custom Vector")
 keybindPresets["keyboard"].keyUp["option8"].Add(function () ship.altitudeHold = ship.altHoldPreset1 ship.altitudeHoldToggle = true end, "Preset 1")
 keybindPresets["keyboard"].keyUp["option9"].Add(function () ship.altitudeHold = ship.altHoldPreset2 ship.altitudeHoldToggle = true end, "Preset 2")
 
