@@ -314,8 +314,9 @@ function STEC(core, control, Cd)
             end
         end
         if self.followGravity and self.rotation.x == 0 then
+            
           --system.print(tostring(self.direction))
-		  local current = self.localVelocity:len() * self.mass
+		    local current = self.localVelocity:len() * self.mass
             local scale = nil
             --if ship.localVelocity:len() > 10 then
             --    scale = self.gravityFollowSpeed * math.min(math.max(current / self.fMax, 0.1), 1) * 10
@@ -324,20 +325,16 @@ function STEC(core, control, Cd)
             --end
             local gFollow = (self.world.up:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos())))
             local scale = 1
-            if self.direction.x < 0 and math.abs(round2(hfMax[2],0)) < 500 then
-
-                scale = 0.25
-                gFollow = gFollow + ship.world.right:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.25)
-
-            elseif self.direction.x > 0 and math.abs(round2(hfMax[1],0)) < 500 then
-
-                scale = 0.25
-                gFollow = gFollow - ship.world.right:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.25)
-
-            elseif self.direction.y < 0 and math.abs(round2(fMax[2],0)) == 0 then
-
-                gFollow = gFollow + ship.world.forward:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.25)
-
+            if pocket then
+                if self.direction.x < 0 and math.abs(round2(hfMax[2],0)) < 500 then
+                    scale = 0.25
+                    gFollow = gFollow + ship.world.right:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.25)
+                elseif self.direction.x > 0 and math.abs(round2(hfMax[1],0)) < 500 then
+                    scale = 0.25
+                    gFollow = gFollow - ship.world.right:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.25)
+                elseif self.direction.y < 0 and math.abs(round2(fMax[2],0)) == 0 then
+                    gFollow = gFollow + ship.world.forward:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.25)
+                end
             end
             gFollow = gFollow * scale
             atmp = atmp + gFollow
@@ -357,39 +354,45 @@ function STEC(core, control, Cd)
             local deltaAltitude =  self.altitudeHold - self.altitude
             local brakeBuffer = 1000
             --if (self.altitudeHold - self.altitude) > 0.1 and self.altitude < self.altitudeHold then deltaAltitude = deltaAltitude + 20 end
-            
-            local breakDistance, accelTime = kinematics.computeDistanceAndTime(self.world.velocity:len(), 0, self.mass, self.vfMax,20,self.maxBrake)
-            
-            --if math.abs(deltaAltitude) > breakDistance and math.abs(deltaAltitude) > 100 then
-                --self.inertialDampening = false
-            local verticalSpeedLimit
-            if self.altitude <= (self.atmosphereThreshold + breakDistance) or self.altitude <= breakDistance then 
-                verticalSpeedLimit = self.verticalSpeedLimitAtmo 
-            else 
-                verticalSpeedLimit = self.verticalSpeedLimitSpace 
-            end
-            if  (breakDistance + brakeBuffer) >= math.abs(deltaAltitude) then
-                verticalSpeedLimit = 200
-            end
-            
-            local speed = round2((clamp(deltaAltitude, -verticalSpeedLimit, verticalSpeedLimit) / 3.6), 1)
-            if math.modf(self.altitude) ==  math.modf(self.altitudeHold) then
-                    speed = 0
-                    self.inertialDampening = true
+            local tempd = math.abs(deltaAltitude) / (100 * math.abs(self.localVelocity.z))
+            if deltaAltitude < 1 and (math.abs(self.localVelocity.z)) < 0 then
+                ahTmpd = deltaTime
+            else
+                ahTmpd = utils.clamp(tempd, 0.001, 0.125)
             end
 
-            self.inertialDampening = false
-            local dot = self.world.up:dot(self.airFriction)
-            local modifiedVelocity = (speed - dot)
-            local desired = self.world.up * modifiedVelocity
-            local delta = (desired - (self.world.velocity - self.world.acceleration))
-            tmp = tmp + (delta * (self.mass))
+            local breakDistance, accelTime = kinematics.computeDistanceAndTime(self.world.velocity:len(), 0, self.mass, self.vfMax,20,self.maxBrake)
+            
+            if math.abs(deltaAltitude) > breakDistance and math.abs(deltaAltitude) > 5 then
+                self.inertialDampening = false
+                local verticalSpeedLimit
+                if self.altitude <= (self.atmosphereThreshold + breakDistance) or self.altitude <= breakDistance then 
+                    verticalSpeedLimit = self.verticalSpeedLimitAtmo 
+                else 
+                    verticalSpeedLimit = self.verticalSpeedLimitSpace 
+                end
+                if  (breakDistance + brakeBuffer) >= math.abs(deltaAltitude) then
+                    verticalSpeedLimit = 200
+                end
+                
+                local speed = round2((clamp(deltaAltitude, -verticalSpeedLimit, verticalSpeedLimit) / 3.6), 1)
+                if math.modf(self.altitude) ==  math.modf(self.altitudeHold) then
+                        speed = 0
+                        self.inertialDampening = true
+                end
+
+                self.inertialDampening = false
+                local dot = self.world.up:dot(self.airFriction)
+                local modifiedVelocity = (speed - dot)
+                local desired = self.world.up * modifiedVelocity
+                local delta = (desired - (self.world.velocity - self.world.acceleration))
+                tmp = tmp + (delta * (self.mass))
                 
                 
-            --else
-            --    self.inertialDampening = true
-            --    tmp = tmp - ((self.world.gravity * (self.mass * 2)) * deltaAltitude)
-            --end
+            else
+                self.inertialDampening = true
+                tmp = tmp - ((self.world.gravity * (self.mass)) * deltaAltitude)
+            end
             
 	    end
         if self.alternateCM then
@@ -425,7 +428,7 @@ function STEC(core, control, Cd)
             if apply.z <= 0 and gravityCorrection == false then
                 --system.print("apply.z")
                 local tmpd = deltaTime
-                --if self.altitudeHoldToggle then tmpd = ahTmpd end
+                if self.altitudeHoldToggle then tmpd = ahTmpd end
                 if (math.abs(self.localVelocity.z) < 1) then
                         tmpd = 0.125
                 end
@@ -447,25 +450,7 @@ function STEC(core, control, Cd)
             end
             atmp = atmp + (self.world.forward:cross(vec) * self.rotationSpeed)  - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
         end
-        --Speed limiter
-        --if self.speedLimiterToggle then
-        --    local currentVelocity = self.world.velocity:len()
-        --    local speedLimit
-        --    if self.altitudeHoldToggle then
-        --        speedLimit = self.variableSpeedLimit
-        --    else
-        --        speedLimit = self.speedLimiter
-        --    end
-        --    local speedLimitInMs = speedLimit / 3.6
-        --    if currentVelocity > speedLimitInMs then
-        --        local movementVector = self.world.velocity:normalize()
-        --        local maxVelocityVector = movementVector * speedLimitInMs
-        --        local deltaVelocityVector = self.world.velocity - maxVelocityVector
-        --        system.print("Speed limit: "..speedLimit.." Speed Limit (m/s): "..speedLimitInMs)
-        --        tmp = tmp - (deltaVelocityVector / deltaTime) * self.mass
-        --    end
-        --end
-
+        
         -- must be applied last
         if self.counterGravity then
             tmp = tmp - self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass
