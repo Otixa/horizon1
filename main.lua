@@ -1,12 +1,13 @@
 --@require Atlas
---@require PlanetRef
---@require Kinematics
+--@require PlanetRefMin
+--@require KinematicsMin
+--@require SimpleSlotDetector
 --@require EventDelegate
 --@require TaskManager
---@require DynamicDocument
+--@require DynamicDocumentMin
 --@require DUTTYMin
 --@require CSS_SHUD
---@require SimpleSlotDetector
+--@require FuelTankHelper
 --@require TagManager
 --@require KeybindController
 --@require STEC
@@ -15,6 +16,7 @@
 --@require STEC_Config
 --@require ElevatorScreen
 --@timer SHUDRender
+--@timer FuelStatus
 --@class Main
 
 _G.BuildUnit = {}
@@ -28,6 +30,7 @@ function Unit.Start()
 	Events.Flush.Add(mouse.apply)
 	Events.Flush.Add(ship.apply)
 	Events.Update.Add(SHUD.Update)
+	getFuelRenderedHtml()
 	manualControl = false
 	e_stop = false
 	system.print("Screen: "..tostring(screen))
@@ -41,6 +44,8 @@ function Unit.Start()
 	if screen ~= nil then
 		screen.setCenteredText("Script Error")
 	end
+	unit.setTimer("SHUDRender", 0.02)
+	unit.setTimer("FuelStatus", 3)
 	system.print([[Horizon 1.0.1.6]])
 end
 
@@ -93,6 +98,9 @@ function Unit.Tick(timer)
 		--system.print("hfMax:	"..round2(ship.hfMax,0))
 
 		if screen ~= nil then ElevatorScreen() end
+	end
+	if timer == "FuelStatus" then
+		getFuelRenderedHtml()
 	end
 end
 

@@ -132,6 +132,8 @@ SHUD =
     self.SvgMinY = -round((self.ScreenH / 4) / 2,0)
     self.SvgWidth = round(self.ScreenW / 4,0)
     self.SvgHeight = round(self.ScreenH / 4,0)
+
+    self.SHUDFuelHtml = ""
     
     self.Markers = {}
         
@@ -249,6 +251,25 @@ SHUD =
     
     local fa = "<style>" .. CSS_SHUD .. "</style>"
     
+    function getFuelRenderedHtml()
+        local fuel = getFuelSituation()
+        local fuelHtml = ""
+
+        local mkTankHtml = (function (type, tank)
+            local tankLevel = tank.level --100 * tank.level
+            --local tankLiters = tank.level * tank.specs.capacity
+            -- return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:50%;" />' .. tank.name .. '</div>'
+            return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:' .. tankLevel .. '%%;" />' .. tank.name .. ' (' .. math.floor(tankLevel) .. '%%,)</div>'
+        end)
+
+        for _, tank in pairs(fuel.atmo) do fuelHtml = fuelHtml .. mkTankHtml("atmo", tank) end
+        for _, tank in pairs(fuel.space) do fuelHtml = fuelHtml .. mkTankHtml("space", tank) end
+        for _, tank in pairs(fuel.rocket) do fuelHtml = fuelHtml .. mkTankHtml("rocket", tank) end
+
+        self.SHUDFuelHtml = fuelHtml
+    end
+
+    
     opacity = 1.0
     local template = DD(fa..[[
     <div id="horizon" style="opacity: {{opacity}};">
@@ -281,7 +302,7 @@ SHUD =
             </div>
         
             </div>
-          
+            <div id="fuelTanks">{{ SHUD.SHUDFuelHtml }}</div>
     
     </div>
     
@@ -387,7 +408,7 @@ end
                 keybindPresets[keybindPreset].Init()
             end))
         end
-        unit.setTimer("HUD", 0.02)
+        
         keybinds.Init()
     end
 
