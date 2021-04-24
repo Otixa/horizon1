@@ -325,14 +325,14 @@ function STEC(core, control, Cd)
             --end
             local gFollow = (self.world.up:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos())))
             local scale = 1
-            if pocket then
-                if self.direction.x < 0 and math.abs(round2(hfMax[2],0)) < 500 then
+            if self.pocket then
+                if self.direction.x < 0  then
                     scale = 0.25
                     gFollow = gFollow + ship.world.right:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.25)
-                elseif self.direction.x > 0 and math.abs(round2(hfMax[1],0)) < 500 then
+                elseif self.direction.x > 0  then
                     scale = 0.25
                     gFollow = gFollow - ship.world.right:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.25)
-                elseif self.direction.y < 0 and math.abs(round2(fMax[2],0)) == 0 then
+                elseif self.direction.y < 0  then
                     gFollow = gFollow + ship.world.forward:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.25)
                 end
             end
