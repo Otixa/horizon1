@@ -4,6 +4,9 @@ antigrav = nil
 warpDrive = nil
 radarUnit = nil
 flightModeDb = nil
+manualSwitches = {}
+forceFields = {}
+screen = nil
 
 function getElements()
   for k,var in pairs(_G) do
@@ -35,15 +38,18 @@ function getElements()
       if class == "AntiGravityGeneratorUnit" then
         antigrav = var
       end
-
-      if class == "DoorUnit" then
-        var.deactivate()
-     end
+      if class == "ManualSwitchUnit" then
+        --manualSwitch = var
+        table.insert(manualSwitches, var)
+      end
+      if class == "ForceFieldUnit" then
+        table.insert(forceFields, var)
+      end
+      if class == "ScreenUnit" then
+        screen = var
+      end
     end
   end
 end
 
 getElements()
-
-
-

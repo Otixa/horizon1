@@ -310,6 +310,43 @@ CSS_SHUD = [[
   z-index: -100;
 }
 
+#fuelTanks {
+  position: absolute;
+  top: 2%;
+  left: 2%;
+  width: 12vw;
+
+  color: #1b1b1b;
+  font-family: Montserrat;
+  font-size: 0.8vh;
+  text-align: center;
+}
+#fuelTanks .fuel-meter {
+  display: block;
+  position: relative;
+  z-index: 1;
+  border-radius: 0.5em;
+  background: #c6c6c6;
+  padding: 0.5em 1em;
+  margin-bottom: 0.5em;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+#fuelTanks .fuel-meter .fuel-level {
+  display: block;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+  z-index: -1;
+  border: 0px none;
+  margin: 0;
+  padding: 0;
+}
+#fuelTanks .fuel-meter.fuel-type-atmo .fuel-level { background: #1dd1f9; }
+#fuelTanks .fuel-meter.fuel-type-space .fuel-level { background: #fac31e; }
+#fuelTanks .fuel-meter.fuel-type-rocket .fuel-level { background: #bfa6ff; }
+
 
 ]]
 --system.print([[Shadow Templar Mining Chair H1R3<style>#custom_screen_click_layer{ display: none !important; }</style>]])

@@ -1,11 +1,12 @@
 --@require Atlas
 --@require PlanetRef
 --@require Kinematics
+--@require SimpleSlotDetector
 --@require EventDelegate
 --@require TaskManager
 --@require DynamicDocument
 --@require CSS_SHUD
---@require SimpleSlotDetector
+--@require FuelTankHelper
 --@require TagManager
 --@require KeybindController
 --@require STEC
@@ -13,6 +14,7 @@
 --@require MouseMovement
 --@require STEC_Config
 --@timer SHUDRender
+--@timer FuelStatus
 --@class Main
 
 _G.BuildUnit = {}
@@ -24,7 +26,9 @@ function Unit.Start()
 	Events.Flush.Add(mouse.apply)
 	Events.Flush.Add(ship.apply)
 	Events.Update.Add(SHUD.Update)
-	
+	if flightModeDb ~= nil then getFuelRenderedHtml() end
+	unit.setTimer("SHUDRender", 0.02)
+	unit.setTimer("FuelStatus", 3)
 	system.print([[Horizon 1.1.1.6]])
 end
 
@@ -41,6 +45,10 @@ function Unit.Tick(timer)
 			updateAGGState()
 		end
 	end
+	if timer == "FuelStatus" then
+		if flightModeDb ~= nil then getFuelRenderedHtml() end
+	end
+
 end
 
 function System.ActionStart(action)

@@ -302,6 +302,28 @@ SHUD =
     self.MenuList.hotkeys = {}
     
     local fa = "<style>" .. CSS_SHUD .. "</style>"
+    self.fuel = nil
+    function getFuelRenderedHtml()
+        self.fuel = getFuelSituation()
+        local fuelHtml = ""
+
+        local mkTankHtml = (function (type, tank)
+            local tankLevel = tank.level --100 * tank.level
+            local time = tank.time
+            --local tankLiters = tank.level * tank.specs.capacity
+            -- return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:50%;" />' .. tank.name .. '</div>'
+            return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:' .. tankLevel .. '%%;" />' .. tank.time .. ' (' .. math.ceil(tankLevel) .. '%%,)</div>'
+        end)
+
+        for _, tank in pairs(self.fuel.atmo) do fuelHtml = fuelHtml .. mkTankHtml("atmo", tank) end
+        for _, tank in pairs(self.fuel.space) do fuelHtml = fuelHtml .. mkTankHtml("space", tank) end
+        for _, tank in pairs(self.fuel.rocket) do fuelHtml = fuelHtml .. mkTankHtml("rocket", tank) end
+
+        self.SHUDFuelHtml = fuelHtml
+    end
+
+
+    local fa = "<style>" .. CSS_SHUD .. "</style>"
     
     
     local template = DD(fa..[[
@@ -357,7 +379,7 @@ SHUD =
             </div>
         
             </div>
-          
+            <div id="fuelTanks">{{ SHUD.SHUDFuelHtml }}</div>
     
     </div>
     
@@ -489,7 +511,7 @@ SHUD =
                 keybindPresets[keybindPreset].Init()
             end))
         end
-        unit.setTimer("HUD", 0.02)
+        
         keybinds.Init()
     end
 
