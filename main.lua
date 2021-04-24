@@ -12,7 +12,6 @@
 --@require KeybindController
 --@require STEC
 --@require SHUD
---@require MouseMovement
 --@require STEC_Config
 --@require ElevatorScreen
 --@timer SHUDRender
@@ -27,10 +26,10 @@ _G.BuildScreen = {}
 local buildScreen = _G.BuildScreen
 
 function Unit.Start()
-	Events.Flush.Add(mouse.apply)
+	--Events.Flush.Add(mouse.apply)
 	Events.Flush.Add(ship.apply)
 	Events.Update.Add(SHUD.Update)
-	getFuelRenderedHtml()
+	if flightModeDb ~= nil then getFuelRenderedHtml() end
 	manualControl = false
 	e_stop = false
 	system.print("Screen: "..tostring(screen))
@@ -46,7 +45,7 @@ function Unit.Start()
 	end
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
-	system.print([[Horizon 1.0.1.6]])
+	system.print([[Horizon 1.0.1.9]])
 end
 
 function Unit.Stop()
@@ -100,7 +99,7 @@ function Unit.Tick(timer)
 		if screen ~= nil then ElevatorScreen() end
 	end
 	if timer == "FuelStatus" then
-		getFuelRenderedHtml()
+		if flightModeDb ~= nil then getFuelRenderedHtml() end
 	end
 end
 

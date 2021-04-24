@@ -460,7 +460,7 @@ function STEC(core, control, Cd)
             local localPos = (self.world.position + self.world.up) - self.lockPos
             local intersectionPos = self.lockVector * self.lockVector:dot(localPos)
             local intersectionVec = intersectionPos - localPos
-            local thrustForce = intersectionVec * self.mass * deltaTime
+            local thrustForce = intersectionVec * (self.mass * 0.3)-- * deltaTime
             --system.print("thrustForce: " .. tostring(thrustForce))
             tmp = tmp + thrustForce * self.mass
          end

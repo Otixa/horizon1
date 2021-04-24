@@ -22,7 +22,7 @@ function switchControlMode()
         else ship.alternateCM = false end
 end
 
-ship.verticalCruiseSpeed = 100
+--ship.verticalCruiseSpeed = 100
 
 function swapForceFields()
     if manualSwitches ~= nil then
@@ -85,8 +85,8 @@ end)
 
 keybindPresets["keyboard"] = KeybindController()
 keybindPresets["keyboard"].Init = function()
-    mouse.enabled = false
-    mouse.unlock()
+    --mouse.enabled = false
+    --mouse.unlock()
     ship.ignoreVerticalThrottle = true
     ship.throttle = 1
     --ship.direction.y = 0
@@ -141,7 +141,7 @@ keybindPresets["keyboard"].keyUp["option4"].Add(function () ship.counterGravity 
 keybindPresets["keyboard"].keyUp["option5"].Add(function ()
     ship.verticalLock = true
     ship.lockVector = vec3(core.getConstructWorldOrientationUp())
-    ship.lockPos = vec3(core.getConstructWorldPos()) + (vec3(core.getConstructWorldOrientationUp()) * 1.235)
+    ship.lockPos = vec3(core.getConstructWorldPos()) + (vec3(core.getConstructWorldOrientationUp()))
     if flightModeDb ~= nil then
         flightModeDb.setFloatValue("lockVectorX",ship.lockVector.x)
         flightModeDb.setFloatValue("lockVectorY",ship.lockVector.y)

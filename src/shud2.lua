@@ -381,7 +381,7 @@ transform: translateX(-50%);
   position: absolute;
   top: 2%;
   left: 2%;
-  width: 300px;
+  width: 12vw;
 
   color: #1b1b1b;
   font-family: Montserrat;

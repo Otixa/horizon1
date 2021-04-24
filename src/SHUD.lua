@@ -8,14 +8,15 @@ function round2(num, numDecimalPlaces)
     return tonumber(string.format("%." .. (numDecimalPlaces or 0) .. "f", num))
         end
 end
+shipName = "Caterpillar XL" --export: Ship Name
 local inertialDampening = true --export: Start with inertial dampening on/off
 local followGravity = true --export: Start with gravity follow on/off
 local minRotationSpeed = 0.01 --export: Minimum speed rotation scales from
 local maxRotationSpeed = 5 --export: Maximum speed rotation scales to
 local rotationStep = 0.03 --export: Depermines how quickly rotation scales up
-local verticalSpeedLimitAtmo = 1000 --export: Vertical speed limit in atmosphere
+local verticalSpeedLimitAtmo = 1100 --export: Vertical speed limit in atmosphere
 local verticalSpeedLimitSpace = 4000 --export: Vertical limit in space
-local altHoldPreset1 = 100000  --export: Altitude Hold Preset 1
+local altHoldPreset1 = 100001.35  --export: Altitude Hold Preset 1
 local altHoldPreset2 = 10 --export: Altitude Hold Preset 2
 local pocket = false --export: Pocket ship?
 --charMovement = true --export: Enable/Disable Character Movement
@@ -250,21 +251,22 @@ SHUD =
     self.MenuList.hotkeys = {}
     
     local fa = "<style>" .. CSS_SHUD .. "</style>"
-    
+    self.fuel = nil
     function getFuelRenderedHtml()
-        local fuel = getFuelSituation()
+        self.fuel = getFuelSituation()
         local fuelHtml = ""
 
         local mkTankHtml = (function (type, tank)
             local tankLevel = tank.level --100 * tank.level
+            local time = tank.time
             --local tankLiters = tank.level * tank.specs.capacity
             -- return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:50%;" />' .. tank.name .. '</div>'
-            return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:' .. tankLevel .. '%%;" />' .. tank.name .. ' (' .. math.floor(tankLevel) .. '%%,)</div>'
+            return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:' .. tankLevel .. '%%;" />' .. tank.time .. ' (' .. math.ceil(tankLevel) .. '%%,)</div>'
         end)
 
-        for _, tank in pairs(fuel.atmo) do fuelHtml = fuelHtml .. mkTankHtml("atmo", tank) end
-        for _, tank in pairs(fuel.space) do fuelHtml = fuelHtml .. mkTankHtml("space", tank) end
-        for _, tank in pairs(fuel.rocket) do fuelHtml = fuelHtml .. mkTankHtml("rocket", tank) end
+        for _, tank in pairs(self.fuel.atmo) do fuelHtml = fuelHtml .. mkTankHtml("atmo", tank) end
+        for _, tank in pairs(self.fuel.space) do fuelHtml = fuelHtml .. mkTankHtml("space", tank) end
+        for _, tank in pairs(self.fuel.rocket) do fuelHtml = fuelHtml .. mkTankHtml("rocket", tank) end
 
         self.SHUDFuelHtml = fuelHtml
     end

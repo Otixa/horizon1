@@ -24,17 +24,13 @@ function ElevatorScreen()
     local brakeDistance, accelTime = kinematics.computeDistanceAndTime(ship.world.velocity:len(), 0, ship.mass, ship.vfMax,5,ship.maxBrake)
     local brakeDistanceRound = round2(math.abs(brakeDistance), 2)
 
-    local statsTable = {}
-
-    
-
     function renderStatsTable()
         local tbl = "<table>"
         tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Elevation".."</td><td>"..elevation.."</td></tr>"
         tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Target".."</td><td>"..mToKm(ship.altitudeHold).."</td></tr>"
         tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Velocity".."</td><td>"..velocity .. " km/h".."</td></tr>"
-        tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Vertical".."</td><td>"..round2(verticalVelocity,0).." m/s</td></tr>"
-        tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Delta-V".."</td><td>"..deltaV.." m/s</td></tr>"
+        --tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Vertical".."</td><td>"..round2(verticalVelocity,0).." m/s</td></tr>"
+        --tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Delta-V".."</td><td>"..deltaV.." m/s</td></tr>"
         tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Mass".."</td><td>"..round2(ship.mass / 1000,0).." t</td></tr>"
         tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Gravity".."</td><td>"..round2(ship.world.gravity:len(), 2).." m/s</td></tr>"
         tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Target Dist".."</td><td>"..mToKm(targetDistance).."</td></tr>"
@@ -95,24 +91,43 @@ if mousex >= 0.0331 and mousex <= 0.2282 and mousey >= 0.3004 and mousey <= 0.37
         end
 end
 
+function updateScreenFuel()
+    local fuelHtml = ""
+
+    local mkTankHtml = (function (type, tank)
+        local level = tank.level --100 * tank.level
+        local time = tank.time
+        --local tankLiters = tank.level * tank.specs.capacity
+        -- return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:50%;" />' .. tank.name .. '</div>'
+        return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:' .. level .. '%;" />' .. time .. ' (' .. math.ceil(level) .. '%)</div>'
+    end)
+
+    for _, tank in pairs(SHUD.fuel.atmo) do fuelHtml = fuelHtml .. mkTankHtml("atmo", tank) end
+    for _, tank in pairs(SHUD.fuel.space) do fuelHtml = fuelHtml .. mkTankHtml("space", tank) end
+    for _, tank in pairs(SHUD.fuel.rocket) do fuelHtml = fuelHtml .. mkTankHtml("rocket", tank) end
+
+    return   fuelHtml
+end
+
     screen.setHTML([[
-        <style>
+<style>
         svg {
         height:100%
         width:100%
     }
     div.fixed {
         position: fixed;
-        top: 110px;
+        top: 90px;
         left: 575px;
         width: 420px;
-        height: 440px;
+        height: 490px;
         margin: auto;
+        
       }
       .center {
         margin: 0;
         position: absolute;
-        top: 40%;
+        top: 35%;
         right: 10%;
         -ms-transform: translate(10%, -50%);
         transform: translate(10%, -50%);
@@ -132,32 +147,74 @@ end
         text-align: left;
         vertical-align: middle;
       }
-            .st0{opacity:0.85;}
-            .st1{fill-rule:evenodd;clip-rule:evenodd;fill:url(#path6128_1_);}
-            .st2{fill-rule:evenodd;clip-rule:evenodd;fill:url(#path6168_1_);}
-            .st3{fill-rule:evenodd;clip-rule:evenodd;fill:url(#path6128-4_1_);}
-            .st4{fill-rule:evenodd;clip-rule:evenodd;fill:url(#path6168-6_1_);}
-            .st5{fill-rule:evenodd;clip-rule:evenodd;fill:url(#path6128-8_1_);}
-            .st6{fill-rule:evenodd;clip-rule:evenodd;fill:url(#path6168-3_1_);}
-            .st7{fill-rule:evenodd;clip-rule:evenodd;fill:url(#path6128-4-7_1_);}
-            .st8{fill-rule:evenodd;clip-rule:evenodd;fill:url(#path6168-6-5_1_);}
-            .st9{opacity:0.75;fill:#333333;}
-            .st10{fill:none;stroke:#FFFFFF;stroke-width:3;stroke-miterlimit:10;}
-            .st11{fill:#808080;stroke:#CACAC9;stroke-miterlimit:10;}
-            .st12{stroke:#EA2427;stroke-width:5;stroke-miterlimit:10;}
-            .st13{fill:none;}
-            .st14{fill:#FFFFFF;}
-            .st15{font-family:'Verdana';font-weight:bold;}
-            .st16{font-size:36px;}
-            .st17{letter-spacing:-1;}
-            .st18{stroke:#FFFFFF;stroke-width:2;stroke-miterlimit:10;}
-            .st19{font-size:43px;}
-            .st20{fill-rule:evenodd;clip-rule:evenodd;fill:none;}
-            .st21{font-size:30px;}
-            .st22{letter-spacing:1;}
-            .st23{fill:#8A8800;stroke:#000000;stroke-miterlimit:10;}
-            .st24{font-size:50px;}
-	        .st25{letter-spacing:2;}
+
+      #fuelTanks {
+        position: absolute;
+        bottom: -40%;
+        left: 2%;
+        width: 85%;
+        color: #1b1b1b;
+        font-family: Verdana;
+        font-size: 1.8vh;
+        text-align: center;
+        opacity: 0.75;
+        }
+
+        #fuelTanks .fuel-meter {
+            display: block;
+            position: relative;
+            z-index: 1;
+            border-radius: 0.5em;
+            background: #c6c6c6;
+            padding: 0.5em 1em;
+            margin-bottom: 0.5em;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        #fuelTanks .fuel-meter .fuel-level {
+            display: block;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            bottom: 0px;
+            z-index: -1;
+            border: 0px none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #fuelTanks .fuel-meter.fuel-type-atmo .fuel-level { background: #1dd1f9; }
+        #fuelTanks .fuel-meter.fuel-type-space .fuel-level { background: #fac31e; }
+        #fuelTanks .fuel-meter.fuel-type-rocket .fuel-level { background: #bfa6ff; }
+
+        .st0{opacity:0.85;}
+        .st1{fill-rule:evenodd;clip-rule:evenodd;fill:url(#path6128_1_);}
+        .st2{fill-rule:evenodd;clip-rule:evenodd;fill:url(#path6168_1_);}
+        .st3{fill-rule:evenodd;clip-rule:evenodd;fill:url(#path6128-4_1_);}
+        .st4{fill-rule:evenodd;clip-rule:evenodd;fill:url(#path6168-6_1_);}
+        .st5{fill-rule:evenodd;clip-rule:evenodd;fill:url(#path6128-8_1_);}
+        .st6{fill-rule:evenodd;clip-rule:evenodd;fill:url(#path6168-3_1_);}
+        .st7{fill-rule:evenodd;clip-rule:evenodd;fill:url(#path6128-4-7_1_);}
+        .st8{fill-rule:evenodd;clip-rule:evenodd;fill:url(#path6168-6-5_1_);}
+        .st9{opacity:0.75;fill:#333333;}
+        .st10{fill:none;stroke:#FFFFFF;stroke-width:3;stroke-miterlimit:10;}
+        .st11{fill:#808080;stroke:#CACAC9;stroke-miterlimit:10;}
+        .st12{stroke:#EA2427;stroke-width:5;stroke-miterlimit:10;}
+        .st13{fill:none;}
+        .st14{fill:#FFFFFF;}
+        .st15{font-family:'Verdana';font-weight:bold;}
+        .st16{font-size:36px;}
+        .st17{letter-spacing:-1;}
+        .st18{stroke:#FFFFFF;stroke-width:2;stroke-miterlimit:10;}
+        .st19{font-size:43px;}
+        .st20{fill-rule:evenodd;clip-rule:evenodd;fill:none;}
+        .st21{font-size:30px;}
+        .st22{letter-spacing:1;}
+        .st23{fill:#8A8800;stroke:#000000;stroke-miterlimit:10;}
+        .st24{font-size:50px;}
+        .st25{letter-spacing:2;}
+        
         </style>
         
         <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
@@ -268,11 +325,16 @@ end
  <text transform="matrix(1 0 0 1 298.1182 218.7998)" class="st14 st15 st21 st22">+10m</text>
  <rect x="48" y="248" class="st20" width="383" height="26"/>
  <text transform="matrix(1 0 0 1 116.1147 270.7998)" class="st14 st15 st21 st22">Manual Control</text>
- <text transform="matrix(1 0 0 1 582.3379 73.7998)" class="st23 st15 st24 st25">Caterpillar XL</text>
+ <text transform="matrix(1 0 0 1 582.3379 73.7998)" class="st23 st15 st24 st25">]]..shipName..[[</text>
  </svg>
         <div class="fixed">
             <div class="center">
                 ]]..renderStatsTable()..[[
+                <div id="fuelTanks">]]..updateScreenFuel()..[[</div>
             </div>
-        </div> ]])
+            
+
+        </div>
+        
+]])
 end

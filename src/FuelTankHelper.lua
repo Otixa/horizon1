@@ -1,5 +1,7 @@
 --@class FuelTankHelper
 fuelTanks = {}
+fuelAverage = {}
+FuelTime = {}
 fuelTypes = {
   atmo = {
     density = 4.000,
@@ -90,6 +92,63 @@ fuelTankSpecsByMaxHP = {
     },
   },
 }
+local unpack = table.unpack
+function sma(period)
+	local t = {}
+	function sum(a, ...)
+		if a then return a+sum(...) else return 0 end
+	end
+	function average(n)
+		if #t == period then table.remove(t, 1) end
+		if n ~= 0 and n ~= nil then t[#t + 1] = n end
+		return sum(unpack(t)) / #t
+	end
+	return average
+end
+
+local function isINF(value)
+    return value == math.huge or value == -math.huge
+  end
+  
+  local function isNAN(value)
+    return value ~= value
+  end
+
+function disp_time(time)
+    if isINF(time) or isNAN(time) then return "inf" end
+    local days = math.floor(time/86400)
+    local hours = math.floor(math.fmod(time, 86400)/3600)
+    local minutes = math.floor(math.fmod(time,3600)/60)
+    local seconds = math.floor(math.fmod(time,60))
+    if time >= 86400 then
+        return string.format("%dd:%02dhrs:%02dmin:%02dsec",days,hours,minutes,seconds)
+    elseif time < 86400 and time > 3600 then
+        return string.format("%02dhrs:%02dmin:%02dsec",hours,minutes,seconds)
+    elseif time < 3600 and time > 60 then
+        return string.format("%02dmin:%02dsec",minutes,seconds)
+    else
+        return string.format("%02dsec",seconds)
+    end
+
+    
+  end
+
+function fuelUsed(period)
+	local t = {}
+	function sum(a, ...)
+		if a then 
+            return a-sum(...) 
+        else 
+            return 0 
+        end
+	end
+	function average(n)
+		if #t == period then table.remove(t, 1) end
+		if n ~= 0 and n ~= nil then t[#t + 1] = n end
+		return sum(unpack(t))
+	end
+	return average
+end
 
 function scaleNumbers(rMin,rMax,tMin,tMax,input)
     return ((input - rMin) / (rMax - rMin)) * (tMax - tMin) + tMin
@@ -106,6 +165,7 @@ function getFuelSituation()
     table.insert(tanks[specs.type], {
       name = core.getElementNameById(id),
       level = getReminingFuelDynamic(id),
+      time = getFuelTime(id),
       specs = specs,
     })
   end
@@ -119,39 +179,50 @@ function getFuelTankSpecs(fuelTankType, fuelTankId)
 end
 
 function getReminingFuelDynamic(fuelTankId)
-    local tankName = core.getElementTypeById(fuelTankId):gsub("%s+", "_")
+    local tankName = core.getElementTypeById(fuelTankId):gsub("%s+", "_").."_"..fuelTankId
     local massTotal = core.getElementMassById(fuelTankId)
-
+    flightModeDb.setFloatValue(tankName.."_Current", massTotal)
     local minMass = flightModeDb.getFloatValue(tankName.."_MIN")
     local maxMass = flightModeDb.getFloatValue(tankName.."_MAX")
-    
+
     if(minMass == 0.0 or massTotal < minMass) then
             flightModeDb.setFloatValue(tankName.."_MIN", massTotal)
     end
     if(maxMass == 0.0 or massTotal > maxMass) then
             flightModeDb.setFloatValue(tankName.."_MAX", massTotal)
-    end  
+    end
+
     local remainingFuel = scaleNumbers(minMass, maxMass, 0, 100, massTotal)
-    return remainingFuel
-end
-
-function getFuelTankLiters(fuelTankId)
-
-  
-    --system.print(tankName.."_MIN: "..minMass)
-    --system.print(tankName.."_MAX: "..maxMass)
-  
     
 
+    return remainingFuel
+end
+-- (TimeTaken / FuelUsed) * FuelLeft = timeLeft
+function getFuelTime(fuelTankId)
+    local tankName = core.getElementTypeById(fuelTankId):gsub("%s+", "_").."_"..fuelTankId
 
+    local lastUpdate = flightModeDb.getFloatValue(tankName.."_lastUpdate")
+    local deltaTime = math.max(system.getTime() - lastUpdate, 0.001)
+
+    local massTotal = flightModeDb.getFloatValue(tankName.."_Current")
+
+    local minMass = flightModeDb.getFloatValue(tankName.."_MIN")
+    local maxMass = flightModeDb.getFloatValue(tankName.."_MAX")
+
+    local fuelUsed = FuelTime[fuelTankId](massTotal)
+    
+    local fuelTime = (deltaTime / fuelUsed) * (massTotal - minMass)
+    local average = fuelAverage[fuelTankId](fuelTime)
+    local fuelTimeFormatted = disp_time(fuelTime)
+    flightModeDb.setFloatValue(tankName.."_lastUpdate", system.getTime())
+    return fuelTimeFormatted
+end
+function getFuelTankLiters(fuelTankId)
   local fuelTankSpecs = fuelTanks[fuelTankId]
-  
-
-  
 
   local massContents = massTotal - fuelTankSpecs.baseWeight
   local rFuel = massContents / fuelTypes[fuelTankSpecs.type].density
-  --return 
+  --return
   return rFuel
 end
 
@@ -168,12 +239,22 @@ function getFuelTanks()
     -- Fuel tank configuration routine
     if elementType == "Atmospheric Fuel Tank" then
       fuelTanks[elementId] = getFuelTankSpecs("atmo", elementId)
+      fuelAverage[elementId] = sma(3)
+      FuelTime[elementId] = fuelUsed(2)
+      --remainingFuelTime[elementId] = timeRemining()
     elseif elementType == "Space Fuel Tank" then
       fuelTanks[elementId] = getFuelTankSpecs("space", elementId)
+      fuelAverage[elementId] = sma(3)
+      FuelTime[elementId] = fuelUsed(2)
+      --remainingFuelTime[elementId] = timeRemining()
     elseif elementType == "Rocket Fuel Tank" then
       fuelTanks[elementId] = getFuelTankSpecs("rocket", elementId)
+      fuelAverage[elementId] = sma(3)
+      FuelTime[elementId] = fuelUsed(2)
+      --remainingFuelTime[elementId] = timeRemining()
     end
   end
 end
 
 getFuelTanks()
+
