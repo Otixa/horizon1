@@ -10,6 +10,10 @@ function ElevatorScreen()
     local manual_control_fill = buttonColor
     local preset_1_fill = buttonColor
     local preset_2_fill = buttonColor
+    local preset_1s_fill = buttonColor
+    local preset_2s_fill = buttonColor
+    local preset_3s_fill = buttonColor
+    local preset_4s_fill = buttonColor
     local e_stop_fill = "#5D170B"
     local up10button = "#2F1010"
     local down10button = "#2F1010"
@@ -21,8 +25,8 @@ function ElevatorScreen()
     local verticalVelocity = round2(ship.world.velocity:dot(-ship.world.gravity:normalize()), 2)
     local deltaV = round2(ship.world.acceleration:len(),2)
     local targetDistance = round2(math.abs(ship.altitude - ship.altitudeHold),2)
-    local brakeDistance, accelTime = kinematics.computeDistanceAndTime(ship.world.velocity:len(), 0, ship.mass, ship.vfMax,5,ship.maxBrake)
-    local brakeDistanceRound = round2(math.abs(brakeDistance), 2)
+    --local brakeDistance, accelTime = kinematics.computeDistanceAndTime(ship.world.velocity:len(), 0, ship.mass, ship.vfMax,5,ship.maxBrake)
+    local brakeDistanceRound = round2(math.abs(ship.brakeDistance), 2)
 
     function renderStatsTable()
         local tbl = "<table>"
@@ -42,8 +46,40 @@ function ElevatorScreen()
 
     if manualControl then manual_control_fill = "green" else manual_control_fill = "#2F1010" end
 if e_stop then e_stop_fill = "green" else e_stop_fill = "#5D170B" end
+if extraButtons then
+    if mousex >= 0.0331 and mousex <= 0.2282 and mousey >= 0.1276 and mousey <= 0.2051 then --P1 button
+        if mouseClick == 1 then
+            preset_1s_fill = "white"
+        else  
+            preset_1s_fill = "#521010"
+        end
+    end
 
-if mousex >= 0.0331 and mousex <= 0.4373 and mousey >= 0.1276 and mousey <= 0.2051 then --P1 button
+    if mousex >= 0.0331 and mousex <= 0.2282 and mousey >= 0.2153 and mousey <= 0.2900 then --P2 button
+        if mouseClick == 1 then
+            preset_2s_fill = "white"
+        else  
+            preset_2s_fill = "#521010"
+        end
+    end
+
+    if mousex >= 0.2413 and mousex <= 0.4373 and mousey >= 0.1276 and mousey <= 0.2051 then --P3 button
+        if mouseClick == 1 then
+            preset_3s_fill = "white"
+        else  
+            preset_3s_fill = "#521010"
+        end
+    end
+
+    if mousex >= 0.2413 and mousex <= 0.4373 and mousey >= 0.2153 and mousey <= 0.2900 then --P4 button
+        if mouseClick == 1 then
+            preset_4s_fill = "white"
+        else  
+            preset_4s_fill = "#521010"
+        end
+    end
+else
+    if mousex >= 0.0331 and mousex <= 0.4373 and mousey >= 0.1276 and mousey <= 0.2051 then --P1 button
         if mouseClick == 1 then
             preset_1_fill = "white"
         else  
@@ -51,11 +87,12 @@ if mousex >= 0.0331 and mousex <= 0.4373 and mousey >= 0.1276 and mousey <= 0.20
         end
     end
     
-if mousex >= 0.0331 and mousex <= 0.4373 and mousey >= 0.2153 and mousey <= 0.2900 then --P2 button
-    if mouseClick == 1 then
-        preset_2_fill = "white"
-    else  
-        preset_2_fill = "#521010"
+    if mousex >= 0.0331 and mousex <= 0.4373 and mousey >= 0.2153 and mousey <= 0.2900 then --P2 button
+        if mouseClick == 1 then
+            preset_2_fill = "white"
+        else  
+            preset_2_fill = "#521010"
+        end
     end
 end
 if mousex >= 0.0331 and mousex <= 0.4373 and mousey >= 0.3883 and mousey <= 0.4632 then --Manual Control
@@ -108,6 +145,79 @@ function updateScreenFuel()
 
     return   fuelHtml
 end
+
+function renderButtons()    
+    if extraButtons then
+        return [[
+    <polyline id="Preset4_x5F_Small" style="fill:]]..preset_4s_fill..[[;" class="st18" points="258.3,131.8 434.3,130.8 447.3,143.8 447.3,164.8 434.3,177.8 259.3,178.8 
+        259.3,178.3 246.3,165.3 246.3,144.3 259.3,131.3 "/>
+    <polyline id="Preset3_x5F_Small" style="fill:]]..preset_3s_fill..[[;" class="st18" points="258.3,77.8 434.3,76.8 447.3,89.8 447.3,110.8 434.3,123.8 259.3,124.8 
+        259.3,124.3 246.3,111.3 246.3,90.3 259.3,77.3 "/>
+    <polyline id="Preset2_x5F_Small"style="fill:]]..preset_2s_fill..[[;" class="st18" points="44.3,131.8 220.3,130.8 233.3,143.8 233.3,164.8 220.3,177.8 45.3,178.8 
+        45.3,178.3 32.3,165.3 32.3,144.3 45.3,131.3 "/>
+    <polyline id="Preset1_x5F_Small" style="fill:]]..preset_1s_fill..[[;" class="st18" points="44.3,77.8 220.3,76.8 233.3,89.8 233.3,110.8 220.3,123.8 45.3,124.8 
+        45.3,124.3 32.3,111.3 32.3,90.3 45.3,77.3 "/>
+    <rect x="47.8" y="89.7" class="st13" width="170.5" height="32.1"/>
+    <text transform="matrix(1 0 0 1 47.7729 112.5298)" class="st14 st15 st21 st22">]]..mToKm(ship.altHoldPreset1)..[[</text>
+    <rect x="261.5" y="89.7" class="st13" width="170.5" height="32.1"/>
+    <text transform="matrix(1 0 0 1 73.7261 165.6647)" class="st14 st15 st21 st22">]]..mToKm(ship.altHoldPreset2)..[[</text>
+    <rect x="45.1" y="142.9" class="st13" width="170.5" height="32.1"/>
+    <text transform="matrix(1 0 0 1 290.1706 112.5298)" class="st14 st15 st21 st22">]]..mToKm(ship.altHoldPreset3)..[[</text>
+    <rect x="264" y="142.9" class="st13" width="170.5" height="32.1"/>
+    <text transform="matrix(1 0 0 1 292.6706 165.6647)" class="st14 st15 st21 st22">]]..mToKm(ship.altHoldPreset4)..[[</text>]]
+
+    else
+        return [[<polygon id="BtnPreset1" style="fill:]]..preset_1_fill..[[;" class="st18" points="433.5,80.5 446.5,93.5 446.5,113.5 433.5,126.5 44.5,126.5 31.5,113.5 31.5,93.5 
+        44.5,80.5 "/>
+        <polygon id="BtnPreset2" style="fill:]]..preset_2_fill..[[;" class="st18" points="433.5,132.5 446.5,145.5 446.5,165.5 433.5,178.5 44.5,178.5 31.5,165.5 31.5,145.5 
+            44.5,132.5 "/>
+        <text transform="matrix(1 0 0 1 79.6709 113.7998)" class="st14 st15 st21 st22">Preset 1:</text>
+         <rect x="240.612" y="91" class="st20" width="191.387" height="26"/>
+         <text transform="matrix(1 0 0 1 240.6123 113.7998)" class="st14 st15 st21 st22">]]..mToKm(ship.altHoldPreset1)..[[</text>
+         <rect x="47.612" y="142" class="st20" width="191.387" height="26"/>
+         <text transform="matrix(1 0 0 1 79.6709 164.7998)" class="st14 st15 st21 st22">Preset 2:</text>
+         <rect x="239.612" y="142" class="st20" width="191.387" height="26"/>
+         <text transform="matrix(1 0 0 1 239.6123 164.7998)" class="st14 st15 st21 st22">]]..mToKm(ship.altHoldPreset2)..[[</text>
+         <rect x="34.612" y="196" class="st20" width="191.387" height="26"/>]]
+    end
+
+    
+end
+
+--[[
+SMALL Buttons
+
+<polyline id="Preset4_x5F_Small" class="st19" points="258.3,131.8 434.3,130.8 447.3,143.8 447.3,164.8 434.3,177.8 259.3,178.8 
+	259.3,178.3 246.3,165.3 246.3,144.3 259.3,131.3 "/>
+<polyline id="Preset3_x5F_Small" class="st19" points="258.3,77.8 434.3,76.8 447.3,89.8 447.3,110.8 434.3,123.8 259.3,124.8 
+	259.3,124.3 246.3,111.3 246.3,90.3 259.3,77.3 "/>
+<polyline id="Preset2_x5F_Small" class="st19" points="44.3,131.8 220.3,130.8 233.3,143.8 233.3,164.8 220.3,177.8 45.3,178.8 
+	45.3,178.3 32.3,165.3 32.3,144.3 45.3,131.3 "/>
+<polyline id="Preset1_x5F_Small" class="st19" points="44.3,77.8 220.3,76.8 233.3,89.8 233.3,110.8 220.3,123.8 45.3,124.8 
+	45.3,124.3 32.3,111.3 32.3,90.3 45.3,77.3 "/>
+<rect x="47.8" y="89.7" class="st13" width="170.5" height="32.1"/>
+<text transform="matrix(1 0 0 1 76.4375 112.5298)" class="st14 st15 st20">Preset1</text>
+<rect x="261.5" y="89.7" class="st13" width="170.5" height="32.1"/>
+<rect x="45.1" y="142.9" class="st13" width="170.5" height="32.1"/>
+<text transform="matrix(1 0 0 1 73.7261 165.6647)" class="st14 st15 st20">Preset2</text>
+<text transform="matrix(1 0 0 1 290.1706 112.5298)" class="st14 st15 st20">Preset3</text>
+<rect x="264" y="142.9" class="st13" width="170.5" height="32.1"/>
+<text transform="matrix(1 0 0 1 292.6706 165.6647)" class="st14 st15 st20">Preset4</text>
+
+BIG Buttons
+<polygon id="BtnPreset1" style="fill:..preset_1_fill..;" class="st18" points="433.5,80.5 446.5,93.5 446.5,113.5 433.5,126.5 44.5,126.5 31.5,113.5 31.5,93.5 
+44.5,80.5 "/>
+<polygon id="BtnPreset2" style="fill:..preset_2_fill..;" class="st18" points="433.5,132.5 446.5,145.5 446.5,165.5 433.5,178.5 44.5,178.5 31.5,165.5 31.5,145.5 
+    44.5,132.5 "/>
+<text transform="matrix(1 0 0 1 79.6709 113.7998)" class="st14 st15 st21 st22">Preset 1:</text>
+ <rect x="240.612" y="91" class="st20" width="191.387" height="26"/>
+ <text transform="matrix(1 0 0 1 240.6123 113.7998)" class="st14 st15 st21 st22"> ..mToKm(ship.altHoldPreset1)..</text>
+ <rect x="47.612" y="142" class="st20" width="191.387" height="26"/>
+ <text transform="matrix(1 0 0 1 79.6709 164.7998)" class="st14 st15 st21 st22">Preset 2:</text>
+ <rect x="239.612" y="142" class="st20" width="191.387" height="26"/>
+ <text transform="matrix(1 0 0 1 239.6123 164.7998)" class="st14 st15 st21 st22"> ..mToKm(ship.altHoldPreset2)..</text>
+ <rect x="34.612" y="196" class="st20" width="191.387" height="26"/>
+]]
 
     screen.setHTML([[
 <style>
@@ -209,11 +319,12 @@ end
         .st18{stroke:#FFFFFF;stroke-width:2;stroke-miterlimit:10;}
         .st19{font-size:43px;}
         .st20{fill-rule:evenodd;clip-rule:evenodd;fill:none;}
-        .st21{font-size:30px;}
+        .st21{font-size:30px;text-align: center;}
         .st22{letter-spacing:1;}
         .st23{fill:#8A8800;stroke:#000000;stroke-miterlimit:10;}
         .st24{font-size:50px;}
         .st25{letter-spacing:2;}
+        .st26{text-align: center;}
         
         </style>
         
@@ -300,10 +411,7 @@ end
      375,490.923 375,387.577 "/>
  <rect x="104" y="399" class="st13" width="266" height="88"/>
  <text transform="matrix(1 0 0 1 115.5605 429.3994)"><tspan x="0" y="0" class="st14 st15 st16 st17">EMERGENCY</tspan><tspan x="69.141" y="48" class="st14 st15 st16 st17">STOP</tspan></text>
- <polygon id="BtnPreset1" style="fill:]]..preset_1_fill..[[;" class="st18" points="433.5,80.5 446.5,93.5 446.5,113.5 433.5,126.5 44.5,126.5 31.5,113.5 31.5,93.5 
-     44.5,80.5 "/>
- <polygon id="BtnPreset2" style="fill:]]..preset_2_fill..[[;" class="st18" points="433.5,132.5 446.5,145.5 446.5,165.5 433.5,178.5 44.5,178.5 31.5,165.5 31.5,145.5 
-     44.5,132.5 "/>
+]]..renderButtons()..[[
  <rect x="31" y="32" class="st13" width="416" height="39.161"/>
  <text transform="matrix(1 0 0 1 47.5435 64.6797)" class="st14 st15 st19">Elevator Control</text>
  <polyline id="BtnPlusTen" style="fill:]]..up10button..[[;" class="st18" points="257.5,185.5 433.5,184.5 446.5,197.5 446.5,218.5 433.5,231.5 258.5,232.5 
@@ -311,21 +419,14 @@ end
  <polyline id="BtnMinusTen" style="fill:]]..down10button..[[;" class="st18" points="43.5,185.5 219.5,184.5 232.5,197.5 232.5,218.5 219.5,231.5 44.5,232.5 44.5,232 
      31.5,219 31.5,198 44.5,185 "/>
  <polygon id="BtnManualCtrl" style="fill:]]..manual_control_fill..[[;" class="st18" points="434,239 447,252 447,272 434,285 45,285 32,272 32,252 45,239 "/>
- <rect x="48.612" y="91" class="st20" width="191.387" height="26"/>
- <text transform="matrix(1 0 0 1 79.6709 113.7998)" class="st14 st15 st21 st22">Preset 1:</text>
- <rect x="240.612" y="91" class="st20" width="191.387" height="26"/>
- <text transform="matrix(1 0 0 1 240.6123 113.7998)" class="st14 st15 st21 st22"> ]]..mToKm(ship.altHoldPreset1)..[[</text>
- <rect x="47.612" y="142" class="st20" width="191.387" height="26"/>
- <text transform="matrix(1 0 0 1 79.6709 164.7998)" class="st14 st15 st21 st22">Preset 2:</text>
- <rect x="239.612" y="142" class="st20" width="191.387" height="26"/>
- <text transform="matrix(1 0 0 1 239.6123 164.7998)" class="st14 st15 st21 st22"> ]]..mToKm(ship.altHoldPreset2)..[[</text>
+ 
  <rect x="34.612" y="196" class="st20" width="191.387" height="26"/>
  <text transform="matrix(1 0 0 1 87.582 218.7998)" class="st14 st15 st21 st22">-10m</text>
  <rect x="250.612" y="196" class="st20" width="191.387" height="26"/>
  <text transform="matrix(1 0 0 1 298.1182 218.7998)" class="st14 st15 st21 st22">+10m</text>
  <rect x="48" y="248" class="st20" width="383" height="26"/>
  <text transform="matrix(1 0 0 1 116.1147 270.7998)" class="st14 st15 st21 st22">Manual Control</text>
- <text transform="matrix(1 0 0 1 582.3379 73.7998)" class="st23 st15 st24 st25">]]..shipName..[[</text>
+ <text transform="matrix(1 0 0 1 582.3379 73.7998)" class="st23 st15 st24 st25 st26">]]..shipName..[[</text>
  </svg>
         <div class="fixed">
             <div class="center">

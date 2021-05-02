@@ -85,6 +85,7 @@ end)
 
 keybindPresets["keyboard"] = KeybindController()
 keybindPresets["keyboard"].Init = function()
+    keybindPreset = "keyboard"
     --mouse.enabled = false
     --mouse.unlock()
     ship.ignoreVerticalThrottle = true
@@ -157,6 +158,18 @@ keybindPresets["keyboard"].keyUp["option7"].Add(function() if ship.targetDestina
 keybindPresets["keyboard"].keyUp["option8"].Add(function () ship.altitudeHold = ship.altHoldPreset1 ship.altitudeHoldToggle = true end, "Preset 1")
 keybindPresets["keyboard"].keyUp["option9"].Add(function () ship.altitudeHold = ship.altHoldPreset2 ship.altitudeHoldToggle = true end, "Preset 2")
 
+
+keybindPresets["screenui"] = KeybindController()
+keybindPresets["screenui"].Init = function()
+    keybindPreset = "screenui"
+    ship.ignoreVerticalThrottle = true
+    ship.throttle = 1
+    system.freeze(1)
+    ship.frozen = false
+end
+keybindPresets["screenui"].keyDown.brake.Add(function () ship.brake = true end)
+keybindPresets["screenui"].keyUp.brake.Add(function () ship.brake = false end)
+
 if flightModeDb then
    if flightModeDb.hasKey("flightMode") == 0 then flightModeDb.setStringValue("flightMode","keyboard") end
    keybindPreset = flightModeDb.getStringValue("flightMode")
@@ -164,6 +177,7 @@ else
    system.print("No databank installed.")
    keybindPreset = "keyboard"
 end
+keybindPreset = "keyboard"
 
 SHUD.Init(system, unit, keybindPresets[keybindPreset])
 

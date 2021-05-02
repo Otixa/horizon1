@@ -37,9 +37,9 @@ function Unit.Start()
 		manualControlSwitch()
 		system.print("Altitude: "..helios:closestBody(core.getConstructWorldPos()):getAltitude(core.getConstructWorldPos()))
 		ship.altitudeHold = helios:closestBody(core.getConstructWorldPos()):getAltitude(core.getConstructWorldPos())
-		ship.altitudeHoldToggle = true
+		--ship.altitudeHoldToggle = true
 	end
-	if next(manualSwitches) ~= nil then manualSwitches[1].activate() end
+	--if next(manualSwitches) ~= nil then manualSwitches[1].activate() end
 	if screen ~= nil then
 		screen.setCenteredText("Script Error")
 	end
@@ -65,10 +65,12 @@ end
 
 function manualControlSwitch()
 	if not manualControl then
+		SHUD.Init(system, unit, keybindPresets["screenui"])
 		system.showScreen(0)
 		system.freeze(0)
 		ship.frozen = true
 	else
+		SHUD.Init(system, unit, keybindPresets["keyboard"])
 		system.showScreen(1)
 		system.freeze(1)
 		ship.frozen = false	
@@ -135,14 +137,34 @@ function toggleVerticalLock()
     ship.lockPos = vec3(core.getConstructWorldPos()) + (vec3(core.getConstructWorldOrientationUp()))
 end
 function buildScreen.MouseUp(x,y,slot)
-	if mousex >= 0.0331 and mousex <= 0.4373 and mousey >= 0.1276 and mousey <= 0.2051 then --P1 button
-		toggleVerticalLock()
-		ship.altitudeHold = ship.altHoldPreset1 ship.altitudeHoldToggle = true
+	if extraButtons then
+		if mousex >= 0.0331 and mousex <= 0.2282 and mousey >= 0.1276 and mousey <= 0.2051 then --P1 button
+			toggleVerticalLock()
+			ship.altitudeHold = ship.altHoldPreset1 ship.altitudeHoldToggle = true
+		end
+		if mousex >= 0.0331 and mousex <= 0.2282 and mousey >= 0.2153 and mousey <= 0.2900 then --P2 button
+			toggleVerticalLock()
+			ship.altitudeHold = ship.altHoldPreset2 ship.altitudeHoldToggle = true
+		end
+		if mousex >= 0.2413 and mousex <= 0.4373 and mousey >= 0.1276 and mousey <= 0.2051 then --P3 button
+			toggleVerticalLock()
+			ship.altitudeHold = ship.altHoldPreset3 ship.altitudeHoldToggle = true
+		end
+		if mousex >= 0.2413 and mousex <= 0.4373 and mousey >= 0.2153 and mousey <= 0.2900 then --P4 button
+			toggleVerticalLock()
+			ship.altitudeHold = ship.altHoldPreset4 ship.altitudeHoldToggle = true
+		end
+	else
+		if mousex >= 0.0331 and mousex <= 0.4373 and mousey >= 0.1276 and mousey <= 0.2051 then --P1 button
+			toggleVerticalLock()
+			ship.altitudeHold = ship.altHoldPreset1 ship.altitudeHoldToggle = true
+		end
+		if mousex >= 0.0331 and mousex <= 0.4373 and mousey >= 0.2153 and mousey <= 0.2900 then --P2 button
+			toggleVerticalLock()
+			ship.altitudeHold = ship.altHoldPreset2 ship.altitudeHoldToggle = true
+		end
 	end
-	if mousex >= 0.0331 and mousex <= 0.4373 and mousey >= 0.2153 and mousey <= 0.2900 then --P2 button
-		toggleVerticalLock()
-		ship.altitudeHold = ship.altHoldPreset2 ship.altitudeHoldToggle = true
-	end
+	
 	if mousex >= 0.0331 and mousex <= 0.4373 and mousey >= 0.3883 and mousey <= 0.4632 then --Manual control button
 		ship.verticalLock = false
 		ship.intertialDampening = true

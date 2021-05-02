@@ -8,7 +8,12 @@ function round2(num, numDecimalPlaces)
     return tonumber(string.format("%." .. (numDecimalPlaces or 0) .. "f", num))
         end
 end
-shipName = "Caterpillar XL" --export: Ship Name
+shipName = "Caterpillar L" --export: Ship Name
+local altHoldPreset1 = 100001.9  --export: Altitude Hold Preset 1
+local altHoldPreset2 = 0 --export: Altitude Hold Preset 2
+local altHoldPreset3 = 500 --export: Altitude Hold Preset 3
+local altHoldPreset4 = 5 --export: Altitude Hold Preset 4
+extraButtons = false --export: Extra Floors
 local inertialDampening = true --export: Start with inertial dampening on/off
 local followGravity = true --export: Start with gravity follow on/off
 local minRotationSpeed = 0.01 --export: Minimum speed rotation scales from
@@ -16,9 +21,9 @@ local maxRotationSpeed = 5 --export: Maximum speed rotation scales to
 local rotationStep = 0.03 --export: Depermines how quickly rotation scales up
 local verticalSpeedLimitAtmo = 1100 --export: Vertical speed limit in atmosphere
 local verticalSpeedLimitSpace = 4000 --export: Vertical limit in space
-local altHoldPreset1 = 100001.35  --export: Altitude Hold Preset 1
-local altHoldPreset2 = 10 --export: Altitude Hold Preset 2
+
 local pocket = false --export: Pocket ship?
+
 --charMovement = true --export: Enable/Disable Character Movement
 ship.altitudeHold = round2(ship.altitude,0)
 ship.inertialDampeningDesired = inertialDampening
@@ -30,9 +35,16 @@ ship.verticalSpeedLimitAtmo = verticalSpeedLimitAtmo
 ship.verticalSpeedLimitSpace = verticalSpeedLimitSpace
 ship.altHoldPreset1 = altHoldPreset1
 ship.altHoldPreset2 = altHoldPreset2
+ship.altHoldPreset3 = altHoldPreset3
+ship.altHoldPreset4 = altHoldPreset4
 ship.pocket = pocket
 
-
+if next(manualSwitches) ~= nil then 
+    for _, sw in ipairs(manualSwitches) do
+      system.print("Deactivate!")
+      sw.deactivate()
+    end
+  end
 
 function SpeedConvert(value)
     if not value or value == 0 then return {0,"00","km/h"} end
@@ -239,10 +251,10 @@ SHUD =
         SMI(DD("<span>Altitude Hold<span>" .. self.MakeBooleanIndicator("ship.altitudeHoldToggle")), function() ship.altitudeHoldToggle = not ship.altitudeHoldToggle end),
         SMI(DD([[<span>Multiplier<span>]]..self.MakeSliderIndicator("round2(altHoldAdjustmentSetting(),3)", "")), 
                function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
-               function(system, _ , w) altAdjustment = utils.clamp(altAdjustment + (system.getMouseWheel()),1,4) end),
+               function(system, _ , w) altAdjustment = utils.clamp(altAdjustment + (system.getMouseWheel()),-1,4) end),
         SMI(DD([[<span>Alt Setpoint<span>]]..self.MakeSliderIndicator("round2(ship.altitudeHold,3)", "m")), 
                function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
-               function(system, _ , w) ship.altitudeHold = utils.clamp(ship.altitudeHold + (system.getMouseWheel() * altHoldAdjustmentSetting()),0,200000) end),
+               function(system, _ , w) ship.altitudeHold = utils.clamp(ship.altitudeHold + (system.getMouseWheel() * altHoldAdjustmentSetting()),0,2000000) end),
         SMI(DD([[<span>Preset 1:</span><span class="right">]].. mToKm(ship.altHoldPreset1).."</span>"), function() ship.altitudeHold = ship.altHoldPreset1 ship.altitudeHoldToggle = true end),
         SMI(DD([[<span>Preset 2:</span><span class="right">]].. mToKm(ship.altHoldPreset2).."</span>"), function() ship.altitudeHold = ship.altHoldPreset2 ship.altitudeHoldToggle = true end),
         SMI(DD([[<span>Altitude:</span><span class="right">{{round2(ship.altitude,4)}}</span>]])).Disable(),

@@ -68,6 +68,8 @@ function STEC(core, control, Cd)
     self.lockPos = vec3(0,0,0)
     self.altHoldPreset1 = 0
     self.altHoldPreset2 = 0
+    self.altHoldPreset3 = 0
+    self.altHoldPreset4 = 0
     self.pocket = false
     -- Whether the target vector should unlock automatically if the ship is rotated by the pilot
     self.targetVectorAutoUnlock = true
@@ -121,8 +123,8 @@ function STEC(core, control, Cd)
     self.throttle = 1
     -- Maximum thrust which the vessel is capable of producing
     self.fMax = 0
-    self.vfMax = 0
-    self.hfMax = 0
+    self.vMax = 0
+    self.hMax = 0
     -- Toggle altitude hold on/off
     self.altitudeHoldToggle = false
     -- Altitude which the vessel should attempt to hold
@@ -135,6 +137,8 @@ function STEC(core, control, Cd)
     self.ignoreVerticalThrottle = false
     -- Local velocity
     self.localVelocity = vec3(core.getVelocity())
+    self.brakeDistance = 0
+    self.accelTime = nil
     -- Roll Degrees
     self.rollDegrees = self.world.vertical:angle_between(self.world.left) / math.pi * 180 - 90
     if self.world.vertical:dot(self.world.up) > 0 then self.rollDegrees = 180 - self.rollDegrees end
@@ -169,7 +173,7 @@ function STEC(core, control, Cd)
         if self.world.vertical:dot(self.world.up) > 0 then self.rollDegrees = 180 - self.rollDegrees end
         -- Pitch
         self.pitchRatio = self.world.vertical:angle_between(self.world.forward) / math.pi - 0.5
-
+        
         self.AngularVelocity = vec3(core.getWorldAngularVelocity())
         self.AngularAcceleration = vec3(core.getWorldAngularAcceleration())
         self.AngularAirFriction = vec3(core.getWorldAirFrictionAngularAcceleration())
@@ -182,23 +186,40 @@ function STEC(core, control, Cd)
         self.localVelocity = vec3(core.getVelocity())
         self.maxBrake = jdecode(unit.getData()).maxBrake
         local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
-        local vfMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
-        local hfMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(1,0,0):unpack()})
+        local vMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
+        local hMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(1,0,0):unpack()})
         if self.world.atmosphericDensity > 0.1 then --Temporary hack. Needs proper transition.
             self.fMax = math.max(fMax[1], -fMax[2])
         else
             self.fMax = math.max(fMax[3], -fMax[4])
         end
         if self.world.atmosphericDensity > 0.1 then --Temporary hack. Needs proper transition.
-            self.vfMax = math.max(vfMax[1], -vfMax[2])
+            self.vMax = math.max(vMax[1], -vMax[2])
         else
-            self.vfMax = math.max(vfMax[3], -vfMax[4])
+            self.vMax = math.max(vMax[3], -vMax[4])
         end
         if self.world.atmosphericDensity > 0.1 then --Temporary hack. Needs proper transition.
-            self.hfMax = math.max(hfMax[1], -hfMax[2])
+            self.hMax = math.max(hMax[1], -hMax[2])
         else
-            self.hfMax = math.max(hfMax[3], -hfMax[4])
+            self.hMax = math.max(hMax[3], -hMax[4])
         end
+        --system.print(self.world.velocity:dot(-self.world.gravity:normalize()))
+        local gravN = self.mass * core.g()
+        local correctedThrust = self.vMax
+        local correctedBrake = self.maxBrake
+        local sign = 1
+
+        if self.maxBrake ~= nil and core.g() >= 1 then
+            if self.world.velocity:dot(-self.world.gravity:normalize()) < 1 then
+                sign = -1
+            end
+            gravN = gravN * sign
+            correctedThrust = self.vMax + gravN
+            correctedBrake = self.maxBrake + gravN
+        end
+        self.brakeDistance, self.accelTime = kinematics.computeDistanceAndTime(self.world.velocity:len(), 0, self.mass, correctedThrust,20,correctedBrake)
+
+
     end
 
     function self.calculateAccelerationForce(acceleration, time)
@@ -257,18 +278,19 @@ function STEC(core, control, Cd)
         local atmp = self.angularThrust
         local gravityCorrection = false
         local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
-        local vfMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
-        local hfMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(1,0,0):unpack()})
+        local vMaxUp = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
+        local vMaxDown = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,-1):unpack()})
+        local hMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(1,0,0):unpack()})
         if not self.altitudeHoldToggle then self.inertialDampening = self.inertialDampeningDesired end
         
         if self.direction.x ~= 0 then
             local dot  = (1 - self.world.up:dot(-self.world.gravity:normalize())) * (self.mass * 0.000095) -- Magic number is magic
             local gravCorrection = -self.world.vertical * dot
 
-            if self.direction.x < 0 and math.abs(round2(hfMax[2],0)) < 500 then
+            if self.direction.x < 0 and math.abs(round2(hMax[2],0)) < 500 then
                 gravityCorrection = true
                 tmp = tmp + ((((self.world.right * self.direction.x) + gravCorrection):normalize() * self.fMax) * self.throttle)
-            elseif self.direction.x > 0 and math.abs(round2(hfMax[1],0)) < 500 then
+            elseif self.direction.x > 0 and math.abs(round2(hMax[1],0)) < 500 then
                 gravityCorrection = true
                 tmp = tmp + ((((self.world.right * self.direction.x) + gravCorrection):normalize() * self.fMax) * self.throttle)
             else
@@ -350,28 +372,33 @@ function STEC(core, control, Cd)
         end
         ahTmpd = 0.125
         if self.altitudeHoldToggle then
-            
+            local switch
+            if self.world.atmosphericDensity > 0.1 then
+                switch = 5
+            else
+                switch = 1
+            end
             local deltaAltitude =  self.altitudeHold - self.altitude
             local brakeBuffer = 1000
             --if (self.altitudeHold - self.altitude) > 0.1 and self.altitude < self.altitudeHold then deltaAltitude = deltaAltitude + 20 end
             local tempd = math.abs(deltaAltitude) / (100 * math.abs(self.localVelocity.z))
-            if deltaAltitude < 1 and (math.abs(self.localVelocity.z)) < 0 then
+            if deltaAltitude < 0.1 and (math.abs(self.localVelocity.z)) < 0 then
                 ahTmpd = deltaTime
             else
                 ahTmpd = utils.clamp(tempd, 0.001, 0.125)
             end
 
-            local breakDistance, accelTime = kinematics.computeDistanceAndTime(self.world.velocity:len(), 0, self.mass, self.vfMax,20,self.maxBrake)
+            --local breakDistance, accelTime = kinematics.computeDistanceAndTime(self.world.velocity:len(), 0, (self.mass * self.world.gravity:len()), self.vMax,20,self.maxBrake)
             
-            if math.abs(deltaAltitude) > breakDistance and math.abs(deltaAltitude) > 5 then
+            if math.abs(deltaAltitude) > self.brakeDistance and math.abs(deltaAltitude) > switch then
                 self.inertialDampening = false
                 local verticalSpeedLimit
-                if self.altitude <= (self.atmosphereThreshold + breakDistance) or self.altitude <= breakDistance then 
+                if self.altitude <= (self.atmosphereThreshold + self.brakeDistance) or self.altitude <= self.brakeDistance then 
                     verticalSpeedLimit = self.verticalSpeedLimitAtmo 
                 else 
                     verticalSpeedLimit = self.verticalSpeedLimitSpace 
                 end
-                if  (breakDistance + brakeBuffer) >= math.abs(deltaAltitude) then
+                if  (self.brakeDistance + brakeBuffer) >= math.abs(deltaAltitude) then
                     verticalSpeedLimit = 200
                 end
                 
@@ -390,8 +417,9 @@ function STEC(core, control, Cd)
                 
                 
             else
+                
                 self.inertialDampening = true
-                tmp = tmp - ((self.world.gravity * (self.mass)) * deltaAltitude)
+                tmp = tmp - ((self.world.gravity * (self.mass *  2)) * deltaAltitude)
             end
             
 	    end
@@ -453,7 +481,8 @@ function STEC(core, control, Cd)
         
         -- must be applied last
         if self.counterGravity then
-            tmp = tmp - self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass
+            --tmp = tmp - self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass
+            tmp = tmp - self.world.gravity * self.mass
         end
 
         if self.verticalLock then
