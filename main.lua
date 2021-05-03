@@ -26,6 +26,14 @@ function Unit.Start()
 	Events.Flush.Add(mouse.apply)
 	Events.Flush.Add(ship.apply)
 	Events.Update.Add(SHUD.Update)
+	if flightModeDb then 
+		if flightModeDb.hasKey("controlMode") == 0 then flightModeDb.setIntValue("controlMode", unit.getControlMasterModeId()) end
+		local controlMode = flightModeDb.getIntValue("controlMode")
+		if controlMode ~= unit.getControlMasterModeId() then
+			unit.cancelCurrentControlMasterMode()
+		end
+	end
+
 	if flightModeDb ~= nil then getFuelRenderedHtml() end
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
@@ -33,6 +41,9 @@ function Unit.Start()
 end
 
 function Unit.Stop()
+	if flightModeDb then 
+		flightModeDb.setIntValue("controlMode", unit.getControlMasterModeId())
+	end
 	system.showScreen(0)
 end
 
