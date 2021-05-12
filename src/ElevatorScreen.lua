@@ -3,21 +3,21 @@ function ElevatorScreen()
 
     mousex = round2(screen.getMouseX(),4)
     mousey = round2(screen.getMouseY(),4)
-
+    --system.print("X: "..mousex.." | Y: "..mousey)
     mouseClick = screen.getMouseState()
-
+    local setBaseButton = "#183F1D"
+    local settingsButton = "#A8A736"
     local buttonColor = "#2F1010"
-    local manual_control_fill = buttonColor
-    local preset_1_fill = buttonColor
-    local preset_2_fill = buttonColor
+    local manual_control_fill = "#0a0585"
+    local RTB_Fill = "#0b6b20"
     local preset_1s_fill = buttonColor
     local preset_2s_fill = buttonColor
     local preset_3s_fill = buttonColor
     local preset_4s_fill = buttonColor
     local e_stop_fill = "#5D170B"
-    local up10button = "#2F1010"
-    local down10button = "#2F1010"
-    local elevatorMove = utils.clamp(scaleViewBound(ship.altHoldPreset2,ship.altHoldPreset1,0,510,ship.altitude) * -1,-510,0)
+    local up10button = "#99440b"
+    local down10button = "#99440b"
+    local elevatorMove = utils.clamp(scaleViewBound(ship.posAltitude,ship.altHoldPreset1,0,510,ship.altitude) * -1,-510,0)
     --local elevatorMove = utils.clamp(scaleViewBound(0,510,ship.altHoldPreset2,ship.altHoldPreset1,ship.altitude) * -1,-510,0)
 
     local elevation = mToKm(ship.altitude)
@@ -30,24 +30,43 @@ function ElevatorScreen()
 
     function renderStatsTable()
         local tbl = "<table>"
-        tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Elevation".."</td><td>"..elevation.."</td></tr>"
-        tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Target".."</td><td>"..mToKm(ship.altitudeHold).."</td></tr>"
-        tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Velocity".."</td><td>"..velocity .. " km/h".."</td></tr>"
-        --tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Vertical".."</td><td>"..round2(verticalVelocity,0).." m/s</td></tr>"
-        --tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Delta-V".."</td><td>"..deltaV.." m/s</td></tr>"
-        tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Mass".."</td><td>"..round2(ship.mass / 1000,0).." t</td></tr>"
-        tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Gravity".."</td><td>"..round2(ship.world.gravity:len(), 2).." m/s</td></tr>"
-        tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Target Dist".."</td><td>"..mToKm(targetDistance).."</td></tr>"
-        tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."Brake Dist".."</td><td>"..mToKm(brakeDistanceRound).."</td></tr>"
-        --tbl = tbl .. "<tr><td style=\"padding-right: 55px;\">".."elevatorMove".."</td><td>"..elevatorMove.."</td></tr>"
-        tbl = tbl .. "</table>"
+        --tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Mouse-X".."</td><td>"..mousex.."</td></tr>"
+        tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Elevation".."</td><td>"..elevation.."</td></tr>"
+        --tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Mouse-Y".."</td><td>"..mousey.."</td></tr>"
+        tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Target".."</td><td>"..mToKm(ship.altitudeHold).."</td></tr>"
+        tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Velocity".."</td><td>"..velocity .. " km/h".."</td></tr>"
+        --tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Vertical".."</td><td>"..round2(verticalVelocity,0).." m/s</td></tr>"
+        --tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Delta-V".."</td><td>"..deltaV.." m/s</td></tr>"
+        tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Mass".."</td><td>"..round2(ship.mass / 1000,0).." t</td></tr>"
+        tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Gravity".."</td><td>"..round2(ship.world.gravity:len(), 2).." m/s</td></tr>"
+        tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Target Dist".."</td><td>"..mToKm(targetDistance).."</td></tr>"
+        tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Brake Dist".."</td><td>"..mToKm(brakeDistanceRound).."</td></tr>"
+        --tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Status".."</td><td>"..ship.stateMessage.."</td></tr>"
+        --tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."elevatorMove".."</td><td>"..elevatorMove.."</td></tr>"
+        tbl = tbl .. "</table>" 
         return tbl
     end
 
-    if manualControl then manual_control_fill = "green" else manual_control_fill = "#2F1010" end
+    if manualControl then manual_control_fill = "green" else manual_control_fill = "#0a0585" end
 if e_stop then e_stop_fill = "green" else e_stop_fill = "#5D170B" end
-if extraButtons then
-    if mousex >= 0.0331 and mousex <= 0.2282 and mousey >= 0.1276 and mousey <= 0.2051 then --P1 button
+
+if mousex >= 0.0277 and mousex <= 0.0868 and mousey >= 0.8515 and mousey <= 0.9484 then --Settings button
+    if mouseClick == 1 then
+        settingsButton = "white"
+    else  
+        settingsButton = "#e9ed0c"
+    end
+end  
+if not settingsActive then
+    if mousex >= 0.0331 and mousex <= 0.2282 and mousey >= 0.1276 and mousey <= 0.2850 then --RTB button
+        if mouseClick == 1 then
+            RTB_Fill = "white"
+        else  
+            RTB_Fill = "#16911c"
+        end
+    end
+
+    if mousex >= 0.2413 and mousex <= 0.4373 and mousey >= 0.1276 and mousey <= 0.2051 then --P1 button
         if mouseClick == 1 then
             preset_1s_fill = "white"
         else  
@@ -55,7 +74,7 @@ if extraButtons then
         end
     end
 
-    if mousex >= 0.0331 and mousex <= 0.2282 and mousey >= 0.2153 and mousey <= 0.2900 then --P2 button
+    if mousex >= 0.2413 and mousex <= 0.4373 and mousey >= 0.2091 and mousey <= 0.2850 then --P2 button
         if mouseClick == 1 then
             preset_2s_fill = "white"
         else  
@@ -63,7 +82,7 @@ if extraButtons then
         end
     end
 
-    if mousex >= 0.2413 and mousex <= 0.4373 and mousey >= 0.1276 and mousey <= 0.2051 then --P3 button
+    if mousex >= 0.2413 and mousex <= 0.4373 and mousey >= 0.2928 and mousey <= 0.3677 then --P3 button
         if mouseClick == 1 then
             preset_3s_fill = "white"
         else  
@@ -71,62 +90,63 @@ if extraButtons then
         end
     end
 
-    if mousex >= 0.2413 and mousex <= 0.4373 and mousey >= 0.2153 and mousey <= 0.2900 then --P4 button
+    if mousex >= 0.2413 and mousex <= 0.4373 and mousey >= 0.3761 and mousey <= 0.4514 then --P4 button
         if mouseClick == 1 then
             preset_4s_fill = "white"
         else  
             preset_4s_fill = "#521010"
         end
     end
+
+    if mousex >= 0.0331 and mousex <= 0.4373 and mousey >= 0.4609 and mousey <= 0.5364 then --Manual Control
+        if mouseClick == 1 then
+            manual_control_fill = "white"
+        else  
+            manual_control_fill = "#1d6dde"
+
+        end
+    end
+
+    if mousex >= 0.0331 and mousex <= 0.2282 and mousey >= 0.2928 and mousey <= 0.3677 then --Up 10
+        if mouseClick == 1 then
+                up10button = "white"
+            else  
+                up10button = "#dea41d"
+            end
+    end
+    if mousex >= 0.0331 and mousex <= 0.2282 and mousey >= 0.3761 and mousey <= 0.4514 then --Down 10
+            if mouseClick == 1 then
+                down10button = "white"
+            else  
+                down10button = "#dea41d"
+            end
+    end
+
+    if mousex >= 0.1003 and mousex <= 0.3703 and mousey >= 0.5484 and mousey <= 0.9475 then --Emergency Stop
+        if mouseClick == 1 then
+            e_stop_fill = "white"
+        else  
+            e_stop_fill = "#c5cc00"
+
+        end
+    end
 else
-    if mousex >= 0.0331 and mousex <= 0.4373 and mousey >= 0.1276 and mousey <= 0.2051 then --P1 button
+    if mousex >= 0.1515 and mousex <= 0.4934 and mousey >= 0.5504 and mousey <= 0.7107 then --Setbase button
         if mouseClick == 1 then
-            preset_1_fill = "white"
+            setBaseButton = "white"
         else  
-            preset_1_fill = "#521010"
+            setBaseButton = "#16911c"
         end
     end
-    
-    if mousex >= 0.0331 and mousex <= 0.4373 and mousey >= 0.2153 and mousey <= 0.2900 then --P2 button
+    if mousex >= 0.5097 and mousex <= 0.8511 and mousey >= 0.5504 and mousey <= 0.7134 then --Cancel button
         if mouseClick == 1 then
-            preset_2_fill = "white"
+            preset_1s_fill = "white"
         else  
-            preset_2_fill = "#521010"
+            preset_1s_fill = "#521010"
         end
     end
 end
-if mousex >= 0.0331 and mousex <= 0.4373 and mousey >= 0.3883 and mousey <= 0.4632 then --Manual Control
-    if mouseClick == 1 then
-        manual_control_fill = "white"
-    else  
-        manual_control_fill = "#521010"
 
-    end
-end
-
-if mousex >= 0.1003 and mousex <= 0.3703 and mousey >= 0.5059 and mousey <= 0.9185 then --Emergency Stop
-    if mouseClick == 1 then
-        e_stop_fill = "white"
-    else  
-        e_stop_fill = "#c5cc00"
-
-    end
-end
-
-if mousex >= 0.2413 and mousex <= 0.4373 and mousey >= 0.3004 and mousey <= 0.3764 then --Up 10
-    if mouseClick == 1 then
-            up10button = "white"
-        else  
-            up10button = "#521010"
-        end
-end
-if mousex >= 0.0331 and mousex <= 0.2282 and mousey >= 0.3004 and mousey <= 0.3764 then --Down 10
-        if mouseClick == 1 then
-            down10button = "white"
-        else  
-            down10button = "#521010"
-        end
-end
 
 function updateScreenFuel()
     local fuelHtml = ""
@@ -146,80 +166,51 @@ function updateScreenFuel()
     return   fuelHtml
 end
 
-function renderButtons()    
-    if extraButtons then
-        return [[
-    <polyline id="Preset4_x5F_Small" style="fill:]]..preset_4s_fill..[[;" class="st18" points="258.3,131.8 434.3,130.8 447.3,143.8 447.3,164.8 434.3,177.8 259.3,178.8 
-        259.3,178.3 246.3,165.3 246.3,144.3 259.3,131.3 "/>
-    <polyline id="Preset3_x5F_Small" style="fill:]]..preset_3s_fill..[[;" class="st18" points="258.3,77.8 434.3,76.8 447.3,89.8 447.3,110.8 434.3,123.8 259.3,124.8 
-        259.3,124.3 246.3,111.3 246.3,90.3 259.3,77.3 "/>
-    <polyline id="Preset2_x5F_Small"style="fill:]]..preset_2s_fill..[[;" class="st18" points="44.3,131.8 220.3,130.8 233.3,143.8 233.3,164.8 220.3,177.8 45.3,178.8 
-        45.3,178.3 32.3,165.3 32.3,144.3 45.3,131.3 "/>
-    <polyline id="Preset1_x5F_Small" style="fill:]]..preset_1s_fill..[[;" class="st18" points="44.3,77.8 220.3,76.8 233.3,89.8 233.3,110.8 220.3,123.8 45.3,124.8 
-        45.3,124.3 32.3,111.3 32.3,90.3 45.3,77.3 "/>
-    <rect x="47.8" y="89.7" class="st13" width="170.5" height="32.1"/>
-    <text transform="matrix(1 0 0 1 47.7729 112.5298)" class="st14 st15 st21 st22">]]..mToKm(ship.altHoldPreset1)..[[</text>
-    <rect x="261.5" y="89.7" class="st13" width="170.5" height="32.1"/>
-    <text transform="matrix(1 0 0 1 73.7261 165.6647)" class="st14 st15 st21 st22">]]..mToKm(ship.altHoldPreset2)..[[</text>
-    <rect x="45.1" y="142.9" class="st13" width="170.5" height="32.1"/>
-    <text transform="matrix(1 0 0 1 290.1706 112.5298)" class="st14 st15 st21 st22">]]..mToKm(ship.altHoldPreset3)..[[</text>
-    <rect x="264" y="142.9" class="st13" width="170.5" height="32.1"/>
-    <text transform="matrix(1 0 0 1 292.6706 165.6647)" class="st14 st15 st21 st22">]]..mToKm(ship.altHoldPreset4)..[[</text>]]
+local screenSettings = [[
+    <?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 1024 612" style="enable-background:new 0 0 1024 612;" xml:space="preserve">
+<style type="text/css">
+	.st0{opacity:0.75;fill:#333333;enable-background:new    ;}
+	.st1{fill:none;stroke:#FFFFFF;stroke-width:3;stroke-miterlimit:10;}
+	.st2{fill:#FFFFFF;}
+	.st3{font-family:'Verdana';font-weight:bold;}
+	.st4{font-size:43px;}
+	.st5{fill:#183F1D;stroke:#FFFFFF;stroke-width:2;stroke-miterlimit:10;}
+	.st6{font-family:'Verdana';}
+	.st7{font-size:48px;}
+	.st8{fill:#A8A736;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st9{fill:#680D0D;stroke:#FFFFFF;stroke-width:2;stroke-miterlimit:10;}
+	.st10{fill:none;}
+	.st11{font-size:24px;}
+	.st12{font-size:21px;}
+</style>
+<polygon class="st0" points="1003.3,580 990.3,593 33,593 20,580 20,32 33,19 990.3,19 1003.3,32 "/>
+<polygon class="st1" points="1003.3,580 990.3,593 31,593 18,580 18,32 31,19 990.3,19 1003.3,32 "/>
+<text transform="matrix(1 0 0 1 264.8399 72.6797)" class="st2 st3 st4">Initial Configuration</text>
+<polyline id="BtnSetBase" style="fill:]]..setBaseButton..[[;" class="st5" points="165,340.9 487.9,340.4 500.9,353.4 500.9,426 487.9,439 165,439.5 152,426.5 
+	152,353.9 165,340.9 "/>
+<text transform="matrix(1 0 0 1 227.5842 403.7895)" class="st2 st6 st7">Set Base</text>
+<path id="Gear" style="fill:]]..settingsButton..[[;" class="st8" d="M82.7,563.9l-4.9-3.8c0.2-1.3,0.2-2.7,0-4l4.9-3.8c0.9-0.7,1.2-2,0.6-3.1l-5.1-8.8
+	c-0.6-1-1.8-1.5-3-1.1l-5.8,2.3c-1.1-0.8-2.3-1.5-3.5-2l-0.9-6.2c-0.2-1.2-1.2-2.1-2.4-2.1H52.4c-1.2,0-2.2,0.9-2.4,2l-0.9,6.2
+	c-1.2,0.6-2.4,1.2-3.5,2l-5.8-2.3c-1.1-0.4-2.4,0-2.9,1l-5.1,8.9c-0.6,1-0.4,2.3,0.6,3.1l4.9,3.8c-0.2,1.3-0.2,2.7,0,4l-4.9,3.8
+	c-0.9,0.7-1.2,2-0.6,3.1l5.1,8.8c0.6,1,1.8,1.5,3,1.1l5.8-2.3c1.1,0.8,2.3,1.5,3.5,2l0.9,6.2c0.2,1.2,1.2,2.1,2.4,2.1h10.3
+	c1.2,0,2.2-0.9,2.4-2l0.9-6.2c1.2-0.6,2.4-1.2,3.5-2l5.8,2.3c1.1,0.4,2.4,0,2.9-1l5.1-8.9C83.9,565.9,83.6,564.6,82.7,563.9z
+	 M57.5,569.1c-6.2,0-11.1-5-11.1-11.1c0-6.2,5-11.1,11.1-11.1s11.1,5,11.1,11.1C68.7,564.2,63.7,569.1,57.5,569.1z"/>
+<polyline id="BtnCancel" style="fill:]]..preset_1s_fill..[[;" class="st9" points="532.9,340.9 855.9,340.4 868.9,353.4 868.9,426 855.9,439 532.9,439.5 519.9,426.5 
+	519.9,353.9 532.9,340.9 "/>
+<text transform="matrix(1 0 0 1 615.2758 403.7898)" class="st2 st6 st7">Cancel</text>
+<rect x="68.7" y="96.8" class="st10" width="876.9" height="247.3"/>
+<text transform="matrix(1 0 0 1 68.7251 115.0654)"><tspan x="0" y="0" class="st2 st6 st11">Before you can use your elevator, you will need to set the base position </tspan><tspan x="0" y="28.8" class="st2 st6 st11">using the </tspan><tspan x="120.2" y="28.8" class="st2 st3 st11">Set Base</tspan><tspan x="236.8" y="28.8" class="st2 st6 st11"> button below.  The elevator will always return to </tspan><tspan x="0" y="57.6" class="st2 st6 st11">this point when you press the ‘RTB’ button, so make sure you have it </tspan><tspan x="0" y="86.4" class="st2 st6 st11">positioned where it will live permanently. </tspan><tspan x="0" y="144" class="st2 st6 st11">If you ever move your elevator, you can return to this screen to reset </tspan><tspan x="0" y="172.8" class="st2 st6 st11">the position at any time by clicking the gear icon in the lower left-hand </tspan><tspan x="0" y="201.6" class="st2 st6 st11">corner. </tspan></text>
+<rect x="68.7" y="465.5" class="st10" width="876.9" height="57.7"/>
+<text transform="matrix(1 0 0 1 68.7251 481.4932)"><tspan x="0" y="0" class="st2 st6 st12">You can also use the ‘setbase’ Lua command at any time to reset your base loca</tspan><tspan x="851.7" y="0" class="st2 st6 st12">-</tspan><tspan x="0" y="25.2" class="st2 st6 st12">tion.</tspan></text>
+</svg>
 
-    else
-        return [[<polygon id="BtnPreset1" style="fill:]]..preset_1_fill..[[;" class="st18" points="433.5,80.5 446.5,93.5 446.5,113.5 433.5,126.5 44.5,126.5 31.5,113.5 31.5,93.5 
-        44.5,80.5 "/>
-        <polygon id="BtnPreset2" style="fill:]]..preset_2_fill..[[;" class="st18" points="433.5,132.5 446.5,145.5 446.5,165.5 433.5,178.5 44.5,178.5 31.5,165.5 31.5,145.5 
-            44.5,132.5 "/>
-        <text transform="matrix(1 0 0 1 79.6709 113.7998)" class="st14 st15 st21 st22">Preset 1:</text>
-         <rect x="240.612" y="91" class="st20" width="191.387" height="26"/>
-         <text transform="matrix(1 0 0 1 240.6123 113.7998)" class="st14 st15 st21 st22">]]..mToKm(ship.altHoldPreset1)..[[</text>
-         <rect x="47.612" y="142" class="st20" width="191.387" height="26"/>
-         <text transform="matrix(1 0 0 1 79.6709 164.7998)" class="st14 st15 st21 st22">Preset 2:</text>
-         <rect x="239.612" y="142" class="st20" width="191.387" height="26"/>
-         <text transform="matrix(1 0 0 1 239.6123 164.7998)" class="st14 st15 st21 st22">]]..mToKm(ship.altHoldPreset2)..[[</text>
-         <rect x="34.612" y="196" class="st20" width="191.387" height="26"/>]]
-    end
 
-    
-end
-
---[[
-SMALL Buttons
-
-<polyline id="Preset4_x5F_Small" class="st19" points="258.3,131.8 434.3,130.8 447.3,143.8 447.3,164.8 434.3,177.8 259.3,178.8 
-	259.3,178.3 246.3,165.3 246.3,144.3 259.3,131.3 "/>
-<polyline id="Preset3_x5F_Small" class="st19" points="258.3,77.8 434.3,76.8 447.3,89.8 447.3,110.8 434.3,123.8 259.3,124.8 
-	259.3,124.3 246.3,111.3 246.3,90.3 259.3,77.3 "/>
-<polyline id="Preset2_x5F_Small" class="st19" points="44.3,131.8 220.3,130.8 233.3,143.8 233.3,164.8 220.3,177.8 45.3,178.8 
-	45.3,178.3 32.3,165.3 32.3,144.3 45.3,131.3 "/>
-<polyline id="Preset1_x5F_Small" class="st19" points="44.3,77.8 220.3,76.8 233.3,89.8 233.3,110.8 220.3,123.8 45.3,124.8 
-	45.3,124.3 32.3,111.3 32.3,90.3 45.3,77.3 "/>
-<rect x="47.8" y="89.7" class="st13" width="170.5" height="32.1"/>
-<text transform="matrix(1 0 0 1 76.4375 112.5298)" class="st14 st15 st20">Preset1</text>
-<rect x="261.5" y="89.7" class="st13" width="170.5" height="32.1"/>
-<rect x="45.1" y="142.9" class="st13" width="170.5" height="32.1"/>
-<text transform="matrix(1 0 0 1 73.7261 165.6647)" class="st14 st15 st20">Preset2</text>
-<text transform="matrix(1 0 0 1 290.1706 112.5298)" class="st14 st15 st20">Preset3</text>
-<rect x="264" y="142.9" class="st13" width="170.5" height="32.1"/>
-<text transform="matrix(1 0 0 1 292.6706 165.6647)" class="st14 st15 st20">Preset4</text>
-
-BIG Buttons
-<polygon id="BtnPreset1" style="fill:..preset_1_fill..;" class="st18" points="433.5,80.5 446.5,93.5 446.5,113.5 433.5,126.5 44.5,126.5 31.5,113.5 31.5,93.5 
-44.5,80.5 "/>
-<polygon id="BtnPreset2" style="fill:..preset_2_fill..;" class="st18" points="433.5,132.5 446.5,145.5 446.5,165.5 433.5,178.5 44.5,178.5 31.5,165.5 31.5,145.5 
-    44.5,132.5 "/>
-<text transform="matrix(1 0 0 1 79.6709 113.7998)" class="st14 st15 st21 st22">Preset 1:</text>
- <rect x="240.612" y="91" class="st20" width="191.387" height="26"/>
- <text transform="matrix(1 0 0 1 240.6123 113.7998)" class="st14 st15 st21 st22"> ..mToKm(ship.altHoldPreset1)..</text>
- <rect x="47.612" y="142" class="st20" width="191.387" height="26"/>
- <text transform="matrix(1 0 0 1 79.6709 164.7998)" class="st14 st15 st21 st22">Preset 2:</text>
- <rect x="239.612" y="142" class="st20" width="191.387" height="26"/>
- <text transform="matrix(1 0 0 1 239.6123 164.7998)" class="st14 st15 st21 st22"> ..mToKm(ship.altHoldPreset2)..</text>
- <rect x="34.612" y="196" class="st20" width="191.387" height="26"/>
 ]]
 
-    screen.setHTML([[
+local screenMain = [[
 <style>
         svg {
         height:100%
@@ -257,10 +248,18 @@ BIG Buttons
         text-align: left;
         vertical-align: middle;
       }
+    #status {
+        font-family:Verdana;
+        font-size:23px;
+        font-weight:bold;
+        color: #ffee00;
+        text-align: left;
+        vertical-align: middle;
+    }
 
       #fuelTanks {
         position: absolute;
-        bottom: -40%;
+        bottom: -50%;
         left: 2%;
         width: 85%;
         color: #1b1b1b;
@@ -325,117 +324,153 @@ BIG Buttons
         .st24{font-size:50px;}
         .st25{letter-spacing:2;}
         .st26{text-align: center;}
+        .st27{fill:#183F1D;stroke:#FFFFFF;stroke-width:2;stroke-miterlimit:10;}
+	    .st28{font-size:48px;}
+        .st29{fill:#A8A736;stroke:#FFFFFF;stroke-miterlimit:10;}
         
         </style>
         
         <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 1024 612" style="enable-background:new 0 0 1024 612;" xml:space="preserve">
-     <g id="g6463" transform="translate(646 76) scale(1.1369)" class="st0">
-     <g id="g6348" transform="translate(-628 -251)">
-         <g id="g6233">
-             
-                 <linearGradient id="path6128_1_" gradientUnits="userSpaceOnUse" x1="744.2108" y1="361.5361" x2="742.8321" y2="451.8386" gradientTransform="matrix(1.1369 0 0 -1.1369 -68.0936 823.2415)">
-                 <stop  offset="0" style="stop-color:#4A1314"/>
-                 <stop  offset="1" style="stop-color:#AB1F23"/>
-             </linearGradient>
-             <path id="path6128" class="st1" d="M787.105,279.147l-19.991,19.301v130.284l19.991,0.689V279.147z"/>
-             
-                 <linearGradient id="path6168_1_" gradientUnits="userSpaceOnUse" x1="744.3377" y1="348.8237" x2="872.5535" y2="348.8237" gradientTransform="matrix(1.1369 0 0 -1.1369 -68.0936 823.2415)">
-                 <stop  offset="0" style="stop-color:#AC1F24"/>
-                 <stop  offset="1" style="stop-color:#EF4B50"/>
-             </linearGradient>
-             <path id="path6168" class="st2" d="M927.04,417.013l-19.991,19.301l-132.352-0.689l-7.583-6.204v-12.408H927.04z"/>
-         </g>
-         <g id="g6233-0" transform="matrix(1 0 0 -1 0 902)">
-             
-                 <linearGradient id="path6128-4_1_" gradientUnits="userSpaceOnUse" x1="744.2108" y1="537.5292" x2="742.8321" y2="447.2267" gradientTransform="matrix(1.1369 0 0 1.1369 -68.0936 -204.0014)">
-                 <stop  offset="0" style="stop-color:#4A1314"/>
-                 <stop  offset="1" style="stop-color:#AB1F23"/>
-             </linearGradient>
-             <path id="path6128-4" class="st3" d="M787.105,274.051l-19.991,19.301v130.284l19.991,0.689V274.051z"/>
-             
-                 <linearGradient id="path6168-6_1_" gradientUnits="userSpaceOnUse" x1="744.3377" y1="550.2416" x2="872.5535" y2="550.2416" gradientTransform="matrix(1.1369 0 0 1.1369 -68.0936 -204.0014)">
-                 <stop  offset="0" style="stop-color:#AC1F24"/>
-                 <stop  offset="1" style="stop-color:#EF4B50"/>
-             </linearGradient>
-             <path id="path6168-6" class="st4" d="M927.04,411.918l-19.991,19.301l-132.352-0.689l-7.583-6.204v-12.408H927.04z"/>
-         </g>
-     </g>
-     <g id="g6348-1" transform="matrix(-1 0 0 1 23 -251)">
-         <g id="g6233-7">
-             
-                 <linearGradient id="path6128-8_1_" gradientUnits="userSpaceOnUse" x1="649.9817" y1="361.5361" x2="648.603" y2="451.8386" gradientTransform="matrix(-1.1369 0 0 -1.1369 670.2691 823.2415)">
-                 <stop  offset="0" style="stop-color:#4A1314"/>
-                 <stop  offset="1" style="stop-color:#AB1F23"/>
-             </linearGradient>
-             <path id="path6128-8" class="st5" d="M-59.589,279.147l-19.991,19.301v130.284l19.991,0.689V279.147z"/>
-             
-                 <linearGradient id="path6168-3_1_" gradientUnits="userSpaceOnUse" x1="649.8547" y1="348.8237" x2="778.0705" y2="348.8237" gradientTransform="matrix(-1.1369 0 0 -1.1369 670.2691 823.2415)">
-                 <stop  offset="0" style="stop-color:#AC1F24"/>
-                 <stop  offset="1" style="stop-color:#EF4B50"/>
-             </linearGradient>
-             <path id="path6168-3" class="st6" d="M80.345,417.013l-19.991,19.301l-132.352-0.689l-7.583-6.204v-12.408H80.345z"/>
-         </g>
-         <g id="g6233-0-0" transform="matrix(1 0 0 -1 0 902)">
-             
-                 <linearGradient id="path6128-4-7_1_" gradientUnits="userSpaceOnUse" x1="649.9863" y1="537.5293" x2="648.6076" y2="447.2268" gradientTransform="matrix(-1.1369 0 0 1.1369 670.2691 -204.0014)">
-                 <stop  offset="0" style="stop-color:#4A1314"/>
-                 <stop  offset="1" style="stop-color:#AB1F23"/>
-             </linearGradient>
-             <path id="path6128-4-7" class="st7" d="M-59.589,274.051l-19.991,19.301v130.973h19.991V274.051z"/>
-             
-                 <linearGradient id="path6168-6-5_1_" gradientUnits="userSpaceOnUse" x1="649.8547" y1="550.2416" x2="778.0705" y2="550.2416" gradientTransform="matrix(-1.1369 0 0 1.1369 670.2691 -204.0014)">
-                 <stop  offset="0" style="stop-color:#AC1F24"/>
-                 <stop  offset="1" style="stop-color:#EF4B50"/>
-             </linearGradient>
-             <path id="path6168-6-5" class="st8" d="M80.345,411.918l-19.991,19.301l-132.352-0.689l-7.583-6.204v-12.408H80.345z"/>
-         </g>
-     </g>
- </g>
- <polygon class="st9" points="555.5,31.5 542.5,18.5 483.5,18.5 470.5,31.5 470.5,578.5 483.5,591.5 542.5,591.5 555.5,578.5 "/>
- <polygon class="st10" points="554.5,32.5 541.5,19.5 482.5,19.5 469.5,32.5 469.5,579.5 482.5,592.5 541.5,592.5 554.5,579.5 "/>
- <polygon class="st9" points="1006.5,579.5 993.5,592.5 577.5,592.5 564.5,579.5 564.5,31.5 577.5,18.5 993.5,18.5 1006.5,31.5 "/>
- <polygon class="st10" points="1006.5,580.5 993.5,593.5 577.5,593.5 564.5,580.5 564.5,32.5 577.5,19.5 993.5,19.5 1006.5,32.5 "/>
- <polygon class="st9" points="462,580 449,593 33,593 20,580 20,32 33,19 449,19 462,32 "/>
- <polygon class="st10" points="460,580 447,593 31,593 18,580 18,32 31,19 447,19 460,32 "/>
- <line class="st10" x1="512.5" y1="40.5" x2="512.5" y2="572.5"/>
- <line class="st10" x1="495.5" y1="40.5" x2="528.5" y2="40.5"/>
- <line class="st10" x1="496" y1="572.5" x2="529" y2="572.5"/>
- <g transform="translate(0,]]..elevatorMove..[[)">
-     <polyline id="ElevatorTop" class="st11" points="539.5,551.5 485.5,551.5 485.5,554.5 487.5,556.5 537.5,556.5 537.5,557 539.5,555 
-         539.5,552 "/>
-     <polyline id="ElevatorBottom" class="st11" points="537.5,557 537.5,559 539.5,561 539.5,570.5 485,570.5 485.5,570.5 485.5,560.5 
-         487.5,558.5 537.5,558.5 487.5,558.5 487.5,556.5 "/>
- </g>
- <polygon id="BtnEStop" style="fill:]]..e_stop_fill..[[;" class="st12" points="295.772,314.5 183.728,314.5 104.5,387.577 104.5,490.923 183.728,564 295.772,564 
-     375,490.923 375,387.577 "/>
- <rect x="104" y="399" class="st13" width="266" height="88"/>
- <text transform="matrix(1 0 0 1 115.5605 429.3994)"><tspan x="0" y="0" class="st14 st15 st16 st17">EMERGENCY</tspan><tspan x="69.141" y="48" class="st14 st15 st16 st17">STOP</tspan></text>
-]]..renderButtons()..[[
- <rect x="31" y="32" class="st13" width="416" height="39.161"/>
- <text transform="matrix(1 0 0 1 47.5435 64.6797)" class="st14 st15 st19">Elevator Control</text>
- <polyline id="BtnPlusTen" style="fill:]]..up10button..[[;" class="st18" points="257.5,185.5 433.5,184.5 446.5,197.5 446.5,218.5 433.5,231.5 258.5,232.5 
-     258.5,232 245.5,219 245.5,198 258.5,185 "/>
- <polyline id="BtnMinusTen" style="fill:]]..down10button..[[;" class="st18" points="43.5,185.5 219.5,184.5 232.5,197.5 232.5,218.5 219.5,231.5 44.5,232.5 44.5,232 
-     31.5,219 31.5,198 44.5,185 "/>
- <polygon id="BtnManualCtrl" style="fill:]]..manual_control_fill..[[;" class="st18" points="434,239 447,252 447,272 434,285 45,285 32,272 32,252 45,239 "/>
- 
- <rect x="34.612" y="196" class="st20" width="191.387" height="26"/>
- <text transform="matrix(1 0 0 1 87.582 218.7998)" class="st14 st15 st21 st22">-10m</text>
- <rect x="250.612" y="196" class="st20" width="191.387" height="26"/>
- <text transform="matrix(1 0 0 1 298.1182 218.7998)" class="st14 st15 st21 st22">+10m</text>
- <rect x="48" y="248" class="st20" width="383" height="26"/>
- <text transform="matrix(1 0 0 1 116.1147 270.7998)" class="st14 st15 st21 st22">Manual Control</text>
- <text transform="matrix(1 0 0 1 582.3379 73.7998)" class="st23 st15 st24 st25 st26">]]..shipName..[[</text>
- </svg>
-        <div class="fixed">
-            <div class="center">
-                ]]..renderStatsTable()..[[
-                <div id="fuelTanks">]]..updateScreenFuel()..[[</div>
-            </div>
-            
+            viewBox="0 0 1024 612" style="enable-background:new 0 0 1024 612;" xml:space="preserve">
+            <g id="g6463" transform="translate(646 76) scale(1.1369)" class="st0">
+            <g id="g6348" transform="translate(-628 -251)">
+                <g id="g6233">
+                    
+                        <linearGradient id="path6128_1_" gradientUnits="userSpaceOnUse" x1="744.2108" y1="361.5361" x2="742.8321" y2="451.8386" gradientTransform="matrix(1.1369 0 0 -1.1369 -68.0936 823.2415)">
+                        <stop  offset="0" style="stop-color:#4A1314"/>
+                        <stop  offset="1" style="stop-color:#AB1F23"/>
+                    </linearGradient>
+                    <path id="path6128" class="st1" d="M787.105,279.147l-19.991,19.301v130.284l19.991,0.689V279.147z"/>
+                    
+                        <linearGradient id="path6168_1_" gradientUnits="userSpaceOnUse" x1="744.3377" y1="348.8237" x2="872.5535" y2="348.8237" gradientTransform="matrix(1.1369 0 0 -1.1369 -68.0936 823.2415)">
+                        <stop  offset="0" style="stop-color:#AC1F24"/>
+                        <stop  offset="1" style="stop-color:#EF4B50"/>
+                    </linearGradient>
+                    <path id="path6168" class="st2" d="M927.04,417.013l-19.991,19.301l-132.352-0.689l-7.583-6.204v-12.408H927.04z"/>
+                </g>
+                <g id="g6233-0" transform="matrix(1 0 0 -1 0 902)">
+                    
+                        <linearGradient id="path6128-4_1_" gradientUnits="userSpaceOnUse" x1="744.2108" y1="537.5292" x2="742.8321" y2="447.2267" gradientTransform="matrix(1.1369 0 0 1.1369 -68.0936 -204.0014)">
+                        <stop  offset="0" style="stop-color:#4A1314"/>
+                        <stop  offset="1" style="stop-color:#AB1F23"/>
+                    </linearGradient>
+                    <path id="path6128-4" class="st3" d="M787.105,274.051l-19.991,19.301v130.284l19.991,0.689V274.051z"/>
+                    
+                        <linearGradient id="path6168-6_1_" gradientUnits="userSpaceOnUse" x1="744.3377" y1="550.2416" x2="872.5535" y2="550.2416" gradientTransform="matrix(1.1369 0 0 1.1369 -68.0936 -204.0014)">
+                        <stop  offset="0" style="stop-color:#AC1F24"/>
+                        <stop  offset="1" style="stop-color:#EF4B50"/>
+                    </linearGradient>
+                    <path id="path6168-6" class="st4" d="M927.04,411.918l-19.991,19.301l-132.352-0.689l-7.583-6.204v-12.408H927.04z"/>
+                </g>
+            </g>
+            <g id="g6348-1" transform="matrix(-1 0 0 1 23 -251)">
+                <g id="g6233-7">
+                    
+                        <linearGradient id="path6128-8_1_" gradientUnits="userSpaceOnUse" x1="649.9817" y1="361.5361" x2="648.603" y2="451.8386" gradientTransform="matrix(-1.1369 0 0 -1.1369 670.2691 823.2415)">
+                        <stop  offset="0" style="stop-color:#4A1314"/>
+                        <stop  offset="1" style="stop-color:#AB1F23"/>
+                    </linearGradient>
+                    <path id="path6128-8" class="st5" d="M-59.589,279.147l-19.991,19.301v130.284l19.991,0.689V279.147z"/>
+                    
+                        <linearGradient id="path6168-3_1_" gradientUnits="userSpaceOnUse" x1="649.8547" y1="348.8237" x2="778.0705" y2="348.8237" gradientTransform="matrix(-1.1369 0 0 -1.1369 670.2691 823.2415)">
+                        <stop  offset="0" style="stop-color:#AC1F24"/>
+                        <stop  offset="1" style="stop-color:#EF4B50"/>
+                    </linearGradient>
+                    <path id="path6168-3" class="st6" d="M80.345,417.013l-19.991,19.301l-132.352-0.689l-7.583-6.204v-12.408H80.345z"/>
+                </g>
+                <g id="g6233-0-0" transform="matrix(1 0 0 -1 0 902)">
+                    
+                        <linearGradient id="path6128-4-7_1_" gradientUnits="userSpaceOnUse" x1="649.9863" y1="537.5293" x2="648.6076" y2="447.2268" gradientTransform="matrix(-1.1369 0 0 1.1369 670.2691 -204.0014)">
+                        <stop  offset="0" style="stop-color:#4A1314"/>
+                        <stop  offset="1" style="stop-color:#AB1F23"/>
+                    </linearGradient>
+                    <path id="path6128-4-7" class="st7" d="M-59.589,274.051l-19.991,19.301v130.973h19.991V274.051z"/>
+                    
+                        <linearGradient id="path6168-6-5_1_" gradientUnits="userSpaceOnUse" x1="649.8547" y1="550.2416" x2="778.0705" y2="550.2416" gradientTransform="matrix(-1.1369 0 0 1.1369 670.2691 -204.0014)">
+                        <stop  offset="0" style="stop-color:#AC1F24"/>
+                        <stop  offset="1" style="stop-color:#EF4B50"/>
+                    </linearGradient>
+                    <path id="path6168-6-5" class="st8" d="M80.345,411.918l-19.991,19.301l-132.352-0.689l-7.583-6.204v-12.408H80.345z"/>
+                </g>
+            </g>
+        </g>
+        <polygon class="st9" points="555.5,31.5 542.5,18.5 483.5,18.5 470.5,31.5 470.5,578.5 483.5,591.5 542.5,591.5 555.5,578.5 "/>
+        <polygon class="st10" points="554.5,32.5 541.5,19.5 482.5,19.5 469.5,32.5 469.5,579.5 482.5,592.5 541.5,592.5 554.5,579.5 "/>
+        <polygon class="st9" points="1006.5,579.5 993.5,592.5 577.5,592.5 564.5,579.5 564.5,31.5 577.5,18.5 993.5,18.5 1006.5,31.5 "/>
+        <polygon class="st10" points="1006.5,580.5 993.5,593.5 577.5,593.5 564.5,580.5 564.5,32.5 577.5,19.5 993.5,19.5 1006.5,32.5 "/>
+        <polygon class="st9" points="462,580 449,593 33,593 20,580 20,32 33,19 449,19 462,32 "/>
+        <polygon class="st10" points="460,580 447,593 31,593 18,580 18,32 31,19 447,19 460,32 "/>
+        <line class="st10" x1="512.5" y1="40.5" x2="512.5" y2="572.5"/>
+        <line class="st10" x1="495.5" y1="40.5" x2="528.5" y2="40.5"/>
+        <line class="st10" x1="496" y1="572.5" x2="529" y2="572.5"/>
+        <g transform="translate(0,]]..elevatorMove..[[)">
+            <polyline id="ElevatorTop" class="st11" points="539.5,551.5 485.5,551.5 485.5,554.5 487.5,556.5 537.5,556.5 537.5,557 539.5,555 
+                539.5,552 "/>
+            <polyline id="ElevatorBottom" class="st11" points="537.5,557 537.5,559 539.5,561 539.5,570.5 485,570.5 485.5,570.5 485.5,560.5 
+                487.5,558.5 537.5,558.5 487.5,558.5 487.5,556.5 "/>
+        </g>
+        <polygon id="BtnEStop" style="fill:]]..e_stop_fill..[[;" class="st12" points="292.6,339.9 183,339.9 105.5,411.4 105.5,512.5 183,584 292.6,584 370.1,512.5 
+        370.1,411.4 "/>
 
-        </div>
+        <text transform="matrix(1 0 0 1 116.0321 450.8)"><tspan x="0" y="0" class="st14 st15 st16 st17">EMERGENCY</tspan><tspan x="69.141" y="48" class="st14 st15 st16 st17">STOP</tspan></text>
+        <polyline id="Preset4_x5F_Small" style="fill:]]..preset_4s_fill..[[;" class="st18" points="258.3,233.8 434.3,232.8 447.3,245.8 447.3,266.8 434.3,279.8 259.3,280.8 
+        259.3,280.3 246.3,267.3 246.3,246.3 259.3,233.3 "/>
+        <polyline id="Preset3_x5F_Small" style="fill:]]..preset_3s_fill..[[;" class="st18" points="258.3,182.8 434.3,181.8 447.3,194.8 447.3,215.8 434.3,228.8 259.3,229.8 
+        259.3,229.3 246.3,216.3 246.3,195.3 259.3,182.3 "/>
+        <polyline id="Preset2_x5F_Small"style="fill:]]..preset_2s_fill..[[;" class="st18" points="257.3,131.8 433.3,130.8 446.3,143.8 446.3,164.8 433.3,177.8 258.3,178.8 
+        258.3,178.3 245.3,165.3 245.3,144.3 258.3,131.3 "/>
+        <polyline id="Preset1_x5F_Small" style="fill:]]..preset_1s_fill..[[;" class="st18" points="257.3,80.8 433.3,79.8 446.3,92.8 446.3,113.8 433.3,126.8 258.3,127.8 
+        258.3,127.3 245.3,114.3 245.3,93.3 258.3,80.3 "/>
+
+
+        <text transform="matrix(1 0 0 1 260.7729 115.5298)" class="st14 st15 st21 st22">]]..mToKm(ship.altHoldPreset1)..[[</text>
+        <text transform="matrix(1 0 0 1 258.0615 165.6647)" class="st14 st15 st21 st22">]]..mToKm(ship.altHoldPreset2)..[[</text>
+        <text transform="matrix(1 0 0 1 261.506 217.5298)" class="st14 st15 st21 st22">]]..mToKm(ship.altHoldPreset3)..[[</text>
+        <text transform="matrix(1 0 0 1 264.006 267.6647)" class="st14 st15 st21 st22">]]..mToKm(ship.altHoldPreset4)..[[</text>
+
+        <text transform="matrix(1 0 0 1 47.5435 64.6797)" class="st14 st15 st19">Elevator Control</text>
+        <polyline id="BtnPlusTen" style="fill:]]..up10button..[[;" class="st18" points="43.5,183.8 219.5,182.8 232.5,195.8 232.5,216.8 219.5,229.8 44.5,230.8 44.5,230.3 
+        31.5,217.3 31.5,196.3 44.5,183.3 "/>
+        <polyline id="BtnMinusTen" style="fill:]]..down10button..[[;" class="st18" points="43.5,234.8 219.5,233.8 232.5,246.8 232.5,267.8 219.5,280.8 44.5,281.8 
+        44.5,281.3 31.5,268.3 31.5,247.3 44.5,234.3 "/>
+        <polygon id="BtnManualCtrl" style="fill:]]..manual_control_fill..[[;" class="st18" points="432.3,285.4 445.3,298.4 445.3,318.4 432.3,331.4 43.3,331.4 30.3,318.4 
+        30.3,298.4 43.3,285.4 "/>
         
-]])
+
+        <text transform="matrix(1 0 0 1 87.582 268.0998)" class="st14 st15 st21 st22">-10m</text>
+
+        <text transform="matrix(1 0 0 1 84.1182 217.0998)" class="st14 st15 st21 st22">+10m</text>
+
+        <text transform="matrix(1 0 0 1 114.4147 317.1998)" class="st14 st15 st21 st22">Manual Control</text>
+        <text transform="matrix(1 0 0 1 582.3379 73.7998)" class="st23 st15 st24 st25 st26">]]..shipName..[[</text>
+        <polyline id="BtnRTB" class="st27" style="fill:]]..RTB_Fill..[[" points="44.5,80.6 219.5,80.1 232.5,93.1 232.5,165.7 219.5,178.7 44.5,179.2 31.5,166.2 
+            31.5,93.6 44.5,80.6 "/>
+        <text transform="matrix(1 0 0 1 85.1184 147.6267)" class="st14 st15 st16 st17">RTB</text>
+        <path id="Gear" style="fill:]]..settingsButton..[[;" class="st29" d="M82.7,563.9l-4.9-3.8c0.2-1.3,0.2-2.7,0-4l4.9-3.8c0.9-0.7,1.2-2,0.6-3.1l-5.1-8.8
+        c-0.6-1-1.8-1.5-3-1.1l-5.8,2.3c-1.1-0.8-2.3-1.5-3.5-2l-0.9-6.2c-0.2-1.2-1.2-2.1-2.4-2.1H52.4c-1.2,0-2.2,0.9-2.4,2l-0.9,6.2
+        c-1.2,0.6-2.4,1.2-3.5,2l-5.8-2.3c-1.1-0.4-2.4,0-2.9,1l-5.1,8.9c-0.6,1-0.4,2.3,0.6,3.1l4.9,3.8c-0.2,1.3-0.2,2.7,0,4l-4.9,3.8
+        c-0.9,0.7-1.2,2-0.6,3.1l5.1,8.8c0.6,1,1.8,1.5,3,1.1l5.8-2.3c1.1,0.8,2.3,1.5,3.5,2l0.9,6.2c0.2,1.2,1.2,2.1,2.4,2.1h10.3
+        c1.2,0,2.2-0.9,2.4-2l0.9-6.2c1.2-0.6,2.4-1.2,3.5-2l5.8,2.3c1.1,0.4,2.4,0,2.9-1l5.1-8.9C83.9,565.9,83.6,564.6,82.7,563.9z
+        M57.5,569.1c-6.2,0-11.1-5-11.1-11.1c0-6.2,5-11.1,11.1-11.1s11.1,5,11.1,11.1C68.7,564.2,63.7,569.1,57.5,569.1z"/>
+        </svg>
+                <div class="fixed">
+                    <div class="center">
+                        ]]..renderStatsTable()..[[
+                        <div id="status">]]..ship.stateMessage..[[</div>
+                        <div id="fuelTanks">]]..updateScreenFuel()..[[</div>
+                    </div>
+                    
+
+                </div>
+        
+]]
+
+
+if settingsActive then
+    screen.setHTML(screenSettings)
+else
+    screen.setHTML(screenMain)
+end
+
+
 end

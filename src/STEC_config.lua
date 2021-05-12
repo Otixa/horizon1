@@ -1,5 +1,68 @@
 --@class STEC_Config
+shipName = "" --export: Ship Name
+local updateSettings = false --export: Use these settings
+local altHoldPreset1 = 100001.9  --export: Altitude Hold Preset 1
+local altHoldPreset2 = 2000 --export: Altitude Hold Preset 2
+local altHoldPreset3 = 500 --export: Altitude Hold Preset 3
+local altHoldPreset4 = 50 --export: Altitude Hold Preset 4
+local inertialDampening = true --export: Start with inertial dampening on/off
+local followGravity = true --export: Start with gravity follow on/off
+local minRotationSpeed = 0.01 --export: Minimum speed rotation scales from
+local maxRotationSpeed = 5 --export: Maximum speed rotation scales to
+local rotationStep = 0.03 --export: Depermines how quickly rotation scales up
+local verticalSpeedLimitAtmo = 1100 --export: Vertical speed limit in atmosphere
+local verticalSpeedLimitSpace = 4000 --export: Vertical limit in space
+local autoShutdown = true --export: Auto shutoff on RTB landing
 
+local pocket = false --export: Pocket ship?
+
+--charMovement = true --export: Enable/Disable Character Movement
+ship.autoShutdown = autoShutdown
+ship.altitudeHold = round2(ship.altitude,0)
+ship.inertialDampeningDesired = inertialDampening
+ship.followGravity = followGravity
+ship.minRotationSpeed = minRotationSpeed
+ship.maxRotationSpeedz = maxRotationSpeed
+ship.rotationStep = rotationStep
+
+ship.verticalSpeedLimitAtmo = verticalSpeedLimitAtmo
+ship.verticalSpeedLimitSpace = verticalSpeedLimitSpace
+
+ship.altHoldPreset1 = altHoldPreset1
+ship.altHoldPreset2 = altHoldPreset2
+ship.altHoldPreset3 = altHoldPreset3
+ship.altHoldPreset4 = altHoldPreset4
+ship.pocket = pocket
+
+if flightModeDb.hasKey("verticalSpeedLimitAtmo") == 0 or updateSettings then 
+    flightModeDb.setFloatValue("verticalSpeedLimitAtmo",verticalSpeedLimitAtmo)
+    ship.verticalSpeedLimitAtmo = verticalSpeedLimitAtmo
+else ship.verticalSpeedLimitAtmo = flightModeDb.getFloatValue("verticalSpeedLimitAtmo") end
+
+if flightModeDb.hasKey("verticalSpeedLimitSpace") == 0 or updateSettings then 
+    flightModeDb.setFloatValue("verticalSpeedLimitSpace",verticalSpeedLimitSpace)
+    ship.verticalSpeedLimitSpace = verticalSpeedLimitSpace
+else ship.verticalSpeedLimitSpace = flightModeDb.getFloatValue("verticalSpeedLimitSpace") end
+
+if flightModeDb.hasKey("altHoldPreset1") == 0 or updateSettings then 
+    flightModeDb.setFloatValue("altHoldPreset1",altHoldPreset1)
+    ship.altHoldPreset1 = altHoldPreset1
+else ship.altHoldPreset1 = flightModeDb.getFloatValue("altHoldPreset1") end
+
+if flightModeDb.hasKey("altHoldPreset2") == 0 or updateSettings then 
+    flightModeDb.setFloatValue("altHoldPreset2",altHoldPreset2)
+    ship.altHoldPreset2 = altHoldPreset2
+else ship.altHoldPreset2 = flightModeDb.getFloatValue("altHoldPreset2") end
+
+if flightModeDb.hasKey("altHoldPreset3") == 0 or updateSettings then 
+    flightModeDb.setFloatValue("altHoldPreset3",altHoldPreset3)
+    ship.altHoldPreset3 = altHoldPreset3
+else ship.altHoldPreset3 = flightModeDb.getFloatValue("altHoldPreset3") end
+
+if flightModeDb.hasKey("altHoldPreset4") == 0 or updateSettings then 
+    flightModeDb.setFloatValue("altHoldPreset4",altHoldPreset4)
+    ship.altHoldPreset4 = altHoldPreset4
+else ship.altHoldPreset4 = flightModeDb.getFloatValue("altHoldPreset4") end
 
 function gearToggle()
 	if unit.isAnyLandingGearExtended() == 1 then
@@ -22,11 +85,8 @@ function switchControlMode()
         else ship.alternateCM = false end
 end
 
---ship.verticalCruiseSpeed = 100
-
 function swapForceFields()
     if manualSwitches ~= nil then
-        --system.print("Ship Frozen: "..tostring(system.isFrozen()))
         if system.isFrozen() == 1 then
             manualSwitches[1].activate()
             for _, sw in ipairs(forceFields) do
@@ -41,46 +101,69 @@ function swapForceFields()
     end
 
 end
-function writeTargetToDb(cVector)
+function writeTargetToDb(cVector, name) --customTargetX
     if flightModeDb ~= nil then
-        flightModeDb.setFloatValue("customTargetX", cVector.x)
-        flightModeDb.setFloatValue("customTargetY", cVector.y)
-        flightModeDb.setFloatValue("customTargetZ", cVector.z)
+        flightModeDb.setFloatValue(name.."X", cVector.x)
+        flightModeDb.setFloatValue(name.."Y", cVector.y)
+        flightModeDb.setFloatValue(name.."Z", cVector.z)
+        if settingsActive then settingsActive = false end
+        system.print("Target Lock: "..tostring(cVector))
     end
 end
 
-function readTargetFromDb(cVector)
+function readTargetFromDb(name)
     if flightModeDb ~= nil then
         local v = vec3(0,0,0)
-        v.x = flightModeDb.getFloatValue("customTargetX")
-        v.y = flightModeDb.getFloatValue("customTargetY")
-        v.z = flightModeDb.getFloatValue("customTargetZ")
+        v.x = flightModeDb.getFloatValue(name.."X")
+        v.y = flightModeDb.getFloatValue(name.."Y")
+        v.z = flightModeDb.getFloatValue(name.."Z")
+
+        system.print("Target Lock: "..tostring(v))
         return v
     end
 end
 
-function resolveCustomTarget(cVector)
-    ship.targetVector = (ship.customTarget - ship.world.position):normalize()
+ship.posAltitude = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
+system.print("Altitude: "..ship.posAltitude)
+function moveWaypointZ(vector, altitude)
+    return (vector - (ship.nearestPlanet:getGravity(vector)):normalize() * (altitude))
 end
-local tty = DUTTY
-tty.onCommand('st', function (a)
+if flightModeDb ~= nil then
+    if flightModeDb.hasKey("BaseLocX") == 1 then
+        ship.customTarget = readTargetFromDb("BaseLoc")
+    else
+        ship.customTarget = ship.world.position
+        settingsActive = true
+    end
+    if flightModeDb.hasKey("BaseRotX") == 1 then
+        ship.rot = readTargetFromDb("BaseRot")
+    else
+        ship.rot = ship.world.forward
+        settingsActive = true
+    end
+end
+
+function setBase(a)
     if a == nil then
         ship.customTarget = ship.world.position
-        writeTargetToDb(ship.customTarget)
-        system.print("Custom Target: "..tostring(ship.customTarget))
+        ship.rot = ship.world.forward
+        writeTargetToDb(ship.customTarget,"BaseLoc")
+        writeTargetToDb(ship.rot, "BaseRot")
+        
+        system.print("Base Position: "..tostring(ship.nearestPlanet:convertToMapPosition(ship.customTarget)))
     else
         if string.find(a, "::pos") ~= nil then
-            --system.print(a)
             ship.customTarget = ship.nearestPlanet:convertToWorldCoordinates(a)
-            writeTargetToDb(ship.customTarget)
-            system.print("Custom Target: "..tostring(ship.customTarget))
-        else
-            ship.customTarget = ship.world.position
-            writeTargetToDb(ship.customTarget)
-            system.print("Custom Target: "..tostring(ship.customTarget))
+            writeTargetToDb(ship.customTarget,"BaseLoc")
+            writeTargetToDb(ship.rot, "BaseRot")
+            system.print("Base Position: "..tostring(ship.nearestPlanet:convertToMapPosition(ship.customTarget)))
         end
     end
-    
+end
+
+local tty = DUTTY
+tty.onCommand('setbase', function(a)
+    setBase(a)
 end)
 
 keybindPresets["keyboard"] = KeybindController()
@@ -154,10 +237,11 @@ keybindPresets["keyboard"].keyUp["option5"].Add(function ()
 end,"Set Vertical Lock")
 keybindPresets["keyboard"].keyUp["option6"].Add(function () ship.verticalLock = not ship.verticalLock end,"Toggle Vertical Lock")
 --keybindPresets["keyboard"].keyUp["option7"].Add(function () ship.verticalCruise = not ship.verticalCruise end, "Vertical Cruise")
-keybindPresets["keyboard"].keyUp["option7"].Add(function() if ship.targetDestination == nil then ship.targetDestination = resolveCustomTarget else ship.targetDestination = nil end  end, "Lock Custom Vector")
-keybindPresets["keyboard"].keyUp["option8"].Add(function () ship.altitudeHold = ship.altHoldPreset1 ship.altitudeHoldToggle = true end, "Preset 1")
-keybindPresets["keyboard"].keyUp["option9"].Add(function () ship.altitudeHold = ship.altHoldPreset2 ship.altitudeHoldToggle = true end, "Preset 2")
-
+keybindPresets["keyboard"].keyUp["option7"].Add(function() if ship.targetDestination == nil then ship.targetDestination = ship.customTarget else ship.targetDestination = nil end  end, "RTB")
+keybindPresets["keyboard"].keyUp["option8"].Add(function () emitter.send("door_control","open") end, "Open Door")
+--keybindPresets["keyboard"].keyUp["option9"].Add(function () if ship.targetDestination == nil then ship.targetDestination = moveWaypointZ(ship.customTarget, 10000 - posAltitude) else ship.targetDestination = nil end end, "Preset 2")
+--keybindPresets["keyboard"].keyUp.option9.Add(function () if flightModeDb ~= nil then flightModeDb.clear() system.print("DB Cleared") end end,"Clear Databank")
+keybindPresets["keyboard"].keyUp["option9"].Add(function () emitter.send("door_control","close") end,"Close Door")
 
 keybindPresets["screenui"] = KeybindController()
 keybindPresets["screenui"].Init = function()
@@ -169,7 +253,8 @@ keybindPresets["screenui"].Init = function()
 end
 keybindPresets["screenui"].keyDown.brake.Add(function () ship.brake = true end)
 keybindPresets["screenui"].keyUp.brake.Add(function () ship.brake = false end)
-
+keybindPresets["screenui"].keyUp["option8"].Add(function () emitter.send("door_control","open") end, "Open Door")
+keybindPresets["screenui"].keyUp["option9"].Add(function () emitter.send("door_control","close") end,"Close Door")
 if flightModeDb then
    if flightModeDb.hasKey("flightMode") == 0 then flightModeDb.setStringValue("flightMode","keyboard") end
    keybindPreset = flightModeDb.getStringValue("flightMode")

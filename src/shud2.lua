@@ -6,6 +6,7 @@ displaySize = 0.65
 primaryColor = "b80000" --export: Primary color of HUD
 secondaryColor = "e30000" --export: Secondary color of HUD
 textShadow = "e81313" --export: Color of text shadow for speedometer
+ARCrosshair = "ebbb0c" --export: Color of the AR crosshaih
 CSS_SHUD = [[
 #horizon { 
   left: 0;
@@ -413,6 +414,13 @@ transform: translateX(-50%);
 #fuelTanks .fuel-meter.fuel-type-atmo .fuel-level { background: #1dd1f9; }
 #fuelTanks .fuel-meter.fuel-type-space .fuel-level { background: #fac31e; }
 #fuelTanks .fuel-meter.fuel-type-rocket .fuel-level { background: #bfa6ff; }
-
+.st0{fill:none;stroke:#]]..ARCrosshair..[[;stroke-width:1;stroke-miterlimit:10;}
+.st1{fill:none;stroke:#]]..ARCrosshair..[[;stroke-width:2;stroke-miterlimit:10;}
+.st2{fill:#]]..ARCrosshair..[[;stroke:#]]..ARCrosshair..[[;stroke-miterlimit:10;}
+.st3{fill:#]]..ARCrosshair..[[; font-family: Montserrat; font-size:10.5px;}
+.shadow {
+  -webkit-filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));
+  filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));
+}
 ]]
 --system.print([[Shadow Templar Mining Chair H1R3<style>#custom_screen_click_layer{ display: none !important; }</style>]])

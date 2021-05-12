@@ -51,7 +51,8 @@ function STEC(core, control, Cd)
         normal = function() return self.world.velocity:normalize():cross(self.world.gravity:normalize()):normalize() end,
         antinormal = function() return self.world.velocity:normalize():cross(-self.world.gravity:normalize()):normalize() end,
     }
-    self.customTarget = vec3(0,0,0)
+    
+    self.rot = vec3(0,0,0)
     -- Construct id
     self.id = core.getConstructId()
     -- Control Mode - Travel (0) or Cruise (1)
@@ -63,6 +64,8 @@ function STEC(core, control, Cd)
     -- Target vector to face if non-0. Can take in a vec3 or function which returns a vec3
     self.targetVector = nil
     self.targetDestination = nil
+    self.customTarget = vec3(0,0,0)
+    self.posAltitude = 0
     self.verticalLock = false
     self.lockVector = vec3(0,0,0)
     self.lockPos = vec3(0,0,0)
@@ -70,7 +73,10 @@ function STEC(core, control, Cd)
     self.altHoldPreset2 = 0
     self.altHoldPreset3 = 0
     self.altHoldPreset4 = 0
+    self.stateMessage = ""
     self.pocket = false
+    self.autoShutdown = false
+    self.dockingClamps = false
     -- Whether the target vector should unlock automatically if the ship is rotated by the pilot
     self.targetVectorAutoUnlock = true
     -- Current altitude
@@ -141,6 +147,8 @@ function STEC(core, control, Cd)
     self.accelTime = nil
     -- Roll Degrees
     self.rollDegrees = self.world.vertical:angle_between(self.world.left) / math.pi * 180 - 90
+    self.viewY = 0
+    self.viewX = 0
     if self.world.vertical:dot(self.world.up) > 0 then self.rollDegrees = 180 - self.rollDegrees end
     -- Pitch
     self.pitchRatio = self.world.vertical:angle_between(self.world.forward) / math.pi - 0.5
@@ -148,7 +156,7 @@ function STEC(core, control, Cd)
     self.verticalCruise = false
     --Vertical Cruise Speed (for elevator stuff)
     self.verticalCruiseSpeed = 0
-
+	
     local lastUpdate = system.getTime()
 
     function self.updateWorld()
@@ -270,7 +278,24 @@ function STEC(core, control, Cd)
     function KmhToMs(kmh)
         return kmh / 3.6
     end
-
+    function sleep(seconds)
+        local threshold = system.getTime() + seconds
+        while (system.getTime() < threshold) do
+            coroutine.yield()
+        end
+    end
+    function self.cycleLaser()
+        if laser ~= nil then
+            system.print("Cycle laser...")
+            laser.activate()
+            sleep(1)
+            laser.deactivate()
+            system.print("Laser cycled")
+        else
+            system.print("Laser is nil")
+        end
+        
+    end
     function self.apply()
         local deltaTime = math.max(system.getTime() - lastUpdate, 0.001) --If delta is below 0.001 then something went wrong in game engine.
         self.updateWorld()
@@ -370,27 +395,34 @@ function STEC(core, control, Cd)
 
             tmp = tmp + (delta * self.mass)
         end
-        ahTmpd = 0.125
+        local ahTmpd = 0.125
         if self.altitudeHoldToggle then
-            local switch
-            if self.world.atmosphericDensity > 0.1 then
-                switch = 5
-            else
-                switch = 1
-            end
+            self.targetVector = self.rot
+
+            if self.world.velocity:len() > (2000 / 3.6) then deviation = 0 end
+            --system.print("Deviation: "..deviation)
+            if not self.counterGravity then self.counterGravity = true end
+
             local deltaAltitude =  self.altitudeHold - self.altitude
+
+            --local noose = utils.map(deltaAltitude,self.altitude,self.altitudeHold,0.0001,1)
+            local noose = (math.abs(deltaAltitude) * 0.5) * 10^-2
+            
             local brakeBuffer = 1000
-            --if (self.altitudeHold - self.altitude) > 0.1 and self.altitude < self.altitudeHold then deltaAltitude = deltaAltitude + 20 end
-            local tempd = math.abs(deltaAltitude) / (100 * math.abs(self.localVelocity.z))
-            if deltaAltitude < 0.1 and (math.abs(self.localVelocity.z)) < 0 then
+            --local tempd = math.abs(deltaAltitude) / (100 * math.abs(self.localVelocity.z))
+            local tempd = noose
+            if math.abs(deltaAltitude) < 0.0001 then
                 ahTmpd = deltaTime
             else
-                ahTmpd = utils.clamp(tempd, 0.001, 0.125)
+                ahTmpd = utils.clamp(tempd, 0.005, 1)
             end
-
-            --local breakDistance, accelTime = kinematics.computeDistanceAndTime(self.world.velocity:len(), 0, (self.mass * self.world.gravity:len()), self.vMax,20,self.maxBrake)
+            local deviation = 0
+            if self.world.velocity:len() < 55.555 then
+                deviation = (moveWaypointZ(self.customTarget, self.altitude - self.posAltitude) - self.world.position):len() 
+            end
             
-            if math.abs(deltaAltitude) > self.brakeDistance and math.abs(deltaAltitude) > switch then
+            if math.abs(deltaAltitude) > self.brakeDistance and math.abs(deltaAltitude) > 500 and deviation < (10 + self.world.velocity:len() * 10^-1) then
+                self.stateMessage = "Traveling"
                 self.inertialDampening = false
                 local verticalSpeedLimit
                 if self.altitude <= (self.atmosphereThreshold + self.brakeDistance) or self.altitude <= self.brakeDistance then 
@@ -407,8 +439,6 @@ function STEC(core, control, Cd)
                         speed = 0
                         self.inertialDampening = true
                 end
-
-                self.inertialDampening = false
                 local dot = self.world.up:dot(self.airFriction)
                 local modifiedVelocity = (speed - dot)
                 local desired = self.world.up * modifiedVelocity
@@ -417,12 +447,44 @@ function STEC(core, control, Cd)
                 
                 
             else
-                
                 self.inertialDampening = true
-                tmp = tmp - ((self.world.gravity * (self.mass *  2)) * deltaAltitude)
+                local distance = (self.world.position - self.targetDestination):len()
+                local destination = vec3(0,0,0)
+                if deviation > (0.05 + self.world.velocity:len() * 10^-1) then
+                    destination = moveWaypointZ(self.customTarget, (self.altitude - self.posAltitude))
+                    self.stateMessage = "Correcting Deviation"
+                else
+                    destination = self.targetDestination
+                    self.stateMessage = "Moving to final position"
+                end
+                local direction = (self.world.position - destination):normalize()
+                local massDrop = self.mass
+                if distance < 1 then massDrop = self.mass * utils.clamp(10 - core.g(),1,2.5) end
+                tmp = tmp - direction * massDrop * utils.clamp(distance,0.05,(100/3.6))
+                
+                if distance < 0.005 and not manualControl then 
+                    
+                        self.altitudeHoldToggle = false self.targetVector = nil 
+                        self.stateMessage = "Idle"
+                        
+                        self.dockingClamps = true
+                    
+                    
+                elseif distance < 2 and self.world.velocity:len() == 0 and not manualControl then
+                    self.altitudeHoldToggle = false self.targetVector = nil
+                    self.stateMessage = "Idle"
+                    
+                    self.dockingClamps = true
+  
+                else
+                    self.dockingClamps = false
+                end
             end
             
-	    end
+	    else
+            self.stateMessage = "Idle"
+        end
+
         if self.alternateCM then
           local speed = (self.cruiseSpeed / 3.6)
           local dot = self.world.forward:dot(self.airFriction)
@@ -432,13 +494,13 @@ function STEC(core, control, Cd)
 
           tmp = tmp + (delta * self.mass)
         end
-        if self.inertialDampening then
+        if self.inertialDampening then  
             local brakingForce = self.mass * -self.localVelocity
             local apply = self.direction * self.localVelocity
             if apply.x <= 0 then
                 --system.print("apply.x")
                 local tmpd = deltaTime
-                --if self.altitudeHoldToggle then tmpd = ahTmpd end
+                if self.altitudeHoldToggle or self.targetDestination ~= nil then tmpd = ahTmpd end
                 if (math.abs(self.localVelocity.x) < 1) then
                         tmpd = 0.125
                 end
@@ -447,7 +509,7 @@ function STEC(core, control, Cd)
             if apply.y <= 0 then
                 --system.print("apply.y")
                 local tmpd = deltaTime
-                --if self.altitudeHoldToggle then tmpd = ahTmpd end
+                if self.altitudeHoldToggle or self.targetDestination ~= nil  then tmpd = ahTmpd end
                 if (math.abs(self.localVelocity.y) < 1) then
                         tmpd = 0.125
                 end
@@ -456,7 +518,7 @@ function STEC(core, control, Cd)
             if apply.z <= 0 and gravityCorrection == false then
                 --system.print("apply.z")
                 local tmpd = deltaTime
-                if self.altitudeHoldToggle then tmpd = ahTmpd end
+                if self.altitudeHoldToggle or self.targetDestination ~= nil  then tmpd = ahTmpd end
                 if (math.abs(self.localVelocity.z) < 1) then
                         tmpd = 0.125
                 end
@@ -492,10 +554,6 @@ function STEC(core, control, Cd)
             local thrustForce = intersectionVec * (self.mass * 0.3)-- * deltaTime
             --system.print("thrustForce: " .. tostring(thrustForce))
             tmp = tmp + thrustForce * self.mass
-         end
-
-         if self.targetDestination ~= nil then
-            tmp = tmp + (self.targetDestination - self.world.position) * self.mass * deltaTime
          end
 
         atmp = atmp - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))

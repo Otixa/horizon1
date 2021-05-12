@@ -6,13 +6,17 @@ radarUnit = nil
 flightModeDb = nil
 manualSwitches = {}
 forceFields = {}
+laser = nil
 screen = nil
+settingsActive = false
+emitter = nil
+telemeter = nil
 
 function getElements()
   for k,var in pairs(_G) do
     if type(var) == "table" and var["getElementClass"] then
       local class = var["getElementClass"]()
-
+      --system.print(class)
       if class == "CoreUnitDynamic" or class == "CoreUnitStatic" or class == "CoreUnitSpace" then
         core = var
       end
@@ -48,6 +52,16 @@ function getElements()
       end
       if class == "ScreenUnit" then
         screen = var
+      end
+      if class == "LaserEmitterUnit" then
+        laser = var
+        --table.insert(lasers, var)
+      end
+      if class == "EmitterUnit" then
+        emitter = var
+      end
+      if class == "TelemeterUnit" then
+        telemeter = var
       end
     end
   end
