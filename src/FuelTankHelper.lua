@@ -1,4 +1,10 @@
 --@class FuelTankHelper
+
+local ContainerOptimization = 5 --export: Container ContainerOptimization
+local FuelTankOptimization = 5 --export: Fuel Tank FuelTankOptimization
+local fuelTankHandlingAtmo = 5 --export: Fuel Tank Handling Atmo
+local fuelTankHandlingSpace = 5 --export: Fuel Tank Handling Space
+
 fuelTanks = {}
 fuelAverage = {}
 FuelTime = {}
@@ -92,6 +98,20 @@ fuelTankSpecsByMaxHP = {
     },
   },
 }
+
+local function CalculateFuelVolume(curMass, vanillaMaxVolume)
+  if curMass > vanillaMaxVolume then
+      vanillaMaxVolume = curMass
+  end
+  if ContainerOptimization > 0 then 
+      vanillaMaxVolume = vanillaMaxVolume - (vanillaMaxVolume * ContainerOptimization * 0.05)
+  end
+  if FuelTankOptimization > 0 then 
+      vanillaMaxVolume = vanillaMaxVolume - (vanillaMaxVolume * FuelTankOptimization * 0.05)
+  end
+  return vanillaMaxVolume            
+end
+
 local unpack = table.unpack
 function sma(period)
 	local t = {}

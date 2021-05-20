@@ -17,7 +17,7 @@ function ElevatorScreen()
     local e_stop_fill = "#5D170B"
     local up10button = "#99440b"
     local down10button = "#99440b"
-    local elevatorMove = utils.clamp(scaleViewBound(ship.posAltitude,ship.altHoldPreset1,0,510,ship.altitude) * -1,-510,0)
+    local elevatorMove = utils.clamp(scaleViewBound(ship.baseAltitude,ship.altHoldPreset1,0,510,ship.altitude) * -1,-510,0)
     --local elevatorMove = utils.clamp(scaleViewBound(0,510,ship.altHoldPreset2,ship.altHoldPreset1,ship.altitude) * -1,-510,0)
 
     local elevation = mToKm(ship.altitude)

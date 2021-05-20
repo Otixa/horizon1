@@ -1,5 +1,5 @@
 --@class STEC_Config
-shipName = "" --export: Ship Name
+shipName = ""
 local updateSettings = false --export: Use these settings
 local altHoldPreset1 = 100001.9  --export: Altitude Hold Preset 1
 local altHoldPreset2 = 2000 --export: Altitude Hold Preset 2
@@ -34,35 +34,67 @@ ship.altHoldPreset3 = altHoldPreset3
 ship.altHoldPreset4 = altHoldPreset4
 ship.pocket = pocket
 
-if flightModeDb.hasKey("verticalSpeedLimitAtmo") == 0 or updateSettings then 
-    flightModeDb.setFloatValue("verticalSpeedLimitAtmo",verticalSpeedLimitAtmo)
-    ship.verticalSpeedLimitAtmo = verticalSpeedLimitAtmo
-else ship.verticalSpeedLimitAtmo = flightModeDb.getFloatValue("verticalSpeedLimitAtmo") end
+if flightModeDb ~= nil then
+    if flightModeDb.hasKey("verticalSpeedLimitAtmo") == 0 or updateSettings then 
+        flightModeDb.setFloatValue("verticalSpeedLimitAtmo",verticalSpeedLimitAtmo)
+        ship.verticalSpeedLimitAtmo = verticalSpeedLimitAtmo
+    else ship.verticalSpeedLimitAtmo = flightModeDb.getFloatValue("verticalSpeedLimitAtmo") end
 
-if flightModeDb.hasKey("verticalSpeedLimitSpace") == 0 or updateSettings then 
-    flightModeDb.setFloatValue("verticalSpeedLimitSpace",verticalSpeedLimitSpace)
-    ship.verticalSpeedLimitSpace = verticalSpeedLimitSpace
-else ship.verticalSpeedLimitSpace = flightModeDb.getFloatValue("verticalSpeedLimitSpace") end
+    if flightModeDb.hasKey("verticalSpeedLimitSpace") == 0 or updateSettings then 
+        flightModeDb.setFloatValue("verticalSpeedLimitSpace",verticalSpeedLimitSpace)
+        ship.verticalSpeedLimitSpace = verticalSpeedLimitSpace
+    else ship.verticalSpeedLimitSpace = flightModeDb.getFloatValue("verticalSpeedLimitSpace") end
 
-if flightModeDb.hasKey("altHoldPreset1") == 0 or updateSettings then 
-    flightModeDb.setFloatValue("altHoldPreset1",altHoldPreset1)
-    ship.altHoldPreset1 = altHoldPreset1
-else ship.altHoldPreset1 = flightModeDb.getFloatValue("altHoldPreset1") end
+    if flightModeDb.hasKey("altHoldPreset1") == 0 or updateSettings then 
+        flightModeDb.setFloatValue("altHoldPreset1",altHoldPreset1)
+        ship.altHoldPreset1 = altHoldPreset1
+    else ship.altHoldPreset1 = flightModeDb.getFloatValue("altHoldPreset1") end
 
-if flightModeDb.hasKey("altHoldPreset2") == 0 or updateSettings then 
-    flightModeDb.setFloatValue("altHoldPreset2",altHoldPreset2)
-    ship.altHoldPreset2 = altHoldPreset2
-else ship.altHoldPreset2 = flightModeDb.getFloatValue("altHoldPreset2") end
+    if flightModeDb.hasKey("altHoldPreset2") == 0 or updateSettings then 
+        flightModeDb.setFloatValue("altHoldPreset2",altHoldPreset2)
+        ship.altHoldPreset2 = altHoldPreset2
+    else ship.altHoldPreset2 = flightModeDb.getFloatValue("altHoldPreset2") end
 
-if flightModeDb.hasKey("altHoldPreset3") == 0 or updateSettings then 
-    flightModeDb.setFloatValue("altHoldPreset3",altHoldPreset3)
-    ship.altHoldPreset3 = altHoldPreset3
-else ship.altHoldPreset3 = flightModeDb.getFloatValue("altHoldPreset3") end
+    if flightModeDb.hasKey("altHoldPreset3") == 0 or updateSettings then 
+        flightModeDb.setFloatValue("altHoldPreset3",altHoldPreset3)
+        ship.altHoldPreset3 = altHoldPreset3
+    else ship.altHoldPreset3 = flightModeDb.getFloatValue("altHoldPreset3") end
 
-if flightModeDb.hasKey("altHoldPreset4") == 0 or updateSettings then 
-    flightModeDb.setFloatValue("altHoldPreset4",altHoldPreset4)
-    ship.altHoldPreset4 = altHoldPreset4
-else ship.altHoldPreset4 = flightModeDb.getFloatValue("altHoldPreset4") end
+    if flightModeDb.hasKey("altHoldPreset4") == 0 or updateSettings then 
+        flightModeDb.setFloatValue("altHoldPreset4",altHoldPreset4)
+        ship.altHoldPreset4 = altHoldPreset4
+    else ship.altHoldPreset4 = flightModeDb.getFloatValue("altHoldPreset4") end
+
+    system.print("Preset 1: "..ship.altHoldPreset1)
+    system.print("Preset 2: "..ship.altHoldPreset2)
+    system.print("Preset 3: "..ship.altHoldPreset3)
+    system.print("Preset 4: "..ship.altHoldPreset4)
+
+    function writeTargetToDb(cVector, name) --customTargetX
+        if flightModeDb ~= nil then
+            flightModeDb.setFloatValue(name.."X", cVector.x)
+            flightModeDb.setFloatValue(name.."Y", cVector.y)
+            flightModeDb.setFloatValue(name.."Z", cVector.z)
+            if settingsActive then settingsActive = false end
+            system.print("Target Lock: "..tostring(cVector))
+        end
+    end
+    
+    function readTargetFromDb(name)
+        if flightModeDb ~= nil then
+            local v = vec3(0,0,0)
+            v.x = flightModeDb.getFloatValue(name.."X")
+            v.y = flightModeDb.getFloatValue(name.."Y")
+            v.z = flightModeDb.getFloatValue(name.."Z")
+    
+            system.print("Target Lock: "..tostring(v))
+            return v
+        end
+    end
+
+
+
+end
 
 function gearToggle()
 	if unit.isAnyLandingGearExtended() == 1 then
@@ -101,30 +133,10 @@ function swapForceFields()
     end
 
 end
-function writeTargetToDb(cVector, name) --customTargetX
-    if flightModeDb ~= nil then
-        flightModeDb.setFloatValue(name.."X", cVector.x)
-        flightModeDb.setFloatValue(name.."Y", cVector.y)
-        flightModeDb.setFloatValue(name.."Z", cVector.z)
-        if settingsActive then settingsActive = false end
-        system.print("Target Lock: "..tostring(cVector))
-    end
-end
 
-function readTargetFromDb(name)
-    if flightModeDb ~= nil then
-        local v = vec3(0,0,0)
-        v.x = flightModeDb.getFloatValue(name.."X")
-        v.y = flightModeDb.getFloatValue(name.."Y")
-        v.z = flightModeDb.getFloatValue(name.."Z")
 
-        system.print("Target Lock: "..tostring(v))
-        return v
-    end
-end
-
-ship.posAltitude = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
-system.print("Altitude: "..ship.posAltitude)
+ship.baseAltitude = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
+system.print("Altitude: "..ship.baseAltitude)
 function moveWaypointZ(vector, altitude)
     return (vector - (ship.nearestPlanet:getGravity(vector)):normalize() * (altitude))
 end
@@ -237,11 +249,20 @@ keybindPresets["keyboard"].keyUp["option5"].Add(function ()
 end,"Set Vertical Lock")
 keybindPresets["keyboard"].keyUp["option6"].Add(function () ship.verticalLock = not ship.verticalLock end,"Toggle Vertical Lock")
 --keybindPresets["keyboard"].keyUp["option7"].Add(function () ship.verticalCruise = not ship.verticalCruise end, "Vertical Cruise")
-keybindPresets["keyboard"].keyUp["option7"].Add(function() if ship.targetDestination == nil then ship.targetDestination = ship.customTarget else ship.targetDestination = nil end  end, "RTB")
-keybindPresets["keyboard"].keyUp["option8"].Add(function () emitter.send("door_control","open") end, "Open Door")
---keybindPresets["keyboard"].keyUp["option9"].Add(function () if ship.targetDestination == nil then ship.targetDestination = moveWaypointZ(ship.customTarget, 10000 - posAltitude) else ship.targetDestination = nil end end, "Preset 2")
+keybindPresets["keyboard"].keyUp["option7"].Add(function() 
+    ship.altitudeHold = ship.baseAltitude ship.elevatorActive = true
+    ship.targetDestination = moveWaypointZ(ship.customTarget, 0)
+end, "RTB")
+--keybindPresets["keyboard"].keyUp["option8"].Add(function () emitter.send("door_control","open") end, "Open Door")
+--keybindPresets["keyboard"].keyUp["option9"].Add(function () if ship.targetDestination == nil then ship.targetDestination = moveWaypointZ(ship.customTarget, 10000 - baseAltitude) else ship.targetDestination = nil end end, "Preset 2")
 --keybindPresets["keyboard"].keyUp.option9.Add(function () if flightModeDb ~= nil then flightModeDb.clear() system.print("DB Cleared") end end,"Clear Databank")
-keybindPresets["keyboard"].keyUp["option9"].Add(function () emitter.send("door_control","close") end,"Close Door")
+keybindPresets["keyboard"].keyUp["option9"].Add(function ()
+    ship.verticalLock = false
+    ship.intertialDampening = true
+    ship.elevatorActive = false
+    manualControl = not manualControl
+    manualControlSwitch()
+    end,"Manual Mode Toggle")
 
 keybindPresets["screenui"] = KeybindController()
 keybindPresets["screenui"].Init = function()
@@ -253,8 +274,17 @@ keybindPresets["screenui"].Init = function()
 end
 keybindPresets["screenui"].keyDown.brake.Add(function () ship.brake = true end)
 keybindPresets["screenui"].keyUp.brake.Add(function () ship.brake = false end)
-keybindPresets["screenui"].keyUp["option8"].Add(function () emitter.send("door_control","open") end, "Open Door")
-keybindPresets["screenui"].keyUp["option9"].Add(function () emitter.send("door_control","close") end,"Close Door")
+keybindPresets["screenui"].keyUp["option7"].Add(function() 
+    ship.altitudeHold = ship.baseAltitude ship.elevatorActive = true
+    ship.targetDestination = moveWaypointZ(ship.customTarget, 0)
+end, "RTB")
+keybindPresets["screenui"].keyUp["option9"].Add(function ()
+    ship.verticalLock = false
+    ship.intertialDampening = true
+    ship.elevatorActive = false
+    manualControl = not manualControl
+    manualControlSwitch()
+    end,"Manual Mode Toggle")
 if flightModeDb then
    if flightModeDb.hasKey("flightMode") == 0 then flightModeDb.setStringValue("flightMode","keyboard") end
    keybindPreset = flightModeDb.getStringValue("flightMode")
