@@ -109,7 +109,7 @@ function STEC(core, control, Cd)
     -- Whether or not the vessel should attempt to completely cancel out its current velocity
     self.brake = false
     -- Whether or not the vessel should attempt to counter gravity influence
-    self.counterGravity = true
+    self.counterGravity = false
     -- Whether or not the vessel should attempt to face perpendicular to the gravity vector
     self.followGravity = false
     -- Aggressiveness of the gravity follow adjustment
