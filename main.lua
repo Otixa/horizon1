@@ -76,6 +76,14 @@ function Unit.Start()
 	if emitter ~= nil then
 		system.print("Emitter Range: "..emitter.getRange())
 	end
+	if activateFFonStart then
+		if next(manualSwitches) ~= nil then 
+			for _, sw in ipairs(manualSwitches) do
+				sw.activate()
+			end
+		end
+	end
+	
 	
 	if coreMass == 70.89 then
 		sName = "Caterpillar P1"
