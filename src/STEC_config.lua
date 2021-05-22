@@ -2,12 +2,14 @@
 goButtonSpeed = 1050 --export: GO Button Speed
 inertialDampening = false --export: Start with inertial dampening on/off
 followGravity = true --export: Start with gravity follow on/off
+counterGravity = true --export: Start with gravity follow on/off
 rotationMin = 0.01 --export: Auto-scaling rotation speed starting point
 rotationMax = 5 --export: Auto-scaling rotaiton max speed
 rotationStep = 0.02 --export: Controls how quickly the rotation speed scales up
 
 ship.inertialDampening = inertialDampening
 ship.followGravity = followGravity
+ship.counterGravity = counterGravity
 ship.rotationSpeed = rotationMin
 ship.rotationSpeedMin = rotationMin
 ship.rotationSpeedMax = rotationMax
