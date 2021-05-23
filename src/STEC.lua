@@ -73,12 +73,14 @@ function STEC(core, control, Cd)
     self.altHoldPreset2 = 0
     self.altHoldPreset3 = 0
     self.altHoldPreset4 = 0
+    self.deviation = 0
     self.stateMessage = ""
     self.pocket = false
     self.autoShutdown = false
     self.dockingClamps = false
     self.elevatorDestination = vec3(0,0,0)
     self.IDIntensity = 5
+    self.playerId = unit.getMasterPlayerId()
     -- Whether the target vector should unlock automatically if the ship is rotated by the pilot
     self.targetVectorAutoUnlock = true
     -- Current altitude
@@ -386,15 +388,17 @@ function STEC(core, control, Cd)
             
             local deltaAltitude =  self.altitudeHold - self.altitude
             local brakeBuffer = 1000
-            local deviation = 0
+            
             local speed = 0
             local distance = (self.world.position - self.targetDestination):len()
             local destination = vec3(0,0,0)
             local verticalSpeedLimit
+            local deviated = false
+            local dampen = 1
 
-            if self.world.velocity:len() < 55.555 then
-                deviation = (moveWaypointZ(self.customTarget, self.altitude - self.baseAltitude) - self.world.position):len() 
-            end
+            --if self.world.velocity:len() < 55.555 then
+                
+            --end
             
             if self.altitude <= (self.atmosphereThreshold + self.brakeDistance) or self.altitude <= self.brakeDistance then 
                 verticalSpeedLimit = self.verticalSpeedLimitAtmo 
@@ -405,20 +409,25 @@ function STEC(core, control, Cd)
                 verticalSpeedLimit = 200
             end
             
-            --system.print("Deviation: "..deviation)
-            if deviation > (0.05 + self.world.velocity:len() * 10^-2) then
+            --system.print("self.deviation: "..self.deviation)
+            self.deviation = (moveWaypointZ(self.customTarget, self.altitude - self.baseAltitude) - self.world.position):len()
+            if self.deviation > (0.03 + self.world.velocity:len() * 10^-2) then
                 destination = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude))
+                deviated = true
+                speed = self.deviation
                 self.stateMessage = "Correcting Deviation"
             else
                 destination = self.targetDestination
-                self.stateMessage = "Moving to final position"
             end
-            if math.abs(deltaAltitude) > self.brakeDistance and math.abs(deltaAltitude) > 500 then
+
+            if math.abs(deltaAltitude) > self.brakeDistance and math.abs(deltaAltitude) > 500 and not deviated then
                 self.stateMessage = "Traveling"
                 speed = round2((clamp(deltaAltitude, -verticalSpeedLimit, verticalSpeedLimit)), 1)
-            else
+            elseif not deviated then
+                self.stateMessage = "Moving to final position"
                 speed = 200
             end
+            
             self.elevatorDestination = (self.world.position - destination):normalize()
             --system.print("TEST: "..round2((distance * distance),4))
             tmp = tmp - self.elevatorDestination * self.mass * utils.clamp(distance,0.3,((math.abs(speed)/3.6) * self.IDIntensity))
@@ -467,7 +476,7 @@ function STEC(core, control, Cd)
             elseif type(self.targetVector) == "table" then
                 vec = self.targetVector
             end
-            atmp = atmp + (self.world.forward:cross(vec) * self.rotationSpeed)  - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
+            atmp = atmp + (self.world.forward:cross(vec) * (self.rotationSpeed / 4))  - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
         end
         
         -- must be applied last

@@ -27,25 +27,34 @@ function ElevatorScreen()
     local targetDistance = round2(math.abs(ship.altitude - ship.altitudeHold),2)
     --local brakeDistance, accelTime = kinematics.computeDistanceAndTime(ship.world.velocity:len(), 0, ship.mass, ship.vfMax,5,ship.maxBrake)
     local brakeDistanceRound = round2(math.abs(ship.brakeDistance), 2)
-
+    function deviationColor()
+        if ship.deviation < 0.05 then return "silver"
+        elseif ship.deviation > 0.05 and ship.deviation < 0.1 then return "#d1c934"
+        elseif ship.deviation > 0.1 then return "#d93d3d"
+        else return "silver"
+        end
+    end
     function renderStatsTable()
         local tbl = "<table>"
-        --tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Mouse-X".."</td><td>"..mousex.."</td></tr>"
-        tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Elevation".."</td><td>"..elevation.."</td></tr>"
-        --tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Mouse-Y".."</td><td>"..mousey.."</td></tr>"
-        tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Target".."</td><td>"..mToKm(ship.altitudeHold).."</td></tr>"
-        tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Velocity".."</td><td>"..velocity .. " km/h".."</td></tr>"
-        --tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Vertical".."</td><td>"..round2(verticalVelocity,0).." m/s</td></tr>"
-        --tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Delta-V".."</td><td>"..deltaV.." m/s</td></tr>"
-        tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Mass".."</td><td>"..round2(ship.mass / 1000,0).." t</td></tr>"
-        tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Gravity".."</td><td>"..round2(ship.world.gravity:len(), 2).." m/s</td></tr>"
-        tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Target Dist".."</td><td>"..mToKm(targetDistance).."</td></tr>"
-        tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Brake Dist".."</td><td>"..mToKm(brakeDistanceRound).."</td></tr>"
-        --tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."Status".."</td><td>"..ship.stateMessage.."</td></tr>"
-        --tbl = tbl .. "<tr><td style=\"padding-right: 25px;\">".."elevatorMove".."</td><td>"..elevatorMove.."</td></tr>"
+        --tbl = tbl .. "<tr><td class=\"tablespacing\">".."Mouse-X".."</td><td>"..mousex.."</td></tr>"
+        tbl = tbl .. "<tr><td class=\"tablespacing\">".."Elevation".."</td><td>"..elevation.."</td></tr>"
+        --tbl = tbl .. "<tr><td class=\"tablespacing\">".."Mouse-Y".."</td><td>"..mousey.."</td></tr>"
+        tbl = tbl .. "<tr><td class=\"tablespacing\">".."Target".."</td><td>"..mToKm(ship.altitudeHold).."</td></tr>"
+        tbl = tbl .. "<tr><td class=\"tablespacing\">".."Velocity".."</td><td>"..velocity .. " km/h".."</td></tr>"
+        --tbl = tbl .. "<tr><td class=\"tablespacing\">".."Vertical".."</td><td>"..round2(verticalVelocity,0).." m/s</td></tr>"
+        --tbl = tbl .. "<tr><td class=\"tablespacing\">".."Delta-V".."</td><td>"..deltaV.." m/s</td></tr>"
+        tbl = tbl .. "<tr><td class=\"tablespacing\">".."Mass".."</td><td>"..round2(ship.mass / 1000,0).." t</td></tr>"
+        tbl = tbl .. "<tr><td class=\"tablespacing\">".."Gravity".."</td><td>"..round2(ship.world.gravity:len(), 2).." m/s</td></tr>"
+        tbl = tbl .. "<tr><td class=\"tablespacing\">".."Target Dist".."</td><td>"..mToKm(targetDistance).."</td></tr>"
+        tbl = tbl .. "<tr><td class=\"tablespacing\">".."Brake Dist".."</td><td>"..mToKm(brakeDistanceRound).."</td></tr>"
+        if ship.playerId == 25175 then tbl = tbl .. "<tr><td class=\"tablespacing\">".."Deviation".."</td><td style=\"color:"..deviationColor()..";\">"..round2(ship.deviation,6).." m</td></tr>" end
+        --tbl = tbl .. "<tr><td class=\"tablespacing\">".."Status".."</td><td>"..ship.stateMessage.."</td></tr>"
+        --tbl = tbl .. "<tr><td class=\"tablespacing\">".."elevatorMove".."</td><td>"..elevatorMove.."</td></tr>"
         tbl = tbl .. "</table>" 
         return tbl
     end
+
+    
 
     if manualControl then manual_control_fill = "green" else manual_control_fill = "#0a0585" end
 if e_stop then e_stop_fill = "green" else e_stop_fill = "#5D170B" end
@@ -218,7 +227,7 @@ local screenMain = [[
     }
     div.fixed {
         position: fixed;
-        top: 90px;
+        top: 8px;
         left: 575px;
         width: 420px;
         height: 490px;
@@ -238,7 +247,7 @@ local screenMain = [[
         padding-bottom: 5px;
         fill:silver;
         font-family:Verdana;
-        font-size:23px;
+        font-size:21px;
         kit-user-select:none;
         ms-user-select:none;
         stroke:black;
@@ -248,18 +257,30 @@ local screenMain = [[
         text-align: left;
         vertical-align: middle;
       }
+    .tablespacing {
+        padding-right: 65px;
+    }
     #status {
         font-family:Verdana;
-        font-size:23px;
+        font-size:21px;
         font-weight:bold;
         color: #ffee00;
+        text-align: left;
+        vertical-align: middle;
+    }
+    #shipName {
+        font-family:Verdana;
+        font-size:48px;
+        font-weight:bold;
+        color:#A8A736;
+        stroke:#FFFFFF;
         text-align: left;
         vertical-align: middle;
     }
 
       #fuelTanks {
         position: absolute;
-        bottom: -50%;
+        bottom: -75%;
         left: 2%;
         width: 85%;
         color: #1b1b1b;
@@ -442,7 +463,7 @@ local screenMain = [[
         <text transform="matrix(1 0 0 1 84.1182 217.0998)" class="st14 st15 st21 st22">+10m</text>
 
         <text transform="matrix(1 0 0 1 114.4147 317.1998)" class="st14 st15 st21 st22">Manual Control</text>
-        <text transform="matrix(1 0 0 1 582.3379 73.7998)" class="st23 st15 st24 st25 st26">]]..shipName..[[</text>
+
         <polyline id="BtnRTB" class="st27" style="fill:]]..RTB_Fill..[[" points="44.5,80.6 219.5,80.1 232.5,93.1 232.5,165.7 219.5,178.7 44.5,179.2 31.5,166.2 
             31.5,93.6 44.5,80.6 "/>
         <text transform="matrix(1 0 0 1 85.1184 147.6267)" class="st14 st15 st16 st17">RTB</text>
@@ -455,6 +476,7 @@ local screenMain = [[
         </svg>
                 <div class="fixed">
                     <div class="center">
+                    <span id="shipName">]]..shipName..[[</span>
                         ]]..renderStatsTable()..[[
                         <div id="status">]]..ship.stateMessage..[[</div>
                         <div id="fuelTanks">]]..updateScreenFuel()..[[</div>

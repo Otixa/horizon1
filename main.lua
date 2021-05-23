@@ -97,6 +97,7 @@ function Unit.Start()
 		sName = "Caterpillar"
 	end
 	if shipName == "" then shipName = sName end
+	system.print(unit.getMasterPlayerId())
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
 	unit.setTimer("EmitterTick", 1)

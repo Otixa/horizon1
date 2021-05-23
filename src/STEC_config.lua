@@ -159,7 +159,8 @@ end
 function setBase(a)
     if a == nil then
         ship.customTarget = ship.world.position
-        ship.rot = ship.world.forward
+        --ship.rot = ship.world.forward
+        ship.rot = ship.world.right:cross(ship.nearestPlanet:getGravity(core.getConstructWorldPos()))
         writeTargetToDb(ship.customTarget,"BaseLoc")
         writeTargetToDb(ship.rot, "BaseRot")
         
