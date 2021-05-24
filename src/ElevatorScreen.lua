@@ -28,10 +28,10 @@ function ElevatorScreen()
     --local brakeDistance, accelTime = kinematics.computeDistanceAndTime(ship.world.velocity:len(), 0, ship.mass, ship.vfMax,5,ship.maxBrake)
     local brakeDistanceRound = round2(math.abs(ship.brakeDistance), 2)
     function deviationColor()
-        if ship.deviation < 0.05 then return "silver"
+        if ship.deviation < 0.05 then return "#BAE2EF"
         elseif ship.deviation > 0.05 and ship.deviation < 0.1 then return "#d1c934"
         elseif ship.deviation > 0.1 then return "#d93d3d"
-        else return "silver"
+        else return "#BAE2EF"
         end
     end
     function renderStatsTable()
@@ -47,7 +47,7 @@ function ElevatorScreen()
         tbl = tbl .. "<tr><td class=\"tablespacing\">".."Gravity".."</td><td>"..round2(ship.world.gravity:len(), 2).." m/s</td></tr>"
         tbl = tbl .. "<tr><td class=\"tablespacing\">".."Target Dist".."</td><td>"..mToKm(targetDistance).."</td></tr>"
         tbl = tbl .. "<tr><td class=\"tablespacing\">".."Brake Dist".."</td><td>"..mToKm(brakeDistanceRound).."</td></tr>"
-        if ship.playerId == 25175 then tbl = tbl .. "<tr><td class=\"tablespacing\">".."Deviation".."</td><td style=\"color:"..deviationColor()..";\">"..round2(ship.deviation,6).." m</td></tr>" end
+        tbl = tbl .. "<tr><td class=\"tablespacing\">".."Deviation".."</td><td style=\"color:"..deviationColor()..";\">"..round2(ship.deviation,6).." m</td></tr>"
         --tbl = tbl .. "<tr><td class=\"tablespacing\">".."Status".."</td><td>"..ship.stateMessage.."</td></tr>"
         --tbl = tbl .. "<tr><td class=\"tablespacing\">".."elevatorMove".."</td><td>"..elevatorMove.."</td></tr>"
         tbl = tbl .. "</table>" 
@@ -275,6 +275,7 @@ local screenMain = [[
         color:#A8A736;
         stroke:#FFFFFF;
         text-align: left;
+        pading-left: -10px;
         vertical-align: middle;
     }
 

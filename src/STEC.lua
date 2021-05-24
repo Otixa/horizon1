@@ -411,7 +411,7 @@ function STEC(core, control, Cd)
             
             --system.print("self.deviation: "..self.deviation)
             self.deviation = (moveWaypointZ(self.customTarget, self.altitude - self.baseAltitude) - self.world.position):len()
-            if self.deviation > (0.03 + self.world.velocity:len() * 10^-2) then
+            if self.deviation > (0.05 + self.world.velocity:len() * 10^-2) then
                 destination = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude))
                 deviated = true
                 speed = self.deviation
