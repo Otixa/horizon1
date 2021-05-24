@@ -15,6 +15,7 @@
 --@require STEC_Config
 --@timer SHUDRender
 --@timer FuelStatus
+--@timer WaypointTest
 --@class Main
 
 _G.BuildUnit = {}
@@ -33,10 +34,11 @@ function Unit.Start()
 			unit.cancelCurrentControlMasterMode()
 		end
 	end
-
+	
 	if flightModeDb ~= nil then getFuelRenderedHtml() end
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
+	unit.setTimer("WaypointTest", 0.5)
 	system.print([[Horizon 1.1.1.6]])
 end
 
@@ -58,6 +60,14 @@ function Unit.Tick(timer)
 	end
 	if timer == "FuelStatus" then
 		if flightModeDb ~= nil then getFuelRenderedHtml() end
+	end
+	if timer == "WaypointTest" then
+		local waypoint = moveWaypointY(ship.altitudeHold, (ship.world.velocity:len() * 2) + 50)
+		local waypointString = ship.nearestPlanet:convertToMapPosition(waypoint)
+		if ship.altitudeHold ~= 0 then
+			ship.targetVector = waypoint
+		end
+		system.setWaypoint(tostring(waypointString))
 	end
 
 end

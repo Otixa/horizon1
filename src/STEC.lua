@@ -237,6 +237,14 @@ function STEC(core, control, Cd)
         return vec3(relX, relY, relZ)
     end
 
+    function moveWaypointZ(vector, altitude)
+        return (vector - (self.nearestPlanet:getGravity(vector)):normalize() * (altitude))
+    end
+    function moveWaypointY(altitude, distance)
+        local z = moveWaypointZ(self.world.position, altitude - self.altitude)
+        return z - (self.world.right:cross(self.nearestPlanet:getGravity(self.world.position)):normalize()) * -distance
+    end
+
     function self.apply()
         local deltaTime = math.max(system.getTime() - lastUpdate, 0.001) --If delta is below 0.001 then something went wrong in game engine.
         self.updateWorld()
@@ -294,9 +302,17 @@ function STEC(core, control, Cd)
         --    tmp = tmp + ((self.world.gravity:normalize() * deltaAltitude * -1) * self.mass * deltaTime)
         --end
 		if self.altitudeHold ~= 0 then
-            local deltaAltitude =  self.altitudeHold - self.altitude
+            --self.followGravity = false
+            --local z = self.world.position - (self.nearestPlanet:getGravity(self.world.position)):normalize() * (self.altitudeHold - self.altitude)
+            --local vector = z - (self.world.right:cross(self.nearestPlanet:getGravity(self.world.position)):normalize()) * -((self.world.velocity:len() * 2) + 50)
             
-            tmp = tmp - ((self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass) * deltaAltitude)
+            --local deltaAltitude =  self.altitudeHold - self.altitude
+            --tmp = tmp - ((self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass) * deltaAltitude)
+
+            --local waypoint = moveWaypointY(self.altitudeHold, (self.world.velocity:len() * 2) + 50)
+            --self.targetVector = waypoint:normalize()
+        else
+            self.targetVector = nil
         end
         if self.alternateCM then
           local speed = (self.cruiseSpeed / 3.6)
