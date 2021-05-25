@@ -141,7 +141,7 @@ function disp_time(time)
     local minutes = math.floor(math.fmod(time,3600)/60)
     local seconds = math.floor(math.fmod(time,60))
     if time >= 86400 then
-        return string.format("%dd:%02dhrs:%02dmin:%02dsec",days,hours,minutes,seconds)
+        return string.format("%dd:%02dhrs",days,hours)
     elseif time < 86400 and time > 3600 then
         return string.format("%02dhrs:%02dmin:%02dsec",hours,minutes,seconds)
     elseif time < 3600 and time > 60 then

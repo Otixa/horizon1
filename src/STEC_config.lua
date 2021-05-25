@@ -195,7 +195,7 @@ end
 -- keyboard
 keybindPresets["keyboard"].keyDown.up.Add(function () ship.direction.z = 1 if not ship.counterGravity then ship.counterGravity = true end end)
 keybindPresets["keyboard"].keyUp.up.Add(function () ship.direction.z = 0 end)
-keybindPresets["keyboard"].keyDown.down.Add(function () ship.direction.z = -0.5 end)
+keybindPresets["keyboard"].keyDown.down.Add(function () ship.direction.z = -1 end)
 keybindPresets["keyboard"].keyUp.down.Add(function () ship.direction.z = 0 end)
 
 keybindPresets["keyboard"].keyDown.yawleft.Add(function () ship.rotation.z = -1 end)

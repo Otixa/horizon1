@@ -47,7 +47,7 @@ function ElevatorScreen()
         tbl = tbl .. "<tr><td class=\"tablespacing\">".."Gravity".."</td><td>"..round2(ship.world.gravity:len(), 2).." m/s</td></tr>"
         tbl = tbl .. "<tr><td class=\"tablespacing\">".."Target Dist".."</td><td>"..mToKm(targetDistance).."</td></tr>"
         tbl = tbl .. "<tr><td class=\"tablespacing\">".."Brake Dist".."</td><td>"..mToKm(brakeDistanceRound).."</td></tr>"
-        tbl = tbl .. "<tr><td class=\"tablespacing\">".."Deviation".."</td><td style=\"color:"..deviationColor()..";\">"..round2(ship.deviation,6).." m</td></tr>"
+        --tbl = tbl .. "<tr><td class=\"tablespacing\">".."Deviation".."</td><td style=\"color:"..deviationColor()..";\">"..round2(ship.deviation,6).." m</td></tr>"
         --tbl = tbl .. "<tr><td class=\"tablespacing\">".."Status".."</td><td>"..ship.stateMessage.."</td></tr>"
         --tbl = tbl .. "<tr><td class=\"tablespacing\">".."elevatorMove".."</td><td>"..elevatorMove.."</td></tr>"
         tbl = tbl .. "</table>" 
@@ -157,8 +157,27 @@ else
 end
 
 
+--function updateScreenFuel()
+--    local fuelHtml = ""
+--
+--    local mkTankHtml = (function (type, tank)
+--        local level = tank.level --100 * tank.level
+--        local time = tank.time
+--        --local tankLiters = tank.level * tank.specs.capacity
+--        -- return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:50%;" />' .. tank.name .. '</div>'
+--        return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:' .. level .. '%;" />' .. time .. ' (' .. math.ceil(level) .. '%)</div>'
+--    end)
+--
+--    for _, tank in pairs(SHUD.fuel.atmo) do fuelHtml = fuelHtml .. mkTankHtml("atmo", tank) end
+--    for _, tank in pairs(SHUD.fuel.space) do fuelHtml = fuelHtml .. mkTankHtml("space", tank) end
+--    for _, tank in pairs(SHUD.fuel.rocket) do fuelHtml = fuelHtml .. mkTankHtml("rocket", tank) end
+--
+--    return   fuelHtml
+--end
 function updateScreenFuel()
-    local fuelHtml = ""
+    local fuelHtmlAtmo = ""
+    local fuelHtmlSpace = ""
+    local fuelHtmlRocket = ""
 
     local mkTankHtml = (function (type, tank)
         local level = tank.level --100 * tank.level
@@ -168,11 +187,15 @@ function updateScreenFuel()
         return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:' .. level .. '%;" />' .. time .. ' (' .. math.ceil(level) .. '%)</div>'
     end)
 
-    for _, tank in pairs(SHUD.fuel.atmo) do fuelHtml = fuelHtml .. mkTankHtml("atmo", tank) end
-    for _, tank in pairs(SHUD.fuel.space) do fuelHtml = fuelHtml .. mkTankHtml("space", tank) end
-    for _, tank in pairs(SHUD.fuel.rocket) do fuelHtml = fuelHtml .. mkTankHtml("rocket", tank) end
+    for _, tank in pairs(SHUD.fuel.atmo) do fuelHtmlAtmo = fuelHtmlAtmo .. mkTankHtml("atmo", tank) end
+    for _, tank in pairs(SHUD.fuel.space) do fuelHtmlSpace = fuelHtmlSpace .. mkTankHtml("space", tank) end
+    for _, tank in pairs(SHUD.fuel.rocket) do fuelHtmlRocket = fuelHtmlRocket .. mkTankHtml("rocket", tank) end
 
-    return   fuelHtml
+    local columnAtmo = '<div style="display:inline-block;width: 50%;">' .. fuelHtmlAtmo .. '</div>'
+    local columnSpace = '<div style="display:inline-block;width: 50%;">' .. fuelHtmlSpace .. '</div>'
+    local columnRocket = '<div style="display:inline-block;width: 50%;">' .. fuelHtmlRocket .. '</div>'
+
+    return '<div style="whitespace:nowrap;">' .. columnAtmo .. columnSpace .. columnRocket .. '</div>'
 end
 
 local screenSettings = [[
@@ -228,8 +251,8 @@ local screenMain = [[
     div.fixed {
         position: fixed;
         top: 8px;
-        left: 575px;
-        width: 420px;
+        left: 545px;
+        width: 430px;
         height: 490px;
         margin: auto;
         
@@ -283,7 +306,7 @@ local screenMain = [[
         position: absolute;
         bottom: -75%;
         left: 2%;
-        width: 85%;
+        width: 100%;
         color: #1b1b1b;
         font-family: Verdana;
         font-size: 1.8vh;
