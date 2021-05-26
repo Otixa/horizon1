@@ -106,6 +106,7 @@ function STEC(core, control, Cd)
     self.angularThrust = vec3(0, 0, 0)
     -- Whether or not the vessel should attempt to cancel out its current velocity in directions that are not being accelerated towards
     self.inertialDampening = false
+    self.IDIntensity = 5
     -- Whether or not the vessel should attempt to completely cancel out its current velocity
     self.brake = false
     -- Whether or not the vessel should attempt to counter gravity influence
@@ -225,17 +226,18 @@ function STEC(core, control, Cd)
         )
     end
 
-    function self.localToWorld(vector)
-        vector = {vector:unpack()}
-        local rightX, rightY, rightZ = self.world.right:unpack()
-        local forwardX, forwardY, forwardZ = self.world.forward:unpack()
-        local upX, upY, upZ = self.world.up:unpack()
-        local rfuX, rfuY, rfuZ = vector:unpack()
+    function self.localToRelative(pos, up, right, forward)
+        -- this is horrible, can optimize?
+        local rightX, rightY, rightZ = right:unpack()
+        local forwardX, forwardY, forwardZ = forward:unpack()
+        local upX, upY, upZ = up:unpack()
+        local rfuX, rfuY, rfuZ = pos:unpack()
         local relX = rfuX * rightX + rfuY * forwardX + rfuZ * upX
         local relY = rfuX * rightY + rfuY * forwardY + rfuZ * upY
         local relZ = rfuX * rightZ + rfuY * forwardZ + rfuZ * upZ
         return vec3(relX, relY, relZ)
     end
+
 
     function moveWaypointZ(vector, altitude)
         return (vector - (self.nearestPlanet:getGravity(vector)):normalize() * (altitude))
@@ -280,10 +282,10 @@ function STEC(core, control, Cd)
         if self.rotation.z ~= 0 then
             self.scaleRotation()
             atmp = atmp + ((self.world.forward:cross(self.world.right) * self.rotation.z) * self.rotationSpeed)
-            if self.targetVectorAutoUnlock then
-                self.targetVector = nil
-                self.altitudeHold = 0
-            end
+            --if self.targetVectorAutoUnlock then
+            --    self.targetVector = nil
+            --    self.altitudeHold = 0
+            --end
         end
         if self.followGravity and self.rotation.x == 0 then
 		    local current = self.localVelocity:len() * self.mass
@@ -299,9 +301,10 @@ function STEC(core, control, Cd)
         end
 
 		if self.altitudeHold ~= 0 then
-
-            local waypoint = moveWaypointY(self.altitudeHold, (self.world.velocity:len()) + 50)
+            --local deltaAltitude =  self.altitudeHold - self.altitude
+            local waypoint = moveWaypointY(self.altitudeHold, (self.world.velocity:len() * 3) + 50)
             self.targetVector = (waypoint - self.world.position ):normalize()
+            --tmp = tmp - ((self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass) * deltaAltitude)
         else
             self.targetVector = nil
         end
@@ -315,30 +318,20 @@ function STEC(core, control, Cd)
           tmp = tmp + (delta * self.mass)
         end
         if self.inertialDampening then
-            local brakingForce = self.mass * -self.localVelocity
-            local apply = self.direction * self.localVelocity
-            if apply.x <= 0 then
-                local tmpd = deltaTime
-                if (math.abs(self.localVelocity.x) < 1) then
-                    tmpd = 0.125
-                end
-                tmp = tmp + (self.world.right * brakingForce.x) / tmpd
-            end
-            if apply.y <= 0 then
-                local tmpd = deltaTime
-                if (math.abs(self.localVelocity.y) < 1) then
-                    tmpd = 0.125
-                end
-                tmp = tmp + (self.world.forward * brakingForce.y) / tmpd
-            end
-            if apply.z <= 0 then
-                local tmpd = deltaTime
-                if (math.abs(self.localVelocity.z) < 1) then
-                    tmpd = 0.125
-                end
-                tmp = tmp + (self.world.up * brakingForce.z) / tmpd
-            end
+            local currentShipMomentum = self.localVelocity
+            local delta = vec3(0,0,0)
+            local moveDirection = self.direction or vec3(0,0,0)
+
+            if moveDirection.x == 0 then delta.x = currentShipMomentum.x end
+            if moveDirection.y == 0 then delta.y = currentShipMomentum.y end
+            if moveDirection.z == 0 then delta.z = currentShipMomentum.z end
+
+            delta = self.localToRelative(delta, self.world.up, self.world.right, self.world.forward)
+            --system.print(tostring(delta))
+            tmp = tmp - (delta * (self.mass * self.IDIntensity))
+
         end
+
         if self.brake then
             local velocityLen = self.world.velocity:len()
             tmp =
