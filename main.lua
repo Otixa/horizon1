@@ -38,7 +38,7 @@ function Unit.Start()
 	if flightModeDb ~= nil then getFuelRenderedHtml() end
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
-	unit.setTimer("WaypointTest", 0.5)
+	--unit.setTimer("WaypointTest", 0.5)
 	system.print([[Horizon 1.1.1.6]])
 end
 

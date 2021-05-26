@@ -171,7 +171,7 @@ function STEC(core, control, Cd)
 	   self.airFriction = vec3(core.getWorldAirFrictionAcceleration())
         
         self.mass = self.core.getConstructMass()
-        self.altitude = self.core.getAltitude()
+        self.altitude = self.nearestPlanet:getAltitude(core.getConstructWorldPos())
         self.localVelocity = vec3(core.getVelocity())
         local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
         if self.world.atmosphericDensity > 0.1 then --Temporary hack. Needs proper transition.
@@ -297,20 +297,11 @@ function STEC(core, control, Cd)
             
             atmp = atmp + ((self.world.up:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()))) - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2)))
         end
-        --if self.altitudeHold ~= 0 then
-        --    local deltaAltitude = self.altitude - self.altitudeHold
-        --    tmp = tmp + ((self.world.gravity:normalize() * deltaAltitude * -1) * self.mass * deltaTime)
-        --end
-		if self.altitudeHold ~= 0 then
-            --self.followGravity = false
-            --local z = self.world.position - (self.nearestPlanet:getGravity(self.world.position)):normalize() * (self.altitudeHold - self.altitude)
-            --local vector = z - (self.world.right:cross(self.nearestPlanet:getGravity(self.world.position)):normalize()) * -((self.world.velocity:len() * 2) + 50)
-            
-            --local deltaAltitude =  self.altitudeHold - self.altitude
-            --tmp = tmp - ((self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass) * deltaAltitude)
 
-            --local waypoint = moveWaypointY(self.altitudeHold, (self.world.velocity:len() * 2) + 50)
-            --self.targetVector = waypoint:normalize()
+		if self.altitudeHold ~= 0 then
+
+            local waypoint = moveWaypointY(self.altitudeHold, (self.world.velocity:len()) + 50)
+            self.targetVector = (waypoint - self.world.position ):normalize()
         else
             self.targetVector = nil
         end
