@@ -39,7 +39,13 @@ function Unit.Start()
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
 	--unit.setTimer("WaypointTest", 0.5)
-	system.print([[Horizon 1.1.1.6]])
+	system.print([[Horizon 1.1.1.8]])
+
+	local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
+	local vMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
+
+	system.print(string.format( "fMax: %f, %f, %f, %f",fMax[1],fMax[2],fMax[3],fMax[4]))
+	system.print(string.format( "vMax: %f, %f, %f, %f",vMax[1],vMax[2],vMax[3],vMax[4]))
 end
 
 function Unit.Stop()
@@ -59,7 +65,7 @@ function Unit.Tick(timer)
 		end
 	end
 	if timer == "FuelStatus" then
-		if flightModeDb ~= nil then getFuelRenderedHtml() end
+		getFuelRenderedHtml()
 	end
 	if timer == "WaypointTest" then
 		local waypoint = moveWaypointY(ship.altitudeHold, (ship.world.velocity:len() * 2) + 50)

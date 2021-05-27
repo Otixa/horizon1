@@ -345,8 +345,7 @@ function STEC(core, control, Cd)
             elseif type(self.targetVector) == "table" then
                 vec = self.targetVector
             end
-            self.scaleRotation()
-            atmp = atmp + (self.world.forward:cross(vec) * self.rotationSpeed) - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
+            atmp = atmp + (self.world.forward:cross(vec) * self.rotationSpeedMax) - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
         end
         -- must be applied last
         if self.counterGravity then
@@ -356,7 +355,7 @@ function STEC(core, control, Cd)
         atmp = atmp - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
         tmp = tmp / self.mass
 
-        if self.controlMode ~= unit.getControlMasterModeId() then 
+        if self.controlMode ~= unit.getControlMasterModeId() then
             self.controlMode = unit.getControlMasterModeId()
             if unit.getControlMasterModeId() == 0 then 
                 self.tempCruise = self.cruiseSpeed

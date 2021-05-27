@@ -188,7 +188,7 @@ keybindPresets["keyboard"].keyUp["option2"].Add(function ()  ship.targetVector =
 keybindPresets["keyboard"].keyUp["option3"].Add(function () if ship.direction.y == 1 then ship.direction.y = 0 else ship.direction.y = 1 end end, "keyboard Control")
 keybindPresets["keyboard"].keyUp["option4"].Add(function () ship.counterGravity = not ship.counterGravity end, "Counter Gravity")
 keybindPresets["keyboard"].keyUp["option5"].Add(function () switchFlightMode("mouse") end, "Switch Flight Mode")
-keybindPresets["keyboard"].keyUp["option6"].Add(function () unit.cancelCurrentControlMasterMode() end, "Alternate Control Mode Switch")
+keybindPresets["keyboard"].keyUp["option6"].Add(function () switchControlMode() end, "Alternate Control Mode Switch")
 
 if flightModeDb then
    if flightModeDb.hasKey("flightMode") == 0 then flightModeDb.setStringValue("flightMode","keyboard") end
