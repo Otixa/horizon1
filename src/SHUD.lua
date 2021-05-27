@@ -256,11 +256,12 @@ SHUD =
         local fuelHtml = ""
 
         local mkTankHtml = (function (type, tank)
-            local tankLevel = tank.level --100 * tank.level
-            local time = tank.time
+            local tankLevel = 100 * tank.level
+            local tankLiters = tank.level * tank.specs.capacity()
+
             --local tankLiters = tank.level * tank.specs.capacity
             -- return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:50%;" />' .. tank.name .. '</div>'
-            return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:' .. tankLevel .. '%%;" />' .. tank.time .. ' (' .. math.ceil(tankLevel) .. '%%,)</div>'
+            return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:' .. tankLevel .. '%%;" />' .. tank.time .. ' (' .. math.floor(tankLevel) .. '%%, ' .. math.floor(tankLiters) .. 'L)</div>'
         end)
 
         for _, tank in pairs(self.fuel.atmo) do fuelHtml = fuelHtml .. mkTankHtml("atmo", tank) end

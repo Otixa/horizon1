@@ -180,11 +180,12 @@ function updateScreenFuel()
     local fuelHtmlRocket = ""
 
     local mkTankHtml = (function (type, tank)
-        local level = tank.level --100 * tank.level
-        local time = tank.time
+        local tankLevel = 100 * tank.level
+        local tankLiters = tank.level * tank.specs.capacity()
+
         --local tankLiters = tank.level * tank.specs.capacity
         -- return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:50%;" />' .. tank.name .. '</div>'
-        return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:' .. level .. '%;" />' .. time .. ' (' .. math.ceil(level) .. '%)</div>'
+        return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:' .. tankLevel .. '%;" />' .. tank.time .. ' (' .. math.ceil(tankLevel) .. '%)</div>'
     end)
 
     for _, tank in pairs(SHUD.fuel.atmo) do fuelHtmlAtmo = fuelHtmlAtmo .. mkTankHtml("atmo", tank) end
