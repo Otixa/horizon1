@@ -208,11 +208,9 @@ function getFuelTankLiters(fuelTankId)
   local massContents = massTotal - fuelTankSpecs.baseWeight
   return massContents
 end
---vanillaMaxVolume = vanillaMaxVolume - (vanillaMaxVolume * ContainerOptimization * 0.05)
+
 function getFuelTankLevel(fuelTankId)
   local fuelTankSpecs = fuelTanks[fuelTankId]
-  --local massTotal = core.getElementMassById(fuelTankId)
-  --local fuelVolume = fuelTankSpecs.capacity()
   local adjustedMaxMass = fuelTankSpecs.maxWeight()
   return getFuelTankLiters(fuelTankId) / adjustedMaxMass
 end
@@ -228,7 +226,6 @@ function getFuelTime(fuelTankId)
   local fuelTimeFormatted = disp_time(fuelTime)
   FuelTime[fuelTankId] = system.getTime()
   return fuelTimeFormatted
-
 end
 
 function getFuelTanks()
