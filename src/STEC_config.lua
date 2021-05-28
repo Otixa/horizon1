@@ -13,6 +13,7 @@ local rotationStep = 0.03 --export: Depermines how quickly rotation scales up
 local verticalSpeedLimitAtmo = 1100 --export: Vertical speed limit in atmosphere
 local verticalSpeedLimitSpace = 4000 --export: Vertical limit in space
 local autoShutdown = true --export: Auto shutoff on RTB landing
+
 activateFFonStart = false --export: Activate force fields on start (connected to button)
 
 local pocket = false --export: Pocket ship?

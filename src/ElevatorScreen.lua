@@ -14,6 +14,11 @@ function ElevatorScreen()
     local preset_2s_fill = buttonColor
     local preset_3s_fill = buttonColor
     local preset_4s_fill = buttonColor
+    if ship.altitudeHold == ship.altHoldPreset1 then preset_1s_fill = "#b3910c" end
+    if ship.altitudeHold == ship.altHoldPreset2 then preset_2s_fill = "#b3910c" end
+    if ship.altitudeHold == ship.altHoldPreset3 then preset_3s_fill = "#b3910c" end
+    if ship.altitudeHold == ship.altHoldPreset4 then preset_4s_fill = "#b3910c" end
+    if ship.altitudeHold == ship.baseAltitude then RTB_Fill = "#b3910c" end
     local e_stop_fill = "#5D170B"
     local up10button = "#99440b"
     local down10button = "#99440b"
@@ -156,24 +161,6 @@ else
     end
 end
 
-
---function updateScreenFuel()
---    local fuelHtml = ""
---
---    local mkTankHtml = (function (type, tank)
---        local level = tank.level --100 * tank.level
---        local time = tank.time
---        --local tankLiters = tank.level * tank.specs.capacity
---        -- return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:50%;" />' .. tank.name .. '</div>'
---        return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:' .. level .. '%;" />' .. time .. ' (' .. math.ceil(level) .. '%)</div>'
---    end)
---
---    for _, tank in pairs(SHUD.fuel.atmo) do fuelHtml = fuelHtml .. mkTankHtml("atmo", tank) end
---    for _, tank in pairs(SHUD.fuel.space) do fuelHtml = fuelHtml .. mkTankHtml("space", tank) end
---    for _, tank in pairs(SHUD.fuel.rocket) do fuelHtml = fuelHtml .. mkTankHtml("rocket", tank) end
---
---    return   fuelHtml
---end
 function updateScreenFuel()
     local fuelHtmlAtmo = ""
     local fuelHtmlSpace = ""
@@ -182,9 +169,6 @@ function updateScreenFuel()
     local mkTankHtml = (function (type, tank)
         local tankLevel = 100 * tank.level
         local tankLiters = tank.level * tank.specs.capacity()
-
-        --local tankLiters = tank.level * tank.specs.capacity
-        -- return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:50%;" />' .. tank.name .. '</div>'
         return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:' .. tankLevel .. '%;" />' .. tank.time .. ' (' .. math.ceil(tankLevel) .. '%)</div>'
     end)
 
@@ -294,7 +278,7 @@ local screenMain = [[
     }
     #shipName {
         font-family:Verdana;
-        font-size:48px;
+        font-size:46px;
         font-weight:bold;
         color:#A8A736;
         stroke:#FFFFFF;
@@ -310,7 +294,7 @@ local screenMain = [[
         width: 100%;
         color: #1b1b1b;
         font-family: Verdana;
-        font-size: 1.8vh;
+        font-size: ]]..fuelFontSize..[[vh;
         text-align: center;
         opacity: 0.75;
         }

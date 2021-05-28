@@ -102,7 +102,7 @@ function Unit.Start()
 	unit.setTimer("FuelStatus", 3)
 	unit.setTimer("EmitterTick", 1)
 	if laser ~= nil then laser.deactivate() end
-	system.print([[Horizon 1.0.1.10_RC7]])
+	system.print([[Horizon 1.0.1.11]])
 	--StepOne.Start()
 end
 
@@ -264,6 +264,7 @@ function buildScreen.MouseUp(x,y,slot)
 		if mousex >= 0.1003 and mousex <= 0.3703 and mousey >= 0.5484 and mousey <= 0.9475 then --E-Stop button
 			e_stop = not e_stop
 			if e_stop then
+				ship.altitudeHold = 0
 				ship.verticalLock = false
 				ship.elevatorActive = false
 				ship.brake = true

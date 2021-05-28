@@ -6,7 +6,14 @@ displaySize = 0.65
 primaryColor = "b80000" --export: Primary color of HUD
 secondaryColor = "e30000" --export: Secondary color of HUD
 textShadow = "e81313" --export: Color of text shadow for speedometer
-ARCrosshair = "ebbb0c" --export: Color of the AR crosshaih
+ARCrosshair = "ebbb0c" --export: Color of the AR crosshair
+fuelFontSize = 1.8 --export: Fuel Gauge Font Size
+--if flightModeDb ~= nil then
+--  if flightModeDb.hasKey("fuelFontSize") == 0 or updateSettings then 
+--      flightModeDb.setFloatValue("fuelFontSize",fuelFontSize)
+--  else fuelFontSize = flightModeDb.getFloatValue("fuelFontSize") end
+--end
+system.print(fuelFontSize)
 CSS_SHUD = [[
 #horizon { 
   left: 0;
@@ -386,7 +393,7 @@ transform: translateX(-50%);
 
   color: #1b1b1b;
   font-family: Montserrat;
-  font-size: 0.8vh;
+  font-size: 0.8 vh;
   text-align: center;
 }
 #fuelTanks .fuel-meter {
@@ -423,4 +430,5 @@ transform: translateX(-50%);
   filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));
 }
 ]]
+
 --system.print([[Shadow Templar Mining Chair H1R3<style>#custom_screen_click_layer{ display: none !important; }</style>]])
