@@ -305,8 +305,6 @@ function STEC(core, control, Cd)
             local waypoint = moveWaypointY(self.altitudeHold, (self.world.velocity:len() * 3) + 50)
             self.targetVector = (waypoint - self.world.position ):normalize()
             --tmp = tmp - ((self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass) * deltaAltitude)
-        else
-            self.targetVector = nil
         end
         if self.alternateCM then
           local speed = (self.cruiseSpeed / 3.6)

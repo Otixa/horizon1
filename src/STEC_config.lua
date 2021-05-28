@@ -21,6 +21,7 @@ function holdAlt()
         ship.altitudeHold = round2(ship.altitude,0)
         system.print("altitudeHold: "..round2(ship.altitudeHold,0))
     else
+        ship.targetVector = nil
         ship.altitudeHold = 0
         system.print("Altitude Hold OFF")
     end
