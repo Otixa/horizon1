@@ -393,7 +393,7 @@ transform: translateX(-50%);
 
   color: #1b1b1b;
   font-family: Montserrat;
-  font-size: 0.8 vh;
+  font-size: 0.8vh;
   text-align: center;
 }
 #fuelTanks .fuel-meter {
