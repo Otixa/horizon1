@@ -129,6 +129,8 @@ function STEC(core, control, Cd)
     self.verticalSpeedLimitAtmo = 750
     -- Vertical Speed Limit (Space)
     self.verticalSpeedLimitAtmo = 2000
+    -- Final approach speed
+    self.approachSpeed = 200
     -- Amount of throttle to apply. 0-1 range
     self.throttle = 1
     -- Maximum thrust which the vessel is capable of producing
@@ -406,7 +408,7 @@ function STEC(core, control, Cd)
                 verticalSpeedLimit = self.verticalSpeedLimitSpace 
             end
             if  (self.brakeDistance + brakeBuffer) >= math.abs(deltaAltitude) then
-                verticalSpeedLimit = 200
+                verticalSpeedLimit = self.approachSpeed
             end
             
             --system.print("self.deviation: "..self.deviation)
@@ -424,8 +426,8 @@ function STEC(core, control, Cd)
                 self.stateMessage = "Traveling"
                 speed = round2((clamp(deltaAltitude, -verticalSpeedLimit, verticalSpeedLimit)), 1)
             elseif not deviated then
-                self.stateMessage = "Moving to final position"
-                speed = 200
+                self.stateMessage = "Final approach"
+                speed = self.approachSpeed
             end
             
             self.elevatorDestination = (self.world.position - destination):normalize()

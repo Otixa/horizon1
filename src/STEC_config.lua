@@ -12,6 +12,7 @@ local maxRotationSpeed = 5 --export: Maximum speed rotation scales to
 local rotationStep = 0.03 --export: Depermines how quickly rotation scales up
 local verticalSpeedLimitAtmo = 1100 --export: Vertical speed limit in atmosphere
 local verticalSpeedLimitSpace = 4000 --export: Vertical limit in space
+local approachSpeed = 200 --export: Max final approach speed
 local autoShutdown = true --export: Auto shutoff on RTB landing
 
 activateFFonStart = false --export: Activate force fields on start (connected to button)
@@ -29,6 +30,7 @@ ship.rotationStep = rotationStep
 
 ship.verticalSpeedLimitAtmo = verticalSpeedLimitAtmo
 ship.verticalSpeedLimitSpace = verticalSpeedLimitSpace
+ship.approachSpeed = approachSpeed
 
 ship.altHoldPreset1 = altHoldPreset1
 ship.altHoldPreset2 = altHoldPreset2
