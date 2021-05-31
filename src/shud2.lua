@@ -90,11 +90,10 @@ CSS_SHUD = [[
   top: calc(50% + 1vh);
   left: calc(50% + 0.25em);
   transform: translate(-50%, -50%);
-  font-weight: bold;
   text-shadow: 0 0 0.75vw #]]..textShadow..[[;
   padding: 0;
   margin: 0;
-  font-size: 2vw;
+  font-size: 2.8vw;
 }
 
 #speedometer .display .minor, #speedometer .unit {
