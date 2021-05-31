@@ -49,6 +49,11 @@ if flightModeDb ~= nil then
         ship.verticalSpeedLimitSpace = verticalSpeedLimitSpace
     else ship.verticalSpeedLimitSpace = flightModeDb.getFloatValue("verticalSpeedLimitSpace") end
 
+    if flightModeDb.hasKey("approachSpeed") == 0 or updateSettings then 
+        flightModeDb.setFloatValue("approachSpeed",approachSpeed)
+        ship.approachSpeed = approachSpeed
+    else ship.approachSpeed = flightModeDb.getFloatValue("approachSpeed") end
+
     if flightModeDb.hasKey("altHoldPreset1") == 0 or updateSettings then 
         flightModeDb.setFloatValue("altHoldPreset1",altHoldPreset1)
         ship.altHoldPreset1 = altHoldPreset1

@@ -1,5 +1,5 @@
 --@class CSS_SHUD
-displaySize = 0.65
+displaySize = 0.85
 --primaryColor = "0faea9" --export: Primary color of HUD
 --secondaryColor = "0247b5" --export: Secondary color of HUD
 --textShadow = "d9ff00" --export: Color of text shadow for speedometer
@@ -22,7 +22,7 @@ CSS_SHUD = [[
   width: 100vw;
   height: 100vh;
   background: radial-gradient(ellipse 27vw 11vw at 50% 51vw, rgba(1,5,8,0.6) 50%,rgba(1,5,8,0) 90%);
-  font-family: Montserrat;
+  font-family: Verdana;
   
 }
 
@@ -64,7 +64,7 @@ CSS_SHUD = [[
 }
 
 #speedometer {
-  font-family: 'Montserrat';
+  font-family: 'Verdana';
   font-weight: normal;
   font-style: normal;
   position: fixed;
@@ -84,6 +84,7 @@ CSS_SHUD = [[
   left: calc(50% + 0.25em);
   transform: translate(-50%, -50%);
   text-shadow: 0 0 0.75vw #]]..textShadow..[[;
+  font-weight: bold;
   padding: 0;
   margin: 0;
   font-size: 3vw;
@@ -180,7 +181,7 @@ CSS_SHUD = [[
 
 #horizon-menu {
   text-transform: uppercase;
-  font-family: 'Montserrat';
+  font-family: 'Verdana';
   font-size: ]] .. displaySize .. [[vw;
   display: flex;
   flex-direction: column;
@@ -392,8 +393,8 @@ transform: translateX(-50%);
   width: 12vw;
 
   color: #1b1b1b;
-  font-family: Montserrat;
-  font-size: 0.8vh;
+  font-family: Verdana;
+  font-size: 1vh;
   text-align: center;
 }
 #fuelTanks .fuel-meter {
@@ -424,7 +425,7 @@ transform: translateX(-50%);
 .st0{fill:none;stroke:#]]..ARCrosshair..[[;stroke-width:1;stroke-miterlimit:10;}
 .st1{fill:none;stroke:#]]..ARCrosshair..[[;stroke-width:2;stroke-miterlimit:10;}
 .st2{fill:#]]..ARCrosshair..[[;stroke:#]]..ARCrosshair..[[;stroke-miterlimit:10;}
-.st3{fill:#]]..ARCrosshair..[[; font-family: Montserrat; font-size:10.5px;}
+.st3{fill:#]]..ARCrosshair..[[; font-family: Verdana; font-size:10.5px;}
 .shadow {
   -webkit-filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));
   filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));

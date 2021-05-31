@@ -430,9 +430,10 @@ function STEC(core, control, Cd)
                 speed = self.approachSpeed
             end
             
+            
             self.elevatorDestination = (self.world.position - destination):normalize()
             --system.print("TEST: "..round2((distance * distance),4))
-            tmp = tmp - self.elevatorDestination * self.mass * utils.clamp(distance,0.3,((math.abs(speed)/3.6) * self.IDIntensity))
+            tmp = tmp - self.elevatorDestination * self.mass * utils.clamp(distance * 3.6,0.3,((math.abs(speed)/3.6) * self.IDIntensity))
 
             if distance < 0.01 and not manualControl then 
                 self.elevatorActive = false self.targetVector = nil 

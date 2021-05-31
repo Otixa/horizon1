@@ -102,7 +102,7 @@ function Unit.Start()
 	unit.setTimer("FuelStatus", 3)
 	unit.setTimer("EmitterTick", 1)
 	if laser ~= nil then laser.deactivate() end
-	system.print([[Horizon 1.0.1.11]])
+	system.print([[Horizon 1.0.1.11_1]])
 	--StepOne.Start()
 end
 

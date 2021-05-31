@@ -52,7 +52,7 @@ function ElevatorScreen()
         tbl = tbl .. "<tr><td class=\"tablespacing\">".."Gravity".."</td><td>"..round2(ship.world.gravity:len(), 2).." m/s</td></tr>"
         tbl = tbl .. "<tr><td class=\"tablespacing\">".."Target Dist".."</td><td>"..mToKm(targetDistance).."</td></tr>"
         tbl = tbl .. "<tr><td class=\"tablespacing\">".."Brake Dist".."</td><td>"..mToKm(brakeDistanceRound).."</td></tr>"
-        --tbl = tbl .. "<tr><td class=\"tablespacing\">".."Deviation".."</td><td style=\"color:"..deviationColor()..";\">"..round2(ship.deviation,6).." m</td></tr>"
+        tbl = tbl .. "<tr><td class=\"tablespacing\">".."Deviation".."</td><td style=\"color:"..deviationColor()..";\">"..round2(ship.deviation,6).." m</td></tr>"
         --tbl = tbl .. "<tr><td class=\"tablespacing\">".."Status".."</td><td>"..ship.stateMessage.."</td></tr>"
         --tbl = tbl .. "<tr><td class=\"tablespacing\">".."elevatorMove".."</td><td>"..elevatorMove.."</td></tr>"
         tbl = tbl .. "</table>" 
