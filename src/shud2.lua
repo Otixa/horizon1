@@ -70,7 +70,7 @@ CSS_SHUD = [[
   position: fixed;
   left: 50%;
   bottom: 13vh;
-  font-size: 3vw;
+  font-size: 2.5vw;
   transform: translate(-50%);
   background-color: transparent;
   width: 30vw;
@@ -83,28 +83,28 @@ CSS_SHUD = [[
   top: calc(50% + 1vh);
   left: calc(50% + 0.25em);
   transform: translate(-50%, -50%);
-  text-shadow: 0 0 0.75vw #]]..textShadow..[[;
   font-weight: bold;
+  text-shadow: 0 0 0.75vw #]]..textShadow..[[;
   padding: 0;
   margin: 0;
-  font-size: 3vw;
+  font-size: 2vw;
 }
 
 #speedometer .display .minor, #speedometer .unit {
   position: relative;
   left: -0.5em;
   vertical-align: super;
-  font-size: 50%;
+  font-size: 40%;
 }
 
 #speedometer .unit {
   vertical-align: 50%;
-  font-size: 33%;
+  font-size: 23%;
   left: -1.33em;
 }
 
 #speedometer .accel {
-  font-size: 1.6vw;
+  font-size: 1.2vw;
   text-shadow: 0 0 0.15vw #000000;
   position: absolute;
   left: 12.5%;
@@ -114,7 +114,7 @@ CSS_SHUD = [[
 
 #speedometer .accel .major::before {
   content: 'Δ';
-  font-size: 50%;
+  font-size: 40%;
 }
 
 #speedometer .accel .unit {
@@ -126,7 +126,7 @@ CSS_SHUD = [[
   left: 50%;
   bottom: -0.65vh;
   transform: translateX(-50%);
-  font-size: 0.75vw;
+  font-size: 0.65vw;
   text-align: center;
 }
 
@@ -135,7 +135,7 @@ CSS_SHUD = [[
   left: 50%;
   bottom: -1.5vh;
   transform: translateX(-50%);
-  font-size: 0.5vw;
+  font-size: 0.4vw;
   text-align: center;
 }
 
@@ -144,12 +144,12 @@ CSS_SHUD = [[
   left: 50%;
   bottom: -4.3vh;
   transform: translateX(-50%);
-  font-size: 0.9vw;
+  font-size: 0.7vw;
   text-align: center;
 }
 
 #speedometer .vertical {
-  font-size: 1.6vw;
+  font-size: 1.3vw;
   text-shadow: 0 0 0.15vw #000000;
   position: absolute;
   right: 12.5%;
