@@ -69,7 +69,11 @@ function Unit.Start()
 	end
 	--if next(manualSwitches) ~= nil then manualSwitches[1].activate() end
 	if screen ~= nil then
-		screen.setCenteredText("Script Error")
+		screen.setCenteredText("Screen error; reconnect")
+		if flightModeDb ~= nil then 
+			screen.setCenteredText("Connect databank")
+		end
+		
 	end
 	local sName = ""
 	local coreMass = core.getMass()
