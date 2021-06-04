@@ -236,7 +236,7 @@ function getFuelTanks()
     system.print("V: "..v)
     for k,t in ipairs(v) do
       for x,y in pairs(t) do
-        system.print("Capacity: "..y.capacity)
+        system.print("Capacity: "..y.capacity())
       end
     end
   end
@@ -244,7 +244,7 @@ function getFuelTanks()
   local elementIds = core.getElementIdList()
   for k, elementId in pairs(elementIds) do
     local elementType = core.getElementTypeById(elementId)
-
+    --system.print(elementType)
     -- Fuel tank configuration routine
     if elementType == "Atmospheric Fuel Tank" then
       fuelTanks[elementId] = getFuelTankSpecs("atmo", elementId)

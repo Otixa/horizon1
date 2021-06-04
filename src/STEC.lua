@@ -428,6 +428,7 @@ function STEC(core, control, Cd)
             elseif not deviated then
                 self.stateMessage = "Final approach"
                 speed = self.approachSpeed
+                if self.brakeDistance * 1.5 >= math.abs(distance) then speed = 5 end
             end
             
             

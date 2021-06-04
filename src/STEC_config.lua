@@ -1,7 +1,7 @@
 --@class STEC_Config
 shipName = ""
 local updateSettings = false --export: Use these settings
-local altHoldPreset1 = 100001.9  --export: Altitude Hold Preset 1
+local altHoldPreset1 = 132000.125  --export: Altitude Hold Preset 1
 local altHoldPreset2 = 2000 --export: Altitude Hold Preset 2
 local altHoldPreset3 = 500 --export: Altitude Hold Preset 3
 local altHoldPreset4 = 50 --export: Altitude Hold Preset 4

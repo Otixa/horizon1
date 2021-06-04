@@ -39,6 +39,10 @@ function ElevatorScreen()
         else return "#BAE2EF"
         end
     end
+    function brakeDistanceColor()
+        if brakeDistanceRound > targetDistance then return "#BAE2EF"
+        else return "#BAE2EF" end
+    end
     function renderStatsTable()
         local tbl = "<table>"
         --tbl = tbl .. "<tr><td class=\"tablespacing\">".."Mouse-X".."</td><td>"..mousex.."</td></tr>"
@@ -51,7 +55,7 @@ function ElevatorScreen()
         tbl = tbl .. "<tr><td class=\"tablespacing\">".."Mass".."</td><td>"..round2(ship.mass / 1000,0).." t</td></tr>"
         tbl = tbl .. "<tr><td class=\"tablespacing\">".."Gravity".."</td><td>"..round2(ship.world.gravity:len(), 2).." m/s</td></tr>"
         tbl = tbl .. "<tr><td class=\"tablespacing\">".."Target Dist".."</td><td>"..mToKm(targetDistance).."</td></tr>"
-        tbl = tbl .. "<tr><td class=\"tablespacing\">".."Brake Dist".."</td><td>"..mToKm(brakeDistanceRound).."</td></tr>"
+        tbl = tbl .. "<tr><td class=\"tablespacing\">".."Brake Dist".."</td><td style=\"color:"..brakeDistanceColor()..";\">"..mToKm(brakeDistanceRound).."</td></tr>"
         if unit.getMasterPlayerId() == 25175 then tbl = tbl .. "<tr><td class=\"tablespacing\">".."Deviation".."</td><td style=\"color:"..deviationColor()..";\">"..round2(ship.deviation,6).." m</td></tr>" end
         --tbl = tbl .. "<tr><td class=\"tablespacing\">".."Status".."</td><td>"..ship.stateMessage.."</td></tr>"
         --tbl = tbl .. "<tr><td class=\"tablespacing\">".."elevatorMove".."</td><td>"..elevatorMove.."</td></tr>"
