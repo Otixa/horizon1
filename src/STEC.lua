@@ -80,7 +80,12 @@ function STEC(core, control, Cd)
     self.dockingClamps = false
     self.elevatorDestination = vec3(0,0,0)
     self.IDIntensity = 5
+    self.deviationThreshold = 0.05
     self.playerId = unit.getMasterPlayerId()
+    self.targetVectorVertical = nil
+    self.breadCrumbDist = 1000
+    self.deviated = false
+    self.breadCrumbs = {}
     -- Whether the target vector should unlock automatically if the ship is rotated by the pilot
     self.targetVectorAutoUnlock = true
     -- Current altitude
@@ -180,6 +185,7 @@ function STEC(core, control, Cd)
             vertical = vec3(core.getWorldVertical()),
             atmosphericDensity = control.getAtmosphereDensity(),
             nearPlanet = unit.getClosestPlanetInfluence() > 0,
+            atlasAltitude = self.nearestPlanet:getAltitude(core.getConstructWorldPos())
         }
         self.nearestPlanet = helios:closestBody(core.getConstructWorldPos())
 	   -- Roll Degrees
@@ -307,7 +313,7 @@ function STEC(core, control, Cd)
 
             if self.direction.x < 0 and math.abs(round2(hMax[2],0)) < 500 then
                 gravityCorrection = true
-                tmp = tmp + ((((self.world.right * self.direction.x) + gravCorrection):normalize() * self.fMax) * self.throttle)
+                tmp = tmp + ((((self.world.right * self.direction.x) + gravCorrection):normalize() * self.mass * self.fMax) * self.throttle)
             elseif self.direction.x > 0 and math.abs(round2(hMax[1],0)) < 500 then
                 gravityCorrection = true
                 tmp = tmp + ((((self.world.right * self.direction.x) + gravCorrection):normalize() * self.fMax) * self.throttle)
@@ -384,7 +390,6 @@ function STEC(core, control, Cd)
         if self.elevatorActive then
             if not self.inertialDampening then self.inertialDampening = true end
             if not self.counterGravity then self.counterGravity = true end
-
             self.targetVector = self.rot
             if self.world.velocity:len() > (2000 / 3.6) then deviation = 0 end
             
@@ -392,10 +397,12 @@ function STEC(core, control, Cd)
             local brakeBuffer = 1000
             
             local speed = 0
+            --local self.breadCrumbDist = 500
             local distance = (self.world.position - self.targetDestination):len()
+            local realDistance = helios:closestBody(self.targetDestination):getAltitude(self.targetDestination) - self.altitude
             local destination = vec3(0,0,0)
             local verticalSpeedLimit
-            local deviated = false
+            
             local dampen = 1
 
             --if self.world.velocity:len() < 55.555 then
@@ -413,29 +420,42 @@ function STEC(core, control, Cd)
             
             --system.print("self.deviation: "..self.deviation)
             self.deviation = (moveWaypointZ(self.customTarget, self.altitude - self.baseAltitude) - self.world.position):len()
-            if self.deviation > (0.05 + self.world.velocity:len() * 10^-2) then
+            local deviationThreshold = self.deviationThreshold
+            if self.deviated then deviationThreshold = deviationThreshold * 0.5 end
+            --system.print("Deviation threshold: "..deviationThreshold)
+            if self.deviation > (deviationThreshold + self.world.velocity:len() * 10^-2) then
                 destination = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude))
-                deviated = true
+                self.deviated = true
                 speed = self.deviation
                 self.stateMessage = "Correcting Deviation"
             else
+                self.deviated = false
                 destination = self.targetDestination
             end
 
-            if math.abs(deltaAltitude) > self.brakeDistance and math.abs(deltaAltitude) > 500 and not deviated then
+            if math.abs(deltaAltitude) > self.brakeDistance and math.abs(deltaAltitude) > 500 and not self.deviated then
                 self.stateMessage = "Traveling"
                 speed = round2((clamp(deltaAltitude, -verticalSpeedLimit, verticalSpeedLimit)), 1)
-            elseif not deviated then
+            elseif not self.deviated then
                 self.stateMessage = "Final approach"
                 speed = self.approachSpeed
                 if self.brakeDistance * 1.5 >= math.abs(distance) then speed = 5 end
             end
-            
+            --system.print("realDistance: "..realDistance)
+            local breadCrumb
+            if realDistance > self.breadCrumbDist and not self.deviated then
+                breadCrumb = moveWaypointZ(self.customTarget, self.altitude + self.breadCrumbDist)
+                destination = breadCrumb
+            elseif realDistance < -self.breadCrumbDist and not self.deviated then
+                breadCrumb = moveWaypointZ(self.customTarget, self.altitude - self.breadCrumbDist)
+                destination = breadCrumb
+            end
             
             self.elevatorDestination = (self.world.position - destination):normalize()
             --system.print("TEST: "..round2((distance * distance),4))
+            
             tmp = tmp - self.elevatorDestination * self.mass * utils.clamp(distance * 3.6,0.3,((math.abs(speed)/3.6) * self.IDIntensity))
-
+            --if breadCrumb ~= nil then system.print("Breadcrumb distance: "..(self.world.position - breadCrumb):len()) end
             if distance < 0.01 and not manualControl then 
                 self.elevatorActive = false self.targetVector = nil 
                 self.stateMessage = "Idle"
@@ -481,6 +501,21 @@ function STEC(core, control, Cd)
                 vec = self.targetVector
             end
             atmp = atmp + (self.world.forward:cross(vec) * (self.rotationSpeed / 4))  - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
+        end
+
+        if self.targetVectorVertical ~= nil then
+            local vec = vec3(self.world.up.x, self.world.up.y, self.world.up.z)
+            if type(self.targetVector) == "function" then
+                vec = self.targetVector()
+            elseif type(self.targetVector) == "table" then
+                vec = self.targetVector
+            end
+            if (self.world.up - self.targetVectorVertical):len() < 0 then
+                atmp = atmp + (-self.world.up:cross(vec) * (self.rotationSpeed / 4))  - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
+            else
+                atmp = atmp + (self.world.up:cross(vec) * (self.rotationSpeed / 4))  - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
+            end
+            
         end
         
         -- must be applied last

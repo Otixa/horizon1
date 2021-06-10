@@ -5,6 +5,7 @@ local altHoldPreset1 = 132000.125  --export: Altitude Hold Preset 1
 local altHoldPreset2 = 2000 --export: Altitude Hold Preset 2
 local altHoldPreset3 = 500 --export: Altitude Hold Preset 3
 local altHoldPreset4 = 50 --export: Altitude Hold Preset 4
+local deviationThreshold = 0.05 --export: Deviation tolerace in m
 local inertialDampening = true --export: Start with inertial dampening on/off
 local followGravity = true --export: Start with gravity follow on/off
 local minRotationSpeed = 0.01 --export: Minimum speed rotation scales from
@@ -14,6 +15,7 @@ local verticalSpeedLimitAtmo = 1100 --export: Vertical speed limit in atmosphere
 local verticalSpeedLimitSpace = 4000 --export: Vertical limit in space
 local approachSpeed = 200 --export: Max final approach speed
 local autoShutdown = true --export: Auto shutoff on RTB landing
+local breadCrumbDist = 1000 --export: Distance of vector breadcrumbs for elevator control
 
 activateFFonStart = false --export: Activate force fields on start (connected to button)
 
@@ -36,7 +38,9 @@ ship.altHoldPreset1 = altHoldPreset1
 ship.altHoldPreset2 = altHoldPreset2
 ship.altHoldPreset3 = altHoldPreset3
 ship.altHoldPreset4 = altHoldPreset4
+ship.deviationThreshold = deviationThreshold
 ship.pocket = pocket
+ship.breadCrumbDist = breadCrumbDist
 
 if flightModeDb ~= nil then
     if flightModeDb.hasKey("verticalSpeedLimitAtmo") == 0 or updateSettings then 

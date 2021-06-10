@@ -1,14 +1,14 @@
 --@require Atlas
 --@require PlanetRefMin
 --@require KinematicsMin
---@require StateMachine
 --@require SimpleSlotDetectorMin
+--@require StateMachine
 --@require EventDelegateMin
 --@require TaskManagerMin
 --@require DynamicDocumentMin
 --@require DUTTYMin
 --@require CSS_SHUD
---@require FuelTankHelper
+--@require FuelTankHelperMin
 --@require TagManagerMin
 --@require KeybindControllerMin
 --@require STEC
@@ -18,7 +18,7 @@
 --@require ElevatorScreen
 --@timer SHUDRender
 --@timer FuelStatus
---@timer EmitterTick
+--@timer DockingTrigger
 --@class Main
 
 _G.BuildUnit = {}
@@ -104,9 +104,9 @@ function Unit.Start()
 	system.print(unit.getMasterPlayerId())
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
-	unit.setTimer("EmitterTick", 1)
+	unit.setTimer("DockingTrigger", 1)
 	if laser ~= nil then laser.deactivate() end
-	system.print([[Horizon 1.0.1.11_1]])
+	system.print([[Horizon 1.0.1.11_3]])
 	local xMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(1,0,0):unpack()})
 	local yMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
 	local zMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
@@ -167,7 +167,7 @@ function Unit.Tick(timer)
 		getFuelRenderedHtml()
 		
 	end
-	if timer == "EmitterTick" then
+	if timer == "DockingTrigger" then
 		if telemeter ~= nil then telDistance = telemeter.getDistance() end
 		if ship.dockingClamps then
 			if laser ~= nil then laser.activate() end
@@ -210,6 +210,26 @@ function toggleVerticalLock()
 	--ship.verticalLock = true
     ship.lockVector = vec3(core.getConstructWorldOrientationUp())
     ship.lockPos = vec3(core.getConstructWorldPos()) + (vec3(core.getConstructWorldOrientationUp()))
+end
+function createBreadcrumbTrail(endAlt)
+	--Create a set of waypoints starting from the current position to the destination spaced 1km apart
+	local startPosition = moveWaypointZ(ship.customTarget, ship.world.atlasAltitude - ship.baseAltitude)
+	local endPosition = moveWaypointZ(ship.customTarget, endAlt)
+	local distance = (startPosition - endAlt):len()
+	if distance > 1000 then
+		for i = 1, round2(distance / 1000,0), 1 do
+			if ship.nearestPlanet:getAltitude(startPosition) < ship.nearestPlanet:getAltitude(endPosition) then
+				table.insert(ship.breadCrumbs, moveWaypointZ(startPosition, 1000 * i))
+			else
+				table.insert(ship.breadCrumbs, moveWaypointZ(startPosition, -1000 * i))
+			end
+		end
+	end
+end
+local btrail = createBreadcrumbTrail(3)
+system.print("Breadcrumbs:")
+for _, sw in ipairs(ship.breadCrumbs) do
+	system.print("POS: "..tostring(sw))
 end
 function buildScreen.MouseUp(x,y,slot)
 	ship.baseAltitude = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
