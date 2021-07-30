@@ -172,7 +172,7 @@ function Unit.Tick(timer)
 		if ship.dockingClamps then
 			if laser ~= nil then laser.activate() end
 			if telemeter ~= nil and telDistance > 0 and telDistance < 1 then
-				if ship.autoShutdown then unit.exit() end
+				if ship.autoShutdown then system.print(ship.altitude) unit.exit() end
 			end
 		end
 	end
@@ -226,11 +226,11 @@ function createBreadcrumbTrail(endAlt)
 		end
 	end
 end
-local btrail = createBreadcrumbTrail(3)
-system.print("Breadcrumbs:")
-for _, sw in ipairs(ship.breadCrumbs) do
-	system.print("POS: "..tostring(sw))
-end
+--local btrail = createBreadcrumbTrail(3)
+--system.print("Breadcrumbs:")
+--for _, sw in ipairs(ship.breadCrumbs) do
+--	system.print("POS: "..tostring(sw))
+--end
 function buildScreen.MouseUp(x,y,slot)
 	ship.baseAltitude = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
 	if settingsActive then
