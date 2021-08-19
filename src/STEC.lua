@@ -444,11 +444,15 @@ function STEC(core, control, Cd)
             --system.print("realDistance: "..realDistance)
             local breadCrumb
             if realDistance > self.breadCrumbDist and not self.deviated then
-                breadCrumb = moveWaypointZ(self.customTarget, self.altitude + self.breadCrumbDist)
+                breadCrumb = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude) + self.breadCrumbDist)
                 destination = breadCrumb
+                --local waypointString = ship.nearestPlanet:convertToMapPosition(destination)
+			    --system.print(tostring(waypointString))
             elseif realDistance < -self.breadCrumbDist and not self.deviated then
-                breadCrumb = moveWaypointZ(self.customTarget, self.altitude - self.breadCrumbDist)
+                breadCrumb = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude) - self.breadCrumbDist)
                 destination = breadCrumb
+                --local waypointString = ship.nearestPlanet:convertToMapPosition(destination)
+			    --system.print(tostring(waypointString))
             end
             
             self.elevatorDestination = (self.world.position - destination):normalize()
