@@ -106,7 +106,7 @@ function Unit.Start()
 	unit.setTimer("FuelStatus", 3)
 	unit.setTimer("DockingTrigger", 1)
 	if laser ~= nil then laser.deactivate() end
-	system.print([[Horizon 1.0.1.11_4]])
+	system.print([[Horizon 1.0.1.11_5]])
 	local xMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(1,0,0):unpack()})
 	local yMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
 	local zMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
@@ -248,22 +248,28 @@ function buildScreen.MouseUp(x,y,slot)
 		if mousex >= 0.0331 and mousex <= 0.2282 and mousey >= 0.1276 and mousey <= 0.2850 then --RTB button
 			ship.altitudeHold = ship.baseAltitude ship.elevatorActive = true
 			ship.targetDestination = moveWaypointZ(ship.customTarget, 0)
+			--local waypointString = ship.nearestPlanet:convertToMapPosition(ship.targetDestination)
+			--system.print(tostring(waypointString))
 		end
 		if mousex >= 0.2413 and mousex <= 0.4373 and mousey >= 0.1276 and mousey <= 0.2051 then --P1 button
 			ship.altitudeHold = ship.altHoldPreset1 ship.elevatorActive = true
 			ship.targetDestination = moveWaypointZ(ship.customTarget, ship.altHoldPreset1 - ship.baseAltitude)
+
 		end
 		if mousex >= 0.2413 and mousex <= 0.4373 and mousey >= 0.2091 and mousey <= 0.2850 then --P2 button
 			ship.altitudeHold = ship.altHoldPreset2 ship.elevatorActive = true
 			ship.targetDestination = moveWaypointZ(ship.customTarget, ship.altHoldPreset2 - ship.baseAltitude)
+
 		end
 		if mousex >= 0.2413 and mousex <= 0.4373 and mousey >= 0.2928 and mousey <= 0.3677 then --P3 button
 			ship.altitudeHold = ship.altHoldPreset3 ship.elevatorActive = true
 			ship.targetDestination = moveWaypointZ(ship.customTarget, ship.altHoldPreset3 - ship.baseAltitude)
+
 		end
 		if mousex >= 0.2413 and mousex <= 0.4373 and mousey >= 0.3761 and mousey <= 0.4514 then --P4 button
 			ship.altitudeHold = ship.altHoldPreset4 ship.elevatorActive = true
 			ship.targetDestination = moveWaypointZ(ship.customTarget, ship.altHoldPreset4 - ship.baseAltitude)
+
 		end
 		
 		if mousex >= 0.0331 and mousex <= 0.4373 and mousey >= 0.4609 and mousey <= 0.5364 then --Manual control button
