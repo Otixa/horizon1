@@ -82,6 +82,21 @@ function switchControlMode()
         ship.alternateCM = false 
     end
 end
+-- ::pos{0,2,40.4608,92.2665,4.3205}
+function gotoLock(a)
+    if string.find(a, "::pos") ~= nil then
+        local target = ship.nearestPlanet:convertToWorldCoordinates(a)
+        ship.followGravity = false
+        ship.targetVector = (target - ship.world.position ):normalize()
+        system.print("Target lock: "..a)
+    end
+end
+
+local tty = DUTTY
+tty.onCommand('goto', function(a)
+    gotoLock(a)
+end)
+
 
 keybindPresets["mouse"] = KeybindController()
 keybindPresets["mouse"].Init = function()

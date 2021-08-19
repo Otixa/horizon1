@@ -5,6 +5,7 @@
 --@require EventDelegate
 --@require TaskManager
 --@require DynamicDocument
+--@require DUTTYMin
 --@require CSS_SHUD
 --@require FuelTankHelper
 --@require TagManager
@@ -39,7 +40,7 @@ function Unit.Start()
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
 	--unit.setTimer("WaypointTest", 0.5)
-	system.print([[Horizon 1.1.1.8]])
+	system.print([[Horizon 1.1.1.8_1]])
 
 	local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
 	local vMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
@@ -84,6 +85,10 @@ end
 
 function System.ActionStop(action)
 	keybindPresets[keybindPreset].Call(action, "up")
+end
+
+function System.InputText(action)
+	if DUTTY then DUTTY.input(action) end
 end
 
 function System.ActionLoop(action)
