@@ -106,7 +106,7 @@ function Unit.Start()
 	unit.setTimer("FuelStatus", 3)
 	unit.setTimer("DockingTrigger", 1)
 	if laser ~= nil then laser.deactivate() end
-	system.print([[Horizon 1.0.1.11_3]])
+	system.print([[Horizon 1.0.1.11_4]])
 	local xMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(1,0,0):unpack()})
 	local yMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
 	local zMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
