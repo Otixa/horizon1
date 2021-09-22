@@ -40,14 +40,15 @@ function Unit.Start()
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
 	--unit.setTimer("WaypointTest", 0.5)
-	system.print([[Horizon 1.1.1.8_1]])
+	system.print([[Horizon 1.1.1.8_2]])
+
 	parentingPanelId = system.createWidgetPanel("Docking")
 	parentingWidgetId = system.createWidget(parentingPanelId,"parenting")
 	system.addDataToWidget(unit.getDataId(),parentingWidgetId)
 	
-
 	parentingPanelId.show()
 	parentingWidgetId.show()
+
 	local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
 	local vMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
 
