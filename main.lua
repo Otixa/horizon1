@@ -106,13 +106,20 @@ function Unit.Start()
 	unit.setTimer("FuelStatus", 3)
 	unit.setTimer("DockingTrigger", 1)
 	if laser ~= nil then laser.deactivate() end
-	system.print([[Horizon 1.0.1.11_5]])
+
+	system.print([[Horizon 1.0.1.11_6]])
+
+	parentingPanelId = system.createWidgetPanel("Docking")
+	parentingWidgetId = system.createWidget(parentingPanelId,"parenting")
+	system.addDataToWidget(unit.getDataId(),parentingWidgetId)
+
 	local xMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(1,0,0):unpack()})
 	local yMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
 	local zMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
 	system.print(string.format("xMax: %.2f %.2f %.2f %.2f",xMax[1],xMax[2],xMax[3],xMax[4]))
 	system.print(string.format("yMax: %.2f %.2f %.2f %.2f",yMax[1],yMax[2],yMax[3],yMax[4]))
 	system.print(string.format("zMax: %.2f %.2f %.2f %.2f",zMax[1],zMax[2],zMax[3],zMax[4]))
+	if setBaseOnStart then setBase() end
 	--StepOne.Start()
 end
 

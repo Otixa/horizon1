@@ -16,6 +16,7 @@ local verticalSpeedLimitSpace = 4000 --export: Vertical limit in space
 local approachSpeed = 200 --export: Max final approach speed
 local autoShutdown = true --export: Auto shutoff on RTB landing
 local breadCrumbDist = 1000 --export: Distance of vector breadcrumbs for elevator control
+setBaseOnStart = false --export: Set RTB location on start
 
 activateFFonStart = false --export: Activate force fields on start (connected to button)
 
