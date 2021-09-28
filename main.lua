@@ -40,20 +40,24 @@ function Unit.Start()
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
 	--unit.setTimer("WaypointTest", 0.5)
-	system.print([[Horizon 1.1.1.8_2]])
+	system.print([[Horizon 1.1.1.8_3]])
+
+	if showDockingWidget then
+		parentingPanelId = system.createWidgetPanel("Docking")
+		parentingWidgetId = system.createWidget(parentingPanelId,"parenting")
+		system.addDataToWidget(unit.getDataId(),parentingWidgetId)
+	end
 
 	parentingPanelId = system.createWidgetPanel("Docking")
 	parentingWidgetId = system.createWidget(parentingPanelId,"parenting")
 	system.addDataToWidget(unit.getDataId(),parentingWidgetId)
-	
-	parentingPanelId.show()
-	parentingWidgetId.show()
 
-	local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
-	local vMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
 
-	system.print(string.format( "fMax: %f, %f, %f, %f",fMax[1],fMax[2],fMax[3],fMax[4]))
-	system.print(string.format( "vMax: %f, %f, %f, %f",vMax[1],vMax[2],vMax[3],vMax[4]))
+	--local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
+	--local vMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
+
+	--system.print(string.format( "fMax: %f, %f, %f, %f",fMax[1],fMax[2],fMax[3],fMax[4]))
+	--system.print(string.format( "vMax: %f, %f, %f, %f",vMax[1],vMax[2],vMax[3],vMax[4]))
 end
 
 function Unit.Stop()
