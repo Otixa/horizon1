@@ -16,6 +16,8 @@ local verticalSpeedLimitSpace = 4000 --export: Vertical limit in space
 local approachSpeed = 200 --export: Max final approach speed
 local autoShutdown = true --export: Auto shutoff on RTB landing
 local breadCrumbDist = 1000 --export: Distance of vector breadcrumbs for elevator control
+showDockingWidget = true --export: Show Docking Widget
+dockingMode = 0 --export: Set docking mode (0:Manual, 1:Automatic, 2:Semi-Automatic)
 setBaseOnStart = false --export: Set RTB location on start
 
 activateFFonStart = false --export: Activate force fields on start (connected to button)
@@ -42,6 +44,12 @@ ship.altHoldPreset4 = altHoldPreset4
 ship.deviationThreshold = deviationThreshold
 ship.pocket = pocket
 ship.breadCrumbDist = breadCrumbDist
+
+if core.setDockingMode(dockingMode) then
+    system.print("Docking mode set successfully")
+else
+    system.print("Invalid docking mode")
+end
 
 if flightModeDb ~= nil then
     if flightModeDb.hasKey("verticalSpeedLimitAtmo") == 0 or updateSettings then 
