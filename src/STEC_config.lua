@@ -19,7 +19,8 @@ local breadCrumbDist = 1000 --export: Distance of vector breadcrumbs for elevato
 showDockingWidget = true --export: Show Docking Widget
 dockingMode = 0 --export: Set docking mode (0:Manual, 1:Automatic, 2:Semi-Automatic)
 setBaseOnStart = false --export: Set RTB location on start
-
+useGEAS = false --export:
+GEAS_Alt = 10 --export:
 activateFFonStart = false --export: Activate force fields on start (connected to button)
 
 local pocket = false --export: Pocket ship?
@@ -252,7 +253,8 @@ keybindPresets["keyboard"].keyUp.brake.Add(function () ship.brake = false end)
 --keybindPresets["keyboard"].keyDown.stopengines.Add(function () if ship.direction.y == 1 then ship.direction.y = 0 else ship.direction.y = 1 end end, "Cruise")
 keybindPresets["keyboard"].keyUp.stopengines.Add(function () SHUD.Select() if not SHUD.Enabled then if ship.direction.y == 1 then ship.direction.y = 0 else ship.direction.y = 1 end end end, "Cruise")
 
-keybindPresets["keyboard"].keyUp.gear.Add(function () SHUD.Enabled = not SHUD.Enabled end)
+keybindPresets["keyboard"].keyUp.gear.Add(function () useGEAS = not useGEAS; updateGEAS() end)
+keybindPresets["keyboard"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD.Enabled end)
 keybindPresets["keyboard"].keyUp["option1"].Add(function () ship.inertialDampeningDesired = not ship.inertialDampeningDesired end, "Inertial Dampening")
 keybindPresets["keyboard"].keyUp["option2"].Add(function () system.freeze(math.abs(1 - system.isFrozen())) swapForceFields() end,"Freeze character")
 keybindPresets["keyboard"].keyUp["option3"].Add(function () ship.followGravity = not ship.followGravity end, "Gravity Follow")
@@ -334,8 +336,16 @@ end)
 system.freeze(1)
 ship.frozen = false
 --ship.throttle = 0
+function updateGEAS()
+    if useGEAS then
+        unit.activateGroundEngineAltitudeStabilization(GEAS_Alt)
+    else
+        unit.deactivateGroundEngineAltitudeStabilization()
+    end
+end
 
-unit.deactivateGroundEngineAltitudeStabilization()
+updateGEAS()
+
 
 controlStateChange = true
 

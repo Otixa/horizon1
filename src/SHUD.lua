@@ -374,7 +374,7 @@ SHUD =
             _ENV["_SHUDBUFFER"] = esc(buffer)
         else
             if system.isFrozen() == 0 then ship.frozen = true else ship.frozen = false end
-            _ENV["_SHUDBUFFER"] = DD([[<div class="item helpText">Press ]] .. "[" .. self.system.getActionKeyName("gear") .. "]" .. [[ to  toggle menu</div>
+            _ENV["_SHUDBUFFER"] = DD([[<div class="item helpText">Press ]] .. "[" .. self.system.getActionKeyName("speedup") .. "]" .. [[ to  toggle menu</div>
                     <div class="item helpText"><span>Character Movement:</span>]].. self.MakeBooleanIndicator("ship.frozen") .. [[</div>
                     <div class="item helpText"><span>Vertical Lock:</span>]].. self.MakeBooleanIndicator("ship.verticalLock") .. [[</div>
                     <div class="item helpText"><span>Inertial Dampening:</span>]].. self.MakeBooleanIndicator("ship.inertialDampening") .. [[</div>
