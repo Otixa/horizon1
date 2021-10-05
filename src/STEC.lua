@@ -86,6 +86,7 @@ function STEC(core, control, Cd)
     self.breadCrumbDist = 1000
     self.deviated = false
     self.breadCrumbs = {}
+    self.hoverHeight = 10
     -- Whether the target vector should unlock automatically if the ship is rotated by the pilot
     self.targetVectorAutoUnlock = true
     -- Current altitude

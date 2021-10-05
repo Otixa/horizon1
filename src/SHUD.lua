@@ -227,6 +227,9 @@ SHUD =
         SMI(DD("<span>Gravity Suppression<span>" .. self.MakeBooleanIndicator("ship.counterGravity")), function() ship.counterGravity = not ship.counterGravity end),
         SMI(DD("<span>Gravity Follow</span>" .. self.MakeBooleanIndicator("ship.followGravity")), function() ship.followGravity = not ship.followGravity end),
         SMI(DD("<span>Inertial Dampening<span>" .. self.MakeBooleanIndicator("ship.inertialDampening")), function() ship.inertialDampeningDesired = not ship.inertialDampeningDesired end),
+        SMI(DD([[<span>Hover Height<span>]]..self.MakeSliderIndicator("ship.hoverHeight", "m")), 
+               function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
+               function(system, _ , w) ship.hoverHeight = utils.clamp(ship.hoverHeight + (system.getMouseWheel()),0,35) end),
     }
     function self.updateTargetDest()
         ship.targetDestination = moveWaypointZ(ship.customTarget, utils.clamp(ship.altitudeHold + (system.getMouseWheel() * altHoldAdjustmentSetting()),0,2000000) - ship.baseAltitude)
@@ -386,6 +389,9 @@ SHUD =
     end
 
     function self.Update()
+        if useGEAS then
+            unit.activateGroundEngineAltitudeStabilization(ship.hoverHeight)
+        end
         if system.isFrozen() == 1 or self.Enabled then
             opacity = 1
         else

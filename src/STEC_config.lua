@@ -22,9 +22,9 @@ setBaseOnStart = false --export: Set RTB location on start
 useGEAS = false --export:
 GEAS_Alt = 10 --export:
 activateFFonStart = false --export: Activate force fields on start (connected to button)
-
 local pocket = false --export: Pocket ship?
 
+ship.hoverHeight = GEAS_Alt
 --charMovement = true --export: Enable/Disable Character Movement
 ship.autoShutdown = autoShutdown
 ship.altitudeHold = round2(ship.altitude,0)
@@ -338,7 +338,7 @@ ship.frozen = false
 --ship.throttle = 0
 function updateGEAS()
     if useGEAS then
-        unit.activateGroundEngineAltitudeStabilization(GEAS_Alt)
+        unit.activateGroundEngineAltitudeStabilization(ship.hoverHeight)
     else
         unit.deactivateGroundEngineAltitudeStabilization()
     end
