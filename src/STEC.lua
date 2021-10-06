@@ -28,10 +28,10 @@ function STEC(core, control, Cd)
     self.control = control
     self.nearestPlanet = helios:closestBody(core.getConstructWorldPos())
     self.world = {
-        up = vec3(core.getConstructWorldOrientationUp()),
-        down = -vec3(core.getConstructWorldOrientationUp()),
-        left = -vec3(core.getConstructWorldOrientationRight()),
-        right = vec3(core.getConstructWorldOrientationRight()),
+        up = -vec3(core.getConstructWorldOrientationUp()),
+        down = vec3(core.getConstructWorldOrientationUp()),
+        left = vec3(core.getConstructWorldOrientationRight()),
+        right = -vec3(core.getConstructWorldOrientationRight()),
         forward = vec3(core.getConstructWorldOrientationForward()),
         back = -vec3(core.getConstructWorldOrientationForward()),
         velocity = vec3(core.getWorldVelocity()),
@@ -173,10 +173,10 @@ function STEC(core, control, Cd)
 
     function self.updateWorld()
         self.world = {
-            up = vec3(core.getConstructWorldOrientationUp()),
-            down = -vec3(core.getConstructWorldOrientationUp()),
-            left = -vec3(core.getConstructWorldOrientationRight()),
-            right = vec3(core.getConstructWorldOrientationRight()),
+            up = -vec3(core.getConstructWorldOrientationUp()),
+            down = vec3(core.getConstructWorldOrientationUp()),
+            left = vec3(core.getConstructWorldOrientationRight()),
+            right = -vec3(core.getConstructWorldOrientationRight()),
             forward = vec3(core.getConstructWorldOrientationForward()),
             back = -vec3(core.getConstructWorldOrientationForward()),
             velocity = vec3(core.getWorldVelocity()),
@@ -370,8 +370,8 @@ function STEC(core, control, Cd)
             --else
             --    scale = self.gravityFollowSpeed
             --end
-            local gFollow = (self.world.up:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos())))
-            local scale = 1
+            local gFollow = (self.world.up:cross(self.nearestPlanet:getGravity(core.getConstructWorldPos())))
+            local scale = 1.5
             if self.pocket then
                 if self.direction.x < 0  then
                     scale = 0.25
@@ -386,97 +386,7 @@ function STEC(core, control, Cd)
             gFollow = gFollow * scale
             atmp = atmp + gFollow
         end
-        
-        
-        if self.elevatorActive then
-            if not self.inertialDampening then self.inertialDampening = true end
-            if not self.counterGravity then self.counterGravity = true end
-            self.targetVector = self.rot
-            if self.world.velocity:len() > (2000 / 3.6) then deviation = 0 end
-            
-            local deltaAltitude =  self.altitudeHold - self.altitude
-            local brakeBuffer = 1000
-            
-            local speed = 0
-            --local self.breadCrumbDist = 500
-            local distance = (self.world.position - self.targetDestination):len()
-            local realDistance = helios:closestBody(self.targetDestination):getAltitude(self.targetDestination) - self.altitude
-            local destination = vec3(0,0,0)
-            local verticalSpeedLimit
-            
-            local dampen = 1
 
-            --if self.world.velocity:len() < 55.555 then
-                
-            --end
-            
-            if self.altitude <= (self.atmosphereThreshold + self.brakeDistance) or self.altitude <= self.brakeDistance then 
-                verticalSpeedLimit = self.verticalSpeedLimitAtmo 
-            else 
-                verticalSpeedLimit = self.verticalSpeedLimitSpace 
-            end
-            if  (self.brakeDistance + brakeBuffer) >= math.abs(deltaAltitude) then
-                verticalSpeedLimit = self.approachSpeed
-            end
-            
-            --system.print("self.deviation: "..self.deviation)
-            self.deviation = (moveWaypointZ(self.customTarget, self.altitude - self.baseAltitude) - self.world.position):len()
-            local deviationThreshold = self.deviationThreshold
-            if self.deviated then deviationThreshold = deviationThreshold * 0.5 end
-            --system.print("Deviation threshold: "..deviationThreshold)
-            if self.deviation > (deviationThreshold + self.world.velocity:len() * 10^-2) then
-                destination = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude))
-                self.deviated = true
-                speed = self.deviation
-                self.stateMessage = "Correcting Deviation"
-            else
-                self.deviated = false
-                destination = self.targetDestination
-            end
-
-            if math.abs(deltaAltitude) > self.brakeDistance and math.abs(deltaAltitude) > 500 and not self.deviated then
-                self.stateMessage = "Traveling"
-                speed = round2((clamp(deltaAltitude, -verticalSpeedLimit, verticalSpeedLimit)), 1)
-            elseif not self.deviated then
-                self.stateMessage = "Final approach"
-                speed = self.approachSpeed
-                if self.brakeDistance * 1.5 >= math.abs(distance) then speed = 5 end
-            end
-            --system.print("realDistance: "..realDistance)
-            local breadCrumb
-            if realDistance > self.breadCrumbDist and not self.deviated then
-                breadCrumb = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude) + self.breadCrumbDist)
-                destination = breadCrumb
-                --local waypointString = ship.nearestPlanet:convertToMapPosition(destination)
-			    --system.print(tostring(waypointString))
-            elseif realDistance < -self.breadCrumbDist and not self.deviated then
-                breadCrumb = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude) - self.breadCrumbDist)
-                destination = breadCrumb
-                --local waypointString = ship.nearestPlanet:convertToMapPosition(destination)
-			    --system.print(tostring(waypointString))
-            end
-            
-            self.elevatorDestination = (self.world.position - destination):normalize()
-            --system.print("TEST: "..round2((distance * distance),4))
-            
-            tmp = tmp - self.elevatorDestination * self.mass * utils.clamp(distance * 3.6,0.3,((math.abs(speed)/3.6) * self.IDIntensity))
-            --if breadCrumb ~= nil then system.print("Breadcrumb distance: "..(self.world.position - breadCrumb):len()) end
-            if distance < 0.01 and not manualControl then 
-                self.elevatorActive = false self.targetVector = nil 
-                self.stateMessage = "Idle"
-                self.dockingClamps = true
-            elseif distance < 2 and self.world.velocity:len() == 0 and not manualControl then
-                self.elevatorActive = false self.targetVector = nil
-                self.stateMessage = "Idle"
-                self.dockingClamps = true
-            else
-                self.dockingClamps = false
-            end
-            
-	    else
-            self.stateMessage = "Idle"
-            self.destination = vec3(0,0,0)
-        end
         if self.inertialDampening then
             local currentShipMomentum = self.localVelocity
             local delta = vec3(0,0,0)

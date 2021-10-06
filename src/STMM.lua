@@ -12,8 +12,8 @@ function STMM(stec, system)
     self.enabled = true
     self.enableX = true
     self.enableY = true
-    self.sensitivity = 0.005
-    self.threshold = 0.2
+    self.sensitivity = 0.001
+    self.threshold = 0.05
     self.deltaClamp = 3000
     self.recenterSpeed = 20
     self.deltaPos = vec3(0, 0, 0)
@@ -52,12 +52,12 @@ function STMM(stec, system)
         self.deltaPos = ( self.deltaPos - ( self.deltaPos / self.recenterSpeed )) - vec3(self.system.getMouseDeltaX() * self.sensitivity, self.system.getMouseDeltaY() * self.sensitivity, 0)
         self.deltaPos = vec3(clamp(self.deltaPos.x, -self.deltaClamp, self.deltaClamp), clamp(self.deltaPos.y, -self.deltaClamp, self.deltaClamp), 0)
         if withinThreshold(self.deltaPos.x, self.threshold) then
-             if self.enableX then stec.rotation.z = -self.deltaPos.x end
+             if self.enableX then stec.rotation.z = self.deltaPos.x end
         else
             if self.enableX then stec.rotation.z = 0 end
         end
         if withinThreshold(self.deltaPos.y, self.threshold) then
-            if self.enableY then stec.rotation.x = self.deltaPos.y end
+            --if self.enableY then stec.rotation.x = self.deltaPos.y end
         else
             if self.enableY then stec.rotation.x = 0 end
         end

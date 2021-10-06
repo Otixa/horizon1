@@ -206,7 +206,7 @@ SHUD =
             SMI(DD([[<span>Throttle<span>]]..self.MakeSliderIndicator("round2(ship.throttle * 100)", "%")), 
                 function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
                 function(system, _ , w) ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1) end),
-            
+            self.GenerateMenuLink("Flight Mode", "flightMode"),
             self.GenerateMenuLink("Stability Assist", "stability"),
             self.GenerateMenuLink("Altitude Hold", "altHold"),
             self.GenerateMenuLink("Ship Stats", "shipStats"),
@@ -391,11 +391,6 @@ SHUD =
     function self.Update()
         if useGEAS then
             unit.activateGroundEngineAltitudeStabilization(ship.hoverHeight)
-        end
-        if system.isFrozen() == 1 or self.Enabled then
-            opacity = 1
-        else
-            opacity = 0.5
         end
         if not self.ScrollLock and self.Enabled then
             local wheel = system.getMouseWheel()
