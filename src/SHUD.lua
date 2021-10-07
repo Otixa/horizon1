@@ -208,7 +208,6 @@ SHUD =
                 function(system, _ , w) ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1) end),
             self.GenerateMenuLink("Flight Mode", "flightMode"),
             self.GenerateMenuLink("Stability Assist", "stability"),
-            self.GenerateMenuLink("Altitude Hold", "altHold"),
             self.GenerateMenuLink("Ship Stats", "shipStats"),
             SMI([[<i>&#9432;&nbsp;</i><span>&nbsp;Hotkeys</span>]]..self.MenuIcon, function() self.SelectMenu("hotkeys") end)
     }
@@ -230,24 +229,6 @@ SHUD =
         SMI(DD([[<span>Hover Height<span>]]..self.MakeSliderIndicator("ship.hoverHeight", "m")), 
                function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
                function(system, _ , w) ship.hoverHeight = utils.clamp(ship.hoverHeight + (system.getMouseWheel()),0,35) end),
-    }
-    function self.updateTargetDest()
-        ship.targetDestination = moveWaypointZ(ship.customTarget, utils.clamp(ship.altitudeHold + (system.getMouseWheel() * altHoldAdjustmentSetting()),0,2000000) - ship.baseAltitude)
-        ship.altitudeHold = utils.clamp(ship.altitudeHold + (system.getMouseWheel() * altHoldAdjustmentSetting()),0,2000000)
-    end
-    self.MenuList.altHold = {
-        SMI(DD("<span>Altitude Hold<span>" .. self.MakeBooleanIndicator("ship.elevatorActive")), function() ship.elevatorActive = not ship.elevatorActive end),
-        SMI(DD([[<span>Multiplier<span>]]..self.MakeSliderIndicator("round2(altHoldAdjustmentSetting(),3)", "")), 
-               function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
-               function(system, _ , w) altAdjustment = utils.clamp(altAdjustment + (system.getMouseWheel()),-1,4) end),
-        SMI(DD([[<span>Alt Setpoint<span>]]..self.MakeSliderIndicator("round2(ship.altitudeHold,3)", "m")), 
-               function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
-               function(system, _ , w) self.updateTargetDest() end),
-        SMI(DD([[<span>Preset 1:</span><span class="right">]].. mToKm(ship.altHoldPreset1).."</span>"), function() ship.altitudeHold = ship.altHoldPreset1 ship.elevatorActive = true end),
-        SMI(DD([[<span>Preset 2:</span><span class="right">]].. mToKm(ship.altHoldPreset2).."</span>"), function() ship.altitudeHold = ship.altHoldPreset2 ship.elevatorActive = true end),
-        SMI(DD([[<span>Preset 3:</span><span class="right">]].. mToKm(ship.altHoldPreset3).."</span>"), function() ship.altitudeHold = ship.altHoldPreset3 ship.elevatorActive = true end),
-        SMI(DD([[<span>Preset 4:</span><span class="right">]].. mToKm(ship.altHoldPreset4).."</span>"), function() ship.altitudeHold = ship.altHoldPreset4 ship.elevatorActive = true end),
-        SMI(DD([[<span>Altitude:</span><span class="right">{{round2(ship.altitude,4)}}</span>]])).Disable(),
     }
     
     self.MenuList.hotkeys = {}
@@ -279,30 +260,6 @@ SHUD =
     opacity = 1.0
     local template = DD(fa..[[
     <div id="horizon" style="opacity: {{opacity}};">
-        <svg dd-if="enableARReticle" class="shadow" height="100%" width="100%" viewBox="{{SHUD.SvgMinX}} {{SHUD.SvgMinY}} {{SHUD.SvgWidth}} {{SHUD.SvgHeight}}">
-            <g transform="translate({{ship.viewX}},{{ -ship.viewY }}) scale(0.7)">
-                <line class="st0" x1="-0.5" y1="-91.5" x2="-0.5" y2="-11.5"/>
-                <line class="st0" x1="116" y1="-0.5" x2="19" y2="-0.5"/>
-                <line class="st0" x1="-0.5" y1="10.25" x2="-0.5" y2="90.25"/>
-                <line class="st0" x1="-20" y1="-0.5" x2="-117" y2="-0.5"/>
-                <line class="st1" x1="-0.5" y1="-4" x2="-0.5" y2="3"/>
-                <line class="st1" x1="3" y1="-0.5" x2="-4" y2="-0.5"/>
-                <path class="st0" d="M-10,16.34c-5.12-3.4-8.5-9.23-8.5-15.84c0-6.56,3.32-12.34,8.38-15.76"/>
-                <path class="st0" d="M10-15.96c5.68,3.29,9.5,9.43,9.5,16.46c0,7.03-3.82,13.17-9.5,16.46"/>
-                <g transform="rotate({{ shipPitch }} 0,0)">
-                    <path class="st0" d="M-53.99-10.22c3.98-17.83,19.5-38.76,42.99-43.7"/>
-                    <path class="st0" d="M-11,51.99C-32.68,47.76-49.76,30.68-53.99,9"/>
-                    <path class="st0" d="M52.99,9C48.69,31.01,31.15,48.28,9,52.17"/>
-                    <path class="st0" d="M9-54.14c21.87,3.98,39.92,21.42,44.09,43.78"/>
-                    <line class="st0" x1="-53.5" y1="-10.5" x2="-94.5" y2="-10.5"/>
-                    <line class="st0" x1="-54" y1="9.5" x2="-95" y2="9.5"/>
-                    <polyline class="st2" points="53,9.5 84.49,9.5 94,9.5 84.5,13.5 84.5,9.5 "/>
-                    <polyline class="st2" points="53,-10.5 84.49,-10.5 94,-10.5 84.5,-14.5 84.5,-10.5 "/>
-                </g dd-if="ship.world.nearPlanet">
-            </g>
-            
-            
-        </svg>
         <div id="speedometerBar">&nbsp;</div>
            <div id="speedometer">
                <span class="display">
@@ -378,7 +335,7 @@ SHUD =
         else
             if system.isFrozen() == 0 then ship.frozen = true else ship.frozen = false end
             _ENV["_SHUDBUFFER"] = DD([[<div class="item helpText">Press ]] .. "[" .. self.system.getActionKeyName("speedup") .. "]" .. [[ to  toggle menu</div>
-                    <div class="item helpText"><span>Character Movement:</span>]].. self.MakeBooleanIndicator("ship.frozen") .. [[</div>
+                    <div class="item helpText"><span>Hover Height:</span>]].. self.MakeSliderIndicator("ship.hoverHeight","m") .. [[</div>
                     <div class="item helpText"><span>Vertical Lock:</span>]].. self.MakeBooleanIndicator("ship.verticalLock") .. [[</div>
                     <div class="item helpText"><span>Inertial Dampening:</span>]].. self.MakeBooleanIndicator("ship.inertialDampening") .. [[</div>
                     <div class="item helpText"><span>Gravity Follow:</span>]].. self.MakeBooleanIndicator("ship.followGravity") .. [[</div>

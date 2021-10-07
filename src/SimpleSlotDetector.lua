@@ -11,12 +11,13 @@ screen = nil
 settingsActive = false
 emitter = nil
 telemeter = nil
+hovers = {}
 
 function getElements()
   for k,var in pairs(_G) do
     if type(var) == "table" and var["getElementClass"] then
       local class = var["getElementClass"]()
-      --system.print(class)
+      system.print(class)
       if class == "CoreUnitDynamic" or class == "CoreUnitStatic" or class == "CoreUnitSpace" then
         core = var
       end
@@ -63,11 +64,17 @@ function getElements()
       if class == "TelemeterUnit" then
         telemeter = var
       end
+      if class == "Hovercraft" then
+        table.insert(hovers, var)
+        
+      end
     end
   end
 end
 
 getElements()
 
-
+for i, value in ipairs(hovers) do
+  system.print("Distance: "..value.distance())
+end
 

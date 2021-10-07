@@ -9,7 +9,6 @@ local rotationStep = 0.3 --export: Depermines how quickly rotation scales up
 showDockingWidget = true --export: Show Docking Widget
 dockingMode = 0 --export: Set docking mode (0:Manual, 1:Automatic, 2:Semi-Automatic)
 setBaseOnStart = false --export: Set RTB location on start
-useGEAS = false --export:
 GEAS_Alt = 4 --export:
 activateFFonStart = false --export: Activate force fields on start (connected to button)
 local pocket = false --export: Pocket ship?
@@ -152,7 +151,7 @@ keybindPresets["keyboard"].keyUp.speeddown.Add(function () if mouse.enabled then
 
 
 
-keybindPresets["keyboard"].keyUp.gear.Add(function () useGEAS = not useGEAS; updateGEAS() end)
+keybindPresets["keyboard"].keyUp.gear.Add(function () ship.holdAlt = not ship.holdAlt ship.counterGravity = ship.holdAlt end)
 keybindPresets["keyboard"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD.Enabled end)
 keybindPresets["keyboard"].keyUp["option1"].Add(function () ship.inertialDampeningDesired = not ship.inertialDampeningDesired end, "Inertial Dampening")
 keybindPresets["keyboard"].keyUp["option2"].Add(function () system.freeze(math.abs(1 - system.isFrozen())) swapForceFields() end,"Freeze character")
@@ -252,17 +251,6 @@ end)
 system.freeze(1)
 ship.frozen = false
 --ship.throttle = 0
-function updateGEAS()
-    if useGEAS then
-        unit.activateGroundEngineAltitudeStabilization(ship.hoverHeight)
-    else
-        unit.deactivateGroundEngineAltitudeStabilization()
-    end
-end
-
-updateGEAS()
-
-
 controlStateChange = true
 
 function normalizeTravelMode()

@@ -1,7 +1,7 @@
 --@require Atlas
 --@require PlanetRefMin
 --@require KinematicsMin
---@require SimpleSlotDetectorMin
+--@require SimpleSlotDetector
 --@require EventDelegateMin
 --@require TaskManagerMin
 --@require DynamicDocumentMin

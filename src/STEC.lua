@@ -87,6 +87,7 @@ function STEC(core, control, Cd)
     self.deviated = false
     self.breadCrumbs = {}
     self.hoverHeight = 10
+    self.holdAlt = false
     -- Whether the target vector should unlock automatically if the ship is rotated by the pilot
     self.targetVectorAutoUnlock = true
     -- Current altitude
@@ -122,7 +123,7 @@ function STEC(core, control, Cd)
     -- Whether or not the vessel should attempt to counter gravity influence
     self.counterGravity = true
     -- Whether or not the vessel should attempt to face perpendicular to the gravity vector
-    self.followGravity = false
+    self.followGravity = true
     -- Aggressiveness of the gravity follow adjustment
     self.gravityFollowSpeed = 6
     -- Speed (in km/h) in which to limit the velocity of the ship
@@ -385,6 +386,16 @@ function STEC(core, control, Cd)
             end
             gFollow = gFollow * scale
             atmp = atmp + gFollow
+        end
+
+        if self.holdAlt then
+            local hoverDist = {}
+            for k, v in ipairs(hovers) do 
+                table.insert(hoverDist,v.distance())
+            end
+            local telDistance = math.min(table.unpack(hoverDist))
+            local delta = self.hoverHeight - telDistance
+            tmp = tmp - ((self.world.gravity * (self.mass * 2)) * delta)
         end
 
         if self.inertialDampening then
