@@ -9,7 +9,6 @@ function round2(num, numDecimalPlaces)
         end
 end
 
-
 if next(manualSwitches) ~= nil then 
     for _, sw in ipairs(manualSwitches) do
       system.print("Deactivate!")
@@ -206,6 +205,9 @@ SHUD =
             SMI(DD([[<span>Throttle<span>]]..self.MakeSliderIndicator("round2(ship.throttle * 100)", "%")), 
                 function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
                 function(system, _ , w) ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1) end),
+            SMI(DD([[<span>Hover Height<span>]]..self.MakeSliderIndicator("ship.hoverHeight", "m")), 
+                function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
+                function(system, _ , w) ship.hoverHeight = utils.clamp(ship.hoverHeight + (system.getMouseWheel()),0,35) end),
             self.GenerateMenuLink("Flight Mode", "flightMode"),
             self.GenerateMenuLink("Stability Assist", "stability"),
             self.GenerateMenuLink("Ship Stats", "shipStats"),
@@ -336,7 +338,6 @@ SHUD =
             if system.isFrozen() == 0 then ship.frozen = true else ship.frozen = false end
             _ENV["_SHUDBUFFER"] = DD([[<div class="item helpText">Press ]] .. "[" .. self.system.getActionKeyName("speedup") .. "]" .. [[ to  toggle menu</div>
                     <div class="item helpText"><span>Hover Height:</span>]].. self.MakeSliderIndicator("ship.hoverHeight","m") .. [[</div>
-                    <div class="item helpText"><span>Vertical Lock:</span>]].. self.MakeBooleanIndicator("ship.verticalLock") .. [[</div>
                     <div class="item helpText"><span>Inertial Dampening:</span>]].. self.MakeBooleanIndicator("ship.inertialDampening") .. [[</div>
                     <div class="item helpText"><span>Gravity Follow:</span>]].. self.MakeBooleanIndicator("ship.followGravity") .. [[</div>
                     <div class="item helpText"><span>Gravity Supression:</span>]].. self.MakeBooleanIndicator("ship.counterGravity") .. [[</div>

@@ -17,7 +17,7 @@
 --@require STEC_Config
 --@timer SHUDRender
 --@timer FuelStatus
---@timer DockingTrigger
+--@timer SetHoverHeight
 --@class Main
 
 _G.BuildUnit = {}
@@ -43,11 +43,15 @@ function Unit.Start()
 			end
 		end
 	end
-
+	if flightModeDb ~= nil then
+		if flightModeDb.hasKey("hoverHeight") == 1 then
+			ship.hoverHeight = flightModeDb.getIntValue("hoverHeight")
+		end
+	end
 	system.print(unit.getMasterPlayerId())
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
-	unit.setTimer("DockingTrigger", 1)
+	unit.setTimer("SetHoverHeight", 1)
 	if laser ~= nil then laser.deactivate() end
 
 	system.print([[Horizon 1.2.1.11_6]])
@@ -76,6 +80,8 @@ end
 local emitterOn = false
 local tmpClamp = ship.dockingClamps
 
+
+
 function Unit.Tick(timer)
 	if timer == "SHUDRender" then
 		if screen == nil then
@@ -92,7 +98,14 @@ function Unit.Tick(timer)
 		getFuelRenderedHtml()
 		
 	end
-	
+	if timer == "SetHoverHeight" then
+		if flightModeDb ~= nil then
+			local hHeight = flightModeDb.getIntValue("hoverHeight")
+			if hHeight ~= ship.hoverHeight then
+				flightModeDb.setIntValue("hoverHeight",ship.hoverHeight)
+			end
+		end
+	end
 end
 
 function System.ActionStart(action)

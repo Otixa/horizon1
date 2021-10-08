@@ -22,16 +22,18 @@ kinematics = Kinematics()
 local jdecode = json.decode
 local maxBrake = jdecode(unit.getData()).maxBrake
 
+
 function STEC(core, control, Cd)
     local self = {}
     self.core = core
+    self.flippedCore = true
     self.control = control
     self.nearestPlanet = helios:closestBody(core.getConstructWorldPos())
     self.world = {
-        up = -vec3(core.getConstructWorldOrientationUp()),
-        down = vec3(core.getConstructWorldOrientationUp()),
-        left = vec3(core.getConstructWorldOrientationRight()),
-        right = -vec3(core.getConstructWorldOrientationRight()),
+        up = vec3(core.getConstructWorldOrientationUp()),
+        down = -vec3(core.getConstructWorldOrientationUp()),
+        left = -vec3(core.getConstructWorldOrientationRight()),
+        right = vec3(core.getConstructWorldOrientationRight()),
         forward = vec3(core.getConstructWorldOrientationForward()),
         back = -vec3(core.getConstructWorldOrientationForward()),
         velocity = vec3(core.getWorldVelocity()),
@@ -43,6 +45,12 @@ function STEC(core, control, Cd)
         nearPlanet = unit.getClosestPlanetInfluence() > 0,
         atlasAltitude = self.nearestPlanet:getAltitude(core.getConstructWorldPos())
     }
+    if self.flippedCore then
+        self.world.up = -self.world.up
+        self.world.down = -self.world.down
+        self.world.left = -self.world.left
+        self.world.right = -self.world.right
+    end
     self.target = {
         prograde = function() return self.world.velocity:normalize() end,
         retrograde = function() return -self.world.velocity:normalize() end,
@@ -174,10 +182,10 @@ function STEC(core, control, Cd)
 
     function self.updateWorld()
         self.world = {
-            up = -vec3(core.getConstructWorldOrientationUp()),
-            down = vec3(core.getConstructWorldOrientationUp()),
-            left = vec3(core.getConstructWorldOrientationRight()),
-            right = -vec3(core.getConstructWorldOrientationRight()),
+            up = vec3(core.getConstructWorldOrientationUp()),
+            down = -vec3(core.getConstructWorldOrientationUp()),
+            left = -vec3(core.getConstructWorldOrientationRight()),
+            right = vec3(core.getConstructWorldOrientationRight()),
             forward = vec3(core.getConstructWorldOrientationForward()),
             back = -vec3(core.getConstructWorldOrientationForward()),
             velocity = vec3(core.getWorldVelocity()),
@@ -189,6 +197,12 @@ function STEC(core, control, Cd)
             nearPlanet = unit.getClosestPlanetInfluence() > 0,
             atlasAltitude = self.nearestPlanet:getAltitude(core.getConstructWorldPos())
         }
+        if self.flippedCore then
+            self.world.up = -self.world.up
+            self.world.down = -self.world.down
+            self.world.left = -self.world.left
+            self.world.right = -self.world.right
+        end
         self.nearestPlanet = helios:closestBody(core.getConstructWorldPos())
 	   -- Roll Degrees
         self.rollDegrees = self.world.vertical:angle_between(self.world.left) / math.pi * 180 - 90
@@ -371,7 +385,10 @@ function STEC(core, control, Cd)
             --else
             --    scale = self.gravityFollowSpeed
             --end
-            local gFollow = (self.world.up:cross(self.nearestPlanet:getGravity(core.getConstructWorldPos())))
+            local gFollow = (-self.world.up:cross(self.nearestPlanet:getGravity(core.getConstructWorldPos())))
+            if self.flippedCore then
+                gFollow = (self.world.up:cross(self.nearestPlanet:getGravity(core.getConstructWorldPos())))
+            end
             local scale = 1.5
             if self.pocket then
                 if self.direction.x < 0  then
@@ -385,7 +402,7 @@ function STEC(core, control, Cd)
                 end
             end
             gFollow = gFollow * scale
-            atmp = atmp + gFollow
+            atmp = atmp + gFollow - ((self.AngularVelocity * 3) - (self.AngularAirFriction * 3))
         end
 
         if self.holdAlt then
