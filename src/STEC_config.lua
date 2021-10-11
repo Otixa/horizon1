@@ -8,7 +8,7 @@ rotationMax = 5 --export: Auto-scaling rotaiton max speed
 rotationStep = 0.02 --export: Controls how quickly the rotation speed scales up
 showDockingWidget = true --export: Show Docking Widget
 dockingMode = 0 --export: Set docking mode (0:Manual, 1:Automatic, 2:Semi-Automatic)
-setBaseOnStart = false --export: Set RTB location on start
+vtolShip = true --export:
 
 
 ship.inertialDampening = inertialDampening
@@ -227,7 +227,7 @@ keybindPresets["keyboard"].keyUp["option3"].Add(function () if ship.direction.y 
 keybindPresets["keyboard"].keyUp["option4"].Add(function () ship.counterGravity = not ship.counterGravity end, "Counter Gravity")
 keybindPresets["keyboard"].keyUp["option5"].Add(function () switchFlightMode("mouse") end, "Switch Flight Mode")
 keybindPresets["keyboard"].keyUp["option6"].Add(function () switchControlMode() end, "Alternate Control Mode Switch")
-
+keybindPresets["keyboard"].keyUp["option7"].Add(function () ship.disableVTOL = not ship.disableVTOL end, "Disable VTOL")
 if flightModeDb then
    if flightModeDb.hasKey("flightMode") == 0 then flightModeDb.setStringValue("flightMode","keyboard") end
    keybindPreset = flightModeDb.getStringValue("flightMode")

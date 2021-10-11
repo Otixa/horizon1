@@ -442,6 +442,7 @@ SHUD =
                         <div class="item helpText"><span>Altitude Hold: </span><span class="right">]] .. altHoldDisplay .. [[</span></div>
             	        <div class="item helpText"><span>Character movement:</span>]].. self.MakeBooleanIndicator("ship.frozen") .. [[</div>
             	        <div class="item helpText"><span>Inertial Dampening:</span>]].. self.MakeBooleanIndicator("ship.inertialDampening") .. [[</div>
+                        <div class="item helpText"><span>Disable VTOL:</span>]].. self.MakeBooleanIndicator("ship.disableVTOL") .. [[</div>
             	        <div class="item helpText"><span>Gravity Follow:</span>]].. self.MakeBooleanIndicator("ship.followGravity") .. [[</div>
             	        <div class="item helpText"><span>Gravity Supression:</span>]].. self.MakeBooleanIndicator("ship.counterGravity") .. [[</div>
             	        <div class="item helpText"><span>Control Mode:</span><span class="right">{{getControlMode()}}</span></div>
@@ -450,6 +451,7 @@ SHUD =
                 _ENV["_SHUDBUFFER"] = DD([[<div class="item helpText">Press ]] .. "[" .. self.system.getActionKeyName("speedup") .. "]" .. [[ to  toggle menu</div>[[
                         <div class="item helpText"><span>Altitude Hold: </span><span class="right">]] .. altHoldDisplay .. [[</span></div>
             	        <div class="item helpText"><span>Inertial Dampening:</span>]].. self.MakeBooleanIndicator("ship.inertialDampening") .. [[</div>
+                        <div class="item helpText"><span>Disable VTOL:</span>]].. self.MakeBooleanIndicator("ship.disableVTOL") .. [[</div>
             	        <div class="item helpText"><span>Gravity Follow:</span>]].. self.MakeBooleanIndicator("ship.followGravity") .. [[</div>
             	        <div class="item helpText"><span>Gravity Supression:</span>]].. self.MakeBooleanIndicator("ship.counterGravity") .. [[</div>
             	        <div class="item helpText"><span>Control Mode:</span><span class="right">{{getControlMode()}}</span></div>

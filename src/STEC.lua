@@ -134,7 +134,8 @@ function STEC(core, control, Cd)
     if self.world.vertical:dot(self.world.up) > 0 then self.rollDegrees = 180 - self.rollDegrees end
     -- Pitch
     self.pitchRatio = self.world.vertical:angle_between(self.world.forward) / math.pi - 0.5
-    
+    self.disableVTOL = false
+    self.disabledTags = ""
     local lastUpdate = system.getTime()
     
     
@@ -369,9 +370,15 @@ function STEC(core, control, Cd)
                 self.alternateCM = true 
             end
         end
-       
         
-        self.control.setEngineCommand(tostring(self.tags), {tmp:unpack()}, {atmp:unpack()})
+        if self.disableVTOL then
+            self.disabledTags = "VTOL"
+        else
+            self.disabledTags = ""
+        end
+        
+        self.control.setEngineCommand(tostring(self.tags), {tmp:unpack()}, {atmp:unpack()}, true, true, "ground,airfoil")
+        self.control.setEngineCommand(self.disabledTags)
         lastUpdate = system.getTime()
     end
 
