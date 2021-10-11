@@ -10,14 +10,16 @@ laser = nil
 screen = nil
 settingsActive = false
 emitter = nil
-telemeter = nil
+telemeters = {}
 hovers = {}
+frontTel = nil
+rearTel = nil
 
 function getElements()
   for k,var in pairs(_G) do
     if type(var) == "table" and var["getElementClass"] then
       local class = var["getElementClass"]()
-      system.print(class)
+      --system.print(class)
       if class == "CoreUnitDynamic" or class == "CoreUnitStatic" or class == "CoreUnitSpace" then
         core = var
       end
@@ -62,7 +64,7 @@ function getElements()
         emitter = var
       end
       if class == "TelemeterUnit" then
-        telemeter = var
+        table.insert(telemeters, var)
       end
       if class == "Hovercraft" then
         table.insert(hovers, var)
@@ -74,7 +76,15 @@ end
 
 getElements()
 
-for i, value in ipairs(hovers) do
-  system.print("Distance: "..value.distance())
+local tel1Pos = vec3(core.getElementPositionById(telemeters[1].getId()))
+local tel2Pos = vec3(core.getElementPositionById(telemeters[2].getId()))
+
+if tel1Pos.y < tel2Pos.y then
+  frontTel = telemeters[1]
+  rearTel = telemeters[2]
+else
+  frontTel = telemeters[2]
+  rearTel = telemeters[1]
 end
 
+system.print("frontTel: "..frontTel.getDistance().." rearTel: "..rearTel.getDistance())

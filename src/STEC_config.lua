@@ -4,7 +4,7 @@ local updateSettings = false --export: Use these settings
 local inertialDampening = true --export: Start with inertial dampening on/off
 local followGravity = true --export: Start with gravity follow on/off
 local minRotationSpeed = 0.4 --export: Minimum speed rotation scales from
-local maxRotationSpeed = 8 --export: Maximum speed rotation scales to
+local maxRotationSpeed = 24 --export: Maximum speed rotation scales to
 local rotationStep = 0.3 --export: Depermines how quickly rotation scales up
 showDockingWidget = true --export: Show Docking Widget
 dockingMode = 0 --export: Set docking mode (0:Manual, 1:Automatic, 2:Semi-Automatic)
@@ -109,20 +109,20 @@ end
 
 -- keyboard
 if ship.flippedCore then
-    keybindPresets["keyboard"].keyDown.up.Add(function () ship.rotation.x = -0.15 ship.direction.z = -1 end) --space
-    keybindPresets["keyboard"].keyUp.up.Add(function () ship.rotation.x = 0 ship.direction.z = 0 end) --space
-    keybindPresets["keyboard"].keyDown.down.Add(function () ship.rotation.x = 0.15 ship.direction.z = 1 end) --c
-    keybindPresets["keyboard"].keyUp.down.Add(function () ship.rotation.x = 0 ship.direction.z = 0 end) --c
+    keybindPresets["keyboard"].keyDown.up.Add(function () ship.holdAlt = true; ship.counterGravity = true; ship.rotation.x = -0.15  end) --space
+    keybindPresets["keyboard"].keyUp.up.Add(function () ship.rotation.x = 0  end) --space
+    keybindPresets["keyboard"].keyDown.down.Add(function () ship.rotation.x = 0.15  end) --c
+    keybindPresets["keyboard"].keyUp.down.Add(function () ship.rotation.x = 0  end) --c
 
     keybindPresets["keyboard"].keyDown.yawleft.Add(function () ship.rotation.y = -autoRoll ship.rotation.z = 1 end) --a
     keybindPresets["keyboard"].keyUp.yawleft.Add(function () ship.rotation.y = 0 ship.rotation.z = 0 ship.rotationSpeedz = ship.minRotationSpeed end) --a
     keybindPresets["keyboard"].keyDown.yawright.Add(function () ship.rotation.y = autoRoll ship.rotation.z = -1 end) --d
     keybindPresets["keyboard"].keyUp.yawright.Add(function () ship.rotation.y = 0 ship.rotation.z = 0 ship.rotationSpeedz = ship.minRotationSpeed end) --d
 else
-    keybindPresets["keyboard"].keyDown.up.Add(function () ship.rotation.x = 0.15 ship.direction.z = 1 end) --space
-    keybindPresets["keyboard"].keyUp.up.Add(function () ship.rotation.x = 0 ship.direction.z = 0 end) --space
-    keybindPresets["keyboard"].keyDown.down.Add(function () ship.rotation.x = -0.15 ship.direction.z = -1 end) --c
-    keybindPresets["keyboard"].keyUp.down.Add(function () ship.rotation.x = 0 ship.direction.z = 0 end) --c
+    keybindPresets["keyboard"].keyDown.up.Add(function () ship.rotation.x = 0.15  end) --space
+    keybindPresets["keyboard"].keyUp.up.Add(function () ship.rotation.x = 0  end) --space
+    keybindPresets["keyboard"].keyDown.down.Add(function () ship.rotation.x = -0.15  end) --c
+    keybindPresets["keyboard"].keyUp.down.Add(function () ship.rotation.x = 0  end) --c
 
     keybindPresets["keyboard"].keyDown.yawleft.Add(function () ship.rotation.y = -autoRoll ship.rotation.z = -1 end) --a
     keybindPresets["keyboard"].keyUp.yawleft.Add(function () ship.rotation.y = 0 ship.rotation.z = 0 ship.rotationSpeedz = ship.minRotationSpeed end) --a
@@ -156,7 +156,11 @@ keybindPresets["keyboard"].keyUp.speeddown.Add(function () if mouse.enabled then
 
 keybindPresets["keyboard"].keyUp.gear.Add(function () ship.holdAlt = not ship.holdAlt ship.counterGravity = ship.holdAlt end) --g
 keybindPresets["keyboard"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD.Enabled end) --r
-keybindPresets["keyboard"].keyUp["option3"].Add(function () ship.followGravity = not ship.followGravity end, "Gravity Follow")
+
+keybindPresets["keyboard"].keyDown.lshift.Add(function () ship.inertialDampeningDesired = false end,"ID Toggle")
+keybindPresets["keyboard"].keyUp.lshift.Add(function () ship.inertialDampeningDesired = true end,"ID Toggle")
+
+keybindPresets["keyboard"].keyUp["option3"].Add(function () ship.followTerrain = not ship.followTerrain end, "Follow Terrain")
 keybindPresets["keyboard"].keyUp["option4"].Add(function () ship.counterGravity = not ship.counterGravity end, "Counter Gravity")
 keybindPresets["keyboard"].keyUp["option5"].Add(function () switchFlightMode("mouse") end,"Switch Flight Mode")
 keybindPresets["keyboard"].keyUp["option6"].Add(function () ship.inertialDampeningDesired = not ship.inertialDampeningDesired end, "Inertial Dampening")
@@ -211,7 +215,7 @@ keybindPresets["mouse"].keyUp.speeddown.Add(function () if mouse.enabled then mo
 
 keybindPresets["mouse"].keyUp.gear.Add(function () ship.holdAlt = not ship.holdAlt ship.counterGravity = ship.holdAlt end)
 
-keybindPresets["mouse"].keyUp["option3"].Add(function () ship.followGravity = not ship.followGravity end, "Gravity Follow")
+keybindPresets["mouse"].keyUp["option3"].Add(function () ship.followTerrain = not ship.followTerrain end, "Follow Terrain")
 keybindPresets["mouse"].keyUp["option4"].Add(function () ship.counterGravity = not ship.counterGravity end, "Counter Gravity")
 keybindPresets["mouse"].keyUp["option5"].Add(function () switchFlightMode("keyboard") end, "Switch Flight Mode")
 keybindPresets["mouse"].keyUp["option6"].Add(function () ship.inertialDampening = not ship.inertialDampening end, "Inertial Dampening")

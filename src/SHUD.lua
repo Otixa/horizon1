@@ -227,6 +227,7 @@ SHUD =
     self.MenuList.stability = {
         SMI(DD("<span>Gravity Suppression<span>" .. self.MakeBooleanIndicator("ship.counterGravity")), function() ship.counterGravity = not ship.counterGravity end),
         SMI(DD("<span>Gravity Follow</span>" .. self.MakeBooleanIndicator("ship.followGravity")), function() ship.followGravity = not ship.followGravity end),
+        SMI(DD("<span>Terrain Follow</span>" .. self.MakeBooleanIndicator("ship.followTerrain")), function() ship.followTerrain = not ship.followTerrain end),
         SMI(DD("<span>Inertial Dampening<span>" .. self.MakeBooleanIndicator("ship.inertialDampening")), function() ship.inertialDampeningDesired = not ship.inertialDampeningDesired end),
         SMI(DD([[<span>Hover Height<span>]]..self.MakeSliderIndicator("ship.hoverHeight", "m")), 
                function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
@@ -338,6 +339,7 @@ SHUD =
             if system.isFrozen() == 0 then ship.frozen = true else ship.frozen = false end
             _ENV["_SHUDBUFFER"] = DD([[<div class="item helpText">Press ]] .. "[" .. self.system.getActionKeyName("speedup") .. "]" .. [[ to  toggle menu</div>
                     <div class="item helpText"><span>Hover Height:</span>]].. self.MakeSliderIndicator("ship.hoverHeight","m") .. [[</div>
+                    <div class="item helpText"><span>Follow Terrain:</span>]].. self.MakeBooleanIndicator("ship.followTerrain") .. [[</div>
                     <div class="item helpText"><span>Inertial Dampening:</span>]].. self.MakeBooleanIndicator("ship.inertialDampening") .. [[</div>
                     <div class="item helpText"><span>Gravity Follow:</span>]].. self.MakeBooleanIndicator("ship.followGravity") .. [[</div>
                     <div class="item helpText"><span>Gravity Supression:</span>]].. self.MakeBooleanIndicator("ship.counterGravity") .. [[</div>
@@ -358,14 +360,7 @@ SHUD =
                 elseif self.CurrentIndex < 1 then self.CurrentIndex = #self.Menu end
             end
         elseif not self.Enabled then
-            if system.isFrozen() == 1 and unit.isRemoteControlled() == 1 then
-                
-                	ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1)
-                
-             
-        
-    
-			end
+            ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1)
         self.UpdateMarkers()
 		end
 

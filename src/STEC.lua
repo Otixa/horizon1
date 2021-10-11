@@ -69,20 +69,11 @@ function STEC(core, control, Cd)
     self.alternateCM = false
     -- Active engine tags
     self.tags = TagManager("all,brake")
-    -- Target vector to face if non-0. Can take in a vec3 or function which returns a vec3
-    self.targetDestination = nil
-    self.targetdestination = nil
+
     self.customTarget = vec3(0,0,0)
-    self.baseAltitude = 0
     self.verticalLock = false
     self.lockVector = vec3(0,0,0)
     self.lockPos = vec3(0,0,0)
-    self.altHoldPreset1 = 0
-    self.altHoldPreset2 = 0
-    self.altHoldPreset3 = 0
-    self.altHoldPreset4 = 0
-    self.deviation = 0
-    self.stateMessage = ""
     self.pocket = false
     self.autoShutdown = false
     self.dockingClamps = false
@@ -96,6 +87,7 @@ function STEC(core, control, Cd)
     self.breadCrumbs = {}
     self.hoverHeight = 10
     self.holdAlt = false
+    self.followTerrain = false
     -- Whether the target vector should unlock automatically if the ship is rotated by the pilot
     self.targetVectorAutoUnlock = true
     -- Current altitude
@@ -310,7 +302,7 @@ function STEC(core, control, Cd)
     function KmhToMs(kmh)
         return kmh / 3.6
     end
-    
+
     function self.apply()
         local deltaTime = math.max(system.getTime() - lastUpdate, 0.001) --If delta is below 0.001 then something went wrong in game engine.
         self.updateWorld()
@@ -375,6 +367,25 @@ function STEC(core, control, Cd)
                 self.targetVector = nil
             end
         end
+        if self.holdAlt then
+            
+            local hoverDist = {}
+            for k, v in ipairs(hovers) do 
+                table.insert(hoverDist,v.distance())
+            end
+            local telDistance = math.min(table.unpack(hoverDist))
+            local delta = self.hoverHeight - telDistance
+            --system.print("DELTA: "..delta)
+            --local gFollow = (-self.world.up:cross(self.nearestPlanet:getGravity(core.getConstructWorldPos())))
+            --gFollow = gFollow + ship.world.forward:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * clamp((delta * 0.1),-0.25,0.25))
+            
+            tmp = tmp - ((self.world.gravity * (self.mass * 2)) * delta)
+            --if telDistance > 0 and math.abs(delta) > (ship.hoverHeight * 0.8) then
+            --    atmp = atmp + gFollow - ((self.AngularVelocity * 3) - (self.AngularAirFriction * 3))
+            --end
+            
+        end
+
         if self.followGravity and self.rotation.x == 0 then
             
           --system.print(tostring(self.direction))
@@ -390,30 +401,24 @@ function STEC(core, control, Cd)
                 gFollow = (self.world.up:cross(self.nearestPlanet:getGravity(core.getConstructWorldPos())))
             end
             local scale = 1.5
-            if self.pocket then
-                if self.direction.x < 0  then
-                    scale = 0.25
-                    gFollow = gFollow + ship.world.right:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.25)
-                elseif self.direction.x > 0  then
-                    scale = 0.25
-                    gFollow = gFollow - ship.world.right:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.25)
-                elseif self.direction.y < 0  then
-                    gFollow = gFollow + ship.world.forward:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * 0.25)
+            local smoothing = 3
+            local delta = 1
+            if self.followTerrain and frontTel ~= nil and rearTel ~= nil then
+                local frontTelDist = frontTel:getDistance()
+                local rearTelDist = rearTel:getDistance()
+                if frontTelDist > 0 and rearTelDist > 0 then
+                    delta = frontTelDist - rearTelDist
+                    --system.print((sma10(delta)))
+                    if math.abs(delta) < (self.hoverHeight * 2) then
+                        gFollow = gFollow + ship.world.forward:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * delta) - ((self.AngularVelocity * (math.abs(delta) * 10)) - (self.AngularAirFriction * (math.abs(delta) * 10)))
+                    end
                 end
             end
             gFollow = gFollow * scale
-            atmp = atmp + gFollow - ((self.AngularVelocity * 3) - (self.AngularAirFriction * 3))
+            atmp = atmp + gFollow - ((self.AngularVelocity * smoothing) - (self.AngularAirFriction * smoothing))
         end
 
-        if self.holdAlt then
-            local hoverDist = {}
-            for k, v in ipairs(hovers) do 
-                table.insert(hoverDist,v.distance())
-            end
-            local telDistance = math.min(table.unpack(hoverDist))
-            local delta = self.hoverHeight - telDistance
-            tmp = tmp - ((self.world.gravity * (self.mass * 2)) * delta)
-        end
+        
 
         if self.inertialDampening then
             local currentShipMomentum = self.localVelocity
