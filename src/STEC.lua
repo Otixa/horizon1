@@ -374,16 +374,8 @@ function STEC(core, control, Cd)
                 table.insert(hoverDist,v.distance())
             end
             local telDistance = math.min(table.unpack(hoverDist))
-            local delta = self.hoverHeight - telDistance
-            --system.print("DELTA: "..delta)
-            --local gFollow = (-self.world.up:cross(self.nearestPlanet:getGravity(core.getConstructWorldPos())))
-            --gFollow = gFollow + ship.world.forward:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * clamp((delta * 0.1),-0.25,0.25))
-            
+            local delta = self.hoverHeight - telDistance        
             tmp = tmp - ((self.world.gravity * (self.mass * 2)) * delta)
-            --if telDistance > 0 and math.abs(delta) > (ship.hoverHeight * 0.8) then
-            --    atmp = atmp + gFollow - ((self.AngularVelocity * 3) - (self.AngularAirFriction * 3))
-            --end
-            
         end
 
         if self.followGravity and self.rotation.x == 0 then

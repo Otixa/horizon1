@@ -68,7 +68,6 @@ function getElements()
       end
       if class == "Hovercraft" then
         table.insert(hovers, var)
-        
       end
     end
   end
