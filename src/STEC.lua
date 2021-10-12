@@ -377,7 +377,7 @@ function STEC(core, control, Cd)
             self.disabledTags = ""
         end
         
-        self.control.setEngineCommand(tostring(self.tags), {tmp:unpack()}, {atmp:unpack()}, true, true, "ground,airfoil")
+        self.control.setEngineCommand(tostring(self.tags), {tmp:unpack()}, {atmp:unpack()}, true, true, "airfoil,ground")
         self.control.setEngineCommand(self.disabledTags)
         lastUpdate = system.getTime()
     end
