@@ -7,11 +7,11 @@ local minRotationSpeed = 0.4 --export: Minimum speed rotation scales from
 local maxRotationSpeed = 24 --export: Maximum speed rotation scales to
 local rotationStep = 0.3 --export: Depermines how quickly rotation scales up
 showDockingWidget = true --export: Show Docking Widget
-dockingMode = 0 --export: Set docking mode (0:Manual, 1:Automatic, 2:Semi-Automatic)
+dockingMode = 1 --export: Set docking mode (0:Manual, 1:Automatic, 2:Semi-Automatic)
 setBaseOnStart = false --export: Set RTB location on start
 activateFFonStart = false --export: Activate force fields on start (connected to button)
 local pocket = false --export: Pocket ship?
-local autoRoll = 1.3 --export:
+local autoRoll = 2.5 --export:
 --charMovement = true --export: Enable/Disable Character Movement
 ship.autoShutdown = autoShutdown
 ship.altitudeHold = round2(ship.altitude,0)
@@ -22,6 +22,8 @@ ship.maxRotationSpeedz = maxRotationSpeed
 ship.rotationStep = rotationStep
 
 ship.pocket = pocket
+
+local shiftLock = false
 
 unit.switchOnHeadlights()
 if core.setDockingMode(dockingMode) then
@@ -67,26 +69,21 @@ function swapForceFields()
     end
 
 end
+function toggleCharacterLock()
+    system.freeze( math.abs(1 - system.isFrozen()))
+end
 
+function clearDb()
+    if flightModeDb ~= nil then
+        flightModeDb.clear()
+        system.print("Databank wiped.")
+    end
+end
 
 ship.baseAltitude = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
 system.print("Altitude: "..ship.baseAltitude)
 function moveWaypointZ(vector, altitude)
     return (vector - (ship.nearestPlanet:getGravity(vector)):normalize() * (altitude))
-end
-if flightModeDb ~= nil then
-    if flightModeDb.hasKey("BaseLocX") == 1 then
-        ship.customTarget = readTargetFromDb("BaseLoc")
-    else
-        ship.customTarget = ship.world.position
-        settingsActive = true
-    end
-    if flightModeDb.hasKey("BaseRotX") == 1 then
-        ship.rot = readTargetFromDb("BaseRot")
-    else
-        ship.rot = ship.world.forward
-        settingsActive = true
-    end
 end
 
 local tty = DUTTY
@@ -147,6 +144,8 @@ keybindPresets["keyboard"].keyUp.right.Add(function () ship.direction.x = 0 end)
 
 keybindPresets["keyboard"].keyDown.brake.Add(function () ship.brake = true end) --ctrl
 keybindPresets["keyboard"].keyUp.brake.Add(function () ship.brake = false end) --ctrl
+keybindPresets["keyboard"].keyDown.lshift.Add(function () shiftLock = true end,"Shift Modifier")
+keybindPresets["keyboard"].keyUp.lshift.Add(function () shiftLock = false end,"Shift Modifier")
 
 --keybindPresets["keyboard"].keyDown.stopengines.Add(function () if ship.direction.y == 1 then ship.direction.y = 0 else ship.direction.y = 1 end end, "Cruise")
 keybindPresets["keyboard"].keyUp.stopengines.Add(function () SHUD.Select() if not SHUD.Enabled then if ship.direction.y == 1 then ship.direction.y = 0 else ship.direction.y = 1 end end end, "Cruise")
@@ -154,22 +153,35 @@ keybindPresets["keyboard"].keyUp.speeddown.Add(function () if mouse.enabled then
 
 
 
-keybindPresets["keyboard"].keyUp.gear.Add(function () ship.holdAlt = not ship.holdAlt ship.counterGravity = ship.holdAlt end) --g
+keybindPresets["keyboard"].keyUp.gear.Add(function ()
+    if shiftLock then 
+        toggleCharacterLock() 
+    else
+        ship.holdAlt = not ship.holdAlt ship.counterGravity = ship.holdAlt
+    end
+end) --g
+
+local function toggleFollowTarrain()
+    ship.followTerrain = not ship.followTerrain
+    ship.followGravity = not ship.followTerrain
+end
+local function toggleFollowGravity()
+    ship.followGravity = not ship.followGravity
+    ship.followTerrain = not ship.followGravity
+end
+
 keybindPresets["keyboard"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD.Enabled end) --r
 
 keybindPresets["keyboard"].keyDown.lshift.Add(function () ship.inertialDampeningDesired = false end,"ID Toggle")
 keybindPresets["keyboard"].keyUp.lshift.Add(function () ship.inertialDampeningDesired = true end,"ID Toggle")
 
-keybindPresets["keyboard"].keyUp["option3"].Add(function () ship.followTerrain = not ship.followTerrain end, "Follow Terrain")
-keybindPresets["keyboard"].keyUp["option4"].Add(function () ship.counterGravity = not ship.counterGravity end, "Counter Gravity")
+keybindPresets["keyboard"].keyUp["option3"].Add(function () toggleFollowTarrain() end, "Follow Terrain")
+keybindPresets["keyboard"].keyUp["option4"].Add(function () toggleFollowGravity() end, "Follow Gravity")
 keybindPresets["keyboard"].keyUp["option5"].Add(function () switchFlightMode("mouse") end,"Switch Flight Mode")
 keybindPresets["keyboard"].keyUp["option6"].Add(function () ship.inertialDampeningDesired = not ship.inertialDampeningDesired end, "Inertial Dampening")
 --keybindPresets["keyboard"].keyUp["option6"].Add(function () ship.verticalLock = not ship.verticalLock end,"Toggle Vertical Lock")
 
-keybindPresets["keyboard"].keyUp["option9"].Add(function ()
-    ship.verticalLock = false
-    ship.intertialDampening = true
-    end,"Manual Mode Toggle")
+keybindPresets["keyboard"].keyUp["option9"].Add(function () clearDb() end,"Clear Databank")
 
 
     keybindPresets["mouse"] = KeybindController()

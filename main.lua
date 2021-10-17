@@ -12,12 +12,12 @@
 --@require KeybindControllerMin
 --@require STEC
 --@require AR_HUDMin
+--@require StartupSettings
 --@require SHUD
 --@require MouseMovement
 --@require STEC_Config
 --@timer SHUDRender
 --@timer FuelStatus
---@timer SetHoverHeight
 --@class Main
 
 _G.BuildUnit = {}
@@ -43,11 +43,6 @@ function Unit.Start()
 			end
 		end
 	end
-	if flightModeDb ~= nil then
-		if flightModeDb.hasKey("hoverHeight") == 1 then
-			ship.hoverHeight = flightModeDb.getIntValue("hoverHeight")
-		end
-	end
 	system.print(unit.getMasterPlayerId())
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
@@ -60,6 +55,7 @@ function Unit.Start()
 		parentingWidgetId = system.createWidget(parentingPanelId,"parenting")
 		system.addDataToWidget(unit.getDataId(),parentingWidgetId)
 	end
+	startupSettings.readFromDatabank()
 end
 
 
@@ -75,6 +71,7 @@ function Unit.Stop()
 	for _, sw in ipairs(forceFields) do
 		sw.deactivate()
 	end
+	startupSettings.writeToDatabank()
 end
 
 local emitterOn = false
@@ -97,14 +94,6 @@ function Unit.Tick(timer)
 	if timer == "FuelStatus" then
 		getFuelRenderedHtml()
 		
-	end
-	if timer == "SetHoverHeight" then
-		if flightModeDb ~= nil then
-			local hHeight = flightModeDb.getIntValue("hoverHeight")
-			if hHeight ~= ship.hoverHeight then
-				flightModeDb.setIntValue("hoverHeight",ship.hoverHeight)
-			end
-		end
 	end
 end
 

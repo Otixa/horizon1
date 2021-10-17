@@ -75,15 +75,17 @@ end
 
 getElements()
 
-local tel1Pos = vec3(core.getElementPositionById(telemeters[1].getId()))
-local tel2Pos = vec3(core.getElementPositionById(telemeters[2].getId()))
-
-if tel1Pos.y < tel2Pos.y then
-  frontTel = telemeters[1]
-  rearTel = telemeters[2]
+local tel1Pos = vec3(core.getElementPositionById(hovers[1].getId()))
+local tel2Pos = vec3(core.getElementPositionById(hovers[2].getId()))
+--system.print("frontTelPos: "..tostring(vec3(tel1Pos)).." | rearTelDist: "..tostring(vec3(tel2Pos)))
+if tel1Pos.y > tel2Pos.y then
+  frontTel = hovers[1]
+  rearTel = hovers[2]
 else
-  frontTel = telemeters[2]
-  rearTel = telemeters[1]
+  frontTel = hovers[2]
+  rearTel = hovers[1]
 end
 
-system.print("frontTel: "..frontTel.getDistance().." rearTel: "..rearTel.getDistance())
+--system.print("frontTel: "..frontTel.getDistance().." rearTel: "..rearTel.getDistance())
+system.print("Front: "..tostring(vec3(core.getElementPositionById(frontTel.getId()))))
+system.print("Rear: "..tostring(vec3(core.getElementPositionById(rearTel.getId()))))

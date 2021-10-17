@@ -88,6 +88,8 @@ function STEC(core, control, Cd)
     self.hoverHeight = 10
     self.holdAlt = false
     self.followTerrain = false
+    self.hoverDistance = 0
+    self.hoverIntensity = 2
     -- Whether the target vector should unlock automatically if the ship is rotated by the pilot
     self.targetVectorAutoUnlock = true
     -- Current altitude
@@ -103,7 +105,7 @@ function STEC(core, control, Cd)
     -- Speed scale factor for rotations
     self.rotationSpeed = 2
     -- Minimum rotation speed for auto-scale
-    self.rotationSpeedzMin = 0.01
+    self.minRotationSpeed = 0.1
     -- Rotation Speed on x axis
     self.rotationSpeedz = 0.01
     -- Max rotation speed for auto-scale
@@ -253,7 +255,9 @@ function STEC(core, control, Cd)
 
 
     end
-
+    function pythag(a, c)
+        return math.sqrt(c^2 -a^2)
+    end
     function self.calculateAccelerationForce(acceleration, time)
         return self.mass * (acceleration / time)
     end
@@ -339,9 +343,15 @@ function STEC(core, control, Cd)
             --system.print(math.abs(round2(fMax[2],0)))
             if self.direction.y < 0 and math.abs(round2(fMax[2],0)) == 0 then
                 gravityCorrection = true
+                
                 tmp = tmp + ((((self.world.forward * self.direction.y) + gravCorrection):normalize() * self.fMax) * self.throttle)
+                
             else
-                tmp = tmp + (((self.world.forward * self.direction.y) * self.fMax) * self.throttle)
+                local velocityLen = (self.world.velocity:len() * 3.6)
+                --system.print(velocityLen)
+                --if velocityLen <= 75 then
+                    tmp = tmp + (((self.world.forward * self.direction.y) * self.fMax) * self.throttle)
+                --end
             end
             
         end
@@ -368,18 +378,25 @@ function STEC(core, control, Cd)
             end
         end
         if self.holdAlt then
-            
             local hoverDist = {}
             for k, v in ipairs(hovers) do 
                 table.insert(hoverDist,v.distance())
             end
-            local telDistance = math.min(table.unpack(hoverDist))
-            local delta = self.hoverHeight - telDistance        
-            tmp = tmp - ((self.world.gravity * (self.mass * 2)) * delta)
+            self.hoverDistance = math.min(table.unpack(hoverDist))
+            local bottomOut = false
+            local delta = self.hoverHeight - self.hoverDistance
+            if self.hoverDistance < self.hoverHeight * 0.5 and self.hoverDistance > 0 then
+                system.print("BOTTOM OUT: "..self.hoverDistance..", Speed: "..self.world.velocity:len().." m/s")
+                bottomOut = true
+            end
+            local intensity = self.hoverIntensity * 0.1
+            if bottomOut and self.world.velocity:len() > 180 then intensity = 1 end
+            if self.hoverDistance > 0 then
+                tmp = tmp - ((self.world.up * delta) * (self.vMax * intensity))
+            end
         end
 
         if self.followGravity and self.rotation.x == 0 then
-            
           --system.print(tostring(self.direction))
 		    local current = self.localVelocity:len() * self.mass
             local scale = nil
@@ -393,24 +410,57 @@ function STEC(core, control, Cd)
                 gFollow = (self.world.up:cross(self.nearestPlanet:getGravity(core.getConstructWorldPos())))
             end
             local scale = 1.5
-            local smoothing = 3
-            local delta = 1
-            if self.followTerrain and frontTel ~= nil and rearTel ~= nil then
-                local frontTelDist = frontTel:getDistance()
-                local rearTelDist = rearTel:getDistance()
-                if frontTelDist > 0 and rearTelDist > 0 then
-                    delta = frontTelDist - rearTelDist
-                    --system.print((sma10(delta)))
-                    if math.abs(delta) < (self.hoverHeight * 2) then
-                        gFollow = gFollow + ship.world.forward:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * delta) - ((self.AngularVelocity * (math.abs(delta) * 10)) - (self.AngularAirFriction * (math.abs(delta) * 10)))
-                    end
-                end
-            end
+            local smoothing = 6
+            
             gFollow = gFollow * scale
             atmp = atmp + gFollow - ((self.AngularVelocity * smoothing) - (self.AngularAirFriction * smoothing))
+            
         end
+        function isOverWater(hover, tel, hyp)
+            if hyp == nil then return false end
 
-        
+            local a = math.abs(hyp - hover)
+            local b = math.abs(hyp - tel)
+
+            if a < b then return false else return true end
+        end
+        if self.followTerrain and frontTel ~= nil and rearTel ~= nil then
+            local delta = 0
+            local smoothing = 6
+
+            local gFollow = (-self.world.up:cross(self.nearestPlanet:getGravity(core.getConstructWorldPos())))
+		    if self.flippedCore then
+			    gFollow = (self.world.up:cross(self.nearestPlanet:getGravity(core.getConstructWorldPos())))
+		    end
+            local frontTelDist = frontTel:distance()
+            local rearTelDist = rearTel:distance()
+            local intensity = 4
+            local grav = ship.world.up:dot(ship.world.gravity)
+            if grav < 0 then
+                atmp = atmp + -(self.world.right:cross(self.world.forward:cross(self.world.gravity:normalize())) * self.rotationSpeed * 9) - ((self.AngularVelocity * smoothing) - (self.AngularAirFriction * smoothing))
+            else
+                atmp = atmp + (self.world.right:cross(self.world.forward:cross(self.world.gravity:normalize())) * self.rotationSpeed * 9) - ((self.AngularVelocity * smoothing) - (self.AngularAirFriction * smoothing))
+            end
+            if frontTelDist > 0 and rearTelDist > 0 and frontTelDist < (self.hoverHeight * 3) then
+                delta = frontTelDist - rearTelDist
+                --system.print("frontTel: "..frontTelDist..", rearTel: "..rearTelDist)
+                if math.abs(delta) > 0.2 and math.abs(delta) < (self.hoverHeight * 4) then
+                    atmp = atmp + ((self.world.forward:cross(self.world.up) * (delta * intensity))) - ((self.AngularVelocity * smoothing) - (self.AngularAirFriction * smoothing))
+                end
+            elseif frontTelDist > (self.hoverHeight * 3) or frontTelDist < 0 or rearTelDist < 0 then
+                delta = -0.45
+                --system.print("Big air!"..deltaTime)
+                gFollow = gFollow + ship.world.forward:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * (delta)) - ((self.AngularVelocity * (math.abs(delta) * smoothing)) - (self.AngularAirFriction * (math.abs(delta) * smoothing)))
+                atmp = atmp + gFollow - ((self.AngularVelocity * smoothing) - (self.AngularAirFriction * smoothing))
+                
+            else
+                system.print("Edge case."..deltaTime)
+                --system.print("frontTelDist: "..frontTelDist..", rearTelDist: "..rearTelDist)
+                atmp = atmp + gFollow - ((self.AngularVelocity * smoothing) - (self.AngularAirFriction * smoothing))
+            end
+            
+
+        end
 
         if self.inertialDampening then
             local currentShipMomentum = self.localVelocity

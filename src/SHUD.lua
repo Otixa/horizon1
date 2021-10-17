@@ -180,7 +180,26 @@ SHUD =
             return round2(n,2) .. " m"
         end
     end
-        
+    function updateSettings()
+        if flightModeDb ~= nil then
+            flightModeDb.setIntValue("hoverHeight",ship.hoverHeight)
+        end
+        if flightModeDb ~= nil then
+            flightModeDb.setIntValue("IDIntensity",ship.IDIntensity)
+        end
+        if flightModeDb ~= nil then
+            flightModeDb.setIntValue("hoverIntensity",ship.hoverIntensity)
+        end
+        if flightModeDb ~= nil then
+            flightModeDb.setFloatValue("minRotationSpeed",ship.minRotationSpeed)
+        end
+        if flightModeDb ~= nil then
+            flightModeDb.setFloatValue("rotationStep",ship.rotationStep)
+        end
+        if flightModeDb ~= nil then
+            flightModeDb.setFloatValue("maxRotationSpeedz",ship.maxRotationSpeedz)
+        end
+    end
     function self.MakeBooleanIndicator(varName)
         local tmpl = [[<span class="right">
             <i dd-if="varName == true">✓&nbsp;</i>
@@ -210,6 +229,8 @@ SHUD =
                 function(system, _ , w) ship.hoverHeight = utils.clamp(ship.hoverHeight + (system.getMouseWheel()),0,35) end),
             self.GenerateMenuLink("Flight Mode", "flightMode"),
             self.GenerateMenuLink("Stability Assist", "stability"),
+            self.GenerateMenuLink("Steering", "steering"),
+            self.GenerateMenuLink("Startup Settings", "startupSettings"),
             self.GenerateMenuLink("Ship Stats", "shipStats"),
             SMI([[<i>&#9432;&nbsp;</i><span>&nbsp;Hotkeys</span>]]..self.MenuIcon, function() self.SelectMenu("hotkeys") end)
     }
@@ -229,11 +250,33 @@ SHUD =
         SMI(DD("<span>Gravity Follow</span>" .. self.MakeBooleanIndicator("ship.followGravity")), function() ship.followGravity = not ship.followGravity end),
         SMI(DD("<span>Terrain Follow</span>" .. self.MakeBooleanIndicator("ship.followTerrain")), function() ship.followTerrain = not ship.followTerrain end),
         SMI(DD("<span>Inertial Dampening<span>" .. self.MakeBooleanIndicator("ship.inertialDampening")), function() ship.inertialDampeningDesired = not ship.inertialDampeningDesired end),
-        SMI(DD([[<span>Hover Height<span>]]..self.MakeSliderIndicator("ship.hoverHeight", "m")), 
+        SMI(DD([[<span>ID Intensity<span>]]..self.MakeSliderIndicator("ship.IDIntensity", "")),
+                function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
+                function(system, _ , w) ship.IDIntensity = utils.clamp(ship.IDIntensity + (system.getMouseWheel()),0,10) end),
+        SMI(DD([[<span>Hover Height<span>]]..self.MakeSliderIndicator("ship.hoverHeight", "m")),
                function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
                function(system, _ , w) ship.hoverHeight = utils.clamp(ship.hoverHeight + (system.getMouseWheel()),0,35) end),
+        SMI(DD([[<span>Hover Stiffness<span>]]..self.MakeSliderIndicator("ship.hoverIntensity", "")),
+               function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
+               function(system, _ , w) ship.hoverIntensity = utils.clamp(ship.hoverIntensity + (system.getMouseWheel()),1,30) end),
     }
-    
+    self.MenuList.steering = {
+        SMI(DD([[<span>Initial Speed<span>]]..self.MakeSliderIndicator("round2(ship.minRotationSpeed,1)", "")),
+                function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
+                function(system, _ , w) ship.minRotationSpeed = utils.clamp(ship.minRotationSpeed + (system.getMouseWheel() * 0.1),0,10) end),
+        SMI(DD([[<span>Autoscale Step<span>]]..self.MakeSliderIndicator("ship.rotationStep", "")),
+                function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
+                function(system, _ , w) ship.rotationStep = utils.clamp(ship.rotationStep + (system.getMouseWheel() * 0.01),0,1) end),
+        SMI(DD([[<span>Max Speed<span>]]..self.MakeSliderIndicator("ship.maxRotationSpeedz", "")),
+                function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
+                function(system, _ , w) ship.maxRotationSpeedz = utils.clamp(ship.maxRotationSpeedz + (system.getMouseWheel() * 0.1),0,40) end)
+    }
+    self.MenuList.startupSettings = {
+        --IDIntensity
+        SMI(DD("<span>Inertial Dampening</span>" .. self.MakeBooleanIndicator("startupSettings.inertialDampening")), function() startupSettings.inertialDampening = not startupSettings.inertialDampening end),
+        SMI(DD("<span>Gravity Follow</span>" .. self.MakeBooleanIndicator("startupSettings.followGravity")), function() startupSettings.followGravity = not startupSettings.followGravity end),
+        SMI(DD("<span>Terrain Follow</span>" .. self.MakeBooleanIndicator("startupSettings.followTerrain")), function() startupSettings.followTerrain = not startupSettings.followTerrain end)
+    }
     self.MenuList.hotkeys = {}
     
     local fa = "<style>" .. CSS_SHUD .. "</style>"
@@ -338,7 +381,7 @@ SHUD =
         else
             if system.isFrozen() == 0 then ship.frozen = true else ship.frozen = false end
             _ENV["_SHUDBUFFER"] = DD([[<div class="item helpText">Press ]] .. "[" .. self.system.getActionKeyName("speedup") .. "]" .. [[ to  toggle menu</div>
-                    <div class="item helpText"><span>Hover Height:</span>]].. self.MakeSliderIndicator("ship.hoverHeight","m") .. [[</div>
+                    <div class="item helpText"><span>Ground Clearance:</span>]].. self.MakeSliderIndicator("round2(ship.hoverDistance,2)","m") .. [[</div>
                     <div class="item helpText"><span>Follow Terrain:</span>]].. self.MakeBooleanIndicator("ship.followTerrain") .. [[</div>
                     <div class="item helpText"><span>Inertial Dampening:</span>]].. self.MakeBooleanIndicator("ship.inertialDampening") .. [[</div>
                     <div class="item helpText"><span>Gravity Follow:</span>]].. self.MakeBooleanIndicator("ship.followGravity") .. [[</div>
@@ -349,9 +392,6 @@ SHUD =
     end
 
     function self.Update()
-        if useGEAS then
-            unit.activateGroundEngineAltitudeStabilization(ship.hoverHeight)
-        end
         if not self.ScrollLock and self.Enabled then
             local wheel = system.getMouseWheel()
             if wheel ~= 0 then
@@ -359,9 +399,14 @@ SHUD =
                 if self.CurrentIndex > #self.Menu then self.CurrentIndex = 1
                 elseif self.CurrentIndex < 1 then self.CurrentIndex = #self.Menu end
             end
+        elseif self.ScrollLock and self.Enabled then
+            local wheel = system.getMouseWheel()
+            if wheel ~= 0 then
+                updateSettings()
+            end
         elseif not self.Enabled then
             ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1)
-        self.UpdateMarkers()
+        --self.UpdateMarkers()
 		end
 
 end
