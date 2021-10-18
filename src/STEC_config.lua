@@ -180,7 +180,7 @@ keybindPresets["keyboard"].keyUp["option4"].Add(function () toggleFollowGravity(
 keybindPresets["keyboard"].keyUp["option5"].Add(function () switchFlightMode("mouse") end,"Switch Flight Mode")
 keybindPresets["keyboard"].keyUp["option6"].Add(function () ship.inertialDampeningDesired = not ship.inertialDampeningDesired end, "Inertial Dampening")
 --keybindPresets["keyboard"].keyUp["option6"].Add(function () ship.verticalLock = not ship.verticalLock end,"Toggle Vertical Lock")
-
+keybindPresets["keyboard"].keyUp["option8"].Add(function () core.setDockingMode(0); core.undock() end,"Undock")
 keybindPresets["keyboard"].keyUp["option9"].Add(function () clearDb() end,"Clear Databank")
 
 
