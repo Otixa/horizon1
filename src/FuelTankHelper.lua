@@ -52,7 +52,7 @@ function normalizeHp(type,hp)
   elseif type == "space" then
     if hp >= 187 and hp < 1496 then adjHp = 187
     elseif hp >= 1496 and hp < 15933 then adjHp = 1496
-    elseif hp >= 15933 then adjHp = 10461 end
+    elseif hp >= 15933 then adjHp = 15933 end
   elseif type == "rocket" then
     if hp >= 366 and hp < 736 then adjHp = 366
     elseif hp >= 736 and hp < 6231 then adjHp = 736
@@ -236,6 +236,7 @@ end
 
 function getFuelTankSpecs(fuelTankType, fuelTankId)
   local maxHP = math.floor(core.getElementMaxHitPointsById(fuelTankId))
+  system.print(fuelTankType.."........"..maxHP)
   return fuelTankSpecsByMaxHP[fuelTankType]['_' .. normalizeHp(fuelTankType,maxHP)]
 end
 
