@@ -41,6 +41,27 @@ local function calcMaxMass(cap, type)
 
   return adjustedMaxMass
 end
+function normalizeHp(type,hp)
+  local adjHp = 0
+
+  if type == "atmo" then 
+    if hp >= 50 and hp < 163 then adjHp = 50
+    elseif hp >= 163 and hp < 1315 then adjHp = 163
+    elseif hp >= 1315 and hp < 10461 then adjHp = 1315
+    elseif hp >= 10461 then adjHp = 10461 end
+  elseif type == "space" then
+    if hp >= 187 and hp < 1496 then adjHp = 187
+    elseif hp >= 1496 and hp < 15933 then adjHp = 1496
+    elseif hp >= 15933 then adjHp = 10461 end
+  elseif type == "rocket" then
+    if hp >= 366 and hp < 736 then adjHp = 366
+    elseif hp >= 736 and hp < 6231 then adjHp = 736
+    elseif hp >= 6231 and hp < 68824 then adjHp = 6231
+    elseif hp >= 68824 then adjHp = 68824 end
+  end
+
+  return adjHp
+end
 fuelTankSpecsByMaxHP = {
   -- Atmo Tanks
   atmo = {
@@ -147,13 +168,13 @@ function disp_time(time)
   local minutes = math.floor(math.fmod(time,3600)/60)
   local seconds = math.floor(math.fmod(time,60))
   if time >= 86400 then
-      return string.format("%dd:%02dhrs",days,hours)
+      return string.format("%dd:%02dh",days,hours)
   elseif time < 86400 and time > 3600 then
-      return string.format("%02dhrs:%02dmin:%02dsec",hours,minutes,seconds)
+      return string.format("%02dh:%02dm:%02ds",hours,minutes,seconds)
   elseif time < 3600 and time > 60 then
-      return string.format("%02dmin:%02dsec",minutes,seconds)
+      return string.format("%02dm:%02ds",minutes,seconds)
   else
-      return string.format("%02dsec",seconds)
+      return string.format("%02ds",seconds)
   end
 end
 
@@ -199,7 +220,7 @@ end
 
 function getFuelTankSpecs(fuelTankType, fuelTankId)
   local maxHP = math.floor(core.getElementMaxHitPointsById(fuelTankId))
-  return fuelTankSpecsByMaxHP[fuelTankType]['_' .. maxHP]
+  return fuelTankSpecsByMaxHP[fuelTankType]['_' .. normalizeHp(fuelTankType,maxHP)]
 end
 
 function getFuelTankLiters(fuelTankId)
@@ -208,9 +229,11 @@ function getFuelTankLiters(fuelTankId)
   local massContents = massTotal - fuelTankSpecs.baseWeight
   return massContents
 end
-
+--vanillaMaxVolume = vanillaMaxVolume - (vanillaMaxVolume * ContainerOptimization * 0.05)
 function getFuelTankLevel(fuelTankId)
   local fuelTankSpecs = fuelTanks[fuelTankId]
+  --local massTotal = core.getElementMassById(fuelTankId)
+  --local fuelVolume = fuelTankSpecs.capacity()
   local adjustedMaxMass = fuelTankSpecs.maxWeight()
   return getFuelTankLiters(fuelTankId) / adjustedMaxMass
 end
@@ -226,25 +249,20 @@ function getFuelTime(fuelTankId)
   local fuelTimeFormatted = disp_time(fuelTime)
   FuelTime[fuelTankId] = system.getTime()
   return fuelTimeFormatted
+
 end
 
 function getFuelTanks()
-  for _, v in ipairs(fuelTankSpecsByMaxHP) do
-    system.print("V: "..v)
-    for k,t in ipairs(v) do
-      for x,y in pairs(t) do
-        system.print("Capacity: "..y.capacity)
-      end
-    end
-  end
+  
 
   local elementIds = core.getElementIdList()
   for k, elementId in pairs(elementIds) do
     local elementType = core.getElementTypeById(elementId)
-
     -- Fuel tank configuration routine
     if elementType == "Atmospheric Fuel Tank" then
-      fuelTanks[elementId] = getFuelTankSpecs("atmo", elementId)
+      --system.print(elementType.."_"..elementId)
+      local tank = getFuelTankSpecs("atmo", elementId)
+      fuelTanks[elementId] = tank
       FuelMass[elementId] = fuelUsed(2)
     elseif elementType == "Space Fuel Tank" then
       fuelTanks[elementId] = getFuelTankSpecs("space", elementId)
@@ -252,6 +270,15 @@ function getFuelTanks()
     elseif elementType == "Rocket Fuel Tank" then
       fuelTanks[elementId] = getFuelTankSpecs("rocket", elementId)
       FuelMass[elementId] = fuelUsed(2)
+    end
+  end
+
+  for _, v in ipairs(fuelTankSpecsByMaxHP) do
+    system.print("Fuel Tank: "..v)
+    for k,t in ipairs(v) do
+      for x,y in pairs(t) do
+        system.print("Capacity: "..y.capacity())
+      end
     end
   end
 end
