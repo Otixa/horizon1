@@ -2,7 +2,6 @@
 --@require PlanetRefMin
 --@require KinematicsMin
 --@require SimpleSlotDetectorMin
---@require StateMachine
 --@require EventDelegateMin
 --@require TaskManagerMin
 --@require DynamicDocumentMin
@@ -27,31 +26,6 @@ _G.BuildSystem = {}
 local System = _G.BuildSystem
 _G.BuildScreen = {}
 local buildScreen = _G.BuildScreen
-
-local TestState = StateMachine()
-
-local StepOne = State("Step One State",function ()
-	system.print("Step 1 starting..."..system.getTime())
-
-	system.print("Step 1 finished."..system.getTime())
-	return true
-end, true)
-local StepTwo = State("Step Two State",function ()
-	system.print("Step 2 starting..."..system.getTime())
-
-	system.print("Step 2 finished."..system.getTime())
-return true end, true)
-local StepThree = State("Step Three State",function ()
-	system.print("Step 3 starting..."..system.getTime())
-
-	system.print("Step 3 finished."..system.getTime())
-return false end, false)
---TestState.Current = StepOne
---StepOne.Next = StepTwo
---StepTwo.Next = StepThree
---TestState.End = StepThree
-
-
 
 function Unit.Start()
 	--Events.Flush.Add(mouse.apply)
@@ -107,20 +81,13 @@ function Unit.Start()
 	unit.setTimer("DockingTrigger", 1)
 	if laser ~= nil then laser.deactivate() end
 
-	system.print([[Horizon 1.0.1.11_6]])
+	system.print([[Horizon 1.0.1.11_7]])
 	if showDockingWidget then
 		parentingPanelId = system.createWidgetPanel("Docking")
 		parentingWidgetId = system.createWidget(parentingPanelId,"parenting")
 		system.addDataToWidget(unit.getDataId(),parentingWidgetId)
 	end
 
-
-	--local xMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(1,0,0):unpack()})
-	--local yMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
-	--local zMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
-	--system.print(string.format("xMax: %.2f %.2f %.2f %.2f",xMax[1],xMax[2],xMax[3],xMax[4]))
-	--system.print(string.format("yMax: %.2f %.2f %.2f %.2f",yMax[1],yMax[2],yMax[3],yMax[4]))
-	--system.print(string.format("zMax: %.2f %.2f %.2f %.2f",zMax[1],zMax[2],zMax[3],zMax[4]))
 	if setBaseOnStart then setBase() end
 	--StepOne.Start()
 end
