@@ -278,6 +278,7 @@ keybindPresets["keyboard"].keyUp["option7"].Add(function()
     ship.altitudeHold = ship.baseAltitude ship.elevatorActive = true
     ship.targetDestination = moveWaypointZ(ship.customTarget, 0)
 end, "RTB")
+keybindPresets["keyboard"].keyUp["option8"].Add(function () core.setDockingMode(0); core.undock() end,"Undock")
 --keybindPresets["keyboard"].keyUp["option8"].Add(function () emitter.send("door_control","open") end, "Open Door")
 --keybindPresets["keyboard"].keyUp["option9"].Add(function () if ship.targetDestination == nil then ship.targetDestination = moveWaypointZ(ship.customTarget, 10000 - baseAltitude) else ship.targetDestination = nil end end, "Preset 2")
 --keybindPresets["keyboard"].keyUp.option9.Add(function () if flightModeDb ~= nil then flightModeDb.clear() system.print("DB Cleared") end end,"Clear Databank")
@@ -303,6 +304,7 @@ keybindPresets["screenui"].keyUp["option7"].Add(function()
     ship.altitudeHold = ship.baseAltitude ship.elevatorActive = true
     ship.targetDestination = moveWaypointZ(ship.customTarget, 0)
 end, "RTB")
+keybindPresets["screenui"].keyUp["option8"].Add(function () core.setDockingMode(0); core.undock() end,"Undock")
 keybindPresets["screenui"].keyUp["option9"].Add(function ()
     ship.verticalLock = false
     ship.intertialDampening = true
