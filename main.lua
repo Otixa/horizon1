@@ -62,19 +62,7 @@ function Unit.Start()
 		end
 	end
 	
-	
-	if coreMass == 70.89 then
-		sName = "Caterpillar P1"
-	elseif coreMass == 375.97 then
-		sName = "Caterpillar L"
-	elseif coreMass == 1984.6 then
-		sName = "Caterpillar XL"
-	elseif coreMass == 12141.47 then
-		sName = "Caterpillar EXL"
-	else
-		sName = "Caterpillar"
-	end
-	if shipName == "" then shipName = sName end
+	shipName = core.getConstructName()
 	system.print(unit.getMasterPlayerId())
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
@@ -172,7 +160,6 @@ end
 function System.Update()
 	if Events then Events.Update() end
 	TaskManager.Update()
-	TestState.Update()
 end
 
 function System.Flush()
