@@ -269,7 +269,7 @@ SHUD =
                 function(system, _ , w) ship.rotationStep = utils.clamp(ship.rotationStep + (system.getMouseWheel() * 0.01),0,1) end),
         SMI(DD([[<span>Max Speed<span>]]..self.MakeSliderIndicator("ship.maxRotationSpeedz", "")),
                 function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
-                function(system, _ , w) ship.maxRotationSpeedz = utils.clamp(ship.maxRotationSpeedz + (system.getMouseWheel() * 0.1),0,40) end)
+                function(system, _ , w) ship.maxRotationSpeedz = utils.clamp(ship.maxRotationSpeedz + (system.getMouseWheel() * 0.1),0,60) end)
     }
     self.MenuList.startupSettings = {
         --IDIntensity
