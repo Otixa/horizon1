@@ -228,6 +228,7 @@ keybindPresets["keyboard"].keyUp["option4"].Add(function () ship.counterGravity 
 keybindPresets["keyboard"].keyUp["option5"].Add(function () switchFlightMode("mouse") end, "Switch Flight Mode")
 keybindPresets["keyboard"].keyUp["option6"].Add(function () switchControlMode() end, "Alternate Control Mode Switch")
 keybindPresets["keyboard"].keyUp["option7"].Add(function () ship.disableVTOL = not ship.disableVTOL end, "Disable VTOL")
+keybindPresets["keyboard"].keyUp["option8"].Add(function () core.setDockingMode(0); core.undock() end,"Undock")
 if flightModeDb then
    if flightModeDb.hasKey("flightMode") == 0 then flightModeDb.setStringValue("flightMode","keyboard") end
    keybindPreset = flightModeDb.getStringValue("flightMode")
