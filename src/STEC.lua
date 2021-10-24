@@ -305,6 +305,7 @@ function STEC(core, control, Cd)
             --local deltaAltitude =  self.altitudeHold - self.altitude
             local waypoint = moveWaypointY(self.altitudeHold, (self.world.velocity:len() * 3) + 50)
             self.targetVector = (waypoint - self.world.position ):normalize()
+            atmp = atmp - (self.world.right:cross(self.world.forward:cross(self.world.gravity:normalize())) * self.rotationSpeed * 9) - ((self.AngularVelocity * 3) - (self.AngularAirFriction * 3))
             --tmp = tmp - ((self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass) * deltaAltitude)
         end
         if self.alternateCM then
