@@ -10,19 +10,22 @@ function deserialize(s) local f=load('t='..s) f() return t end
 function spairs(a,b)local c={}for d in pairs(a)do c[#c+1]=d end;if b then table.sort(c,function(e,f)return b(a,e,f)end)else table.sort(c)end;local g=0;return function()g=g+1;if c[g]then return c[g],a[c[g]]end end end
 function tablelength(T) local count = 0 for _ in pairs(T) do count = count + 1 end return count end
 function convertFromHex(a)if a:sub(1,1)=="#"then a=a:sub(2,-1)end;if#a==8 then return tonumber("0x"..a:sub(1,2))/255,tonumber("0x"..a:sub(3,4))/255,tonumber("0x"..a:sub(5,6))/255,tonumber("0x"..a:sub(7,8))/255 elseif#a==6 then return tonumber("0x"..a:sub(1,2))/255,tonumber("0x"..a:sub(3,4))/255,tonumber("0x"..a:sub(5,6))/255,1 elseif#a==3 then return tonumber("0x"..a:sub(1,1))/15,tonumber("0x"..a:sub(2,2))/15,tonumber("0x"..a:sub(3,3))/15,1 else return 1,1,1,1 end end
-function mToKm(n) if n >= 1000 then return utils.round((n / 1000),3) .. " km" else return utils.round(n,2) .. " m" end end
+function mToKm(n) if n >= 1000 then return utils.round((n / 1000),0.01) .. " km" else return utils.round(n,2) .. " m" end end
 
 local stLogo = loadImage("assets.prod.novaquark.com/31879/70c4eeac-9aad-4fce-952f-db5dac287832.png")
+local stCover = loadImage("assets.prod.novaquark.com/27707/a8a9beb8-73de-4cd3-a0fb-d84e11e7a942.png")
 
 font = loadFont('Play-Bold', 22)
 font2 = loadFont('Montserrat-Light', 12)
 font3 = loadFont('Montserrat', 20)
+eStopFont = loadFont('Play-Bold', 32)
 rx, ry = getResolution()
 cx, cy = getCursor()
 layer0 = createLayer()
 layer1 = createLayer()
 layer = createLayer()
 layer2 = createLayer()
+layer_spash = createLayer()
 
 click = getCursorPressed()
 
@@ -83,10 +86,10 @@ addImage(layer0, stLogo, rx - (rx/2-40),ry/6 + 30,rx/2-60,ry/2+100)
 -- Input Routing
 local tmp = nil
 local tmpData = nil
-local fix = { dataType = "stats", data = { elevation = 100294.4919, target = 0, velocity = 2945, mass = 332959, gravity = 9.89, target_dist = 100000, brake_dist = 4892, deviation = 17.299003983, state = "Idle", } }
+local outputMsg = ""
 tmp = getInput()
 
-if tmp ~= nil and tmp ~= "" then tmpData = deserialize(tmp) or {}; else setOutput("ack") end
+if tmp ~= nil and tmp ~= "" then tmpData = deserialize(tmp) or {}; end
 --logMessage("Data Type: "..tmpData.dataType)
 
 if not stats then stats = {} end
@@ -96,50 +99,50 @@ if not fuelSpace then fuelSpace = {} end
 if tmpData ~= nil and type(tmpData) == "table" then
     if tmpData.dataType == "stats" then
         stats = tmpData
-        setOutput("ack")
     elseif tmpData.dataType == "config" then
         config = tmpData
-        setOutput("ack")
     elseif tmpData.dataType == "fuelAtmo" then
         fuelAtmo = tmpData
-        setOutput("ack")
     elseif tmpData.dataType == "fuelSpace" then
         fuelSpace = tmpData
-        setOutput("ack")
     end
 else
     logMessage("tmpData is nil or not a table.")
 end
 -- Elevator animation box
 if stats.data ~= nil and config.floors ~= nil then
-    local boxHeight = utils.map(stats.data.elevation or 0,0,config.floors.floor1,ry - 80,100)
+    local boxHeight = utils.map(stats.data.elevation or 0,0,config.floors.floor1,ry - 65,100)
     setNextFillColor(layer2, 0.2, 0.2, 0.2, 1)
     setNextStrokeColor(layer2, 0.3, 0.0, 0.0, 1)
     setNextStrokeWidth(layer2, 2)
     addBoxRounded(layer2,rx/2 - 40,boxHeight,80,30,5)
     setNextTextAlign(layer, AlignH_Center, AlignV_Middle)
     addText(layer2,font3,mToKm(tonumber(stats.data.elevation)),rx/2 - 38,boxHeight + 20,80,30)
+    -- Elevator animation line
+    addLine(layer,rx/2,100,rx/2,ry - 30)
+    addLine(layer,rx/2-20,100,rx/2+20,100)
+    addLine(layer,rx/2-20,ry - 30,rx/2+20,ry - 30)
 end
--- Elevator animation line
-if tmp ~= nil then addText(layer,font2,"Input Length: "..tmp:len(),95,ry-50) end
-if fuelAtmo ~= nil then
-addText(layer,font2,"Fuel Length: "..serialize(fuelAtmo):len(),45,ry-65)
-addLine(layer,rx/2,100,rx/2,ry - 50)
-addLine(layer,rx/2-20,100,rx/2+20,100)
-addLine(layer,rx/2-20,ry - 50,rx/2+20,ry - 50)
-end
+
+
+--if tmp ~= nil then addText(layer,font2,"Input Length: "..tmp:len(),95,ry-50) end
+--if fuelAtmo ~= nil then
+--addText(layer,font2,"Fuel Length: "..serialize(fuelAtmo):len(),45,ry-65)
+
+--end
 
 --logMessage("Number of tanks: "..tablelength(fuelAtmo.tanks))
 
 
-if not EStopButton then
+if not GenericButton then
     
     local mt = {}
     mt.__index = mt
-    function EStopButton (text1, text2, x, y, width, height, color, action)
+    function GenericButton (text1, text2, font, x, y, width, height, color, action)
         return setmetatable({
             text1 = text1,
             text2 = text2,
+            font = font,
             x = x,
             y = y,
             width = width,
@@ -151,7 +154,7 @@ if not EStopButton then
     end
 
     function mt:draw ()
-        local esFont = loadFont('Play-Bold', 32)
+        local esFont = self.font
         local sx, sy = self.width, self.height --self:getSize()
         local x0 = self.x - sx/2
         local y0 = self.y - sy/2
@@ -187,13 +190,20 @@ if not EStopButton then
         setNextFillColor(layer, cr, cg, cb, ca)
         setNextStrokeColor(layer, r, g, b, 1)
         setNextStrokeWidth(layer, 2)
-        addBoxRounded(layer, self.x - sx/2, self.y - sy/2, sx, sy, sx * 0.1)
-        setNextFillColor(layer, 1, 1, 1, 1)
-        setNextTextAlign(layer, AlignH_Center, AlignV_Middle)
-        addText(layer, esFont, self.text1, self.x, self.y - 20)
-        setNextFillColor(layer, 1, 1, 1, 1)
-        setNextTextAlign(layer, AlignH_Center, AlignV_Middle)
-        addText(layer, esFont, self.text2, self.x, self.y + 20) 
+        addBoxRounded(layer, self.x - sx/2, self.y - sy/2, sx, sy, sy * 0.1)
+        if self.text2 ~= "" then
+            setNextFillColor(layer, 1, 1, 1, 1)
+            setNextTextAlign(layer, AlignH_Center, AlignV_Middle)
+            addText(layer, esFont, self.text1, self.x, self.y - 20)
+            setNextFillColor(layer, 1, 1, 1, 1)
+            setNextTextAlign(layer, AlignH_Center, AlignV_Middle)
+            addText(layer, esFont, self.text2, self.x, self.y + 20)
+        else
+            setNextFillColor(layer, 1, 1, 1, 1)
+            setNextTextAlign(layer, AlignH_Center, AlignV_Middle)
+            addText(layer, esFont, self.text1, self.x, self.y)
+        end
+        
     end
 
     function mt:getSize ()
@@ -306,7 +316,7 @@ if not FuelGauge then
         addBoxRounded(layer, self.x - sx/2, self.y - sy/2, sx, sy, 3)
         setNextTextAlign(layer, AlignH_Center, AlignV_Middle)
         setNextFillColor(layer, 0, 0, 0, 1)
-        addText(layer, font2, self.ft.." ("..self.pct.."%)", self.x, self.y)
+        addText(layer, font2, self.tm.." ("..self.pct.."%)", self.x, self.y)
         --fill
         local fr,fg,fb
         
@@ -351,7 +361,7 @@ function drawListV (elems, x, y)
     end
 end
 
-function drawUsage ()
+function drawTitle ()
     local font = loadFont('FiraMono-Bold', 46)
     setNextTextAlign(layer, AlignH_Center, AlignV_Top)
     addText(layer, font, "Caterpillar Test Screen", rx/2, 32)
@@ -360,23 +370,33 @@ end
 --------------------------------------------------------------------------------
 
 -- BUTTONS
-
 local padding = 10
 local mcColor = '#4e025c'
 local eStopColor = '#7a0101'
 if config.manualControl then mcColor = '#3c00b3' end
 if config.estop then eStopColor = '#b30000' end
 local buttons = {
-    ButtonQuad('RTB',             135, 135, 'rtb',false,'#006603'),
-    ButtonQuad('+10m',            135, 185, function() config.targetAlt = config.targetAlt + 10; setOutput(serialize(config)) end,false,'#0b0578'),
-    ButtonQuad('-10m',            135, 235, function() config.targetAlt = config.targetAlt - 10; setOutput(serialize(config)) end,false,'#0b0578'),
-    ButtonQuad('Manual Control',  135, 285, function() config.manualControl = not config.manualControl; setOutput(serialize(config)) end,false,mcColor),
-    EStopButton('Emergency', 'Stop', 135, 410, 185, 165, eStopColor, function() config.estop = not config.estop; setOutput(serialize(config)) end)
+    ButtonQuad('RTB',                135, 135, function() config.targetAlt = config.rtb outputMsg = serialize(config) end,false,'#006603'),
+    ButtonQuad('+10m',               135, 185, function() config.targetAlt = config.targetAlt + 10 outputMsg = serialize(config) end,false,'#0b0578'),
+    ButtonQuad('-10m',               135, 235, function() config.targetAlt = config.targetAlt - 10 outputMsg = serialize(config) end,false,'#0b0578'),
+    ButtonQuad('Manual Control',     135, 285, function() config.manualControl = not config.manualControl config.targetAlt = 0 outputMsg = serialize(config) logMessage("Manual Control: "..outputMsg) end,false,mcColor),
+    GenericButton('Emergency', 'Stop', eStopFont, 135, 405, 185, 165, eStopColor, function() config.estop = not config.estop outputMsg = serialize(config) end),
+    GenericButton('Set RTB','',font3,135,515,185,30,'#006960',function()  end),
+    GenericButton('Configure Floors','',font3,360,515,185,30,'#006960',function()  end),
+    
 }
+--Deviation Box Placeholder
 setNextFillColor(layer, 0.1, 0.1, 0.1, 1)
 setNextStrokeColor(layer, 0.7, 0.7, 0.7, 1)
 setNextStrokeWidth(layer, 2)
-addBoxRounded(layer, 265, 325, 185, 165, 20)
+addBoxRounded(layer, 265, 323, 185, 165, 20)
+setNextFillColor(layer, 1, 1, 1, 1)
+setNextTextAlign(layer, AlignH_Center, AlignV_Middle)
+addText(layer, font3, "Deviation", 360, 380)
+setNextTextAlign(layer, AlignH_Center, AlignV_Middle)
+addText(layer, font3, "Indicator", 360, 400)
+setNextTextAlign(layer, AlignH_Center, AlignV_Middle)
+addText(layer, font3, "Placeholder", 360, 420)
 --logMessage(stats.data.target)
 local spacing = 0
 --Floors
@@ -387,7 +407,7 @@ if config.floors ~= nil then
         if tostring(v) == tostring(config.targetAlt) then
             color = "#7a3907" 
         end
-        local button = ButtonQuad(mToKm(v), 360, 135+spacing, function() config.targetAlt = v; setOutput(serialize(config)) end,true,color)
+        local button = ButtonQuad(mToKm(v), 360, 135+spacing, function() config.targetAlt = v; outputMsg = serialize(config) end,true,color)
         table.insert(buttons,button)
         spacing = spacing + 50
     end
@@ -400,7 +420,9 @@ if stats.data ~= nil then
         local lCol = rx/1.8+ 60
         local rCol = rx/1.8+260
         local row = ry/4.5+statSpacing
-        addText(layer,font3,k..":",lCol,row) addText(layer,font3,v,rCol,row)
+        local value = nil
+        if type(v) == "number" then value = utils.round(v,0.001) else value = v end
+        addText(layer,font3,k..":",lCol,row) addText(layer,font3,value,rCol,row)
         statSpacing = statSpacing + 20
     end
 end
@@ -409,34 +431,35 @@ end
 --statSpacing = 0
 local fgAtmo = {}
 local fgSpace = {}
-if fuelAtmo.tanks ~= nil then
+if fuelAtmo.tanks ~= nil and #fuelAtmo.tanks > 0 then
     local aSpacing = 200-- = spacing
     
     for k,v in spairs(fuelAtmo.tanks) do
-        if v.ft == "atmo" then
-            local fg = FuelGauge("", rx/1.8+110, 115 + aSpacing, v.ft, v.tm, v.pct)
-            table.insert( fgAtmo, fg )
-            aSpacing = aSpacing + 22
-        end
+        local fg = FuelGauge("", rx/1.8+110, 115 + aSpacing, "atmo", v.tm, v.pct)
+        table.insert( fgAtmo, fg )
+        aSpacing = aSpacing + 22
     end
 end
-if fuelSpace.tanks ~= nil then
+if fuelSpace.tanks ~= nil and #fuelSpace.tanks > 0 then
     local sSpacing = 200
 	for k,v in spairs(fuelSpace.tanks) do
-		if v.ft == "space" then
-            local fg = FuelGauge("", rx/1.8+310, 115 + sSpacing, v.ft, v.tm, v.pct)
-            table.insert( fgSpace, fg )
-            sSpacing = sSpacing + 22
-        end
+        local fg = FuelGauge("", rx/1.8+310, 115 + sSpacing, "space", v.tm, v.pct)
+        table.insert( fgSpace, fg )
+        sSpacing = sSpacing + 22
 	end
 end
-drawFree(stars)
-drawFree(buttons)
-drawFree(fgAtmo)
-drawFree(fgSpace)
 
-drawUsage()
-
+if not config.settingsActive and not config.shutDown then
+    drawFree(buttons)
+    drawFree(fgAtmo)
+    drawFree(fgSpace)
+elseif config.shutDown then
+    addImage(layer_spash, stCover, 0,0,rx,ry)
+end
+drawTitle()
 rslib.drawRenderCost()
 requestAnimationFrame(1)
---if tmp ~= nil and tmp ~= "" then setOutput("ack") end
+if outputMsg == "" then
+    outputMsg = "ack"
+end
+setOutput(outputMsg)

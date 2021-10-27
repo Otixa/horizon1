@@ -1,9 +1,9 @@
 --@class STEC_Config
 local updateSettings = false --export: Use these settings
-local altHoldPreset1 = 132000.125  --export: Altitude Hold Preset 1
-local altHoldPreset2 = 2000 --export: Altitude Hold Preset 2
-local altHoldPreset3 = 500 --export: Altitude Hold Preset 3
-local altHoldPreset4 = 50 --export: Altitude Hold Preset 4
+local altHoldPreset1 = 999.845  --export: Altitude Hold Preset 1
+local altHoldPreset2 = 500 --export: Altitude Hold Preset 2
+local altHoldPreset3 = 50 --export: Altitude Hold Preset 3
+local altHoldPreset4 = 2 --export: Altitude Hold Preset 4
 local deviationThreshold = 0.05 --export: Deviation tolerace in m
 local inertialDampening = true --export: Start with inertial dampening on/off
 local followGravity = true --export: Start with gravity follow on/off
@@ -87,10 +87,10 @@ if flightModeDb ~= nil then
         ship.altHoldPreset4 = altHoldPreset4
     else ship.altHoldPreset4 = flightModeDb.getFloatValue("altHoldPreset4") end
 
-    system.print("Preset 1: "..ship.altHoldPreset1)
-    system.print("Preset 2: "..ship.altHoldPreset2)
-    system.print("Preset 3: "..ship.altHoldPreset3)
-    system.print("Preset 4: "..ship.altHoldPreset4)
+    system.print("Preset 1: "..config.floors.floor1)
+    system.print("Preset 2: "..config.floors.floor2)
+    system.print("Preset 3: "..config.floors.floor3)
+    system.print("Preset 4: "..config.floors.floor4)
 
     function writeTargetToDb(cVector, name) --customTargetX
         if flightModeDb ~= nil then
@@ -176,11 +176,11 @@ if flightModeDb ~= nil then
         settingsActive = true
     end
 end
-
+config.rtb = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
+ioScheduler.queueData(config)
 function setBase(a)
     if a == nil then
         ship.customTarget = ship.world.position
-        --ship.rot = ship.world.forward
         ship.rot = ship.world.right:cross(ship.nearestPlanet:getGravity(core.getConstructWorldPos()))
         writeTargetToDb(ship.customTarget,"BaseLoc")
         writeTargetToDb(ship.rot, "BaseRot")
@@ -194,6 +194,9 @@ function setBase(a)
             system.print("Base Position: "..tostring(ship.nearestPlanet:convertToMapPosition(ship.customTarget)))
         end
     end
+
+    config.rtb = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
+    ioScheduler.queueData(config)
 end
 
 local tty = DUTTY
@@ -285,7 +288,7 @@ keybindPresets["keyboard"].keyUp["option9"].Add(function ()
     ship.verticalLock = false
     ship.intertialDampening = true
     ship.elevatorActive = false
-    manualControl = not manualControl
+    config.manualControl = not config.manualControl
     manualControlSwitch()
     end,"Manual Mode Toggle")
 
@@ -308,7 +311,7 @@ keybindPresets["screenui"].keyUp["option9"].Add(function ()
     ship.verticalLock = false
     ship.intertialDampening = true
     ship.elevatorActive = false
-    manualControl = not manualControl
+    config.manualControl = not config.manualControl
     manualControlSwitch()
     end,"Manual Mode Toggle")
 if flightModeDb then
