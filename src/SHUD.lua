@@ -3,11 +3,7 @@ vec2 = require('cpml/vec2')
 mat4 = require("cpml/mat4")
 local json = require("dkjson") -- For AGG
 local format = string.format
-function round2(num, numDecimalPlaces)
-    if num ~= nil then
-    return tonumber(string.format("%." .. (numDecimalPlaces or 0) .. "f", num))
-        end
-end
+
 
 
 if next(manualSwitches) ~= nil then 
@@ -174,13 +170,7 @@ SHUD =
     end
 
         
-    function mToKm(n)
-        if n >= 1000 then
-            return round2((n / 1000),2) .. " km"
-        else
-            return round2(n,2) .. " m"
-        end
-    end
+    
         
     function self.MakeBooleanIndicator(varName)
         local tmpl = [[<span class="right">

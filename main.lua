@@ -107,11 +107,13 @@ function manualControlSwitch()
 		system.showScreen(0)
 		system.freeze(0)
 		ship.frozen = true
+		ship.stateMessage = "Idle"
 	else
 		SHUD.Init(system, unit, keybindPresets["keyboard"])
 		system.showScreen(1)
 		system.freeze(1)
 		ship.frozen = false
+		ship.stateMessage = "Manual Control"
 	end
 
 end
@@ -140,7 +142,7 @@ function Unit.Tick(timer)
 		if ship.dockingClamps then
 			if laser ~= nil then laser.activate() end
 			if telemeter ~= nil and telDistance > 0 and telDistance < 1 then
-				if ship.autoShutdown then system.print(ship.altitude) unit.exit() end
+				if ship.autoShutdown and not config.manualControl then system.print(ship.altitude) unit.exit() end
 			end
 		end
 	end
@@ -213,63 +215,7 @@ end
 --		if mousex >= 0.0277 and mousex <= 0.0868 and mousey >= 0.8515 and mousey <= 0.9484 then --Settings button
 --			settingsActive = false
 --		end
---	else
---		if mousex >= 0.0331 and mousex <= 0.2282 and mousey >= 0.1276 and mousey <= 0.2850 then --RTB button
---			ship.altitudeHold = ship.baseAltitude
---			ship.elevatorActive = true
---			ship.targetDestination = moveWaypointZ(ship.customTarget, 0)
 
---		end
---		if mousex >= 0.2413 and mousex <= 0.4373 and mousey >= 0.1276 and mousey <= 0.2051 then --P1 button
---			ship.altitudeHold = ship.altHoldPreset1 ship.elevatorActive = true
---			ship.targetDestination = moveWaypointZ(ship.customTarget, ship.altHoldPreset1 - ship.baseAltitude)
---
---		end
---		if mousex >= 0.2413 and mousex <= 0.4373 and mousey >= 0.2091 and mousey <= 0.2850 then --P2 button
---			ship.altitudeHold = ship.altHoldPreset2 ship.elevatorActive = true
---			ship.targetDestination = moveWaypointZ(ship.customTarget, ship.altHoldPreset2 - ship.baseAltitude)
---
---		end
---		if mousex >= 0.2413 and mousex <= 0.4373 and mousey >= 0.2928 and mousey <= 0.3677 then --P3 button
---			ship.altitudeHold = ship.altHoldPreset3 ship.elevatorActive = true
---			ship.targetDestination = moveWaypointZ(ship.customTarget, ship.altHoldPreset3 - ship.baseAltitude)
---
---		end
---		if mousex >= 0.2413 and mousex <= 0.4373 and mousey >= 0.3761 and mousey <= 0.4514 then --P4 button
---			ship.altitudeHold = ship.altHoldPreset4 ship.elevatorActive = true
---			ship.targetDestination = moveWaypointZ(ship.customTarget, ship.altHoldPreset4 - ship.baseAltitude)
---
---		end
---		
---		if mousex >= 0.0331 and mousex <= 0.4373 and mousey >= 0.4609 and mousey <= 0.5364 then --Manual control button
---			ship.verticalLock = false
---			ship.intertialDampening = true
---			ship.elevatorActive = false
---			manualControl = not manualControl
---			manualControlSwitch()
---		end
---		if mousex >= 0.0331 and mousex <= 0.2282 and mousey >= 0.2928 and mousey <= 0.3677 then --Up 10
---			ship.elevatorActive = true
---			ship.altitudeHold = ship.altitudeHold + 10
---			ship.targetDestination = moveWaypointZ(ship.targetDestination, 10)
---		end
---		if mousex >= 0.0331 and mousex <= 0.2282 and mousey >= 0.3761 and mousey <= 0.4514 then --Down 10
---			ship.elevatorActive = true
---			ship.altitudeHold = ship.altitudeHold - 10
---			ship.targetDestination = moveWaypointZ(ship.targetDestination, -10)
---
---		end
---		if mousex >= 0.1003 and mousex <= 0.3703 and mousey >= 0.5484 and mousey <= 0.9475 then --E-Stop button
---			e_stop = not e_stop
---			if e_stop then
---				ship.altitudeHold = 0
---				ship.verticalLock = false
---				ship.elevatorActive = false
---				ship.brake = true
---			else
---				ship.brake = false
---			end
---		end
 --		if mousex >= 0.0277 and mousex <= 0.0868 and mousey >= 0.8515 and mousey <= 0.9484 then --Settings button
 --			settingsActive = true
 --		end

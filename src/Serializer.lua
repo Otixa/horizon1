@@ -5,6 +5,18 @@ local function internalSerialize(v,tC,t) local check = type(v) local intSerial=i
 function serialize(v) local t={} local tC=1 local check = type(v) local intSerial=internalSerialize if check=='table' then t[tC]='{' tC=tC+1 local tempC=tC if #v==0 then for k,e in pairs(v) do if type(k)~='number' then t[tempC]=k t[tempC+1]='=' tempC=tempC+2 else t[tempC]='[' t[tempC+1]=k t[tempC+2]=']=' tempC=tempC+3 end tempC=intSerial(e,tempC,t) t[tempC]=',' tempC=tempC+1 end else for k,e in pairs(v) do tempC=intSerial(e,tempC,t) t[tempC]=',' tempC=tempC+1 end end if tempC==tC then t[tempC]='}' else t[tempC-1]='}' end elseif check=='string' then t[tC]=sFormat("%q",v) elseif check=='number' then t[tC]=tostring(v) else t[tC]=v and 'true' or 'false' end return concat(t) end
 function deserialize(s) local f=load('t='..s) f() return t end
 function tryDeserialize(s) local f=load('t='..s) if f then f() return true, t else return false end end
+function mToKm(n)
+    if n >= 1000 then
+        return round2((n / 1000),2) .. " km"
+    else
+        return round2(n,2) .. " m"
+    end
+end
+function round2(num, numDecimalPlaces)
+    if num ~= nil then
+    return tonumber(string.format("%." .. (numDecimalPlaces or 0) .. "f", num))
+        end
+end
 config = {
     dataType = "config",
     floors = {
@@ -13,10 +25,13 @@ config = {
         floor3 = 0,
         floor4 = 0,
     },
+    elevatorName = core.getConstructName(),
     rtb = 0,
     targetAlt = 0,
     estop = false,
     settingsActive = false,
+    setBaseActive = false,
+    setBaseReq = false,
     manualControl = false,
     destination = nil,
     shutDown = false,
@@ -33,6 +48,8 @@ stats = {
                 target_dist = 0,
                 brake_dist = 0,
                 deviation = 0,
+                deviationVec = vec3(0,0,0),
+                deviationRot = vec3(0,0,0),
                 state = "Idle",
         }
     }

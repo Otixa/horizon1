@@ -167,17 +167,17 @@ if flightModeDb ~= nil then
         ship.customTarget = readTargetFromDb("BaseLoc")
     else
         ship.customTarget = ship.world.position
-        settingsActive = true
+        system.print("No RTB set")
+        config.setBaseActive = true
     end
     if flightModeDb.hasKey("BaseRotX") == 1 then
         ship.rot = readTargetFromDb("BaseRot")
     else
         ship.rot = ship.world.forward
-        settingsActive = true
+        config.setBaseActive = true
     end
 end
 config.rtb = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
-ioScheduler.queueData(config)
 function setBase(a)
     if a == nil then
         ship.customTarget = ship.world.position
@@ -372,9 +372,15 @@ function autoLandingGear()
 	end
 end
 
---unit.setTimer("console",0.5)
+config.floors.floor1 = ship.altHoldPreset1
+config.floors.floor2 = ship.altHoldPreset2
+config.floors.floor3 = ship.altHoldPreset3
+config.floors.floor4 = ship.altHoldPreset4
+elevatorName = core.getConstructName()
+config.rtb = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
+config.targetAlt = 0
 
-function round(num, numDecimalPlaces)
-local mult = 10^(numDecimalPlaces or 0)
-return math.floor(num * mult + 0.5) / mult
-end
+ioScheduler.defaultData = stats
+ioScheduler.queueData(config)
+ioScheduler.queueData(fuelAtmo)
+ioScheduler.queueData(fuelSpace)

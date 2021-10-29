@@ -2,9 +2,9 @@
 
 --[[
 Custom IO scheduler to deal with limited data packet size
-of screen send/recieve.  self.defaultData will send as fast as
-possible, while self.queueData() will interrupt default send and
-to send queued data.
+and tick rate of screen send/recieve. IOScheduler.defaultData
+will send as fast as possible, while IOScheduler.queueData()
+will interrupt default send and to send queued data.
 --]]
 
 IOScheduler = (function()
@@ -16,7 +16,7 @@ IOScheduler = (function()
     function self.queueData(data)
          table.insert(self.taskQueue, data)
     end
-
+    --Send queued data to screen
     function self.send(T)
         output = screen.getScriptOutput()
         screen.clearScriptOutput()
@@ -30,7 +30,7 @@ IOScheduler = (function()
             screen.setScriptInput(serialize(T))
         end
     end
-    --Queue data to send
+    --Queue data to send or send self.defaultData
     function self.runQueue()
         if #self.taskQueue == 0 then
             --Send default table
@@ -55,7 +55,7 @@ IOScheduler = (function()
         end
     end
     
-    --Add to system.update
+    --Add to system.update()
     function self.update()
         if self.currentTask then
             if coroutine.status(self.currentTask) ~= "dead" then
@@ -74,7 +74,7 @@ end)()
 HandleOutput = (function()
     local self = {}
     function self.Read(output)
-        system.print("handleOutput.Read(): "..output)
+        --system.print("handleOutput.Read(): "..output)
         if output ~= nil and output ~= "" then
             if type(output) == "string" then
                 --system.print(output)
@@ -98,12 +98,14 @@ HandleOutput = (function()
         ship.altitudeHold = config.targetAlt
         
         if config.estop then
-            system.print("E-STOP")
+            
             ship.altitudeHold = 0
             config.targetAlt = 0
             ship.verticalLock = false
             ship.elevatorActive = false
             ship.brake = true
+            ship.stateMessage = "EMERGENCY STOP"
+            system.print(ship.stateMessage)
             ioScheduler.queueData(config)
         else
             ship.brake = false
@@ -112,6 +114,11 @@ HandleOutput = (function()
             ship.elevatorActive = true
             system.print("Alt diff: "..(config.targetAlt - ship.baseAltitude))
             ship.targetDestination = moveWaypointZ(ship.customTarget, config.targetAlt - ship.baseAltitude)
+        end
+        if config.setBaseReq then
+            setBase()
+            config.setBaseReq = false
+            ioScheduler.queueData(config)
         end
         manualControlSwitch()
     end

@@ -53,6 +53,7 @@ function STEC(core, control, Cd)
     }
     
     self.rot = vec3(0,0,0)
+    self.deviationRot = vec3(0,0,0)
     -- Construct id
     self.id = core.getConstructId()
     -- Control Mode - Travel (0) or Cruise (1)
@@ -74,6 +75,7 @@ function STEC(core, control, Cd)
     self.altHoldPreset3 = 0
     self.altHoldPreset4 = 0
     self.deviation = 0
+    self.deviationVec = vec3(0,0,0)
     self.stateMessage = ""
     self.pocket = false
     self.autoShutdown = false
@@ -420,7 +422,10 @@ function STEC(core, control, Cd)
             end
             
             --system.print("self.deviation: "..self.deviation)
-            self.deviation = (moveWaypointZ(self.customTarget, self.altitude - self.baseAltitude) - self.world.position):len()
+            self.deviationVec = (moveWaypointZ(self.customTarget, self.altitude - self.baseAltitude) - self.world.position)
+            self.deviationRot = self.world.forward:cross(self.rot)
+            self.deviation = self.deviationVec:len()
+            
             local deviationThreshold = self.deviationThreshold
             if self.deviated then deviationThreshold = deviationThreshold * 0.5 end
             --system.print("Deviation threshold: "..deviationThreshold)
@@ -461,7 +466,7 @@ function STEC(core, control, Cd)
             
             tmp = tmp - self.elevatorDestination * self.mass * utils.clamp(distance * 3.6,0.3,((math.abs(speed)/3.6) * self.IDIntensity))
             --if breadCrumb ~= nil then system.print("Breadcrumb distance: "..(self.world.position - breadCrumb):len()) end
-            if distance < 0.01 and not manualControl then 
+            if distance < 0.01 and not manualControl then
                 self.elevatorActive = false self.targetVector = nil 
                 self.stateMessage = "Idle"
                 self.dockingClamps = true
@@ -474,7 +479,7 @@ function STEC(core, control, Cd)
             end
             
 	    else
-            self.stateMessage = "Idle"
+            --self.stateMessage = "Idle"
             self.destination = vec3(0,0,0)
         end
         if self.inertialDampening then
