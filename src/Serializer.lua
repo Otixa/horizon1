@@ -35,6 +35,7 @@ config = {
     manualControl = false,
     destination = nil,
     shutDown = false,
+    updateReq = false,
     }
 
 stats = {

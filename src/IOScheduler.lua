@@ -84,6 +84,8 @@ HandleOutput = (function()
                     config = s
                     stats.data.target = config.targetAlt
                     self.Execute()
+                elseif s.updateReq then
+                    ioScheduler.queueData(config)
                 else
                     system.print(tostring(s))
                 end
@@ -120,6 +122,10 @@ HandleOutput = (function()
             config.setBaseReq = false
             ioScheduler.queueData(config)
         end
+        --if config.updateReq then
+        --    config.updateReq = false
+        --    ioScheduler.queue(config)
+        --end
         manualControlSwitch()
     end
 

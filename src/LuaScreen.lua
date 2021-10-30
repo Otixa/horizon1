@@ -76,7 +76,11 @@ tmp = getInput()
 if tmp ~= nil and tmp ~= "" then tmpData = deserialize(tmp) or {}; end
 --logMessage("Data Type: "..tmpData.dataType)
 if not stats then stats = {} end
-if not config then config = {} config.shutDown = true end
+if not config then
+    config = {}
+    config.updateReq = true
+    config.shutDown = true
+    outputMsg = serialize(config) end
 if not fuelAtmo then fuelAtmo = {} end
 if not fuelSpace then fuelSpace = {} end
 if tmpData ~= nil and type(tmpData) == "table" then
@@ -659,6 +663,7 @@ end
 if config.shutDown then
     config.setBaseActive = false
     config.settingsActive = false
+    addImage(layer_spash, stCover, 0,0,rx,ry)
 end
 if config.elevatorName then
     setNextTextAlign(layer, AlignH_Center, AlignV_Top)
@@ -689,10 +694,7 @@ elseif config.settingsActive then
     settingsText()
     GenericButton('Back','',font3,rx/2,ry/2+100,185,30,'#006960',function() config.settingsActive = false end, settingsLayer):draw()
     --settings page
-elseif config.shutDown then
-    addImage(layer_spash, stCover, 0,0,rx,ry)
 end
-
 
 requestAnimationFrame(1)
 if outputMsg == "" then
