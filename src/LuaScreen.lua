@@ -582,7 +582,7 @@ if config.floors ~= nil then
         local color = "#450101"
         --logMessage(v.." / "..stats.data.target)
         if tostring(v) == tostring(config.targetAlt) then
-            color = "#7a3907" 
+            color = "#7a3907"
         end
         local button = ButtonQuad(mToKm(v), 360, 135+spacing, function() config.targetAlt = v; outputMsg = serialize(config) end,true,color)
         table.insert(buttons,button)
@@ -606,14 +606,13 @@ if stats.data then
         table.insert(statsDraw,StatsLine('Target Distance',mToKm(stats.data.target_dist,0.001),585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
         table.insert(statsDraw,StatsLine('Brake Distance',mToKm(stats.data.brake_dist),585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
         table.insert(statsDraw,StatsLine('Deviation',utils.round(stats.data.deviation,0.00001)..' m',585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
-        
 end
 
 local fgAtmo = {}
 local fgSpace = {}
 if fuelAtmo.tanks ~= nil and #fuelAtmo.tanks > 0 then
     local aSpacing = 200
-    if #fuelAtmo.tanks < 10 then
+    if #fuelAtmo.tanks <= 11 then
         for k,v in pairs(fuelAtmo.tanks) do
             local fg = FuelGauge("", rx/1.8+100, 115 + aSpacing, "atmo", v.tm, v.pct,false)
             table.insert( fgAtmo, fg )

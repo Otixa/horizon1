@@ -40,6 +40,7 @@ function Unit.Start()
 		manualControlSwitch()
 		system.print("Altitude: "..helios:closestBody(core.getConstructWorldPos()):getAltitude(core.getConstructWorldPos()))
 		ship.altitudeHold = helios:closestBody(core.getConstructWorldPos()):getAltitude(core.getConstructWorldPos())
+		ship.baseAltitude = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
 		--ship.elevatorActive = true
 	end
 	--if next(manualSwitches) ~= nil then manualSwitches[1].activate() end
@@ -87,15 +88,16 @@ end
 
 
 function Unit.Stop()
-	config.shutDown = true
-	screen.setScriptInput(serialize(config))
-	system.showScreen(0)
-	if laser ~= nil then laser.deactivate() end
-	if next(manualSwitches) ~= nil then 
+	if next(manualSwitches) ~= nil then
 		for _, sw in ipairs(manualSwitches) do
 			sw.deactivate()
 		end
 	end
+	config.shutDown = true
+	screen.setScriptInput(serialize(config))
+	system.showScreen(0)
+	if laser ~= nil then laser.deactivate() end
+	
 	for _, sw in ipairs(forceFields) do
 		sw.deactivate()
 	end
@@ -164,6 +166,8 @@ function System.ActionLoop(action)
 end
 
 function System.Update()
+	--system.print("Cust Target: "..tostring(vec3(ship.customTarget)).." | alt: "..ship.altitude.." | baseAlt: "..ship.baseAltitude.." | worldPos: "..tostring(vec3(ship.world.position)).." | ")
+	--self.deviationVec = (moveWaypointZ(self.customTarget, self.altitude - self.baseAltitude) - self.world.position)
 	ioScheduler.update()
 	elevatorScreen.updateStats()
 	if Events then Events.Update() end
@@ -202,7 +206,7 @@ end
 --for _, sw in ipairs(ship.breadCrumbs) do
 --	system.print("POS: "..tostring(sw))
 --end
---function buildScreen.MouseUp(x,y,slot)
+function buildScreen.MouseUp(x,y,slot)
 --ship.baseAltitude = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
 --	if settingsActive then
 --		if mousex >= 0.1515 and mousex <= 0.4934 and mousey >= 0.5504 and mousey <= 0.7107 then --Setbase button
@@ -220,4 +224,4 @@ end
 --			settingsActive = true
 --		end
 --	end
---end
+end

@@ -1,10 +1,10 @@
 --@class STEC_Config
 local updateSettings = false --export: Use these settings
-local altHoldPreset1 = 999.845  --export: Altitude Hold Preset 1
-local altHoldPreset2 = 500 --export: Altitude Hold Preset 2
+local altHoldPreset1 = 132000.845  --export: Altitude Hold Preset 1
+local altHoldPreset2 = 1005 --export: Altitude Hold Preset 2
 local altHoldPreset3 = 50 --export: Altitude Hold Preset 3
 local altHoldPreset4 = 2 --export: Altitude Hold Preset 4
-local deviationThreshold = 0.05 --export: Deviation tolerace in m
+local deviationThreshold = 10 --export: Deviation tolerace in m
 local inertialDampening = true --export: Start with inertial dampening on/off
 local followGravity = true --export: Start with gravity follow on/off
 local minRotationSpeed = 0.01 --export: Minimum speed rotation scales from
@@ -87,11 +87,6 @@ if flightModeDb ~= nil then
         ship.altHoldPreset4 = altHoldPreset4
     else ship.altHoldPreset4 = flightModeDb.getFloatValue("altHoldPreset4") end
 
-    system.print("Preset 1: "..config.floors.floor1)
-    system.print("Preset 2: "..config.floors.floor2)
-    system.print("Preset 3: "..config.floors.floor3)
-    system.print("Preset 4: "..config.floors.floor4)
-
     function writeTargetToDb(cVector, name) --customTargetX
         if flightModeDb ~= nil then
             flightModeDb.setFloatValue(name.."X", cVector.x)
@@ -159,9 +154,7 @@ end
 
 ship.baseAltitude = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
 system.print("Altitude: "..ship.baseAltitude)
-function moveWaypointZ(vector, altitude)
-    return (vector - (ship.nearestPlanet:getGravity(vector)):normalize() * (altitude))
-end
+
 if flightModeDb ~= nil then
     if flightModeDb.hasKey("BaseLocX") == 1 then
         ship.customTarget = readTargetFromDb("BaseLoc")
@@ -380,7 +373,13 @@ elevatorName = core.getConstructName()
 config.rtb = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
 config.targetAlt = 0
 
+system.print("Preset 1: "..config.floors.floor1)
+system.print("Preset 2: "..config.floors.floor2)
+system.print("Preset 3: "..config.floors.floor3)
+system.print("Preset 4: "..config.floors.floor4)
+
 ioScheduler.defaultData = stats
 ioScheduler.queueData(config)
 ioScheduler.queueData(fuelAtmo)
 ioScheduler.queueData(fuelSpace)
+

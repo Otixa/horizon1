@@ -268,6 +268,10 @@ function STEC(core, control, Cd)
         self.throttle = clamp(self.throttle - 0.05, 0, 1)
     end
 
+    function moveWaypointZ(vector, altitude)
+        return (vector - (ship.nearestPlanet:getGravity(vector)):normalize() * (altitude))
+    end
+
     function self.worldToLocal(vector)
         return vec3(
             library.systemResolution3(
@@ -389,7 +393,10 @@ function STEC(core, control, Cd)
             atmp = atmp + gFollow
         end
         
-        
+        self.deviationVec = (moveWaypointZ(self.customTarget, self.altitude - self.baseAltitude) - self.world.position)
+        self.deviationRot = self.world.forward:cross(self.rot)
+        self.deviation = self.deviationVec:len()
+
         if self.elevatorActive then
             if not self.inertialDampening then self.inertialDampening = true end
             if not self.counterGravity then self.counterGravity = true end
@@ -402,9 +409,11 @@ function STEC(core, control, Cd)
             local speed = 0
             --local self.breadCrumbDist = 500
             local distance = (self.world.position - self.targetDestination):len()
+            
             local realDistance = helios:closestBody(self.targetDestination):getAltitude(self.targetDestination) - self.altitude
             local destination = vec3(0,0,0)
             local verticalSpeedLimit
+            
             
             local dampen = 1
 
@@ -413,23 +422,24 @@ function STEC(core, control, Cd)
             --end
             
             if self.altitude <= (self.atmosphereThreshold + self.brakeDistance) or self.altitude <= self.brakeDistance then 
-                verticalSpeedLimit = self.verticalSpeedLimitAtmo 
+                verticalSpeedLimit = self.verticalSpeedLimitAtmo
             else 
-                verticalSpeedLimit = self.verticalSpeedLimitSpace 
+                verticalSpeedLimit = self.verticalSpeedLimitSpace
             end
             if  (self.brakeDistance + brakeBuffer) >= math.abs(deltaAltitude) then
                 verticalSpeedLimit = self.approachSpeed
             end
-            
+            if self.deviation > 0.05 then
+                verticalSpeedLimit = self.verticalSpeedLimitAtmo
+            end
             --system.print("self.deviation: "..self.deviation)
-            self.deviationVec = (moveWaypointZ(self.customTarget, self.altitude - self.baseAltitude) - self.world.position)
-            self.deviationRot = self.world.forward:cross(self.rot)
-            self.deviation = self.deviationVec:len()
+            
             
             local deviationThreshold = self.deviationThreshold
-            if self.deviated then deviationThreshold = deviationThreshold * 0.5 end
+            if self.deviated or self.world.velocity:len() < 1 then deviationThreshold = 0.05 end
             --system.print("Deviation threshold: "..deviationThreshold)
-            if self.deviation > (deviationThreshold + self.world.velocity:len() * 10^-2) then
+            --if self.deviation > (deviationThreshold + self.world.velocity:len() * 10^-2) then
+            if self.deviation > deviationThreshold then
                 destination = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude))
                 self.deviated = true
                 speed = self.deviation
@@ -449,13 +459,15 @@ function STEC(core, control, Cd)
             end
             --system.print("realDistance: "..realDistance)
             local breadCrumb
-            if realDistance > self.breadCrumbDist and not self.deviated then
-                breadCrumb = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude) + self.breadCrumbDist)
+            local breadCrumbDist = utils.clamp(math.abs(self.world.velocity:len()),10,self.breadCrumbDist - (self.deviation * 100))
+            --system.print(breadCrumbDist)
+            if realDistance > breadCrumbDist and not self.deviated then
+                breadCrumb = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude) + breadCrumbDist)
                 destination = breadCrumb
                 --local waypointString = ship.nearestPlanet:convertToMapPosition(destination)
 			    --system.print(tostring(waypointString))
-            elseif realDistance < -self.breadCrumbDist and not self.deviated then
-                breadCrumb = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude) - self.breadCrumbDist)
+            elseif realDistance < -breadCrumbDist and not self.deviated then
+                breadCrumb = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude) - breadCrumbDist)
                 destination = breadCrumb
                 --local waypointString = ship.nearestPlanet:convertToMapPosition(destination)
 			    --system.print(tostring(waypointString))
@@ -463,7 +475,7 @@ function STEC(core, control, Cd)
             
             self.elevatorDestination = (self.world.position - destination):normalize()
             --system.print("TEST: "..round2((distance * distance),4))
-            
+
             tmp = tmp - self.elevatorDestination * self.mass * utils.clamp(distance * 3.6,0.3,((math.abs(speed)/3.6) * self.IDIntensity))
             --if breadCrumb ~= nil then system.print("Breadcrumb distance: "..(self.world.position - breadCrumb):len()) end
             if distance < 0.01 and not manualControl then

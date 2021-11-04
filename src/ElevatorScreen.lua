@@ -1,7 +1,7 @@
 --@class ElevatorScreen
 ElevatorScreen = (function ()
     local self = {}
-       
+
     function self.updateStats()
         stats.data.elevation = ship.altitude
         stats.data.target = config.targetAlt
@@ -33,6 +33,3 @@ ElevatorScreen = (function ()
     screen.clearScriptOutput()
     return self
 end)()
-
-
-
