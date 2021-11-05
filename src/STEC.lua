@@ -565,7 +565,11 @@ function STEC(core, control, Cd)
         end
 
 
-        self.control.setEngineCommand(tostring(self.tags), {tmp:unpack()}, {atmp:unpack()})
+        --self.control.setEngineCommand(tostring(self.tags), {tmp:unpack()}, {atmp:unpack()})
+        self.control.setEngineCommand("atmospheric_engine,space_engine,airfoil,brake,torque,vertical", 
+                                        {tmp:unpack()}, {atmp:unpack()}, false, false,
+                                        "brake,airfoil,torque","atmospheric_engine,space_engine,vertical","")
+
         atmp = vec3(0, 0, 0)
         tmp = vec3(0, 0, 0)
         self.elevatorDestination = vec3(0,0,0)
