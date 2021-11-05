@@ -77,7 +77,7 @@ function STEC(core, control, Cd)
     -- Placeholder for cruise value when switching control modes
     self.tempCruise = 0  
     -- Active engine tags
-    self.tags = TagManager("all,brake")
+    self.tags = TagManager("all")
     -- Target vector to face if non-0. Can take in a vec3 or function which returns a vec3
     self.targetVector = nil
     -- Whether the target vector should unlock automatically if the ship is rotated by the pilot
@@ -118,7 +118,7 @@ function STEC(core, control, Cd)
     -- Amount of throttle to apply. 0-1 range
     self.throttle = 1
     -- Maximum thrust which the vessel is capable of producing
-    self.fMax = 0
+    --self.fMax = 0
     -- Altitude which the vessel should attempt to hold
     self.altitudeHold = 0
     -- Speed which the vessel should attempt to maintain
@@ -137,6 +137,8 @@ function STEC(core, control, Cd)
     self.disableVTOL = false
     self.disabledTags = ""
     local lastUpdate = system.getTime()
+    self.thrustVec = vec3(0,0,0)
+    
     
     
     function self.updateWorld()
@@ -175,14 +177,53 @@ function STEC(core, control, Cd)
         self.mass = self.core.getConstructMass()
         self.altitude = self.nearestPlanet:getAltitude(core.getConstructWorldPos())
         self.localVelocity = vec3(core.getVelocity())
-        local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
-        if self.world.atmosphericDensity > 0.1 then --Temporary hack. Needs proper transition.
-            self.fMax = math.max(fMax[1], -fMax[2])
+
+        local tkForward = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0, 1, 0):unpack()})
+        local tkUp = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0, 0, 1):unpack()})
+        local tkRight = core.getMaxKinematicsParametersAlongAxis("all", {vec3(1, 0, 0):unpack()})
+        
+        local tkOffset = 0
+        if self.world.atmosphericDensity < 0.1 then
+            tkOffset = 2
+        end
+        
+        local virtualGravityEngine =
+            vec3(
+            library.systemResolution3(
+                {self.world.right:unpack()},
+                {self.world.forward:unpack()},
+                {self.world.up:unpack()},
+               {(self.world.gravity * self.mass):unpack()}
+            )
+        )
+
+        self.MaxKinematics = {
+            Forward = math.abs(tkForward[1 + tkOffset] + virtualGravityEngine.y),
+            Backward = math.abs(tkForward[2 + tkOffset] - virtualGravityEngine.y),
+            Up = math.abs(tkUp[1 + tkOffset] + virtualGravityEngine.z),
+            Down = math.abs(tkUp[2 + tkOffset] - virtualGravityEngine.z),
+            Right = math.abs(tkRight[1 + tkOffset] + virtualGravityEngine.x),
+            Left = math.abs(tkRight[2 + tkOffset] - virtualGravityEngine.x)
+        }
+
+
+        --local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
+        --if self.world.nearPlanet then
+        --    self.fMax = math.max(fMax[1], -fMax[2])
+        --else
+        --    self.fMax = math.max(fMax[3], -fMax[4])
+        --end
+    end
+    function self.maxForceForward()
+        local axisCRefDirection = vec3(self.world.forward)
+        local longitudinalEngineTags = 'thrust analog longitudinal'
+        local maxKPAlongAxis = self.core.getMaxKinematicsParametersAlongAxis(longitudinalEngineTags, {axisCRefDirection:unpack()})
+        if self.control.getAtmosphereDensity() == 0 then -- we are in space
+            return maxKPAlongAxis[3]
         else
-            self.fMax = math.max(fMax[3], -fMax[4])
+            return maxKPAlongAxis[1]
         end
     end
-
     function self.calculateAccelerationForce(acceleration, time)
         return self.mass * (acceleration / time)
     end
@@ -253,20 +294,28 @@ function STEC(core, control, Cd)
         self.updateWorld()
         local tmp = self.thrust
         local atmp = self.angularThrust
-
-        if self.direction.x ~= 0 then
-            local a = (self.world.right * self.direction.x) * self.mass * self.fMax
-            --if not self.ignoreHorizontalThrottle then a = a * self.throttle end
-            tmp = tmp + a
+        --Thrust
+        --Lateral
+        if self.direction.x > 0 then
+            tmp = tmp  + (self.world.right * self.MaxKinematics.Right)
         end
+        if self.direction.x < 0 then
+            tmp = tmp  + (-self.world.right * self.MaxKinematics.Right)
+        end
+        --Forward
         if self.direction.y ~= 0 then
-            tmp = tmp + (((self.world.forward * self.direction.y) * self.fMax) * self.throttle)
+            tmp = tmp  + (self.world.forward * self.MaxKinematics.Forward) * self.throttle
         end
-        if self.direction.z ~= 0 then
-            local a = ((self.world.up * self.direction.z) * self.fMax)
-            if not self.ignoreVerticalThrottle then a = a * self.throttle end
-            tmp = tmp + a
+        --Vertical
+        if self.direction.z > 0 then
+            tmp = tmp + self.world.up * self.MaxKinematics.Up
+            if not self.ignoreVerticalThrottle then tmp = tmp * self.throttle end
         end
+        if self.direction.z < 0 then
+            tmp = tmp + -self.world.up * self.MaxKinematics.Down
+            if not self.ignoreVerticalThrottle then tmp = tmp * self.throttle end
+        end
+        --Rotation
         if self.rotation.x ~= 0 then
             self.scaleRotation()
             atmp = atmp + ((self.world.forward:cross(self.world.up) * self.rotation.x) * self.rotationSpeed)
@@ -292,7 +341,7 @@ function STEC(core, control, Cd)
 		    local current = self.localVelocity:len() * self.mass
             local scale = nil
             if ship.localVelocity:len() > 1000 then
-                scale = self.gravityFollowSpeed * math.min(math.max(current / self.fMax, 0.1), 1) * 10
+                scale = self.gravityFollowSpeed * math.min(math.max(current / self.MaxKinematics.Up, 0.1), 1) * 10
             else
                 scale = self.gravityFollowSpeed
             end
@@ -349,7 +398,9 @@ function STEC(core, control, Cd)
         end
         -- must be applied last
         if self.counterGravity then
-            tmp = tmp - self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass
+            if self.direction.z >= 0 then
+                tmp = tmp - self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass
+            end
         end
 
         atmp = atmp - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
@@ -378,8 +429,11 @@ function STEC(core, control, Cd)
             self.disabledTags = ""
         end
         
-        self.control.setEngineCommand(tostring(self.tags), {tmp:unpack()}, {atmp:unpack()}, true, true, "airfoil,ground")
-        self.control.setEngineCommand(self.disabledTags)
+        self.control.setEngineCommand("atmospheric_engine,space_engine,airfoil,brake,torque,vertical", 
+                                        {tmp:unpack()}, {atmp:unpack()}, false, false,
+                                        "brake,airfoil,torque","atmospheric_engine,space_engine,vertical","")
+        --self.control.setEngineCommand(self.disabledTags)
+        self.thrustVec = self.worldToLocal(tmp)
         lastUpdate = system.getTime()
     end
 

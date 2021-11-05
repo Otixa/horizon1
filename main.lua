@@ -40,14 +40,13 @@ function Unit.Start()
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
 	--unit.setTimer("WaypointTest", 0.5)
-	system.print([[Horizon 1.1.1.8_4]])
+	system.print([[Horizon 1.1.1.8_5]])
 
 	if showDockingWidget then
 		parentingPanelId = system.createWidgetPanel("Docking")
 		parentingWidgetId = system.createWidget(parentingPanelId,"parenting")
 		system.addDataToWidget(unit.getDataId(),parentingWidgetId)
 	end
-
 
 	--local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
 	--local vMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
@@ -76,12 +75,16 @@ function Unit.Tick(timer)
 		getFuelRenderedHtml()
 	end
 	if timer == "WaypointTest" then
-		local waypoint = moveWaypointY(ship.altitudeHold, (ship.world.velocity:len() * 2) + 50)
-		local waypointString = ship.nearestPlanet:convertToMapPosition(waypoint)
-		if ship.altitudeHold ~= 0 then
-			ship.targetVector = waypoint
-		end
-		system.setWaypoint(tostring(waypointString))
+		--local waypoint = moveWaypointY(ship.altitudeHold, (ship.world.velocity:len() * 2) + 50)
+		--local waypointString = ship.nearestPlanet:convertToMapPosition(waypoint)
+		--if ship.altitudeHold ~= 0 then
+		--	ship.targetVector = waypoint
+		--end
+		--system.setWaypoint(tostring(waypointString))
+		system.print("Local thrust vector: "..tostring(vec3(ship.thrustVec)))
+		system.print("direction.z: "..ship.direction.z)
+		system.print("self.MaxKinematics.Up: "..ship.MaxKinematics.Up)
+		--system.print("Gravity: "..tostring(vec3(ship.nearestPlanet:getGravity(core.getConstructWorldPos()))))
 	end
 
 end

@@ -182,7 +182,7 @@ keybindPresets["mouse"].keyUp["option5"].Add(function () switchFlightMode("keybo
 keybindPresets["mouse"].keyUp["option6"].Add(function () switchControlMode() end, "Alternate Control Mode Switch")
 
 -- keyboard
-keybindPresets["keyboard"].keyDown.up.Add(function () landing = false softLanding() ship.direction.z = 1 end)
+keybindPresets["keyboard"].keyDown.up.Add(function () ship.direction.z = 1 end)
 keybindPresets["keyboard"].keyUp.up.Add(function () ship.direction.z = 0 end)
 keybindPresets["keyboard"].keyDown.down.Add(function () ship.direction.z = -1 end)
 keybindPresets["keyboard"].keyUp.down.Add(function () ship.direction.z = 0 end)
@@ -223,7 +223,7 @@ keybindPresets["keyboard"].keyUp["booster"].Add(function () holdAlt() end, "Alti
 keybindPresets["keyboard"].keyUp["gear"].Add(function () landing = not landing; softLanding() end, "Land")
 keybindPresets["keyboard"].keyUp["option1"].Add(function () ship.inertialDampening = not ship.inertialDampening end, "Inertial Dampening")
 keybindPresets["keyboard"].keyUp["option2"].Add(function ()  ship.targetVector = nil ship.followGravity = not ship.followGravity end, "Gravity Follow")
-keybindPresets["keyboard"].keyUp["option3"].Add(function () if ship.direction.y == 1 then ship.direction.y = 0 else ship.direction.y = 1 end end, "keyboard Control")
+keybindPresets["keyboard"].keyUp["option3"].Add(function () if ship.direction.y == 1 then ship.direction.y = 0 else ship.direction.y = 1 end end, "Thrust on/off")
 keybindPresets["keyboard"].keyUp["option4"].Add(function () ship.counterGravity = not ship.counterGravity end, "Counter Gravity")
 keybindPresets["keyboard"].keyUp["option5"].Add(function () switchFlightMode("mouse") end, "Switch Flight Mode")
 keybindPresets["keyboard"].keyUp["option6"].Add(function () switchControlMode() end, "Alternate Control Mode Switch")
