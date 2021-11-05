@@ -47,7 +47,7 @@ function Unit.Start()
 		parentingWidgetId = system.createWidget(parentingPanelId,"parenting")
 		system.addDataToWidget(unit.getDataId(),parentingWidgetId)
 	end
-
+	if system.showHelper then system.showHelper(0) end
 	--local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
 	--local vMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
 
