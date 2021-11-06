@@ -429,9 +429,11 @@ function STEC(core, control, Cd)
             self.disabledTags = ""
         end
         
-        self.control.setEngineCommand("atmospheric_engine,space_engine,airfoil,brake,torque,vertical", 
+        self.control.setEngineCommand("atmospheric_engine,space_engine,airfoil,brake,torque,vertical",
                                         {tmp:unpack()}, {atmp:unpack()}, false, false,
-                                        "brake,airfoil,torque","atmospheric_engine,space_engine,vertical","")
+                                        "brake,airfoil,torque,ground",      -- Priority 1
+                                        "atmospheric_engine,space_engine",  -- Priority 2
+                                        "vertical")                         -- Priority 3
         --self.control.setEngineCommand(self.disabledTags)
         self.thrustVec = self.worldToLocal(tmp)
         lastUpdate = system.getTime()
