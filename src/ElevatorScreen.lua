@@ -11,8 +11,8 @@ ElevatorScreen = (function ()
         stats.data.target_dist = math.abs(ship.altitude - ship.altitudeHold)
         stats.data.brake_dist = ship.brakeDistance
         stats.data.deviation = ship.deviation
-        stats.data.deviationVec = ship.deviationVec
-        stats.data.deviationRot = ship.deviationRot
+        stats.data.deviationVec = ship.worldToLocal(ship.deviationVec)
+        stats.data.deviationRot = ship.worldToLocal(ship.deviationRot)
         stats.data.state = ship.stateMessage
     end
     self.updateStats()

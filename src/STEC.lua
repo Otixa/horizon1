@@ -170,6 +170,9 @@ function STEC(core, control, Cd)
     self.verticalCruise = false
     --Vertical Cruise Speed (for elevator stuff)
     self.verticalCruiseSpeed = 0
+    self.priority1 = "brake,airfoil,torque,vertical"
+    self.priority2 = "atmospheric_engine,space_engine"
+    self.priority3 = ""
 	
     local lastUpdate = system.getTime()
 
@@ -429,17 +432,15 @@ function STEC(core, control, Cd)
             if  (self.brakeDistance + brakeBuffer) >= math.abs(deltaAltitude) then
                 verticalSpeedLimit = self.approachSpeed
             end
-            if self.deviation > 0.05 then
-                verticalSpeedLimit = self.verticalSpeedLimitAtmo
-            end
+            
             --system.print("self.deviation: "..self.deviation)
             
             
             local deviationThreshold = self.deviationThreshold
             if self.deviated or self.world.velocity:len() < 1 then deviationThreshold = 0.05 end
             --system.print("Deviation threshold: "..deviationThreshold)
-            --if self.deviation > (deviationThreshold + self.world.velocity:len() * 10^-2) then
-            if self.deviation > deviationThreshold then
+            if self.deviation > (deviationThreshold + self.world.velocity:len() * 10^-2) then
+            --if self.deviation > deviationThreshold then
                 destination = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude))
                 self.deviated = true
                 speed = self.deviation
@@ -459,15 +460,16 @@ function STEC(core, control, Cd)
             end
             --system.print("realDistance: "..realDistance)
             local breadCrumb
-            local breadCrumbDist = utils.clamp(math.abs(self.world.velocity:len()),10,self.breadCrumbDist - (self.deviation * 100))
+            --local breadCrumbDist = utils.clamp(math.abs(self.world.velocity:len()),10,self.breadCrumbDist - (self.deviation * 100))
+
             --system.print(breadCrumbDist)
-            if realDistance > breadCrumbDist and not self.deviated then
-                breadCrumb = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude) + breadCrumbDist)
+            if realDistance > self.breadCrumbDist and not self.deviated then
+                breadCrumb = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude) + self.breadCrumbDist)
                 destination = breadCrumb
                 --local waypointString = ship.nearestPlanet:convertToMapPosition(destination)
 			    --system.print(tostring(waypointString))
-            elseif realDistance < -breadCrumbDist and not self.deviated then
-                breadCrumb = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude) - breadCrumbDist)
+            elseif realDistance < -self.breadCrumbDist and not self.deviated then
+                breadCrumb = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude) - self.breadCrumbDist)
                 destination = breadCrumb
                 --local waypointString = ship.nearestPlanet:convertToMapPosition(destination)
 			    --system.print(tostring(waypointString))
@@ -566,9 +568,11 @@ function STEC(core, control, Cd)
 
 
         --self.control.setEngineCommand(tostring(self.tags), {tmp:unpack()}, {atmp:unpack()})
-        self.control.setEngineCommand("atmospheric_engine,space_engine,airfoil,brake,torque,vertical", 
+        self.control.setEngineCommand("atmospheric_engine,space_engine,airfoil,brake,torque,vertical",
                                         {tmp:unpack()}, {atmp:unpack()}, false, false,
-                                        "brake,airfoil,torque","atmospheric_engine,space_engine,vertical","")
+                                        self.priority1,
+                                        self.priority2,
+                                        self.priority3)
 
         atmp = vec3(0, 0, 0)
         tmp = vec3(0, 0, 0)

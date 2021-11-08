@@ -4,7 +4,7 @@ local altHoldPreset1 = 132000.845  --export: Altitude Hold Preset 1
 local altHoldPreset2 = 1005 --export: Altitude Hold Preset 2
 local altHoldPreset3 = 50 --export: Altitude Hold Preset 3
 local altHoldPreset4 = 2 --export: Altitude Hold Preset 4
-local deviationThreshold = 10 --export: Deviation tolerace in m
+local deviationThreshold = 0.5 --export: Deviation tolerace in m
 local inertialDampening = true --export: Start with inertial dampening on/off
 local followGravity = true --export: Start with gravity follow on/off
 local minRotationSpeed = 0.01 --export: Minimum speed rotation scales from
@@ -50,6 +50,8 @@ if core.setDockingMode(dockingMode) then
 else
     system.print("Invalid docking mode")
 end
+
+local shiftLock = false
 
 if flightModeDb ~= nil then
     if flightModeDb.hasKey("verticalSpeedLimitAtmo") == 0 or updateSettings then 
@@ -108,9 +110,6 @@ if flightModeDb ~= nil then
             return v
         end
     end
-
-
-
 end
 
 function gearToggle()
@@ -236,11 +235,9 @@ keybindPresets["keyboard"].keyUp.left.Add(function () ship.direction.x = 0  end)
 keybindPresets["keyboard"].keyDown.right.Add(function () ship.direction.x = 1  end) --e
 keybindPresets["keyboard"].keyUp.right.Add(function () ship.direction.x = 0      end) --e
 
+keybindPresets["keyboard"].keyDown.lshift.Add(function () shiftLock = true end,"Shift Modifier")
+keybindPresets["keyboard"].keyUp.lshift.Add(function () shiftLock = false end)
 
---keybindPresets["keyboard"].keyDown.left.Add(function () ship.direction.x = -1 end)
---keybindPresets["keyboard"].keyUp.left.Add(function () ship.direction.x = 0 end)
---keybindPresets["keyboard"].keyDown.right.Add(function () ship.direction.x = 1 end)
---keybindPresets["keyboard"].keyUp.right.Add(function () ship.direction.x = 0 end)
 
 keybindPresets["keyboard"].keyDown.brake.Add(function () ship.brake = true end)
 keybindPresets["keyboard"].keyUp.brake.Add(function () ship.brake = false end)
@@ -278,11 +275,16 @@ keybindPresets["keyboard"].keyUp["option8"].Add(function () core.setDockingMode(
 --keybindPresets["keyboard"].keyUp["option9"].Add(function () if ship.targetDestination == nil then ship.targetDestination = moveWaypointZ(ship.customTarget, 10000 - baseAltitude) else ship.targetDestination = nil end end, "Preset 2")
 --keybindPresets["keyboard"].keyUp.option9.Add(function () if flightModeDb ~= nil then flightModeDb.clear() system.print("DB Cleared") end end,"Clear Databank")
 keybindPresets["keyboard"].keyUp["option9"].Add(function ()
-    ship.verticalLock = false
-    ship.intertialDampening = true
-    ship.elevatorActive = false
-    config.manualControl = not config.manualControl
-    manualControlSwitch()
+    if shiftLock then
+        flightModeDb.clear() system.print("DB Cleared");
+    else
+        ship.verticalLock = false
+        ship.intertialDampening = true
+        ship.elevatorActive = false
+        config.manualControl = not config.manualControl
+        manualControlSwitch()
+    end
+    
     end,"Manual Mode Toggle")
 
 keybindPresets["screenui"] = KeybindController()
@@ -293,6 +295,8 @@ keybindPresets["screenui"].Init = function()
     system.freeze(1)
     ship.frozen = false
 end
+keybindPresets["screenui"].keyDown.lshift.Add(function () shiftLock = true end,"Shift Modifier")
+keybindPresets["screenui"].keyUp.lshift.Add(function () shiftLock = false end)
 keybindPresets["screenui"].keyDown.brake.Add(function () ship.brake = true end)
 keybindPresets["screenui"].keyUp.brake.Add(function () ship.brake = false end)
 keybindPresets["screenui"].keyUp["option7"].Add(function() 
@@ -301,11 +305,15 @@ keybindPresets["screenui"].keyUp["option7"].Add(function()
 end, "RTB")
 keybindPresets["screenui"].keyUp["option8"].Add(function () core.setDockingMode(0); core.undock() end,"Undock")
 keybindPresets["screenui"].keyUp["option9"].Add(function ()
-    ship.verticalLock = false
-    ship.intertialDampening = true
-    ship.elevatorActive = false
-    config.manualControl = not config.manualControl
-    manualControlSwitch()
+    if shiftLock then
+        flightModeDb.clear() system.print("DB Cleared");
+    else
+        ship.verticalLock = false
+        ship.intertialDampening = true
+        ship.elevatorActive = false
+        config.manualControl = not config.manualControl
+        manualControlSwitch()
+    end
     end,"Manual Mode Toggle")
 if flightModeDb then
    if flightModeDb.hasKey("flightMode") == 0 then flightModeDb.setStringValue("flightMode","keyboard") end

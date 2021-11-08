@@ -443,9 +443,10 @@ if not DeviationInd then
                 box_y = box_y - utils.clamp((stats.data.deviationVec.y * 20),-58,58)
                 
                 --Triangle color
-                tri_g = 1.0 - utils.map(utils.clamp(math.abs(stats.data.deviationRot.x), 0, 0.1),0,0.1,0,1)
-                tri_r = 0.0 + utils.map(utils.clamp(math.abs(stats.data.deviationRot.x), 0, 0.1),0,0.1,0,1)
-                degrees = utils.map(-stats.data.deviationRot.x,-0.270,0.270,-90,90)
+                --logMessage(tostring(vec3(stats.data.deviationRot)))
+                tri_g = 1.0 - utils.map(utils.clamp(math.abs(stats.data.deviationRot.z), 0, 1.5),0,1.5,0,1)
+                tri_r = 0.0 + utils.map(utils.clamp(math.abs(stats.data.deviationRot.z), 0, 1.5),0,1.5,0,1)
+                degrees = utils.map(-stats.data.deviationRot.z,-9.9,9.9,90,-90)
             end
         end
         setNextFillColor(statsLayer, box_r, box_g, box_b, 1)
