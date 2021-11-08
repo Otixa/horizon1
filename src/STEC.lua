@@ -170,9 +170,9 @@ function STEC(core, control, Cd)
     self.verticalCruise = false
     --Vertical Cruise Speed (for elevator stuff)
     self.verticalCruiseSpeed = 0
-    self.priority1 = "brake,airfoil,torque,vertical"
-    self.priority2 = "atmospheric_engine,space_engine"
-    self.priority3 = ""
+    self.priorityTags1 = "brake,airfoil,torque,vertical"
+    self.priorityTags2 = "atmospheric_engine,space_engine"
+    self.priorityTags3 = ""
 	
     local lastUpdate = system.getTime()
 
@@ -570,9 +570,9 @@ function STEC(core, control, Cd)
         --self.control.setEngineCommand(tostring(self.tags), {tmp:unpack()}, {atmp:unpack()})
         self.control.setEngineCommand("atmospheric_engine,space_engine,airfoil,brake,torque,vertical",
                                         {tmp:unpack()}, {atmp:unpack()}, false, false,
-                                        self.priority1,
-                                        self.priority2,
-                                        self.priority3)
+                                        self.priorityTags1,
+                                        self.priorityTags2,
+                                        self.priorityTags3)
 
         atmp = vec3(0, 0, 0)
         tmp = vec3(0, 0, 0)
