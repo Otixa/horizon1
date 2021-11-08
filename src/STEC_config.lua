@@ -20,6 +20,7 @@ ship.rotationSpeedMax = rotationMax
 ship.rotationStep = rotationStep
 
 local landing = true
+local shiftLock = false
 
 function softLanding()
     if landing then
@@ -218,6 +219,8 @@ keybindPresets["keyboard"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD
 
 keybindPresets["keyboard"].keyDown.lshift.Add(function () system.freeze( math.abs(1 - system.isFrozen())) end,"Freeze character")
 
+keybindPresets["keyboard"].keyDown.lshift.Add(function () shiftLock = true end,"Shift Modifier")
+keybindPresets["keyboard"].keyUp.lshift.Add(function () shiftLock = false end)
 
 keybindPresets["keyboard"].keyUp["booster"].Add(function () holdAlt() end, "Altitude Hold")
 keybindPresets["keyboard"].keyUp["gear"].Add(function () landing = not landing; softLanding() end, "Land")
@@ -227,7 +230,15 @@ keybindPresets["keyboard"].keyUp["option3"].Add(function () if ship.direction.y 
 keybindPresets["keyboard"].keyUp["option4"].Add(function () ship.counterGravity = not ship.counterGravity end, "Counter Gravity")
 keybindPresets["keyboard"].keyUp["option5"].Add(function () switchFlightMode("mouse") end, "Switch Flight Mode")
 keybindPresets["keyboard"].keyUp["option6"].Add(function () switchControlMode() end, "Alternate Control Mode Switch")
-keybindPresets["keyboard"].keyUp["option7"].Add(function () ship.disableVTOL = not ship.disableVTOL end, "Disable VTOL")
+keybindPresets["keyboard"].keyUp["option7"].Add(function ()
+    if shiftLock then
+        ship.disableVtol = not ship.disableVtol
+    else
+        ship.vtolPriority = not ship.vtolPriority
+    end
+    
+
+end, "VTOL Priority")
 keybindPresets["keyboard"].keyUp["option8"].Add(function () core.setDockingMode(0); core.undock() end,"Undock")
 if flightModeDb then
    if flightModeDb.hasKey("flightMode") == 0 then flightModeDb.setStringValue("flightMode","keyboard") end

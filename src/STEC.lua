@@ -134,11 +134,16 @@ function STEC(core, control, Cd)
     if self.world.vertical:dot(self.world.up) > 0 then self.rollDegrees = 180 - self.rollDegrees end
     -- Pitch
     self.pitchRatio = self.world.vertical:angle_between(self.world.forward) / math.pi - 0.5
-    self.disableVTOL = false
+    self.vtolPriority = false
+    self.disableVtol = false
     self.disabledTags = ""
     local lastUpdate = system.getTime()
     self.thrustVec = vec3(0,0,0)
     
+    self.priorityTags1 = "brake,airfoil,torque,ground"
+    self.priorityTags2 = "atmospheric_engine,space_engine"
+    self.priorityTags3 = "vertical"
+
     
     
     function self.updateWorld()
@@ -177,6 +182,17 @@ function STEC(core, control, Cd)
         self.mass = self.core.getConstructMass()
         self.altitude = self.nearestPlanet:getAltitude(core.getConstructWorldPos())
         self.localVelocity = vec3(core.getVelocity())
+
+        if self.vtolPriority then
+            self.priorityTags1 = "brake,airfoil,torque,ground,vertical"
+            self.priorityTags2 = "atmospheric_engine,space_engine"
+            self.priorityTags3 = ""
+        else
+            self.priorityTags1 = "brake,airfoil,torque,ground"
+            self.priorityTags2 = "atmospheric_engine,space_engine"
+            self.priorityTags3 = "vertical"
+        end
+
 
         local tkForward = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0, 1, 0):unpack()})
         local tkUp = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0, 0, 1):unpack()})
@@ -423,18 +439,18 @@ function STEC(core, control, Cd)
             end
         end
         
-        if self.disableVTOL then
-            self.disabledTags = "VTOL"
+        if self.disableVtol then
+            self.disabledTags = "vtol"
         else
             self.disabledTags = ""
         end
         
-        self.control.setEngineCommand("atmospheric_engine,space_engine,airfoil,brake,torque,vertical",
+        self.control.setEngineCommand("atmospheric_engine,space_engine,airfoil,brake,torque,vertical,ground",
                                         {tmp:unpack()}, {atmp:unpack()}, false, false,
-                                        "brake,airfoil,torque,ground",      -- Priority 1
-                                        "atmospheric_engine,space_engine",  -- Priority 2
-                                        "vertical")                         -- Priority 3
-        --self.control.setEngineCommand(self.disabledTags)
+                                        self.priorityTags1,
+                                        self.priorityTags2,
+                                        self.priorityTags3)
+        self.control.setEngineCommand(self.disabledTags)
         self.thrustVec = self.worldToLocal(tmp)
         lastUpdate = system.getTime()
     end
