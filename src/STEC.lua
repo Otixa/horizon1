@@ -170,7 +170,7 @@ function STEC(core, control, Cd)
     self.verticalCruise = false
     --Vertical Cruise Speed (for elevator stuff)
     self.verticalCruiseSpeed = 0
-    self.priorityTags1 = "brake,airfoil,torque,vertical"
+    self.priorityTags1 = "brake,airfoil,torque,vertical,lateral,longitudinal"
     self.priorityTags2 = "atmospheric_engine,space_engine"
     self.priorityTags3 = ""
 	
