@@ -116,6 +116,3 @@ function DUTTY.onCommand (command, handler)
   -- Adds event handler
   commands[command:lower()] = handler
 end
-
--- Returns the main object anyways
-return DUTTY
