@@ -115,6 +115,7 @@ function gotoLock(a)
     end
 end
 
+-- ::pos{0,2,40.4652,92.2361,101.1699}
 local tty = DUTTY
 tty.onCommand('goto', function(a)
     gotoLock(a)
