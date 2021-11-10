@@ -443,7 +443,7 @@ function STEC(core, control, Cd)
             --if self.deviation > deviationThreshold then
                 destination = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude))
                 self.deviated = true
-                speed = self.deviation
+                speed = self.deviation * self.IDIntensity
                 self.stateMessage = "Correcting Deviation"
             else
                 self.deviated = false
@@ -568,7 +568,7 @@ function STEC(core, control, Cd)
 
 
         --self.control.setEngineCommand(tostring(self.tags), {tmp:unpack()}, {atmp:unpack()})
-        self.control.setEngineCommand("atmospheric_engine,space_engine,airfoil,brake,torque,vertical",
+        self.control.setEngineCommand("atmospheric_engine,space_engine,airfoil,brake,torque,vertical,lateral,longitudinal",
                                         {tmp:unpack()}, {atmp:unpack()}, false, false,
                                         self.priorityTags1,
                                         self.priorityTags2,
