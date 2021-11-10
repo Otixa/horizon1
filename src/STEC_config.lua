@@ -19,7 +19,7 @@ ship.rotationSpeedMin = rotationMin
 ship.rotationSpeedMax = rotationMax
 ship.rotationStep = rotationStep
 
-local landing = true
+local landing = false
 local shiftLock = false
 
 function softLanding()
@@ -107,12 +107,27 @@ function switchControlMode()
 end
 -- ::pos{0,2,40.4608,92.2665,4.3205}
 function gotoLock(a)
-    if string.find(a, "::pos") ~= nil then
-        local target = ship.nearestPlanet:convertToWorldCoordinates(a)
+    --::pos{0,0,-17729.2293,198268.4583,43236.0477}
+    if a ~= nil then
+        if string.find(a, "::pos") ~= nil then
+            local target = ship.nearestPlanet:convertToWorldCoordinates(a)
+            system.print(tostring(vec3(target)))
+            ship.followGravity = false
+            ship.targetVector = (target - ship.world.position):normalize()
+            ship.gotoLock = target
+            system.print("Target lock: "..a)
+            system.setWaypoint(a)
+        end
+    else
+        local target = ship.nearestPlanet:convertToWorldCoordinates("::pos{0,0,-17729.2293,198268.4583,43236.0477}")
+        system.print(tostring(vec3(target)))
         ship.followGravity = false
-        ship.targetVector = (target - ship.world.position ):normalize()
-        system.print("Target lock: "..a)
+        ship.targetVector = (target - ship.world.position):normalize()
+        ship.gotoLock = target
+        system.print("Target lock: ::pos{0,0,-17729.2293,198268.4583,43236.0477}")
+        system.setWaypoint("::pos{0,0,-17729.2293,198268.4583,43236.0477}")
     end
+    
 end
 
 -- ::pos{0,2,40.4652,92.2361,101.1699}
@@ -210,7 +225,7 @@ keybindPresets["keyboard"].keyDown.straferight.Add(function () ship.direction.x 
 keybindPresets["keyboard"].keyUp.straferight.Add(function () ship.direction.x = 0 end)
 
 
-keybindPresets["keyboard"].keyDown.brake.Add(function () ship.brake = true end)
+keybindPresets["keyboard"].keyDown.brake.Add(function () ship.brake = true ship.gotoLock = nil end)
 keybindPresets["keyboard"].keyUp.brake.Add(function () ship.brake = false end)
 
 --keybindPresets["keyboard"].keyDown.stopengines.Add(function () if not SHUD.Enabled then mouse.unlock() mouse.enabled = false end end, "Free Look")

@@ -39,7 +39,7 @@ function Unit.Start()
 	if flightModeDb ~= nil then getFuelRenderedHtml() end
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
-	--unit.setTimer("WaypointTest", 0.5)
+	unit.setTimer("WaypointTest", 0.5)
 	system.print([[Horizon 1.1.1.8_5]])
 
 	if showDockingWidget then
@@ -81,9 +81,13 @@ function Unit.Tick(timer)
 		--	ship.targetVector = waypoint
 		--end
 		--system.setWaypoint(tostring(waypointString))
-		system.print("Local thrust vector: "..tostring(vec3(ship.thrustVec)))
-		system.print("direction.z: "..ship.direction.z)
-		system.print("self.MaxKinematics.Up: "..ship.MaxKinematics.Up)
+		--system.print("Local thrust vector: "..tostring(vec3(ship.thrustVec)).." Brake dist: "..ship.brakeDistance)
+		--system.print("Max Brake: "..ship.maxBrake)
+		system.print("Brake Dist: "..math.floor(ship.brakeDistance).."/Target Dist: "..math.floor(ship.targetDist).."/Mass: "..math.floor(ship.mass))
+		system.print("Inertial Mass: "..ship.inertialMass.."/Accel: "..tostring(vec3(ship.worldToLocal(ship.world.acceleration))))
+		--system.print("Debug: "..ship.debug)
+		--system.print("direction.z: "..ship.direction.z)
+		--system.print("self.MaxKinematics.Up: "..ship.MaxKinematics.Up)
 		--system.print("Gravity: "..tostring(vec3(ship.nearestPlanet:getGravity(core.getConstructWorldPos()))))
 	end
 

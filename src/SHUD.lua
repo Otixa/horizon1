@@ -1,7 +1,7 @@
 --@class SHUD
 vec2 = require('cpml/vec2')
 mat4 = require("cpml/mat4")
-local json = require("dkjson") -- For AGG
+ -- For AGG
 local format = string.format
 
 function round2(num, numDecimalPlaces)
@@ -480,12 +480,15 @@ SHUD =
         elseif not self.Enabled then
             --if ship.controlMode == 0 or not ship.alternateCM then
             --if system.isFrozen() == 1 then
-                if not ship.alternateCM then
-                	ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1)
-                elseif ship.alternateCM then
-                     --ship.cruiseSpeed = utils.clamp(ship.cruiseSpeed + (system.getMouseWheel() * 10),-29999,29999)
-        	    	CruiseControl(system.getMouseWheel())
-                end
+            local mw = system.getMouseWheel()
+            
+            if not ship.alternateCM then
+                if ship.direction.y == 0 and mw ~= 0 then ship.direction.y = 1 end
+                ship.throttle = utils.clamp(ship.throttle + (mw * 0.05),-1,1)
+            elseif ship.alternateCM then
+                    --ship.cruiseSpeed = utils.clamp(ship.cruiseSpeed + (system.getMouseWheel() * 10),-29999,29999)
+                CruiseControl(mw)
+            end
             --end
         end
         self.UpdateMarkers()

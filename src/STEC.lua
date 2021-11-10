@@ -19,6 +19,58 @@ planetaryReference = PlanetRef()
 galaxyReference = planetaryReference(Atlas())
 helios = galaxyReference[0]
 kinematics = Kinematics()
+local json = require("dkjson")
+local jdecode = json.decode
+
+local find = string.find
+function getJsonNum (json, key, init)
+  local pattern = [["]] .. key .. [["%s*:%s*(-?[0-9.e-]+)]]
+  local startIndex, endIndex, valueStr = find(json, pattern, init)
+  return tonumber(valueStr), startIndex, endIndex
+end
+
+function round(val, decimal)
+  if (decimal) then
+    return math.floor((val * 10 ^ decimal) + 0.5) / (10 ^ decimal)
+  else
+    return math.floor(val + 0.5)
+  end
+end
+
+function getBrakingInfo()
+    local curVelMs = vec3(core.getWorldVelocity()):len()
+    local cMass = core.getConstructMass()
+    local brakingForce = getJsonNum(unit.getData(), "maxBrake")
+    local brakeInfo = {}
+    if brakingForce == 0 then
+        brakeInfo.time = "BF: 0"
+        brakeInfo.dist = 1
+        return brakeInfo
+    end
+
+    local brakeForce = math.floor(brakingForce)
+    local rA = brakeForce / cMass
+    local c = 30000000 / 3600
+    local c2 = c * c
+    local cA = c * math.asin(curVelMs / c)
+    local cC = c2 * math.cos(cA / c) / rA
+    
+    local t = (c - cA) / rA
+    local d = cC - c2 * math.cos((rA * t + cA) / c) / rA
+      
+    local min = math.floor(t / 60)
+    t = t - (60 * min)
+    local sec = round(t, 0)
+        
+    local tms = string.format("%02dm:%02ds", min, sec)
+     
+    local km = round(d / 1000, 2)
+    
+    brakeInfo.time = tms
+    brakeInfo.dist = km
+    
+    return brakeInfo
+end
 
 function STEC(core, control, Cd)
     local self = {}
@@ -82,6 +134,8 @@ function STEC(core, control, Cd)
     self.targetVector = nil
     -- Whether the target vector should unlock automatically if the ship is rotated by the pilot
     self.targetVectorAutoUnlock = true
+    -- Roid AP
+    self.targetGoTo = nil
     -- Current altitude
     self.altitude = 0
     -- Current mass of the vessel, in kilograms
@@ -143,8 +197,12 @@ function STEC(core, control, Cd)
     self.priorityTags1 = "brake,airfoil,torque,ground"
     self.priorityTags2 = "atmospheric_engine,space_engine"
     self.priorityTags3 = "vertical"
-
-    
+    self.brakeDistance = 0
+    self.accelTime = 0
+    self.targetDist = 0
+    self.inertialMass = 0
+    self.maxBrake = jdecode(unit.getData()).maxBrake
+    self.debug = nil
     
     function self.updateWorld()
         self.world = {
@@ -184,11 +242,11 @@ function STEC(core, control, Cd)
         self.localVelocity = vec3(core.getVelocity())
 
         if self.vtolPriority then
-            self.priorityTags1 = "brake,airfoil,torque,ground,vertical"
+            self.priorityTags1 = "brake,airfoil,torque,vertical,lateral,longitudinal,vertical"
             self.priorityTags2 = "atmospheric_engine,space_engine"
             self.priorityTags3 = ""
         else
-            self.priorityTags1 = "brake,airfoil,torque,ground"
+            self.priorityTags1 = "brake,airfoil,torque,vertical,lateral,longitudinal,"
             self.priorityTags2 = "atmospheric_engine,space_engine"
             self.priorityTags3 = "vertical"
         end
@@ -221,24 +279,14 @@ function STEC(core, control, Cd)
             Right = math.abs(tkRight[1 + tkOffset] + virtualGravityEngine.x),
             Left = math.abs(tkRight[2 + tkOffset] - virtualGravityEngine.x)
         }
+        self.maxBrake = jdecode(unit.getData()).maxBrake
+        local c = 30000000 / 3600
+        local v = self.world.velocity:len()
+        local y = 1/math.sqrt(1-((v*v)/(c*c)))
+        self.inertialMass = self.mass * y
 
+        
 
-        --local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
-        --if self.world.nearPlanet then
-        --    self.fMax = math.max(fMax[1], -fMax[2])
-        --else
-        --    self.fMax = math.max(fMax[3], -fMax[4])
-        --end
-    end
-    function self.maxForceForward()
-        local axisCRefDirection = vec3(self.world.forward)
-        local longitudinalEngineTags = 'thrust analog longitudinal'
-        local maxKPAlongAxis = self.core.getMaxKinematicsParametersAlongAxis(longitudinalEngineTags, {axisCRefDirection:unpack()})
-        if self.control.getAtmosphereDensity() == 0 then -- we are in space
-            return maxKPAlongAxis[3]
-        else
-            return maxKPAlongAxis[1]
-        end
     end
     function self.calculateAccelerationForce(acceleration, time)
         return self.mass * (acceleration / time)
@@ -373,6 +421,36 @@ function STEC(core, control, Cd)
             atmp = atmp - (self.world.right:cross(self.world.forward:cross(self.world.gravity:normalize())) * self.rotationSpeed * 9) - ((self.AngularVelocity * 3) - (self.AngularAirFriction * 3))
             --tmp = tmp - ((self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass) * deltaAltitude)
         end
+        if self.targetVector == nil then self.gotoLock = nil end
+        --self.brakeDistance, self.accelTime = kinematics.computeDistanceAndTime(self.world.velocity:len(), 0, self.mass, self.MaxKinematics.Backward,1,self.maxBrake)
+        
+        if self.gotoLock ~= nil then
+            if not self.inertialDampening then self.inertialDampening = true end
+            self.direction.y = 0
+            local speed = 29999
+
+            local dest = (self.world.position - self.gotoLock):normalize()
+            ship.targetVector = -dest
+            self.targetDist = (self.world.position - self.gotoLock):len()
+      
+            local force = tmp:dot(self.world.position - self.gotoLock)
+
+            self.brakeDistance, self.accelTime = kinematics.computeDistanceAndTime((self.world.velocity + self.world.gravity):len(), 0, self.inertialMass, force, 0, self.maxBrake)
+
+            if self.brakeDistance >= (self.targetDist - 2000) or self.targetDist <= 2000 then
+                --self.gotoLock = nil
+                speed = 2000
+            end
+
+            if self.targetDist < 1 then
+                self.gotoLock = nil
+                self.targetVector = nil
+            end
+
+            local fSpeed = utils.clamp(self.targetDist / 3.6,0.3,((math.abs(speed)/3.6))) * self.IDIntensity
+            tmp = tmp - (dest * self.mass * fSpeed)
+        end
+        
         if self.alternateCM then
           local speed = (self.cruiseSpeed / 3.6)
           local dot = self.world.forward:dot(self.airFriction)
@@ -392,7 +470,6 @@ function STEC(core, control, Cd)
             if moveDirection.z == 0 then delta.z = currentShipMomentum.z end
 
             delta = self.localToRelative(delta, self.world.up, self.world.right, self.world.forward)
-            --system.print(tostring(delta))
             tmp = tmp - (delta * (self.mass * self.IDIntensity))
 
         end
@@ -435,7 +512,7 @@ function STEC(core, control, Cd)
                 self.throttle = 0
                 --system.print("Velocity = "..tostring(math.round(self.world.velocity:len(), 100)))
                 self.cruiseSpeed = math.round(self.world.velocity:len() * 3.6, 100)
-                self.alternateCM = true 
+                self.alternateCM = true
             end
         end
         
@@ -452,6 +529,8 @@ function STEC(core, control, Cd)
                                         self.priorityTags3)
         self.control.setEngineCommand(self.disabledTags)
         self.thrustVec = self.worldToLocal(tmp)
+        atmp = vec3(0, 0, 0)
+        tmp = vec3(0, 0, 0)
         lastUpdate = system.getTime()
     end
 
