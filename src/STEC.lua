@@ -283,7 +283,7 @@ function STEC(core, control, Cd)
         local c = 30000000 / 3600
         local v = self.world.velocity:len()
         local y = 1/math.sqrt(1-((v*v)/(c*c)))
-        self.inertialMass = self.mass * y
+        self.inertialMass = utils.clamp(self.mass * y, self.mass, self.mass * 1.5)
 
         
 
@@ -427,7 +427,7 @@ function STEC(core, control, Cd)
         if self.gotoLock ~= nil then
             if not self.inertialDampening then self.inertialDampening = true end
             self.direction.y = 0
-            local speed = 29999
+            local speed = 29990
 
             local dest = (self.world.position - self.gotoLock):normalize()
             ship.targetVector = -dest
