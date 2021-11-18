@@ -182,9 +182,6 @@ SHUD =
     end
     function updateSettings()
         if flightModeDb ~= nil then
-            flightModeDb.setIntValue("hoverHeight",ship.hoverHeight)
-        end
-        if flightModeDb ~= nil then
             flightModeDb.setIntValue("IDIntensity",ship.IDIntensity)
         end
         if flightModeDb ~= nil then
@@ -328,11 +325,7 @@ SHUD =
                <span dd-if="not ship.alternateCM" class="throttle">Throttle {{round2(ship.throttle * 100)}}%</span>
 		     <span dd-if="ship.alternateCM" class="throttle">Cruise {{round2(ship.cruiseSpeed)}} km/h</span>
             </div>
-        
-            <div id="horizon-menu">
-                {{_SHUDBUFFER}}
-            </div>
-        
+    
             </div>
             <div id="fuelTanks">{{ SHUD.SHUDFuelHtml }}</div>
     
@@ -400,13 +393,9 @@ SHUD =
                 elseif self.CurrentIndex < 1 then self.CurrentIndex = #self.Menu end
             end
         elseif self.ScrollLock and self.Enabled then
-            local wheel = system.getMouseWheel()
-            if wheel ~= 0 then
-                updateSettings()
-            end
+           
         elseif not self.Enabled then
-            ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1)
-        --self.UpdateMarkers()
+
 		end
 
 end

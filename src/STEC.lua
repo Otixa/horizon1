@@ -26,7 +26,7 @@ local maxBrake = jdecode(unit.getData()).maxBrake
 function STEC(core, control, Cd)
     local self = {}
     self.core = core
-    self.flippedCore = true
+    self.flippedCore = false
     self.control = control
     self.nearestPlanet = helios:closestBody(core.getConstructWorldPos())
     self.world = {
@@ -85,8 +85,8 @@ function STEC(core, control, Cd)
     self.breadCrumbDist = 1000
     self.deviated = false
     self.breadCrumbs = {}
-    self.hoverHeight = 10
-    self.holdAlt = false
+    self.hoverHeight = 1
+    self.holdAlt = true
     self.followTerrain = false
     self.hoverDistance = 0
     self.hoverIntensity = 2
@@ -385,14 +385,10 @@ function STEC(core, control, Cd)
             self.hoverDistance = math.min(table.unpack(hoverDist))
             local bottomOut = false
             local delta = self.hoverHeight - self.hoverDistance
-            if self.hoverDistance < self.hoverHeight * 0.5 and self.hoverDistance > 0 then
-                system.print("BOTTOM OUT: "..self.hoverDistance..", Speed: "..self.world.velocity:len().." m/s")
-                bottomOut = true
-            end
-            local intensity = self.hoverIntensity * 0.1
+            
             if bottomOut and self.world.velocity:len() > 180 then intensity = 1 end
             if self.hoverDistance > 0 then
-                tmp = tmp - ((self.world.up * delta) * (self.vMax * intensity))
+                tmp = tmp + ((self.world.up * delta) * (self.vMax))
             end
         end
 
@@ -423,43 +419,6 @@ function STEC(core, control, Cd)
             local b = math.abs(hyp - tel)
 
             if a < b then return false else return true end
-        end
-        if self.followTerrain and frontTel ~= nil and rearTel ~= nil then
-            local delta = 0
-            local smoothing = 6
-
-            local gFollow = (-self.world.up:cross(self.nearestPlanet:getGravity(core.getConstructWorldPos())))
-		    if self.flippedCore then
-			    gFollow = (self.world.up:cross(self.nearestPlanet:getGravity(core.getConstructWorldPos())))
-		    end
-            local frontTelDist = frontTel:distance()
-            local rearTelDist = rearTel:distance()
-            local intensity = 4
-            local grav = ship.world.up:dot(ship.world.gravity)
-            if grav < 0 then
-                atmp = atmp + -(self.world.right:cross(self.world.forward:cross(self.world.gravity:normalize())) * self.rotationSpeed * 9) - ((self.AngularVelocity * smoothing) - (self.AngularAirFriction * smoothing))
-            else
-                atmp = atmp + (self.world.right:cross(self.world.forward:cross(self.world.gravity:normalize())) * self.rotationSpeed * 9) - ((self.AngularVelocity * smoothing) - (self.AngularAirFriction * smoothing))
-            end
-            if frontTelDist > 0 and rearTelDist > 0 and frontTelDist < (self.hoverHeight * 3) then
-                delta = frontTelDist - rearTelDist
-                --system.print("frontTel: "..frontTelDist..", rearTel: "..rearTelDist)
-                if math.abs(delta) > 0.2 and math.abs(delta) < (self.hoverHeight * 4) then
-                    atmp = atmp + ((self.world.forward:cross(self.world.up) * (delta * intensity))) - ((self.AngularVelocity * smoothing) - (self.AngularAirFriction * smoothing))
-                end
-            elseif frontTelDist > (self.hoverHeight * 3) or frontTelDist < 0 or rearTelDist < 0 then
-                delta = -0.45
-                --system.print("Big air!"..deltaTime)
-                gFollow = gFollow + ship.world.forward:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * (delta)) - ((self.AngularVelocity * (math.abs(delta) * smoothing)) - (self.AngularAirFriction * (math.abs(delta) * smoothing)))
-                atmp = atmp + gFollow - ((self.AngularVelocity * smoothing) - (self.AngularAirFriction * smoothing))
-                
-            else
-                system.print("Edge case."..deltaTime)
-                --system.print("frontTelDist: "..frontTelDist..", rearTelDist: "..rearTelDist)
-                atmp = atmp + gFollow - ((self.AngularVelocity * smoothing) - (self.AngularAirFriction * smoothing))
-            end
-            
-
         end
 
         if self.inertialDampening then

@@ -2,10 +2,10 @@
 
 function StartupSettings()
 
-    self.inertialDampening = true
+    self.inertialDampening = false
     self.followGravity = true
     self.followTerrain = false
-    self.idIntensity = 5
+    self.idIntensity = 0
 
     function self.bool_to_number(value)
         return value and 1 or 0
@@ -39,9 +39,6 @@ function StartupSettings()
             end
             if flightModeDb.hasKey("IDIntensity") == 1 then
                 ship.IDIntensity = flightModeDb.getIntValue("IDIntensity")
-            end
-            if flightModeDb.hasKey("hoverHeight") == 1 then
-                ship.hoverHeight = flightModeDb.getIntValue("hoverHeight")
             end
             if flightModeDb.hasKey("hoverIntensity") == 1 then
                 ship.hoverIntensity = flightModeDb.getIntValue("hoverIntensity")
