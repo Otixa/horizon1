@@ -16,6 +16,7 @@
 --@require STEC_Config
 --@timer SHUDRender
 --@timer FuelStatus
+--@timer KeplerSim
 --@timer WaypointTest
 --@class Main
 
@@ -39,7 +40,8 @@ function Unit.Start()
 	if flightModeDb ~= nil then getFuelRenderedHtml() end
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
-	unit.setTimer("WaypointTest", 0.5)
+	unit.setTimer("KeplerSim", 0.1)
+	unit.setTimer("WaypointTest", 1)
 	system.print([[Horizon 1.1.1.8_5]])
 
 	if showDockingWidget then
@@ -61,7 +63,7 @@ function Unit.Stop()
 	end
 	system.showScreen(0)
 end
-
+local switch = false
 function Unit.Tick(timer)
 	if timer == "SHUDRender" then
 		if SHUD then SHUD.Render() end
@@ -74,21 +76,35 @@ function Unit.Tick(timer)
 	if timer == "FuelStatus" then
 		getFuelRenderedHtml()
 	end
+	if timer == "KeplerSim" then
+		Task(function()
+			local t = ship.ETA
+			if ship.ETA == 0 then t = 30 end
+			local f = simulateAhead(t,t * 0.1)
+			ship.simulationPos = f.position
+		end)
+	end
+	
 	if timer == "WaypointTest" then
-		--local waypoint = moveWaypointY(ship.altitudeHold, (ship.world.velocity:len() * 2) + 50)
-		--local waypointString = ship.nearestPlanet:convertToMapPosition(waypoint)
-		--if ship.altitudeHold ~= 0 then
-		--	ship.targetVector = waypoint
-		--end
-		--system.setWaypoint(tostring(waypointString))
-		--system.print("Local thrust vector: "..tostring(vec3(ship.thrustVec)).." Brake dist: "..ship.brakeDistance)
-		--system.print("Max Brake: "..ship.maxBrake)
-		system.print("Brake Dist: "..math.floor(ship.brakeDistance).."/Target Dist: "..math.floor(ship.targetDist).."/Mass: "..math.floor(ship.mass))
-		system.print("Inertial Mass: "..ship.inertialMass.."/Accel: "..tostring(vec3(ship.worldToLocal(ship.world.acceleration))))
-		--system.print("Debug: "..ship.debug)
-		--system.print("direction.z: "..ship.direction.z)
-		--system.print("self.MaxKinematics.Up: "..ship.MaxKinematics.Up)
-		--system.print("Gravity: "..tostring(vec3(ship.nearestPlanet:getGravity(core.getConstructWorldPos()))))
+		system.print("Deviation angle: "..utils.round(ship.deviationAngle).."°")
+		system.print("Target Dist: "..ship.targetDist)
+		system.print("Brake Dist: "..ship.brakeDistance)
+		system.print("Brake Diff: "..(ship.targetDist - ship.brakeDistance))
+		system.print("Trajectory Diff: "..ship.trajectoryDiff)
+
+		system.print("ETA: "..disp_time(ship.ETA))
+		-- if switch then
+		-- 	local waypointString = ship.nearestPlanet:convertToMapPosition(ship.debug)
+		-- 	system.setWaypoint(tostring(waypointString))
+		-- else
+		-- 	if ship.gotoLock ~= nil then
+		-- 		local waypointString = ship.nearestPlanet:convertToMapPosition(ship.gotoLock)
+		-- 		system.setWaypoint(tostring(waypointString))
+		-- 	end
+		-- end
+		-- switch = not switch
+
+
 	end
 
 end
@@ -110,6 +126,7 @@ end
 
 function System.Update()
 	if Events then Events.Update() end
+	if TaskManager then TaskManager.Update() end
 end
 
 function System.Flush()

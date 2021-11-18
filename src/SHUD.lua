@@ -481,9 +481,8 @@ SHUD =
             --if ship.controlMode == 0 or not ship.alternateCM then
             --if system.isFrozen() == 1 then
             local mw = system.getMouseWheel()
-            
+            if ship.direction.y == 0 and mw ~= 0 then ship.direction.y = 1 end
             if not ship.alternateCM then
-                if ship.direction.y == 0 and mw ~= 0 then ship.direction.y = 1 end
                 ship.throttle = utils.clamp(ship.throttle + (mw * 0.05),-1,1)
             elseif ship.alternateCM then
                     --ship.cruiseSpeed = utils.clamp(ship.cruiseSpeed + (system.getMouseWheel() * 10),-29999,29999)

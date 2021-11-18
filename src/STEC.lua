@@ -21,7 +21,7 @@ helios = galaxyReference[0]
 kinematics = Kinematics()
 local json = require("dkjson")
 local jdecode = json.decode
-
+local atlas = require('atlas')
 local find = string.find
 function getJsonNum (json, key, init)
   local pattern = [["]] .. key .. [["%s*:%s*(-?[0-9.e-]+)]]
@@ -193,17 +193,132 @@ function STEC(core, control, Cd)
     self.disabledTags = ""
     local lastUpdate = system.getTime()
     self.thrustVec = vec3(0,0,0)
+    self.trajectoryDiff = 0
+    self.ETA = 0
+    self.simulationPos = vec3(0,0,0)
     
-    self.priorityTags1 = "brake,airfoil,torque,ground"
+    self.priorityTags1 = "airfoil,torque,ground"
     self.priorityTags2 = "atmospheric_engine,space_engine"
-    self.priorityTags3 = "vertical"
+    self.priorityTags3 = "brake,vertical"
     self.brakeDistance = 0
     self.accelTime = 0
     self.targetDist = 0
     self.inertialMass = 0
     self.maxBrake = jdecode(unit.getData()).maxBrake
-    self.debug = nil
+    self.debug = vec3(0,0,0)
+    self.deviationAngle = 0
+
+    function getAngle(a,b,c)
+        if a + c < b then b = a end
+        return math.deg(math.acos((a^2+b^2-c^2)/(2*(a*b))))
+    end
+    function getGapFromAngle(a,b,angle)
+        return math.sqrt((a^2 + b^2) - (2*(b*a)*math.cos(angle * 2)))
+    end
+
+    function simulateAhead(simLength, timeStep)
+        local sv = ship.world.velocity:clone()
+        local sp = ship.world.position:clone()
+        local sa = ship.world.acceleration:clone()
     
+        local cutoff = simLength / timeStep
+
+        for step = 0,cutoff do
+            --system.print("Start simulate")
+            local stepResult = simulate(timeStep, sp, sv, sa)
+            sv = stepResult.velocity
+            sp = stepResult.position
+            --system.print(tostring(vec3(sp)))
+            if stepResult.collision ~= nil then
+                stepResult.time = step * timeStep
+                --stepResult.time = step / timeStep
+                return stepResult
+            end
+        end
+        return {
+            ["position"] = sp,
+            ["velocity"] = sv,
+            ["collision"] = nil
+        }
+    end
+    function errHandler(x)
+        system.print("Error: " .. x)
+        return "ERROR"
+    end
+    function simulate(stepSize, sPos, sVel, sAcc)
+        local G = 6.6740831 * 10^-11
+        local closest = nil
+        local vFinal = 0
+        local velocity = sVel
+        local collided = nil
+        local position = sPos
+        for i = 1, #atlas[0] do
+            local body = atlas[0][i]
+            local bPos = vec3(body.center[1], body.center[2], body.center[3])
+            local dir = (sPos - bPos):normalize()
+            local dist = (sPos - bPos):len()
+            
+            if dist < body.radius or collided ~= nil then
+                if collided == nil then
+                    collided = body
+                    closest = body
+                end
+                return {
+                    ["position"] = position,
+                    ["velocity"] = vec3(0,0,0),
+                    ["collision"] = collided
+                }
+            end
+    
+            local Fg = G * (ship.mass * body.GM) / dist^2
+            local dirMul = dir * ((Fg / ship.mass) * -stepSize)
+            velocity = velocity + dirMul
+            if closest == nil or ((dist - body.radius) / Fg < ((sPos - vec3(closest.center[1], closest.center[2], closest.center[3])):len() - closest.radius) / Fg) then
+                closest = body
+            end
+            
+            if velocity:len() > vFinal then
+                vFinal = velocity:len()
+            end
+    
+        end
+    
+        if collided == nil and stepSize > 0 then
+            if closest ~= nil then
+    
+            end
+    
+             --velocity = velocity + (sAcc * stepSize)
+             if velocity:len() > 8333.333333 then
+                velocity = velocity:normalize() * 8333.333333
+             end
+             position = position + (velocity * stepSize)
+        end
+        return {
+            ["position"] = position,
+            ["velocity"] = velocity,
+            ["collision"] = collided
+        }
+    end
+
+    function sMovingAverage(period)
+        local t = {}
+        function _sum(a, ...)
+            if a then return a+_sum(...) else return 0 end
+        end
+        function _average(n)
+            if #t == period then table.remove(t, 1) end
+            t[#t + 1] = n
+            return _sum(table.unpack(t)) / #t
+        end
+        return _average
+    end
+
+    local sMovingAverage5 = sMovingAverage(5)
+    local sMovingAverage10 = sMovingAverage(10)
+    local sMovingAverage15 = sMovingAverage(15)
+    local sMovingAverage25 = sMovingAverage(25)
+
     function self.updateWorld()
         self.world = {
             up = vec3(core.getConstructWorldOrientationUp()),
@@ -242,11 +357,11 @@ function STEC(core, control, Cd)
         self.localVelocity = vec3(core.getVelocity())
 
         if self.vtolPriority then
-            self.priorityTags1 = "brake,airfoil,torque,vertical,lateral,longitudinal,vertical"
+            self.priorityTags1 = "brake,airfoil,torque,vertical,lateral,longitudinal"
             self.priorityTags2 = "atmospheric_engine,space_engine"
             self.priorityTags3 = ""
         else
-            self.priorityTags1 = "brake,airfoil,torque,vertical,lateral,longitudinal,"
+            self.priorityTags1 = "brake,airfoil,torque,lateral,longitudinal"
             self.priorityTags2 = "atmospheric_engine,space_engine"
             self.priorityTags3 = "vertical"
         end
@@ -344,6 +459,18 @@ function STEC(core, control, Cd)
         return vec3(relX, relY, relZ)
     end
 
+    function self.localToWorld(vector)
+        vector = {vector:unpack()}
+        local rightX, rightY, rightZ = self.world.right:unpack()
+        local forwardX, forwardY, forwardZ = self.world.forward:unpack()
+        local upX, upY, upZ = self.world.up:unpack()
+        local rfuX, rfuY, rfuZ = vector:unpack()
+        local relX = rfuX * rightX + rfuY * forwardX + rfuZ * upX
+        local relY = rfuX * rightY + rfuY * forwardY + rfuZ * upY
+        local relZ = rfuX * rightZ + rfuY * forwardZ + rfuZ * upZ
+        return vec3(relX, relY, relZ)
+    end
+
 
     function moveWaypointZ(vector, altitude)
         return (vector - (self.nearestPlanet:getGravity(vector)):normalize() * (altitude))
@@ -352,6 +479,19 @@ function STEC(core, control, Cd)
         local z = moveWaypointZ(self.world.position, altitude - self.altitude)
         return z - (self.world.right:cross(self.nearestPlanet:getGravity(self.world.position)):normalize()) * -distance
     end
+
+    function moveWaypoint(origin, intersect, distance)
+        return origin + ((origin - intersect):normalize() * distance)
+    end
+
+    function self.getTrajectory(distance)
+        distance = distance or 1
+        local v = self.world.position + (self.world.velocity + self.world.gravity):normalize()
+        --local v = self.simulationPos
+        return self.world.position - ((self.world.position - v):normalize() * distance)
+    end
+
+    
 
     function self.apply()
         local deltaTime = math.max(system.getTime() - lastUpdate, 0.001) --If delta is below 0.001 then something went wrong in game engine.
@@ -422,33 +562,72 @@ function STEC(core, control, Cd)
             --tmp = tmp - ((self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass) * deltaAltitude)
         end
         if self.targetVector == nil then self.gotoLock = nil end
-        --self.brakeDistance, self.accelTime = kinematics.computeDistanceAndTime(self.world.velocity:len(), 0, self.mass, self.MaxKinematics.Backward,1,self.maxBrake)
         
         if self.gotoLock ~= nil then
+            local targetRadius = 2000
             if not self.inertialDampening then self.inertialDampening = true end
             self.direction.y = 0
+            self.vtolPriority = true
             local speed = 29990
 
             local dest = (self.world.position - self.gotoLock):normalize()
-            ship.targetVector = -dest
-            self.targetDist = (self.world.position - self.gotoLock):len()
-      
+            
+            self.targetDist = (self.world.position - self.gotoLock):len() - targetRadius
+            self.trajectoryDiff = sMovingAverage25((self.getTrajectory(self.targetDist - targetRadius) - self.gotoLock):len())
+            --self.debug = moveWaypoint(self.gotoLock,self.getTrajectory(self.targetDist), self.trajectoryDiff)
+            
             local force = tmp:dot(self.world.position - self.gotoLock)
 
             self.brakeDistance, self.accelTime = kinematics.computeDistanceAndTime((self.world.velocity + self.world.gravity):len(), 0, self.inertialMass, force, 0, self.maxBrake)
 
-            if self.brakeDistance >= (self.targetDist - 2000) or self.targetDist <= 2000 then
-                --self.gotoLock = nil
-                speed = 2000
+            if self.brakeDistance >= (self.targetDist - targetRadius) or self.targetDist <= targetRadius then
+                speed = self.targetDist - self.brakeDistance
             end
+            if self.trajectoryDiff > 10 and self.world.velocity:len() > 250 / 3.6 then
+                self.inertialDampening = false
+                local v = self.getTrajectory(self.targetDist)
+                --local v = self.simulationPos
 
+                local a = self.targetDist
+                local b = (self.world.position - v):len()
+                local c = (self.gotoLock - v):len()
+
+                --system.print(a.." / "..b.." / "..c)
+
+                --self.deviationAngle = getAngle(a,b,c)
+                local success, out = xpcall(getAngle,err,a,b,c)
+
+                if success then self.deviationAngle = out end
+                local tri = getGapFromAngle(a,b,0)
+                if self.deviationAngle > 1 and a > c and b > c then
+                    --system.print("adjust...")
+                    tri = getGapFromAngle(a,b,self.deviationAngle)
+                end
+                    
+
+                --local aa = moveWaypoint(self.world.position, v, self.targetDist)
+                --local ab = moveWaypoint(self.gotoLock, aa, -c)
+
+                --self.debug = ab
+                self.debug = moveWaypoint(self.gotoLock,v,tri)
+                dest = (self.world.position - self.debug):normalize()
+                self.targetVector = -(self.world.position - self.debug):normalize()
+            else
+                dest = (self.world.position - self.gotoLock):normalize()
+                self.targetVector = -dest
+            end
+            --dest = (self.world.position - self.gotoLock):normalize()
+            --self.targetVector = -dest
             if self.targetDist < 1 then
+                speed = 0
                 self.gotoLock = nil
                 self.targetVector = nil
             end
-
-            local fSpeed = utils.clamp(self.targetDist / 3.6,0.3,((math.abs(speed)/3.6))) * self.IDIntensity
-            tmp = tmp - (dest * self.mass * fSpeed)
+            --self.ETA = math.sqrt((2*self.targetDist + targetRadius)/sMovingAverage15(self.world.acceleration:len()))
+            self.ETA = (self.targetDist / self.world.velocity:len()) + self.accelTime
+            local fSpeed = utils.clamp(self.targetDist / 3.6,0,((math.abs(speed)/3.6))) * self.IDIntensity
+            --tmp = tmp - (dest * self.mass * fSpeed)
+            tmp = tmp + (self.world.forward * self.mass * fSpeed)
         end
         
         if self.alternateCM then
@@ -487,8 +666,11 @@ function STEC(core, control, Cd)
             elseif type(self.targetVector) == "table" then
                 vec = self.targetVector
             end
-            atmp = atmp + (self.world.forward:cross(vec) * self.rotationSpeedMax) - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
+
+            local damp = self.mass * 0.000001 * 2 + 4
+            atmp = atmp + (self.world.forward:cross(vec) * self.rotationSpeedMax) - ((self.AngularVelocity * damp) - (self.AngularAirFriction * damp))
         end
+
         -- must be applied last
         if self.counterGravity then
             if self.direction.z >= 0 then
@@ -522,7 +704,7 @@ function STEC(core, control, Cd)
             self.disabledTags = ""
         end
         
-        self.control.setEngineCommand("atmospheric_engine,space_engine,airfoil,brake,torque,vertical,ground",
+        self.control.setEngineCommand("atmospheric_engine,space_engine,airfoil,brake,torque,ground",
                                         {tmp:unpack()}, {atmp:unpack()}, false, false,
                                         self.priorityTags1,
                                         self.priorityTags2,

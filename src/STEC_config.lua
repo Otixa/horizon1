@@ -58,6 +58,7 @@ function holdAlt()
 end
 
 function goButton()
+    ship.direction.y = 1
     if not ship.alternateCM then
         -- Set throttle to 100% or 0
         if ship.throttle ~= 0 then
@@ -135,7 +136,16 @@ local tty = DUTTY
 tty.onCommand('goto', function(a)
     gotoLock(a)
 end)
-
+-- Testing commands to be removed
+tty.onCommand('goto1', function()
+    gotoLock("::pos{0,0,41351.6719,205839.2344,51086.4180}")
+end)
+tty.onCommand('goto2', function()
+    gotoLock("::pos{0,0,-17729.2293,198268.4583,43236.0477}")
+end)
+tty.onCommand('home', function()
+    gotoLock("::pos{0,0,-7579.1226,195924.3281,41557.4922}")
+end)
 
 keybindPresets["mouse"] = KeybindController()
 keybindPresets["mouse"].Init = function()
