@@ -207,15 +207,19 @@ function STEC(core, control, Cd)
     self.maxBrake = jdecode(unit.getData()).maxBrake
     self.debug = vec3(0,0,0)
     self.deviationAngle = 0
+    self.stopping = false
 
     function getAngle(a,b,c)
         if a + c < b then b = a end
         return math.deg(math.acos((a^2+b^2-c^2)/(2*(a*b))))
     end
     function getGapFromAngle(a,b,angle)
-        return math.sqrt((a^2 + b^2) - (2*(b*a)*math.cos(angle * 2)))
+        return math.sqrt((a^2 + b^2) - (2*(b*a)*math.cos(angle)))
     end
-
+    function errHandler(x)
+        system.print("Error: " .. x)
+        return "ERROR"
+    end
     function simulateAhead(simLength, timeStep)
         local sv = ship.world.velocity:clone()
         local sp = ship.world.position:clone()
@@ -241,10 +245,7 @@ function STEC(core, control, Cd)
             ["collision"] = nil
         }
     end
-    function errHandler(x)
-        system.print("Error: " .. x)
-        return "ERROR"
-    end
+
     function simulate(stepSize, sPos, sVel, sAcc)
         local G = 6.6740831 * 10^-11
         local closest = nil
@@ -288,7 +289,7 @@ function STEC(core, control, Cd)
     
             end
     
-             --velocity = velocity + (sAcc * stepSize)
+             velocity = velocity + (sAcc * stepSize)
              if velocity:len() > 8333.333333 then
                 velocity = velocity:normalize() * 8333.333333
              end
@@ -569,37 +570,36 @@ function STEC(core, control, Cd)
             self.direction.y = 0
             self.vtolPriority = true
             local speed = 29990
-
+            
             local dest = (self.world.position - self.gotoLock):normalize()
             
             self.targetDist = (self.world.position - self.gotoLock):len() - targetRadius
-            self.trajectoryDiff = sMovingAverage25((self.getTrajectory(self.targetDist - targetRadius) - self.gotoLock):len())
-            --self.debug = moveWaypoint(self.gotoLock,self.getTrajectory(self.targetDist), self.trajectoryDiff)
+            --local v = self.getTrajectory(self.targetDist)
+            local v = self.simulationPos
+            --local v = self.world.position - ((self.world.position - self.world.velocity):normalize() * self.targetDist)
+            self.trajectoryDiff = sMovingAverage25((v - self.gotoLock):len())
             
             local force = tmp:dot(self.world.position - self.gotoLock)
 
             self.brakeDistance, self.accelTime = kinematics.computeDistanceAndTime((self.world.velocity + self.world.gravity):len(), 0, self.inertialMass, force, 0, self.maxBrake)
-
+            
             if self.brakeDistance >= (self.targetDist - targetRadius) or self.targetDist <= targetRadius then
                 speed = self.targetDist - self.brakeDistance
+                self.stopping = true
             end
-            if self.trajectoryDiff > 10 and self.world.velocity:len() > 250 / 3.6 then
+            if self.trajectoryDiff > 10 and self.world.velocity:len() > 250 / 3.6 and not self.stopping then
                 self.inertialDampening = false
-                local v = self.getTrajectory(self.targetDist)
-                --local v = self.simulationPos
+  
 
                 local a = self.targetDist
                 local b = (self.world.position - v):len()
                 local c = (self.gotoLock - v):len()
 
-                --system.print(a.." / "..b.." / "..c)
 
-                --self.deviationAngle = getAngle(a,b,c)
-                local success, out = xpcall(getAngle,err,a,b,c)
+                self.deviationAngle = utils.clamp(math.deg(self.world.forward:angle_between(v)),0,45)
 
-                if success then self.deviationAngle = out end
                 local tri = getGapFromAngle(a,b,0)
-                if self.deviationAngle > 1 and a > c and b > c then
+                if utils.round(self.deviationAngle) ~= 0 and a > c and b > c then
                     --system.print("adjust...")
                     tri = getGapFromAngle(a,b,self.deviationAngle)
                 end
@@ -622,6 +622,7 @@ function STEC(core, control, Cd)
                 speed = 0
                 self.gotoLock = nil
                 self.targetVector = nil
+                self.stopping = false
             end
             --self.ETA = math.sqrt((2*self.targetDist + targetRadius)/sMovingAverage15(self.world.acceleration:len()))
             self.ETA = (self.targetDist / self.world.velocity:len()) + self.accelTime

@@ -116,6 +116,7 @@ function gotoLock(a)
             ship.followGravity = false
             ship.targetVector = (target - ship.world.position):normalize()
             ship.gotoLock = target
+            ship.stopping = false
             system.print("Target lock: "..a)
             system.setWaypoint(a)
         end
@@ -125,6 +126,7 @@ function gotoLock(a)
         ship.followGravity = false
         ship.targetVector = (target - ship.world.position):normalize()
         ship.gotoLock = target
+        ship.stopping = false
         system.print("Target lock: ::pos{0,0,-17729.2293,198268.4583,43236.0477}")
         system.setWaypoint("::pos{0,0,-17729.2293,198268.4583,43236.0477}")
     end
@@ -142,6 +144,12 @@ tty.onCommand('goto1', function()
 end)
 tty.onCommand('goto2', function()
     gotoLock("::pos{0,0,-17729.2293,198268.4583,43236.0477}")
+end)
+tty.onCommand('goto5su', function()
+    gotoLock("::pos{0,0,439874.4688,-363701.4062,749901.8750}")
+end)
+tty.onCommand('goto10su', function()
+    gotoLock("::pos{0,0,910554.2500,-951981.0625,1494420.1250}")
 end)
 tty.onCommand('home', function()
     gotoLock("::pos{0,0,-7579.1226,195924.3281,41557.4922}")
