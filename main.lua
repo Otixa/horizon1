@@ -58,7 +58,7 @@ function Unit.Start()
 end
 
 function Unit.Stop()
-	if flightModeDb then 
+	if flightModeDb then
 		flightModeDb.setIntValue("controlMode", unit.getControlMasterModeId())
 	end
 	system.showScreen(0)
@@ -77,24 +77,28 @@ function Unit.Tick(timer)
 		getFuelRenderedHtml()
 	end
 	if timer == "KeplerSim" then
-		Task(function()
-			local t = ship.ETA
-			if ship.ETA == 0 then t = 30 end
-			local f = simulateAhead(t,t * 0.1)
-			ship.simulationPos = f.position
-		end)
+		if ship.gotoLock ~= nil then
+			Task(function()
+				local t = ship.ETA - ship.accelTime
+				if ship.ETA == 0 then t = 30 end
+				local f = simulateAhead(t,t * 0.1)
+				ship.simulationPos = f.position
+			end)
+		end
 	end
 	
 	if timer == "WaypointTest" then
-		system.print("Deviation angle: "..utils.round(ship.deviationAngle).."°")
+		system.print("Deviation angle: "..ship.deviationAngle.."°")
 		system.print("Target Dist: "..ship.targetDist)
 		system.print("Brake Dist: "..ship.brakeDistance)
+		system.print("Stopping: "..tostring(ship.stopping))
 		system.print("Brake Diff: "..(ship.targetDist - ship.brakeDistance))
 		system.print("Trajectory Diff: "..ship.trajectoryDiff)
 
 		system.print("ETA: "..disp_time(ship.ETA))
+		
 		-- if switch then
-		-- 	local waypointString = ship.nearestPlanet:convertToMapPosition(ship.debug)
+		-- 	local waypointString = ship.nearestPlanet:convertToMapPosition(ship.simulationPos)
 		-- 	system.setWaypoint(tostring(waypointString))
 		-- else
 		-- 	if ship.gotoLock ~= nil then
