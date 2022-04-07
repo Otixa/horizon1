@@ -2,7 +2,8 @@
 core = nil
 antigrav = nil
 warpDrive = nil
-radarUnit = nil
+radarUnitAtmo = nil
+radarUnitSpace = nil
 flightModeDb = nil
 manualSwitches = {}
 forceFields = {}
@@ -30,11 +31,16 @@ function getElements()
         var.show()
       end
       
-      if class == "RadarPvPAtmospheric" or class == "RadarPvPSpace" then
-        radarUnit = var
-        var.show()
+      if class == "RadarPvPAtmospheric" then
+        radarUnitAtmo = var
+        radarUnitAtmo.show()
       end
       
+      if class == "RadarPvPSpace" then
+        radarUnitSpace = var
+        radarUnitSpace.show()
+      end
+
       if class == "DataBankUnit" then
         flightModeDb = var
       end

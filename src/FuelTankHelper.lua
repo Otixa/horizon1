@@ -50,7 +50,8 @@ function normalizeHp(type,hp)
     elseif hp >= 1315 and hp < 10461 then adjHp = 1315
     elseif hp >= 10461 then adjHp = 10461 end
   elseif type == "space" then
-    if hp >= 187 and hp < 1496 then adjHp = 187
+    if hp >= 50 and hp < 187 then adjHp = 50
+    elseif hp >= 187 and hp < 1496 then adjHp = 187
     elseif hp >= 1496 and hp < 15933 then adjHp = 1496
     elseif hp >= 15933 then adjHp = 15933 end
   elseif type == "rocket" then
@@ -249,8 +250,6 @@ end
 --vanillaMaxVolume = vanillaMaxVolume - (vanillaMaxVolume * ContainerOptimization * 0.05)
 function getFuelTankLevel(fuelTankId)
   local fuelTankSpecs = fuelTanks[fuelTankId]
-  --local massTotal = core.getElementMassById(fuelTankId)
-  --local fuelVolume = fuelTankSpecs.capacity()
   local adjustedMaxMass = fuelTankSpecs.maxWeight()
   return getFuelTankLiters(fuelTankId) / adjustedMaxMass
 end

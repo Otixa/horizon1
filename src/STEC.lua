@@ -206,6 +206,9 @@ function STEC(core, control, Cd)
 
 	    self.airFriction = vec3(core.getWorldAirFrictionAcceleration())
         self.atmosphereThreshold = helios:closestBody(core.getConstructWorldPos()).noAtmosphericDensityAltitude
+        
+	    self.airFriction = vec3(core.getWorldAirFrictionAcceleration())
+        
         self.mass = self.core.getConstructMass()
         --self.altitude = self.core.getAltitude()
         self.altitude = helios:closestBody(core.getConstructWorldPos()):getAltitude(core.getConstructWorldPos())
