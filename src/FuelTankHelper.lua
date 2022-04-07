@@ -114,6 +114,13 @@ fuelTankSpecsByMaxHP = {
 
   -- Space Tanks
   space = {
+    _50 = {
+      type = "space",
+      size = "XS",
+      capacity = function() return calcAtmoVolume(100) end,
+      baseWeight = 35.030,
+      maxWeight = function() return calcMaxMass(calcAtmoVolume(100),"space") end,
+    },
     _187 = {
       type = "space",
       size = "S",
@@ -290,10 +297,10 @@ function getFuelTanks()
   end
 
   for _, v in ipairs(fuelTankSpecsByMaxHP) do
-    system.print("Fuel Tank: "..v)
+    --system.print("Fuel Tank: "..v)
     for k,t in ipairs(v) do
       for x,y in pairs(t) do
-        system.print("Capacity: "..y.capacity())
+        --system.print("Capacity: "..y.capacity())
       end
     end
   end
