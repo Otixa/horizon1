@@ -50,7 +50,8 @@ function normalizeHp(type,hp)
     elseif hp >= 1315 and hp < 10461 then adjHp = 1315
     elseif hp >= 10461 then adjHp = 10461 end
   elseif type == "space" then
-    if hp >= 187 and hp < 1496 then adjHp = 187
+    if hp >= 50 and hp < 187 then adjHp = 50
+    elseif hp >= 187 and hp < 1496 then adjHp = 187
     elseif hp >= 1496 and hp < 15933 then adjHp = 1496
     elseif hp >= 15933 then adjHp = 15933 end
   elseif type == "rocket" then
@@ -113,6 +114,13 @@ fuelTankSpecsByMaxHP = {
 
   -- Space Tanks
   space = {
+    _50 = {
+      type = "space",
+      size = "XS",
+      capacity = function() return calcAtmoVolume(100) end,
+      baseWeight = 35.030,
+      maxWeight = function() return calcMaxMass(calcAtmoVolume(100),"space") end,
+    },
     _187 = {
       type = "space",
       size = "S",
@@ -249,8 +257,6 @@ end
 --vanillaMaxVolume = vanillaMaxVolume - (vanillaMaxVolume * ContainerOptimization * 0.05)
 function getFuelTankLevel(fuelTankId)
   local fuelTankSpecs = fuelTanks[fuelTankId]
-  --local massTotal = core.getElementMassById(fuelTankId)
-  --local fuelVolume = fuelTankSpecs.capacity()
   local adjustedMaxMass = fuelTankSpecs.maxWeight()
   return getFuelTankLiters(fuelTankId) / adjustedMaxMass
 end
@@ -291,10 +297,10 @@ function getFuelTanks()
   end
 
   for _, v in ipairs(fuelTankSpecsByMaxHP) do
-    system.print("Fuel Tank: "..v)
+    --system.print("Fuel Tank: "..v)
     for k,t in ipairs(v) do
       for x,y in pairs(t) do
-        system.print("Capacity: "..y.capacity())
+        --system.print("Capacity: "..y.capacity())
       end
     end
   end
