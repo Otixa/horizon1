@@ -75,6 +75,7 @@ end
 function STEC(core, control, Cd)
     local self = {}
     self.core = core
+    self.constructMaxSpeed = core.getMaxSpeed() * 3.6
     self.control = control
     self.nearestPlanet = helios:closestBody(core.getConstructWorldPos())
     self.world = {
@@ -424,7 +425,6 @@ function STEC(core, control, Cd)
         return math.floor(v/bracket + math.sign(v) * 0.5) * bracket
     end
 
-
     function self.throttleUp()
         self.throttle = clamp(self.throttle + 0.05, 0, 1)
     end
@@ -563,13 +563,12 @@ function STEC(core, control, Cd)
             --tmp = tmp - ((self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass) * deltaAltitude)
         end
         if self.targetVector == nil then self.gotoLock = nil end
-        
         if self.gotoLock ~= nil then
             local targetRadius = 2000
             if not self.inertialDampening then self.inertialDampening = true end
             self.direction.y = 0
             self.vtolPriority = true
-            local speed = 29990
+            local speed = self.constructMaxSpeed
             
             local dest = (self.world.position - self.gotoLock):normalize()
             
@@ -588,36 +587,36 @@ function STEC(core, control, Cd)
                 self.stopping = true
             end
             if self.trajectoryDiff > 10 and self.world.velocity:len() > 250 / 3.6 and not self.stopping then
-                self.inertialDampening = false
-  
-
-                local a = self.targetDist
-                local b = (self.world.position - v):len()
-                local c = (self.gotoLock - v):len()
-
-
-                self.deviationAngle = utils.clamp(math.deg(self.world.forward:angle_between(v)),0,45)
-
-                local tri = getGapFromAngle(a,b,0)
-                if utils.round(self.deviationAngle) ~= 0 and a > c and b > c then
-                    --system.print("adjust...")
-                    tri = getGapFromAngle(a,b,self.deviationAngle)
-                end
-                    
-
-                --local aa = moveWaypoint(self.world.position, v, self.targetDist)
-                --local ab = moveWaypoint(self.gotoLock, aa, -c)
-
-                --self.debug = ab
-                self.debug = moveWaypoint(self.gotoLock,v,tri)
-                dest = (self.world.position - self.debug):normalize()
-                self.targetVector = -(self.world.position - self.debug):normalize()
-            else
-                dest = (self.world.position - self.gotoLock):normalize()
-                self.targetVector = -dest
+            --    self.inertialDampening = false
+  --
+--
+            --    local a = self.targetDist
+            --    local b = (self.world.position - v):len()
+            --    local c = (self.gotoLock - v):len()
+--
+--
+            --    self.deviationAngle = utils.clamp(math.deg(self.world.forward:angle_between(v)),0,45)
+--
+            --    local tri = getGapFromAngle(a,b,0)
+            --    if utils.round(self.deviationAngle) ~= 0 and a > c and b > c then
+            --        --system.print("adjust...")
+            --        tri = getGapFromAngle(a,b,self.deviationAngle)
+            --    end
+            --        
+--
+            --    --local aa = moveWaypoint(self.world.position, v, self.targetDist)
+            --    --local ab = moveWaypoint(self.gotoLock, aa, -c)
+--
+            --    --self.debug = ab
+            --    self.debug = moveWaypoint(self.gotoLock,v,tri)
+            --    dest = (self.world.position - self.debug):normalize()
+            --    self.targetVector = -(self.world.position - self.debug):normalize()
+            --else
+            --    dest = (self.world.position - self.gotoLock):normalize()
+            --    self.targetVector = -dest
             end
-            --dest = (self.world.position - self.gotoLock):normalize()
-            --self.targetVector = -dest
+            dest = (self.world.position - self.gotoLock):normalize()
+            self.targetVector = -dest
             if self.targetDist < 1 then
                 speed = 0
                 self.gotoLock = nil
@@ -626,9 +625,7 @@ function STEC(core, control, Cd)
             end
             --self.ETA = math.sqrt((2*self.targetDist + targetRadius)/sMovingAverage15(self.world.acceleration:len()))
             self.ETA = (self.targetDist / self.world.velocity:len()) + self.accelTime
-            local fSpeed = utils.clamp(self.targetDist / 3.6,0,((math.abs(speed)/3.6))) * self.IDIntensity
-            --tmp = tmp - (dest * self.mass * fSpeed)
-            tmp = tmp + (self.world.forward * self.mass * fSpeed)
+            tmp = tmp - dest * self.mass * utils.clamp(self.targetDist * 3.6,0.3,((math.abs(speed)/3.6) * self.IDIntensity))
         end
         
         if self.alternateCM then

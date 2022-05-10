@@ -56,7 +56,19 @@ function Unit.Start()
 	--system.print(string.format( "fMax: %f, %f, %f, %f",fMax[1],fMax[2],fMax[3],fMax[4]))
 	--system.print(string.format( "vMax: %f, %f, %f, %f",vMax[1],vMax[2],vMax[3],vMax[4]))
 end
-
+function dump(o)
+	if type(o) == 'table' then
+	   local s = '{ '
+	   for k,v in pairs(o) do
+		  if type(k) ~= 'number' then k = '"'..k..'"' end
+		  s = s .. '['..k..'] = ' .. dump(v) .. ','
+	   end
+	   return s .. '} '
+	else
+	   return tostring(o)
+	end
+ end
+ 
 function Unit.Stop()
 	if flightModeDb then
 		flightModeDb.setIntValue("controlMode", unit.getControlMasterModeId())
@@ -75,6 +87,11 @@ function Unit.Tick(timer)
 	end
 	if timer == "FuelStatus" then
 		getFuelRenderedHtml()
+		local msa = core.getMaxSpeedPerAxis()
+		--system.print("Max speed per axis:")
+		--system.print(string.format("x: %f, -x: %f, y: %f, -y: %f, z: %f, -z: %f",msa[1],msa[2],msa[3],msa[4],msa[5],msa[6]))
+		--system.print("Max Speed: "..msa:unpack())
+		system.print(dump(msa))
 	end
 	if timer == "KeplerSim" then
 		if ship.gotoLock ~= nil then
@@ -94,7 +111,8 @@ function Unit.Tick(timer)
 		system.print("Stopping: "..tostring(ship.stopping))
 		system.print("Brake Diff: "..(ship.targetDist - ship.brakeDistance))
 		system.print("Trajectory Diff: "..ship.trajectoryDiff)
-
+		system.print("Mass (tons): "..ship.mass / 1000)
+		system.print("Max Speed: "..ship.constructMaxSpeed)
 		system.print("ETA: "..disp_time(ship.ETA))
 		
 		-- if switch then
