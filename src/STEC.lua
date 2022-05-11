@@ -189,7 +189,7 @@ function STEC(core, control, Cd)
     if self.world.vertical:dot(self.world.up) > 0 then self.rollDegrees = 180 - self.rollDegrees end
     -- Pitch
     self.pitchRatio = self.world.vertical:angle_between(self.world.forward) / math.pi - 0.5
-    self.vtolPriority = false
+    self.vtolPriority = true
     self.disableVtol = false
     self.disabledTags = ""
     local lastUpdate = system.getTime()
@@ -222,9 +222,9 @@ function STEC(core, control, Cd)
         return "ERROR"
     end
     function simulateAhead(simLength, timeStep)
-        local sv = ship.world.velocity:clone()
-        local sp = ship.world.position:clone()
-        local sa = ship.world.acceleration:clone()
+        local sv = self.world.velocity:clone()
+        local sp = self.world.position:clone()
+        local sa = self.world.acceleration:clone()
     
         local cutoff = simLength / timeStep
 
@@ -633,8 +633,8 @@ function STEC(core, control, Cd)
           local dot = self.world.forward:dot(self.airFriction)
           local modifiedVelocity = (speed - dot)
           local desired = self.world.forward * modifiedVelocity
-          local delta = (desired - (self.world.velocity - self.world.acceleration))
-            
+          local delta = (desired - self.world.velocity  - self.world.acceleration)
+          --system.print(tostring(vec3(self.world.acceleration)))
           tmp = tmp + (delta * self.mass)
         end
         if self.inertialDampening then
@@ -681,13 +681,13 @@ function STEC(core, control, Cd)
 
         if self.controlMode ~= unit.getControlMasterModeId() then
             self.controlMode = unit.getControlMasterModeId()
-            if unit.getControlMasterModeId() == 0 then 
+            if unit.getControlMasterModeId() == 0 then
                 self.tempCruise = self.cruiseSpeed
                 self.cruiseSpeed = 0
                 self.throttle = self.tempThrottle
-                self.alternateCM = false 
+                self.alternateCM = false
             end
-            if unit.getControlMasterModeId() == 1 then 
+            if unit.getControlMasterModeId() == 1 then
                 self.tempThrottle = self.throttle
                 self.throttle = 0
                 --system.print("Velocity = "..tostring(math.round(self.world.velocity:len(), 100)))

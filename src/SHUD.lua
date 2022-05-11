@@ -31,8 +31,8 @@ function CruiseControl(value)
     elseif ship.cruiseSpeed >= 2000 and ship.cruiseSpeed <= 9999 then appliedCruise = value * 100 
     elseif ship.cruiseSpeed >= 10000 then appliedCruise = value * 1000 end
     
-    
-    ship.cruiseSpeed = utils.clamp(ship.cruiseSpeed + appliedCruise,-29990,29990) 
+    local max = core.getMaxSpeed()
+    ship.cruiseSpeed = utils.clamp(ship.cruiseSpeed + appliedCruise,-max,max)
 end
 
 function getControlMode()

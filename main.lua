@@ -41,7 +41,7 @@ function Unit.Start()
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
 	unit.setTimer("KeplerSim", 0.1)
-	unit.setTimer("WaypointTest", 1)
+	--unit.setTimer("WaypointTest", 1)
 	system.print([[Horizon 1.1.1.8_5]])
 
 	if showDockingWidget then
@@ -87,11 +87,8 @@ function Unit.Tick(timer)
 	end
 	if timer == "FuelStatus" then
 		getFuelRenderedHtml()
-		local msa = core.getMaxSpeedPerAxis()
-		--system.print("Max speed per axis:")
-		--system.print(string.format("x: %f, -x: %f, y: %f, -y: %f, z: %f, -z: %f",msa[1],msa[2],msa[3],msa[4],msa[5],msa[6]))
-		--system.print("Max Speed: "..msa:unpack())
-		system.print(dump(msa))
+		--local msa = core.getMaxSpeedPerAxis()
+		--system.print(dump(msa))
 	end
 	if timer == "KeplerSim" then
 		if ship.gotoLock ~= nil then
