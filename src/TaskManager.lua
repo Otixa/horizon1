@@ -74,7 +74,7 @@ end
 function await(task)
     if not task or not task.Coroutine then error("Trying to await non-task object") end
     while not task.Finished do
-       coroutine.yield() 
+       coroutine.yield()
     end
     return task.LastReturn
 end

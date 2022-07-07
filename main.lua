@@ -42,7 +42,7 @@ function Unit.Start()
 	unit.setTimer("FuelStatus", 3)
 	unit.setTimer("KeplerSim", 0.1)
 	--unit.setTimer("WaypointTest", 1)
-	system.print([[Horizon 1.1.1.8_5]])
+	system.print([[Horizon 1.1.1.8_6]])
 
 	if showDockingWidget then
 		parentingPanelId = system.createWidgetPanel("Docking")
