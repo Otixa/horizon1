@@ -1,30 +1,9 @@
 --@class STEC_Config
-local updateSettings = false --export: Use these settings
-local altHoldPreset1 = 132000.845  --export: Altitude Hold Preset 1
-local altHoldPreset2 = 1005 --export: Altitude Hold Preset 2
-local altHoldPreset3 = 50 --export: Altitude Hold Preset 3
-local altHoldPreset4 = 2 --export: Altitude Hold Preset 4
-local deviationThreshold = 0.5 --export: Deviation tolerace in m
-local inertialDampening = true --export: Start with inertial dampening on/off
-local followGravity = true --export: Start with gravity follow on/off
-local minRotationSpeed = 0.01 --export: Minimum speed rotation scales from
-local maxRotationSpeed = 5 --export: Maximum speed rotation scales to
-local rotationStep = 0.03 --export: Depermines how quickly rotation scales up
-local verticalSpeedLimitAtmo = 1100 --export: Vertical speed limit in atmosphere
-local verticalSpeedLimitSpace = 4000 --export: Vertical limit in space
-local approachSpeed = 200 --export: Max final approach speed
-local autoShutdown = true --export: Auto shutoff on RTB landing
-local breadCrumbDist = 1000 --export: Distance of vector breadcrumbs for elevator control
-showDockingWidget = true --export: Show Docking Widget
-dockingMode = 0 --export: Set docking mode (0:Manual, 1:Automatic, 2:Semi-Automatic)
-setBaseOnStart = false --export: Set RTB location on start
-useGEAS = false --export:
-GEAS_Alt = 10 --export:
-activateFFonStart = false --export: Activate force fields on start (connected to button)
-local pocket = false --export: Pocket ship?
+
+
 
 ship.hoverHeight = GEAS_Alt
---charMovement = true --export: Enable/Disable Character Movement
+--charMovement = true 
 ship.autoShutdown = autoShutdown
 ship.altitudeHold = round2(ship.altitude,0)
 ship.inertialDampeningDesired = inertialDampening

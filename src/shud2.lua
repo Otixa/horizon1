@@ -1,10 +1,6 @@
 --@class CSS_SHUD
 displaySize = 0.85
-primaryColor = "b80000" --export: Primary color of HUD
-secondaryColor = "e30000" --export: Secondary color of HUD
-textShadow = "e81313" --export: Color of text shadow for speedometer
-ARCrosshair = "ebbb0c" --export: Color of the AR crosshair
-fuelFontSize = 1.8 --export: Fuel Gauge Font Size
+
 system.print(fuelFontSize)
 CSS_SHUD = [[
 #horizon { 

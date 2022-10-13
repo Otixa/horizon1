@@ -1,3 +1,4 @@
+--@require ExportedVariables
 --@require Atlas
 --@require PlanetRefMin
 --@require KinematicsMin

@@ -1,6 +1,4 @@
 --@class AR_HUD
-mouseSensitivity = 1 --export: Enter your mouse sensativity setting
-enableARReticle = false --export: Enable AR reticle
 
 json = require('dkjson')
 quat = require('cpml/quat')
