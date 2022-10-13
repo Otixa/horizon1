@@ -372,7 +372,7 @@ SHUD =
             </div>
         
             </div>
-            <div id="fuelTanks">{{ SHUD.SHUDFuelHtml }}</div>
+        <div id="fuelTanks">{{ SHUD.SHUDFuelHtml }}</div>
     
     </div>
     
