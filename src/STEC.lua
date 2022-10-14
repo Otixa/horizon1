@@ -15,9 +15,11 @@
             - ship.rotation.z - yaw
         - See comments for additional functionality
 ]]
+local atlas = require('atlas')
 planetaryReference = PlanetRef()
-galaxyReference = planetaryReference(Atlas())
+galaxyReference = planetaryReference(atlas)
 helios = galaxyReference[0]
+
 kinematics = Kinematics()
 local json = require("dkjson")
 local jdecode = json.decode

@@ -1,4 +1,3 @@
---@require Atlas
 --@require PlanetRef
 --@require Kinematics
 --@require SimpleSlotDetector
@@ -25,7 +24,7 @@ local Unit = _G.BuildUnit
 _G.BuildSystem = {}
 local System = _G.BuildSystem
 
-function Unit.Start()
+function Unit.onStart()
 	Events.Flush.Add(mouse.apply)
 	Events.Flush.Add(ship.apply)
 	Events.Update.Add(SHUD.Update)
@@ -69,7 +68,7 @@ function dump(o)
 	end
  end
  
-function Unit.Stop()
+function Unit.onStop()
 	if flightModeDb then
 		flightModeDb.setIntValue("controlMode", unit.getControlMasterModeId())
 	end
@@ -143,11 +142,11 @@ end
 function System.ActionLoop(action)
 end
 
-function System.Update()
+function System.onUpdate()
 	if Events then Events.Update() end
 	if TaskManager then TaskManager.Update() end
 end
 
-function System.Flush()
+function System.onFlush()
 	if Events then Events.Flush() end
 end
