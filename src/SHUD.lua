@@ -366,7 +366,7 @@ SHUD =
             end
             _ENV["_SHUDBUFFER"] = esc(buffer)
         else
-            if system.isFrozen() == 0 then ship.frozen = true else ship.frozen = false end
+            if player.isFrozen() == 0 then ship.frozen = true else ship.frozen = false end
             _ENV["_SHUDBUFFER"] = DD([[<div class="item helpText">Press ]] .. "[" .. self.system.getActionKeyName("speedup") .. "]" .. [[ to  toggle menu</div>
                     <div class="item helpText"><span>Character Movement:</span>]].. self.MakeBooleanIndicator("ship.frozen") .. [[</div>
                     <div class="item helpText"><span>Vertical Lock:</span>]].. self.MakeBooleanIndicator("ship.verticalLock") .. [[</div>
@@ -382,7 +382,7 @@ SHUD =
         if useGEAS then
             unit.activateGroundEngineAltitudeStabilization(ship.hoverHeight)
         end
-        if system.isFrozen() == 1 or self.Enabled then
+        if player.isFrozen() == 1 or self.Enabled then
             opacity = 1
         else
             opacity = 0.5
@@ -395,7 +395,7 @@ SHUD =
                 elseif self.CurrentIndex < 1 then self.CurrentIndex = #self.Menu end
             end
         elseif not self.Enabled then
-            if system.isFrozen() == 1 and unit.isRemoteControlled() == 1 then
+            if player.isFrozen() == 1 and unit.isRemoteControlled() == 1 then
                 
                 	ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1)
                 
@@ -413,7 +413,7 @@ end
         self.CurrentIndex = 1
         self.ScrollLock = false
         system.showScreen(1)
-        unit.hide()
+        unit.hideWidget()
         local keys = keybinds.GetNamedKeybinds()
         self.MenuList.hotkeys = {}
         for i=1,#keys do

@@ -200,27 +200,27 @@ function STEC(core, control, Cd)
         -- Pitch
         self.pitchRatio = self.world.vertical:angle_between(self.world.forward) / math.pi - 0.5
         
-        self.AngularVelocity = vec3(core.getWorldAngularVelocity())
-        self.AngularAcceleration = vec3(core.getWorldAngularAcceleration())
-        self.AngularAirFriction = vec3(core.getWorldAirFrictionAngularAcceleration())
+        self.AngularVelocity = vec3(construct.getWorldAngularVelocity())
+        self.AngularAcceleration = vec3(construct.getWorldAngularAcceleration())
+        self.AngularAirFriction = vec3(construct.getMaxThrustAlongAxis())
 
-	    self.airFriction = vec3(core.getWorldAirFrictionAcceleration())
+	    self.airFriction = vec3(construct.getWorldAirFrictionAcceleration())
         self.atmosphereThreshold = helios:closestBody(core.getConstructWorldPos()).noAtmosphericDensityAltitude
         
-	    self.airFriction = vec3(core.getWorldAirFrictionAcceleration())
+	    self.airFriction = vec3(construct.getWorldAirFrictionAcceleration())
         
         self.mass = self.core.getConstructMass()
         --self.altitude = self.core.getAltitude()
         self.altitude = helios:closestBody(core.getConstructWorldPos()):getAltitude(core.getConstructWorldPos())
         self.localVelocity = vec3(core.getVelocity())
         self.maxBrake = jdecode(unit.getData()).maxBrake
-        local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
-        local vMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
+        local fMax = construct.getMaxThrustAlongAxis("all", {vec3(0,1,0):unpack()})
+        local vMax = construct.getMaxThrustAlongAxis("all", {vec3(0,0,1):unpack()})
         --system.print("vMax[1]: "..round2(vMax[1],0))
         --system.print("vMax[2]: "..round2(vMax[2],0))
         --system.print("vMax[3]: "..round2(vMax[3],0))
         --system.print("vMax[4]: "..round2(vMax[4],0))
-        local hMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(1,0,0):unpack()})
+        local hMax = construct.getMaxThrustAlongAxis("all", {vec3(1,0,0):unpack()})
         if self.world.atmosphericDensity > 0.1 then
             self.fMax = math.max(fMax[1], -fMax[2])
         else
@@ -237,12 +237,12 @@ function STEC(core, control, Cd)
             self.hMax = math.max(hMax[3], -hMax[4])
         end
         --system.print(self.world.velocity:dot(-self.world.gravity:normalize()))
-        local gravN = self.mass * core.g()
+        local gravN = self.mass * core.getGravityIntensity()
         local correctedThrust = self.vMax
         local correctedBrake = self.maxBrake
         local sign = 1
 
-        if self.maxBrake ~= nil and core.g() >= 1 then
+        if self.maxBrake ~= nil and core.getGravityIntensity() >= 1 then
             if self.world.velocity:dot(-self.world.gravity:normalize()) < 1 then
                 sign = -1
             end
@@ -314,10 +314,10 @@ function STEC(core, control, Cd)
         local tmp = self.thrust
         local atmp = self.angularThrust
         local gravityCorrection = false
-        local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
-        local vMaxUp = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
-        local vMaxDown = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,-1):unpack()})
-        local hMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(1,0,0):unpack()})
+        local fMax = construct.getMaxThrustAlongAxis("all", {vec3(0,1,0):unpack()})
+        local vMaxUp = construct.getMaxThrustAlongAxis("all", {vec3(0,0,1):unpack()})
+        local vMaxDown = construct.getMaxThrustAlongAxis("all", {vec3(0,0,-1):unpack()})
+        local hMax = construct.getMaxThrustAlongAxis("all", {vec3(1,0,0):unpack()})
         if not self.elevatorActive then self.inertialDampening = self.inertialDampeningDesired end
         
         if self.direction.x ~= 0 then

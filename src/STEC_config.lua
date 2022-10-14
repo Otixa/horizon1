@@ -24,7 +24,7 @@ ship.deviationThreshold = deviationThreshold
 ship.pocket = pocket
 ship.breadCrumbDist = breadCrumbDist
 
-if core.setDockingMode(dockingMode) then
+if construct.setDockingMode(dockingMode) then
     system.print("Docking mode set successfully")
 else
     system.print("Invalid docking mode")
@@ -227,7 +227,7 @@ keybindPresets["keyboard"].keyUp.stopengines.Add(function () SHUD.Select() if no
 keybindPresets["keyboard"].keyUp.gear.Add(function () useGEAS = not useGEAS; updateGEAS() end)
 keybindPresets["keyboard"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD.Enabled end)
 keybindPresets["keyboard"].keyUp["option1"].Add(function () ship.inertialDampeningDesired = not ship.inertialDampeningDesired end, "Inertial Dampening")
-keybindPresets["keyboard"].keyUp["option2"].Add(function () system.freeze(math.abs(1 - system.isFrozen())) swapForceFields() end,"Freeze character")
+keybindPresets["keyboard"].keyUp["option2"].Add(function () player.freeze(math.abs(1 - system.isFrozen())) swapForceFields() end,"Freeze character")
 keybindPresets["keyboard"].keyUp["option3"].Add(function () ship.followGravity = not ship.followGravity end, "Gravity Follow")
 keybindPresets["keyboard"].keyUp["option4"].Add(function () ship.counterGravity = not ship.counterGravity end, "Counter Gravity")
 keybindPresets["keyboard"].keyUp["option5"].Add(function ()
@@ -249,7 +249,7 @@ keybindPresets["keyboard"].keyUp["option7"].Add(function()
     ship.altitudeHold = ship.baseAltitude ship.elevatorActive = true
     ship.targetDestination = moveWaypointZ(ship.customTarget, 0)
 end, "RTB")
-keybindPresets["keyboard"].keyUp["option8"].Add(function () core.setDockingMode(0); core.undock() end,"Undock")
+keybindPresets["keyboard"].keyUp["option8"].Add(function () construct.setDockingMode(0); core.undock() end,"Undock")
 --keybindPresets["keyboard"].keyUp["option8"].Add(function () emitter.send("door_control","open") end, "Open Door")
 --keybindPresets["keyboard"].keyUp["option9"].Add(function () if ship.targetDestination == nil then ship.targetDestination = moveWaypointZ(ship.customTarget, 10000 - baseAltitude) else ship.targetDestination = nil end end, "Preset 2")
 --keybindPresets["keyboard"].keyUp.option9.Add(function () if flightModeDb ~= nil then flightModeDb.clear() system.print("DB Cleared") end end,"Clear Databank")
@@ -271,7 +271,7 @@ keybindPresets["screenui"].Init = function()
     keybindPreset = "screenui"
     ship.ignoreVerticalThrottle = true
     ship.throttle = 1
-    system.freeze(1)
+    player.freeze(1)
     ship.frozen = false
 end
 keybindPresets["screenui"].keyDown.lshift.Add(function () shiftLock = true end,"Shift Modifier")
@@ -282,7 +282,7 @@ keybindPresets["screenui"].keyUp["option7"].Add(function()
     ship.altitudeHold = ship.baseAltitude ship.elevatorActive = true
     ship.targetDestination = moveWaypointZ(ship.customTarget, 0)
 end, "RTB")
-keybindPresets["screenui"].keyUp["option8"].Add(function () core.setDockingMode(0); core.undock() end,"Undock")
+keybindPresets["screenui"].keyUp["option8"].Add(function () construct.setDockingMode(0); core.undock() end,"Undock")
 keybindPresets["screenui"].keyUp["option9"].Add(function ()
     if shiftLock then
         flightModeDb.clear() system.print("DB Cleared");
@@ -317,7 +317,7 @@ Task(function()
 end)
 
 
-system.freeze(1)
+player.freeze(1)
 ship.frozen = false
 --ship.throttle = 0
 function updateGEAS()

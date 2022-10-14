@@ -1,9 +1,5 @@
 --@class FuelTankHelper
-local ContainerOptimization = 5
-local FuelTankOptimization = 5
-local fuelTankHandlingAtmo = 5
-local fuelTankHandlingSpace = 5
-
+system.print("ContainerOp"..ContainerOptimization)
 fuelTanks = {}
 FuelMass = {}
 FuelTime = {}

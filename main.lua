@@ -9,7 +9,7 @@
 --@require DynamicDocumentMin
 --@require DUTTYMin
 --@require CSS_SHUD
---@require FuelTankHelperMin
+--@require FuelTankHelper
 --@require TagManagerMin
 --@require KeybindControllerMin
 --@require IOScheduler
@@ -78,7 +78,7 @@ function Unit.Start()
 	if showDockingWidget then
 		parentingPanelId = system.createWidgetPanel("Docking")
 		parentingWidgetId = system.createWidget(parentingPanelId,"parenting")
-		system.addDataToWidget(unit.getDataId(),parentingWidgetId)
+		system.addDataToWidget(unit.getWidgetDataId(),parentingWidgetId)
 	end
 
 	if setBaseOnStart then setBase() end
@@ -108,13 +108,13 @@ function manualControlSwitch()
 	if not config.manualControl then
 		SHUD.Init(system, unit, keybindPresets["screenui"])
 		system.showScreen(0)
-		system.freeze(0)
+		player.freeze(0)
 		ship.frozen = true
 		ship.stateMessage = "Idle"
 	else
 		SHUD.Init(system, unit, keybindPresets["keyboard"])
 		system.showScreen(1)
-		system.freeze(1)
+		player.freeze(1)
 		ship.frozen = false
 		ship.stateMessage = "Manual Control"
 	end
