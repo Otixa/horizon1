@@ -15,9 +15,9 @@
             - ship.rotation.z - yaw
         - See comments for additional functionality
 ]]
-
+local atlas = require('atlas')
 planetaryReference = PlanetRef()
-galaxyReference = planetaryReference(Atlas())
+galaxyReference = planetaryReference(atlas)
 helios = galaxyReference[0]
 kinematics = Kinematics()
 local jdecode = json.decode
@@ -138,7 +138,7 @@ function STEC(core, control, Cd)
     -- Vertical Speed Limit (Atmo)
     self.verticalSpeedLimitAtmo = 750
     -- Vertical Speed Limit (Space)
-    self.verticalSpeedLimitAtmo = 2000
+    self.verticalSpeedLimitSpace = 2000
     -- Final approach speed
     self.approachSpeed = 200
     -- Amount of throttle to apply. 0-1 range
@@ -207,8 +207,13 @@ function STEC(core, control, Cd)
         self.AngularAirFriction = vec3(construct.getMaxThrustAlongAxis())
 
 	    self.airFriction = vec3(construct.getWorldAirFrictionAcceleration())
-        self.atmosphereThreshold = helios:closestBody(construct.getWorldPosition()).noAtmosphericDensityAltitude
         
+        local atmoRadius = helios:closestBody(construct.getWorldPosition()).atmosphereRadius
+        local planetRadius = helios:closestBody(construct.getWorldPosition()).radius
+
+        self.atmosphereThreshold = atmoRadius - planetRadius
+        --system.print("Planet Radius: "..helios:closestBody(construct.getWorldPosition()).radius)
+        --system.print("atmosphereThreshold = " .. self.atmosphereThreshold)
 	    self.airFriction = vec3(construct.getWorldAirFrictionAcceleration())
         
         self.mass = self.construct.getMass()

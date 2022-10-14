@@ -1,6 +1,6 @@
 --@require ExportedVariables
---@require Atlas
---@require PlanetRefMin
+
+--@require PlanetRef
 --@require KinematicsMin
 --@require SimpleSlotDetectorMin
 --@require Serializer
@@ -74,7 +74,7 @@ function Unit.onStart()
 	unit.setTimer("DockingTrigger", 1)
 	if laser ~= nil then laser.deactivate() end
 
-	system.print([[Horizon 1.0.1.12]])
+	system.print([[Horizon 1.0.1.13]])
 	if showDockingWidget then
 		parentingPanelId = system.createWidgetPanel("Docking")
 		parentingWidgetId = system.createWidget(parentingPanelId,"parenting")
@@ -141,7 +141,7 @@ function Unit.Tick(timer)
 		
 	end
 	if timer == "DockingTrigger" then
-		if telemeter ~= nil then telDistance = telemeter.getDistance() end
+		if telemeter ~= nil then telDistance = telemeter.raycast().distance end
 		if ship.dockingClamps then
 			if laser ~= nil then laser.activate() end
 			if telemeter ~= nil and telDistance > 0 and telDistance < 1 then
