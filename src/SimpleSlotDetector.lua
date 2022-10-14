@@ -15,30 +15,30 @@ telemeter = nil
 
 function getElements()
   for k,var in pairs(_G) do
-    if type(var) == "table" and var["getElementClass"] then
-      local class = var["getElementClass"]()
+    if type(var) == "table" and var["getClass"] then
+      local class = var["getClass"]()
       --system.print(class)
       if class == "CoreUnitDynamic" or class == "CoreUnitStatic" or class == "CoreUnitSpace" then
         core = var
       end
       
       if class == "AtmoFuelContainer" or class == "SpaceFuelContainer" then
-        var.show()
+        var.showWidget()
       end
       
       if class == "WarpDriveUnit" then
         warpDrive = var
-        var.show()
+        var.showWidget()
       end
       
       if class == "RadarPvPAtmospheric" then
         radarUnitAtmo = var
-        radarUnitAtmo.show()
+        radarUnitAtmo.showWidget()
       end
       
       if class == "RadarPvPSpace" then
         radarUnitSpace = var
-        radarUnitSpace.show()
+        radarUnitSpace.showWidget()
       end
 
       if class == "DataBankUnit" then

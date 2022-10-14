@@ -259,14 +259,14 @@ end
 
 function getFuelTime(fuelTankId)
   local fuelTankSpecs = fuelTanks[fuelTankId]
-  local lastUpdate = FuelTime[fuelTankId] or system.getTime()
-  local deltaTime = math.max(system.getTime() - lastUpdate, 0.001)
+  local lastUpdate = FuelTime[fuelTankId] or system.getArkTime()
+  local deltaTime = math.max(system.getArkTime() - lastUpdate, 0.001)
   local massTotal = core.getElementMassById(fuelTankId)
   local minMass = fuelTankSpecs.baseWeight
   local fuelUsed = FuelMass[fuelTankId](massTotal)
   local fuelTime = (deltaTime / fuelUsed) * (massTotal - minMass)
   local fuelTimeFormatted = disp_time(fuelTime)
-  FuelTime[fuelTankId] = system.getTime()
+  FuelTime[fuelTankId] = system.getArkTime()
   return fuelTimeFormatted
 
 end
@@ -276,7 +276,7 @@ function getFuelTanks()
 
   local elementIds = core.getElementIdList()
   for k, elementId in pairs(elementIds) do
-    local elementType = core.getElementTypeById(elementId)
+    local elementType = core.getElementDisplayNameById(elementId)
     -- Fuel tank configuration routine
     if elementType == "Atmospheric Fuel Tank" then
       --system.print(elementType.."_"..elementId)

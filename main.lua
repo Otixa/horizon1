@@ -31,7 +31,7 @@ _G.BuildScreen = {}
 local buildScreen = _G.BuildScreen
 local elevatorScreen = nil
 
-function Unit.Start()
+function Unit.onStart()
 	--Events.Flush.Add(mouse.apply)
 	Events.Flush.Add(ship.apply)
 	Events.Update.Add(SHUD.Update)
@@ -39,8 +39,8 @@ function Unit.Start()
 	system.print("Screen: "..tostring(screen))
 	if screen ~= nil then
 		manualControlSwitch()
-		system.print("Altitude: "..helios:closestBody(core.getConstructWorldPos()):getAltitude(core.getConstructWorldPos()))
-		ship.altitudeHold = helios:closestBody(core.getConstructWorldPos()):getAltitude(core.getConstructWorldPos())
+		system.print("Altitude: "..helios:closestBody(construct.getWorldPosition()):getAltitude(construct.getWorldPosition()))
+		ship.altitudeHold = helios:closestBody(construct.getWorldPosition()):getAltitude(construct.getWorldPosition())
 		ship.baseAltitude = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
 		--ship.elevatorActive = true
 	end
@@ -67,8 +67,8 @@ function Unit.Start()
 		end
 	end
 	
-	shipName = core.getConstructName()
-	system.print(unit.getMasterPlayerId())
+	shipName = construct.getName()
+	system.print(player.getId())
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
 	unit.setTimer("DockingTrigger", 1)
@@ -88,7 +88,7 @@ end
 
 
 
-function Unit.Stop()
+function Unit.onStop()
 	if next(manualSwitches) ~= nil then
 		for _, sw in ipairs(manualSwitches) do
 			sw.deactivate()
@@ -166,7 +166,7 @@ end
 function System.ActionLoop(action) 
 end
 
-function System.Update()
+function System.onUpdate()
 	--system.print("Cust Target: "..tostring(vec3(ship.customTarget)).." | alt: "..ship.altitude.." | baseAlt: "..ship.baseAltitude.." | worldPos: "..tostring(vec3(ship.world.position)).." | ")
 	--self.deviationVec = (moveWaypointZ(self.customTarget, self.altitude - self.baseAltitude) - self.world.position)
 	ioScheduler.update()
@@ -175,7 +175,7 @@ function System.Update()
 	TaskManager.Update()
 end
 
-function System.Flush()
+function System.onFlush()
 	if Events then Events.Flush() end
 end
 
@@ -184,8 +184,8 @@ function buildScreen.MouseDown(x,y,slot)
 end
 function toggleVerticalLock()
 	--ship.verticalLock = true
-    ship.lockVector = vec3(core.getConstructWorldOrientationUp())
-    ship.lockPos = vec3(core.getConstructWorldPos()) + (vec3(core.getConstructWorldOrientationUp()))
+    ship.lockVector = vec3(construct.getWorldOrientationUp())
+    ship.lockPos = vec3(construct.getWorldPosition()) + (vec3(construct.getWorldOrientationUp()))
 end
 function createBreadcrumbTrail(endAlt)
 	--Create a set of waypoints starting from the current position to the destination spaced 1km apart

@@ -104,7 +104,7 @@ SHUD =
     self.FreezeUpdate = false
     self.IntroPassed = false
 
-    self.FOV = system.getFov()
+    self.FOV = system.getCameraHorizontalFov()
     self.ScreenW = system.getScreenWidth()
     self.ScreenH = system.getScreenHeight()
     self.Resolution = vec2(self.ScreenW, self.ScreenH)

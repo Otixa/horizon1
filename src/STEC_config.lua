@@ -152,7 +152,7 @@ config.rtb = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget
 function setBase(a)
     if a == nil then
         ship.customTarget = ship.world.position
-        ship.rot = ship.world.right:cross(ship.nearestPlanet:getGravity(core.getConstructWorldPos()))
+        ship.rot = ship.world.right:cross(ship.nearestPlanet:getGravity(construct.getWorldPosition()))
         writeTargetToDb(ship.customTarget,"BaseLoc")
         writeTargetToDb(ship.rot, "BaseRot")
         
@@ -232,8 +232,8 @@ keybindPresets["keyboard"].keyUp["option3"].Add(function () ship.followGravity =
 keybindPresets["keyboard"].keyUp["option4"].Add(function () ship.counterGravity = not ship.counterGravity end, "Counter Gravity")
 keybindPresets["keyboard"].keyUp["option5"].Add(function ()
     ship.verticalLock = true
-    ship.lockVector = vec3(core.getConstructWorldOrientationUp())
-    ship.lockPos = vec3(core.getConstructWorldPos()) + (vec3(core.getConstructWorldOrientationUp()))
+    ship.lockVector = vec3(construct.getWorldOrientationUp())
+    ship.lockPos = vec3(construct.getWorldPosition()) + (vec3(construct.getWorldOrientationUp()))
     if flightModeDb ~= nil then
         flightModeDb.setFloatValue("lockVectorX",ship.lockVector.x)
         flightModeDb.setFloatValue("lockVectorY",ship.lockVector.y)
@@ -308,8 +308,8 @@ SHUD.Init(system, unit, keybindPresets[keybindPreset])
 Task(function()
     coroutine.yield()
     SHUD.FreezeUpdate = true
-    local endTime = system.getTime() + 2
-    while system.getTime() < endTime do
+    local endTime = system.getArkTime() + 2
+    while system.getArkTime() < endTime do
             coroutine.yield()
     end
     SHUD.FreezeUpdate = false
@@ -356,7 +356,7 @@ config.floors.floor1 = ship.altHoldPreset1
 config.floors.floor2 = ship.altHoldPreset2
 config.floors.floor3 = ship.altHoldPreset3
 config.floors.floor4 = ship.altHoldPreset4
-elevatorName = core.getConstructName()
+elevatorName = construct.getName()
 config.rtb = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
 config.targetAlt = 0
 

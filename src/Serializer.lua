@@ -25,7 +25,7 @@ config = {
         floor3 = 0,
         floor4 = 0,
     },
-    elevatorName = core.getConstructName(),
+    elevatorName = construct.getName(),
     rtb = 0,
     targetAlt = 0,
     estop = false,
