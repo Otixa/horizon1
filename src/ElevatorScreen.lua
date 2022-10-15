@@ -1,35 +1,37 @@
 --@class ElevatorScreen
 ElevatorScreen = (function ()
-    local self = {}
+    if screen then
+        local self = {}
 
-    function self.updateStats()
-        stats.data.elevation = ship.altitude
-        stats.data.target = config.targetAlt
-        stats.data.velocity = ship.world.velocity:len()
-        stats.data.mass = ship.mass
-        stats.data.gravity = ship.world.gravity:len()
-        stats.data.target_dist = math.abs(ship.altitude - ship.altitudeHold)
-        stats.data.brake_dist = ship.brakeDistance
-        stats.data.deviation = ship.deviation
-        stats.data.deviationVec = ship.worldToLocal(ship.deviationVec)
-        stats.data.deviationRot = ship.worldToLocal(ship.deviationRot)
-        stats.data.state = ship.stateMessage
-    end
-    self.updateStats()
-    function self.updateScreenFuel()
-        fuelAtmo.tanks = {}
-        fuelSpace.tanks = {}
+        function self.updateStats()
+            stats.data.elevation = ship.altitude
+            stats.data.target = config.targetAlt
+            stats.data.velocity = ship.world.velocity:len()
+            stats.data.mass = ship.mass
+            stats.data.gravity = ship.world.gravity:len()
+            stats.data.target_dist = math.abs(ship.altitude - ship.altitudeHold)
+            stats.data.brake_dist = ship.brakeDistance
+            stats.data.deviation = ship.deviation
+            stats.data.deviationVec = ship.worldToLocal(ship.deviationVec)
+            stats.data.deviationRot = ship.worldToLocal(ship.deviationRot)
+            stats.data.state = ship.stateMessage
+        end
+        self.updateStats()
+        function self.updateScreenFuel()
+            fuelAtmo.tanks = {}
+            fuelSpace.tanks = {}
 
-        for _, tank in pairs(SHUD.fuel.atmo) do
-            table.insert(fuelAtmo.tanks,fuelTank(tank.time,math.ceil(100 * tank.level)))
+            for _, tank in pairs(SHUD.fuel.atmo) do
+                table.insert(fuelAtmo.tanks,fuelTank(tank.time,math.ceil(100 * tank.level)))
+            end
+            for _, tank in pairs(SHUD.fuel.space) do
+                table.insert(fuelSpace.tanks,fuelTank(tank.time,math.ceil(100 * tank.level)))
+            end
+            --for _, tank in pairs(SHUD.fuel.rocket) do fuelHtmlRocket = fuelHtmlRocket .. mkTankHtml("rocket", tank) end
+            ioScheduler.queueData(fuelAtmo)
+            ioScheduler.queueData(fuelSpace)
         end
-        for _, tank in pairs(SHUD.fuel.space) do
-            table.insert(fuelSpace.tanks,fuelTank(tank.time,math.ceil(100 * tank.level)))
-        end
-        --for _, tank in pairs(SHUD.fuel.rocket) do fuelHtmlRocket = fuelHtmlRocket .. mkTankHtml("rocket", tank) end
-        ioScheduler.queueData(fuelAtmo)
-        ioScheduler.queueData(fuelSpace)
+        screen.clearScriptOutput()
     end
-    screen.clearScriptOutput()
     return self
 end)()

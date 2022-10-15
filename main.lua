@@ -95,7 +95,7 @@ function Unit.onStop()
 		end
 	end
 	config.shutDown = true
-	screen.setScriptInput(serialize(config))
+	if screen then screen.setScriptInput(serialize(config)) end
 	system.showScreen(0)
 	if laser ~= nil then laser.deactivate() end
 	
@@ -170,7 +170,7 @@ function System.onUpdate()
 	--system.print("Cust Target: "..tostring(vec3(ship.customTarget)).." | alt: "..ship.altitude.." | baseAlt: "..ship.baseAltitude.." | worldPos: "..tostring(vec3(ship.world.position)).." | ")
 	--self.deviationVec = (moveWaypointZ(self.customTarget, self.altitude - self.baseAltitude) - self.world.position)
 	ioScheduler.update()
-	elevatorScreen.updateStats()
+	if elevatorScreen then elevatorScreen.updateStats() end
 	if Events then Events.Update() end
 	TaskManager.Update()
 end

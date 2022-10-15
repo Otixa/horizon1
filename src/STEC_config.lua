@@ -114,7 +114,7 @@ end
 
 function swapForceFields()
     if manualSwitches ~= nil then
-        if system.isFrozen() == 1 then
+        if player.isFrozen() == 1 then
             manualSwitches[1].activate()
             for _, sw in ipairs(forceFields) do
                 sw.deactivate()
@@ -227,7 +227,7 @@ keybindPresets["keyboard"].keyUp.stopengines.Add(function () SHUD.Select() if no
 keybindPresets["keyboard"].keyUp.gear.Add(function () useGEAS = not useGEAS; updateGEAS() end)
 keybindPresets["keyboard"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD.Enabled end)
 keybindPresets["keyboard"].keyUp["option1"].Add(function () ship.inertialDampeningDesired = not ship.inertialDampeningDesired end, "Inertial Dampening")
-keybindPresets["keyboard"].keyUp["option2"].Add(function () player.freeze(math.abs(1 - system.isFrozen())) swapForceFields() end,"Freeze character")
+keybindPresets["keyboard"].keyUp["option2"].Add(function () player.freeze(math.abs(1 - player.isFrozen())) swapForceFields() end,"Freeze character")
 keybindPresets["keyboard"].keyUp["option3"].Add(function () ship.followGravity = not ship.followGravity end, "Gravity Follow")
 keybindPresets["keyboard"].keyUp["option4"].Add(function () ship.counterGravity = not ship.counterGravity end, "Counter Gravity")
 keybindPresets["keyboard"].keyUp["option5"].Add(function ()
