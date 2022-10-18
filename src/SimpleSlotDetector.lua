@@ -17,9 +17,9 @@ rearTel = nil
 
 function getElements()
   for k,var in pairs(_G) do
-    if type(var) == "table" and var["getElementClass"] then
-      local class = var["getElementClass"]()
-      --system.print(class)
+    if type(var) == "table" and var["getClass"] then
+      local class = var["getClass"]()
+      system.print(class)
       if class == "CoreUnitDynamic" or class == "CoreUnitStatic" or class == "CoreUnitSpace" then
         core = var
       end
@@ -66,7 +66,7 @@ function getElements()
       if class == "TelemeterUnit" then
         table.insert(telemeters, var)
       end
-      if class == "Hovercraft" then
+      if class == "HoverEngineSmallGroup" then
         table.insert(hovers, var)
       end
     end
@@ -74,18 +74,21 @@ function getElements()
 end
 
 getElements()
+local tel1Pos = vec3(core.getElementPositionById(telemeters[1].getLocalId()))
+local tel2Pos = vec3(core.getElementPositionById(telemeters[2].getLocalId()))
 
-local tel1Pos = vec3(core.getElementPositionById(hovers[1].getId()))
-local tel2Pos = vec3(core.getElementPositionById(hovers[2].getId()))
---system.print("frontTelPos: "..tostring(vec3(tel1Pos)).." | rearTelDist: "..tostring(vec3(tel2Pos)))
-if tel1Pos.y > tel2Pos.y then
-  frontTel = hovers[1]
-  rearTel = hovers[2]
+system.print("Telemeter 1 position: "..tostring((tel1Pos)))
+system.print("Telemeter 2 position: "..tostring((tel2Pos)))
+
+system.print("Telemeter 1 distance: "..telemeters[1].raycast().distance)
+system.print("Telemeter 2 distance: "..telemeters[2].raycast().distance)
+
+
+if tel1Pos.y < tel2Pos.y then
+  frontTel = telemeters[1]
+  rearTel = telemeters[2]
 else
-  frontTel = hovers[2]
-  rearTel = hovers[1]
+  frontTel = telemeters[2]
+  rearTel = telemeters[1]
 end
 
---system.print("frontTel: "..frontTel.getDistance().." rearTel: "..rearTel.getDistance())
-system.print("Front: "..tostring(vec3(core.getElementPositionById(frontTel.getId()))))
-system.print("Rear: "..tostring(vec3(core.getElementPositionById(rearTel.getId()))))

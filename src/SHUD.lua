@@ -107,7 +107,7 @@ SHUD =
     self.FreezeUpdate = false
     self.IntroPassed = false
 
-    self.FOV = system.getFov()
+    self.FOV = system.getCameraHorizontalFov()
     self.ScreenW = system.getScreenWidth()
     self.ScreenH = system.getScreenHeight()
     self.Resolution = vec2(self.ScreenW, self.ScreenH)
@@ -182,7 +182,8 @@ SHUD =
     end
     function updateSettings()
         if flightModeDb ~= nil then
-            flightModeDb.setIntValue("hoverHeight",ship.hoverHeight)
+            system.print("Hover height: "..ship.hoverHeight)
+            flightModeDb.setFloatValue("hoverHeight",ship.hoverHeight)
         end
         if flightModeDb ~= nil then
             flightModeDb.setIntValue("IDIntensity",ship.IDIntensity)
@@ -379,9 +380,10 @@ SHUD =
             end
             _ENV["_SHUDBUFFER"] = esc(buffer)
         else
-            if system.isFrozen() == 0 then ship.frozen = true else ship.frozen = false end
+            if player.isFrozen() == 0 then ship.frozen = true else ship.frozen = false end
             _ENV["_SHUDBUFFER"] = DD([[<div class="item helpText">Press ]] .. "[" .. self.system.getActionKeyName("speedup") .. "]" .. [[ to  toggle menu</div>
                     <div class="item helpText"><span>Ground Clearance:</span>]].. self.MakeSliderIndicator("round2(ship.hoverDistance,2)","m") .. [[</div>
+                    <div class="item helpText"><span>Height Setting:</span>]].. self.MakeSliderIndicator("round2(ship.hoverHeight,2)","m") .. [[</div>
                     <div class="item helpText"><span>Follow Terrain:</span>]].. self.MakeBooleanIndicator("ship.followTerrain") .. [[</div>
                     <div class="item helpText"><span>Inertial Dampening:</span>]].. self.MakeBooleanIndicator("ship.inertialDampening") .. [[</div>
                     <div class="item helpText"><span>Gravity Follow:</span>]].. self.MakeBooleanIndicator("ship.followGravity") .. [[</div>
@@ -405,7 +407,14 @@ SHUD =
                 updateSettings()
             end
         elseif not self.Enabled then
+        --ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1)
+        if not ship.alternateCM then
             ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1)
+        elseif ship.alternateCM then
+            ship.cruiseSpeed = utils.clamp(ship.cruiseSpeed + (system.getMouseWheel()),-29999,29999)
+            --CruiseControl(wheel)
+        end
+
         --self.UpdateMarkers()
 		end
 
@@ -416,7 +425,7 @@ end
         self.CurrentIndex = 1
         self.ScrollLock = false
         system.showScreen(1)
-        unit.hide()
+        unit.hideWidget()
         local keys = keybinds.GetNamedKeybinds()
         self.MenuList.hotkeys = {}
         for i=1,#keys do

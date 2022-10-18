@@ -1,6 +1,5 @@
 --@class PlanetRef
 function PlanetRef()
-
     local function isNumber(n)  return type(n)           == 'number' end
     local function isSNumber(n) return type(tonumber(n)) == 'number' end
     local function isTable(t)   return type(t)           == 'table'  end
@@ -52,7 +51,9 @@ function PlanetRef()
             local nxt  = next(obj)
 
             if type(nxt) == 'nil' or nxt == 1 then -- assume this is an array
-                list = obj
+                for i,a in ipairs(obj) do
+                    list[i] = formatValue(a)
+                end
             else
                 for k,v in pairs(obj) do
                     local value = formatValue(v)
@@ -67,7 +68,7 @@ function PlanetRef()
         end
 
         if isString(obj) then
-            return string.format("'%s'", obj:gsub("'",[[\']]))
+            return string.format("[[%s]]", obj)
         end
         return tostring(obj)
     end
@@ -80,7 +81,6 @@ function PlanetRef()
     BodyParameters.__index = BodyParameters
     BodyParameters.__tostring =
         function(obj, indent)
-            local sep = indent or ''
             local keys = {}
             for k in pairs(obj) do table.insert(keys, k) end
             table.sort(keys)
@@ -226,11 +226,16 @@ function PlanetRef()
             return string.format('{\n%s\n}', table.concat(bdylist, ',\n'))
         end
 
-    local function mkPlanetarySystem(referenceTable)
+    local function mkPlanetarySystem(systemReferenceTable)
         local atlas = {}
         local pid
-        for _, v in pairs(referenceTable) do
+        for _, v in pairs(systemReferenceTable) do
             local id = v.planetarySystemId
+
+            if id == nil then
+                id = 0
+                v.planetarySystemId = id
+            end
 
             if type(id) ~= 'number' then
                 error('Invalid planetary system ID: ' .. tostring(id))
@@ -239,12 +244,17 @@ function PlanetRef()
                     .. pid)
             end
             local bid = v.bodyId
+
+            if bid == nil then
+                bid      = v.id
+                v.bodyId = bid
+            end
             if type(bid) ~= 'number' then
                 error('Invalid body ID: ' .. tostring(bid))
             elseif atlas[bid] then
                 error('Duplicate body ID: ' .. tostring(bid))
             end
-            setmetatable(v.center, getmetatable(vec3.unit_x))
+            v.center = vec3(v.center)
             atlas[bid] = setmetatable(v, BodyParameters)
             pid = id
         end
@@ -286,7 +296,6 @@ function PlanetRef()
             end
             return string.format('{\n%s\n}\n', table.concat(pslist,',\n'))
         end
-
     PlanetaryReference.BodyParameters = mkBodyParameters
     PlanetaryReference.MapPosition    = mkMapPosition
     PlanetaryReference.PlanetarySystem = mkPlanetarySystem
@@ -323,7 +332,6 @@ function PlanetRef()
         local GM       = gravityAtPosition * distance * distance
         return mkBodyParameters(planetarySystemId, bodyId, radius, center, GM)
     end
-
     PlanetaryReference.isMapPosition  = isMapPosition
     function PlanetaryReference:getPlanetarySystem(overload)
         if self.galaxyAtlas then
@@ -334,9 +342,9 @@ function PlanetRef()
             end
 
             if type(planetarySystemId) == 'number' then
-                local system = self.galaxyAtlas[i]
+                local system = self.galaxyAtlas[planetarySystemId]
                 if system then
-                    if getmetatable(nv) ~= PlanetarySystem then
+                    if getmetatable(system) ~= PlanetarySystem then
                         system = mkPlanetarySystem(system)
                     end
                     return system
@@ -345,6 +353,7 @@ function PlanetRef()
         end
         return nil
     end
+
     function PlanetarySystem:castIntersections(origin,
                                             direction,
                                             sizeCalculator,
@@ -390,6 +399,7 @@ function PlanetRef()
         end
         return nil, nil, nil
     end
+
     function PlanetarySystem:closestBody(coordinates)
         assert(type(coordinates) == 'table', 'Invalid coordinates.')
         local minDistance2, body
@@ -404,6 +414,7 @@ function PlanetRef()
         end
         return body
     end
+
     function PlanetarySystem:convertToBodyIdAndWorldCoordinates(overload)
         local mapPosition = overload
         if isString(overload) then
@@ -422,6 +433,7 @@ function PlanetRef()
                 params:convertToWorldCoordinates(mapPosition)
         end
     end
+
     function PlanetarySystem:getBodyParameters(overload)
         local bodyId = overload
 
@@ -433,10 +445,31 @@ function PlanetRef()
 
         return self[bodyId]
     end
+
     function PlanetarySystem:getPlanetarySystemId()
         local k, v = next(self)
         return v and v.planetarySystemId
     end
+
+    function PlanetarySystem:netGravity(coordinates)
+        assert(type(coordinates) == 'table', 'Invalid coordinates.')
+        local netGravity   = vec3()
+        local coord        = vec3(coordinates)
+        local maxG, body
+
+        for _,params in pairs(self) do
+            local radial   = params.center - coord
+            local len2     = radial:len2()
+            local g        = params.GM/len2
+            if not body or g > maxG then
+                body       = params
+                maxG       = g
+            end
+            netGravity = netGravity + g/math.sqrt(len2)*radial
+        end
+        return body, netGravity
+    end
+
     function BodyParameters:convertToMapPosition(worldCoordinates)
         assert(isTable(worldCoordinates),
             'Argument 1 (worldCoordinates) must be an array or vec3:' ..
@@ -467,6 +500,7 @@ function PlanetRef()
                             bodyId    = self.bodyId,
                             systemId  = self.planetarySystemId}, MapPosition)
     end
+
     function BodyParameters:convertToWorldCoordinates(overload)
         local mapPosition = isString(overload) and
                                             mkMapPosition(overload) or overload
@@ -487,17 +521,21 @@ function PlanetRef()
                     xproj*math.sin(mapPosition.longitude),
                     math.sin(mapPosition.latitude))
     end
+
     function BodyParameters:getAltitude(worldCoordinates)
         return (vec3(worldCoordinates) - self.center):len() - self.radius
     end
+
     function BodyParameters:getDistance(worldCoordinates)
         return (vec3(worldCoordinates) - self.center):len()
     end
+
     function BodyParameters:getGravity(worldCoordinates)
         local radial = self.center - vec3(worldCoordinates) -- directed towards body
         local len2   = radial:len2()
         return (self.GM/len2) * radial/math.sqrt(len2)
     end
+
     return setmetatable(PlanetaryReference,
                         { __call = function(_,...)
                                         return mkPlanetaryReference(...)

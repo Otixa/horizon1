@@ -1,8 +1,9 @@
 --@class STEC_Config
 shipName = ""
+goButtonSpeed = 250
 local updateSettings = false --export: Use these settings
 local inertialDampening = true --export: Start with inertial dampening on/off
-local followGravity = true --export: Start with gravity follow on/off
+local followGravity = false --export: Start with gravity follow on/off
 local minRotationSpeed = 0.4 --export: Minimum speed rotation scales from
 local maxRotationSpeed = 24 --export: Maximum speed rotation scales to
 local rotationStep = 0.3 --export: Depermines how quickly rotation scales up
@@ -26,7 +27,7 @@ ship.pocket = pocket
 local shiftLock = false
 
 unit.switchOnHeadlights()
-if core.setDockingMode(dockingMode) then
+if construct.setDockingMode(dockingMode) then
     system.print("Docking mode set successfully")
 else
     system.print("Invalid docking mode")
@@ -49,13 +50,42 @@ function switchFlightMode(flightMode)
 end
 
 function switchControlMode()
-    if ship.alternateCM == false then ship.alternateCM = true
-        else ship.alternateCM = false end
+    if ship.alternateCM == false then 
+        ship.tempThrottle = ship.throttle
+        ship.throttle = 0
+        ship.cruiseSpeed = utils.round(ship.world.velocity:len() * 3.6, 100)
+        ship.alternateCM = true
+
+    else 
+        ship.tempCruise = ship.cruiseSpeed
+        ship.cruiseSpeed = 0
+        ship.throttle = ship.tempThrottle
+        ship.alternateCM = false
+    end
 end
+function goButton()
+    --ship.direction.y = 1
+    if not ship.alternateCM then
+        -- Set throttle to 100% or 0
+        if ship.throttle ~= 0 then
+            ship.throttle = 0
+        else
+            ship.throttle = 1
+        end
+    else
+        -- Set cruise speed to preset or 0
+        if ship.cruiseSpeed ~= goButtonSpeed then
+            ship.cruiseSpeed = goButtonSpeed
+        elseif ship.cruiseSpeed == goButtonSpeed then
+            ship.cruiseSpeed = 0
+        end
+    end
+end
+
 
 function swapForceFields()
     if manualSwitches ~= nil then
-        if system.isFrozen() == 1 then
+        if player.isFrozen() == 1 then
             manualSwitches[1].activate()
             for _, sw in ipairs(forceFields) do
                 sw.deactivate()
@@ -70,7 +100,7 @@ function swapForceFields()
 
 end
 function toggleCharacterLock()
-    system.freeze( math.abs(1 - system.isFrozen()))
+    player.freeze( math.abs(1 - player.isFrozen()))
 end
 
 function clearDb()
@@ -116,10 +146,18 @@ if ship.flippedCore then
     keybindPresets["keyboard"].keyDown.yawright.Add(function () ship.rotation.y = autoRoll ship.rotation.z = -1 end) --d
     keybindPresets["keyboard"].keyUp.yawright.Add(function () ship.rotation.y = 0 ship.rotation.z = 0 ship.rotationSpeedz = ship.minRotationSpeed end) --d
 else
-    keybindPresets["keyboard"].keyDown.up.Add(function () ship.rotation.x = 0.15  end) --space
-    keybindPresets["keyboard"].keyUp.up.Add(function () ship.rotation.x = 0  end) --space
-    keybindPresets["keyboard"].keyDown.down.Add(function () ship.rotation.x = -0.15  end) --c
-    keybindPresets["keyboard"].keyUp.down.Add(function () ship.rotation.x = 0  end) --c
+    --keybindPresets["keyboard"].keyDown.up.Add(function () ship.holdAlt = true; ship.counterGravity = true; ship.rotation.x = 0.15  end) --space
+    --keybindPresets["keyboard"].keyDown.up.Add(function () ship.rotation.x = 0.15  end) --space
+    --keybindPresets["keyboard"].keyUp.up.Add(function () ship.rotation.x = 0  end) --space
+    --keybindPresets["keyboard"].keyDown.down.Add(function () ship.rotation.x = -0.15  end) --c
+    --keybindPresets["keyboard"].keyUp.down.Add(function () ship.rotation.x = 0  end) --c
+
+    keybindPresets["keyboard"].keyDown.up.Add(function () if not ship.holdAlt or not ship.counterGravity then 
+        ship.holdAlt = true; ship.counterGravity = true; else ship.hoverUp = true end  end) --space
+    keybindPresets["keyboard"].keyUp.up.Add(function () ship.hoverUp = false  end) --space
+    keybindPresets["keyboard"].keyDown.down.Add(function () ship.hoverDown = true  end) --c
+    keybindPresets["keyboard"].keyUp.down.Add(function () ship.hoverDown = false  end) --c
+
 
     keybindPresets["keyboard"].keyDown.yawleft.Add(function () ship.rotation.y = -autoRoll ship.rotation.z = -1 end) --a
     keybindPresets["keyboard"].keyUp.yawleft.Add(function () ship.rotation.y = 0 ship.rotation.z = 0 ship.rotationSpeedz = ship.minRotationSpeed end) --a
@@ -130,25 +168,25 @@ end
 
 
 
-keybindPresets["keyboard"].keyDown.forward.Add(function () ship.direction.y = 1 end) --w
-keybindPresets["keyboard"].keyUp.forward.Add(function () ship.direction.y = 0 end) --w
+keybindPresets["keyboard"].keyDown.forward.Add(function () if shiftLock then ship.cruiseUp = true else ship.direction.y = 1 end end) --w
+keybindPresets["keyboard"].keyUp.forward.Add(function () ship.cruiseUp = false; ship.direction.y = 0 end) --w
 
 
-keybindPresets["keyboard"].keyDown.backward.Add(function () ship.direction.y = -1 end) --s
-keybindPresets["keyboard"].keyUp.backward.Add(function () ship.direction.y = 0 end) --s
+keybindPresets["keyboard"].keyDown.backward.Add(function () if shiftLock then ship.cruseDown = true else ship.direction.y = -1 end end) --s
+keybindPresets["keyboard"].keyUp.backward.Add(function () ship.cruiseDown = false; ship.direction.y = 0 end) --s
 
-keybindPresets["keyboard"].keyDown.left.Add(function () ship.direction.x = 1 end) --q
+keybindPresets["keyboard"].keyDown.left.Add(function () ship.direction.x = -1 end) --q
 keybindPresets["keyboard"].keyUp.left.Add(function () ship.direction.x = 0 end) --q
-keybindPresets["keyboard"].keyDown.right.Add(function () ship.direction.x = -1 end) --e
+keybindPresets["keyboard"].keyDown.right.Add(function () ship.direction.x = 1 end) --e
 keybindPresets["keyboard"].keyUp.right.Add(function () ship.direction.x = 0 end) --e
 
-keybindPresets["keyboard"].keyDown.brake.Add(function () ship.brake = true end) --ctrl
+keybindPresets["keyboard"].keyDown.brake.Add(function () ship.brake = true; ship.alternateCM = false end) --ctrl
 keybindPresets["keyboard"].keyUp.brake.Add(function () ship.brake = false end) --ctrl
 keybindPresets["keyboard"].keyDown.lshift.Add(function () shiftLock = true end,"Shift Modifier")
 keybindPresets["keyboard"].keyUp.lshift.Add(function () shiftLock = false end,"Shift Modifier")
 
 --keybindPresets["keyboard"].keyDown.stopengines.Add(function () if ship.direction.y == 1 then ship.direction.y = 0 else ship.direction.y = 1 end end, "Cruise")
-keybindPresets["keyboard"].keyUp.stopengines.Add(function () SHUD.Select() if not SHUD.Enabled then if ship.direction.y == 1 then ship.direction.y = 0 else ship.direction.y = 1 end end end, "Cruise")
+keybindPresets["keyboard"].keyUp.stopengines.Add(function () SHUD.Select() if not SHUD.Enabled then goButton() end end, "Cruise")
 keybindPresets["keyboard"].keyUp.speeddown.Add(function () if mouse.enabled then mouse.unlock() mouse.enabled = false else mouse.lock() mouse.enabled = true end end, "Mouse Steering")
 
 
@@ -172,15 +210,21 @@ end
 
 keybindPresets["keyboard"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD.Enabled end) --r
 
-keybindPresets["keyboard"].keyDown.lshift.Add(function () ship.inertialDampeningDesired = false end,"ID Toggle")
-keybindPresets["keyboard"].keyUp.lshift.Add(function () ship.inertialDampeningDesired = true end,"ID Toggle")
+keybindPresets["keyboard"].keyDown.lshift.Add(function () ship.alternateCM = true; ship.cruiseSpeed = 7; end,"Cruise Toggle")
+keybindPresets["keyboard"].keyUp.lshift.Add(function () ship.alternateCM = false; end,"Cruise Toggle")
 
+keybindPresets["keyboard"].keyUp["option2"].Add(function () switchControlMode() end, "Flight Mode")
 keybindPresets["keyboard"].keyUp["option3"].Add(function () toggleFollowTarrain() end, "Follow Terrain")
 keybindPresets["keyboard"].keyUp["option4"].Add(function () toggleFollowGravity() end, "Follow Gravity")
-keybindPresets["keyboard"].keyUp["option5"].Add(function () switchFlightMode("mouse") end,"Switch Flight Mode")
+--keybindPresets["keyboard"].keyUp["option5"].Add(function () switchFlightMode("mouse") end,"Switch Flight Mode")
+keybindPresets["keyboard"].keyUp["option5"].Add(function () 
+    if ship.throttle ~= 1 then ship.throttle = 1
+    else ship.throttle = 0.05
+    end
+end,"Cut Throttle")
 keybindPresets["keyboard"].keyUp["option6"].Add(function () ship.inertialDampeningDesired = not ship.inertialDampeningDesired end, "Inertial Dampening")
 --keybindPresets["keyboard"].keyUp["option6"].Add(function () ship.verticalLock = not ship.verticalLock end,"Toggle Vertical Lock")
-keybindPresets["keyboard"].keyUp["option8"].Add(function () core.setDockingMode(0); core.undock() end,"Undock")
+keybindPresets["keyboard"].keyUp["option8"].Add(function () construct.setDockingMode(0); core.undock() end,"Undock")
 keybindPresets["keyboard"].keyUp["option9"].Add(function () clearDb() end,"Clear Databank")
 
 
@@ -223,7 +267,7 @@ keybindPresets["mouse"].keyUp.stopengines.Add(function () SHUD.Select() if not S
 keybindPresets["mouse"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD.Enabled end)
 keybindPresets["mouse"].keyUp.speeddown.Add(function () if mouse.enabled then mouse.unlock() mouse.enabled = false else mouse.lock() mouse.enabled = true end end, "Keyboard")
 
---keybindPresets["mouse"].keyDown.lshift.Add(function () system.freeze( math.abs(1 - system.isFrozen())) end,"Freeze character")
+--keybindPresets["mouse"].keyDown.lshift.Add(function () player.freeze( math.abs(1 - player.isFrozen())) end,"Freeze character")
 
 keybindPresets["mouse"].keyUp.gear.Add(function () ship.holdAlt = not ship.holdAlt ship.counterGravity = ship.holdAlt end)
 
@@ -249,8 +293,8 @@ SHUD.Init(system, unit, keybindPresets[keybindPreset])
 Task(function()
     coroutine.yield()
     SHUD.FreezeUpdate = true
-    local endTime = system.getTime() + 2
-    while system.getTime() < endTime do
+    local endTime = system.getArkTime() + 2
+    while system.getArkTime() < endTime do
             coroutine.yield()
     end
     SHUD.FreezeUpdate = false
@@ -258,7 +302,7 @@ Task(function()
 end)
 
 
-system.freeze(1)
+player.freeze(1)
 ship.frozen = false
 --ship.throttle = 0
 controlStateChange = true

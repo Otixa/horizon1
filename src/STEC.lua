@@ -15,35 +15,38 @@
             - ship.rotation.z - yaw
         - See comments for additional functionality
 ]]
+local atlas = require('atlas')
 planetaryReference = PlanetRef()
-galaxyReference = planetaryReference(Atlas())
+galaxyReference = planetaryReference(atlas)
 helios = galaxyReference[0]
+ 
 kinematics = Kinematics()
 local jdecode = json.decode
-local maxBrake = jdecode(unit.getData()).maxBrake
+local maxBrake = jdecode(unit.getWidgetData()).maxBrake
 
 
 function STEC(core, control, Cd)
     local self = {}
     self.core = core
-    self.flippedCore = true
+    self.construct = construct
+    self.flippedCore = false
     self.control = control
-    self.nearestPlanet = helios:closestBody(core.getConstructWorldPos())
+    self.nearestPlanet = helios:closestBody(construct.getWorldPosition())
     self.world = {
-        up = vec3(core.getConstructWorldOrientationUp()),
-        down = -vec3(core.getConstructWorldOrientationUp()),
-        left = -vec3(core.getConstructWorldOrientationRight()),
-        right = vec3(core.getConstructWorldOrientationRight()),
-        forward = vec3(core.getConstructWorldOrientationForward()),
-        back = -vec3(core.getConstructWorldOrientationForward()),
-        velocity = vec3(core.getWorldVelocity()),
-        acceleration = vec3(core.getWorldAcceleration()),
-        position = vec3(core.getConstructWorldPos()),
+        up = vec3(construct.getWorldOrientationUp()),
+        down = -vec3(construct.getWorldOrientationUp()),
+        left = -vec3(construct.getWorldOrientationRight()),
+        right = vec3(construct.getWorldOrientationRight()),
+        forward = vec3(construct.getWorldOrientationForward()),
+        back = -vec3(construct.getWorldOrientationForward()),
+        velocity = vec3(construct.getWorldVelocity()),
+        acceleration = vec3(construct.getWorldAcceleration()),
+        position = vec3(construct.getWorldPosition()),
         gravity = vec3(core.getWorldGravity()),
         vertical = vec3(core.getWorldVertical()),
         atmosphericDensity = control.getAtmosphereDensity(),
         nearPlanet = unit.getClosestPlanetInfluence() > 0,
-        atlasAltitude = self.nearestPlanet:getAltitude(core.getConstructWorldPos())
+        atlasAltitude = self.nearestPlanet:getAltitude(construct.getWorldPosition())
     }
     if self.flippedCore then
         self.world.up = -self.world.up
@@ -62,9 +65,9 @@ function STEC(core, control, Cd)
     
     self.rot = vec3(0,0,0)
     -- Construct id
-    self.id = core.getConstructId()
+    self.id = construct.getId()
     -- Control Mode - Travel (0) or Cruise (1)
-    self.controlMode = unit.getControlMasterModeId()
+    self.controlMode = unit.getControlMode()
     -- Alternate Control Mode for remote control
     self.alternateCM = false
     -- Active engine tags
@@ -80,14 +83,14 @@ function STEC(core, control, Cd)
     self.elevatorDestination = vec3(0,0,0)
     self.IDIntensity = 5
     self.deviationThreshold = 0.05
-    self.playerId = unit.getMasterPlayerId()
+    self.playerId = player.getId()
     self.targetVectorVertical = nil
     self.breadCrumbDist = 1000
     self.deviated = false
     self.breadCrumbs = {}
     self.hoverHeight = 10
     self.holdAlt = false
-    self.followTerrain = false
+    self.followTerrain = true
     self.hoverDistance = 0
     self.hoverIntensity = 2
     -- Whether the target vector should unlock automatically if the ship is rotated by the pilot
@@ -95,7 +98,7 @@ function STEC(core, control, Cd)
     -- Current altitude
     self.altitude = 0
     -- Current mass of the vessel, in kilograms
-    self.mass = self.core.getConstructMass()
+    self.mass = self.construct.getMass()
     -- Amount of thrust to apply in world space, in Newton. Stacks with {{direction}}
     self.thrust = vec3(0, 0, 0)
     -- Amount of thrust to apply in local space, in percentage of fMax 0-1
@@ -125,7 +128,7 @@ function STEC(core, control, Cd)
     -- Whether or not the vessel should attempt to counter gravity influence
     self.counterGravity = true
     -- Whether or not the vessel should attempt to face perpendicular to the gravity vector
-    self.followGravity = true
+    self.followGravity = false
     -- Aggressiveness of the gravity follow adjustment
     self.gravityFollowSpeed = 6
     -- Speed (in km/h) in which to limit the velocity of the ship
@@ -154,10 +157,12 @@ function STEC(core, control, Cd)
     self.atmosphereThreshold = 0
     -- Speed which the vessel should attempt to maintain
     self.cruiseSpeed = 0
+    self.cruiseUp = false
+    self.cruiseDown = false
     -- Whether or not to ignore throttle for vertical thrust calculations
     self.ignoreVerticalThrottle = false
     -- Local velocity
-    self.localVelocity = vec3(core.getVelocity())
+    self.localVelocity = vec3(construct.getVelocity())
     self.brakeDistance = 0
     self.accelTime = nil
     -- Roll Degrees
@@ -171,25 +176,28 @@ function STEC(core, control, Cd)
     self.verticalCruise = false
     --Vertical Cruise Speed (for elevator stuff)
     self.verticalCruiseSpeed = 0
+
+    self.hoverUp = false
+    self.hoverDown = false
 	
-    local lastUpdate = system.getTime()
+    local lastUpdate = system.getArkTime()
 
     function self.updateWorld()
         self.world = {
-            up = vec3(core.getConstructWorldOrientationUp()),
-            down = -vec3(core.getConstructWorldOrientationUp()),
-            left = -vec3(core.getConstructWorldOrientationRight()),
-            right = vec3(core.getConstructWorldOrientationRight()),
-            forward = vec3(core.getConstructWorldOrientationForward()),
-            back = -vec3(core.getConstructWorldOrientationForward()),
-            velocity = vec3(core.getWorldVelocity()),
-            acceleration = vec3(core.getWorldAcceleration()),
-            position = vec3(core.getConstructWorldPos()),
+            up = vec3(construct.getWorldOrientationUp()),
+            down = -vec3(construct.getWorldOrientationUp()),
+            left = -vec3(construct.getWorldOrientationRight()),
+            right = vec3(construct.getWorldOrientationRight()),
+            forward = vec3(construct.getWorldOrientationForward()),
+            back = -vec3(construct.getWorldOrientationForward()),
+            velocity = vec3(construct.getWorldVelocity()),
+            acceleration = vec3(construct.getWorldAcceleration()),
+            position = vec3(construct.getWorldPosition()),
             gravity = vec3(core.getWorldGravity()),
             vertical = vec3(core.getWorldVertical()),
             atmosphericDensity = control.getAtmosphereDensity(),
             nearPlanet = unit.getClosestPlanetInfluence() > 0,
-            atlasAltitude = self.nearestPlanet:getAltitude(core.getConstructWorldPos())
+            atlasAltitude = self.nearestPlanet:getAltitude(construct.getWorldPosition())
         }
         if self.flippedCore then
             self.world.up = -self.world.up
@@ -197,31 +205,31 @@ function STEC(core, control, Cd)
             self.world.left = -self.world.left
             self.world.right = -self.world.right
         end
-        self.nearestPlanet = helios:closestBody(core.getConstructWorldPos())
+        self.nearestPlanet = helios:closestBody(construct.getWorldPosition())
 	   -- Roll Degrees
         self.rollDegrees = self.world.vertical:angle_between(self.world.left) / math.pi * 180 - 90
         if self.world.vertical:dot(self.world.up) > 0 then self.rollDegrees = 180 - self.rollDegrees end
         -- Pitch
         self.pitchRatio = self.world.vertical:angle_between(self.world.forward) / math.pi - 0.5
         
-        self.AngularVelocity = vec3(core.getWorldAngularVelocity())
-        self.AngularAcceleration = vec3(core.getWorldAngularAcceleration())
-        self.AngularAirFriction = vec3(core.getWorldAirFrictionAngularAcceleration())
+        self.AngularVelocity = vec3(construct.getWorldAngularVelocity())
+        self.AngularAcceleration = vec3(construct.getWorldAngularAcceleration())
+        self.AngularAirFriction = vec3(construct.getWorldAirFrictionAngularAcceleration())
 
-	    self.airFriction = vec3(core.getWorldAirFrictionAcceleration())
-        self.atmosphereThreshold = helios:closestBody(core.getConstructWorldPos()).noAtmosphericDensityAltitude
-        self.mass = self.core.getConstructMass()
+	    self.airFriction = vec3(construct.getWorldAirFrictionAcceleration())
+        self.atmosphereThreshold = helios:closestBody(construct.getWorldPosition()).noAtmosphericDensityAltitude
+        self.mass = self.construct.getMass()
         --self.altitude = self.core.getAltitude()
-        self.altitude = helios:closestBody(core.getConstructWorldPos()):getAltitude(core.getConstructWorldPos())
-        self.localVelocity = vec3(core.getVelocity())
-        self.maxBrake = jdecode(unit.getData()).maxBrake
-        local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
-        local vMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
+        self.altitude = helios:closestBody(construct.getWorldPosition()):getAltitude(construct.getWorldPosition())
+        self.localVelocity = vec3(construct.getVelocity())
+        self.maxBrake = jdecode(unit.getWidgetData()).maxBrake
+        local fMax = construct.getMaxThrustAlongAxis("all", {vec3(0,1,0):unpack()})
+        local vMax = construct.getMaxThrustAlongAxis("all", {vec3(0,0,1):unpack()})
         --system.print("vMax[1]: "..round2(vMax[1],0))
         --system.print("vMax[2]: "..round2(vMax[2],0))
         --system.print("vMax[3]: "..round2(vMax[3],0))
         --system.print("vMax[4]: "..round2(vMax[4],0))
-        local hMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(1,0,0):unpack()})
+        local hMax = construct.getMaxThrustAlongAxis("all", {vec3(1,0,0):unpack()})
         if self.world.atmosphericDensity > 0.1 then
             self.fMax = math.max(fMax[1], -fMax[2])
         else
@@ -238,12 +246,12 @@ function STEC(core, control, Cd)
             self.hMax = math.max(hMax[3], -hMax[4])
         end
         --system.print(self.world.velocity:dot(-self.world.gravity:normalize()))
-        local gravN = self.mass * core.g()
+        local gravN = self.mass * core.getGravityIntensity()
         local correctedThrust = self.vMax
         local correctedBrake = self.maxBrake
         local sign = 1
 
-        if self.maxBrake ~= nil and core.g() >= 1 then
+        if self.maxBrake ~= nil and core.getGravityIntensity() >= 1 then
             if self.world.velocity:dot(-self.world.gravity:normalize()) < 1 then
                 sign = -1
             end
@@ -308,15 +316,15 @@ function STEC(core, control, Cd)
     end
 
     function self.apply()
-        local deltaTime = math.max(system.getTime() - lastUpdate, 0.001) --If delta is below 0.001 then something went wrong in game engine.
+        local deltaTime = math.max(system.getArkTime() - lastUpdate, 0.001) --If delta is below 0.001 then something went wrong in game engine.
         self.updateWorld()
         local tmp = self.thrust
         local atmp = self.angularThrust
         local gravityCorrection = false
-        local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
-        local vMaxUp = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
-        local vMaxDown = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,-1):unpack()})
-        local hMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(1,0,0):unpack()})
+        local fMax = construct.getMaxThrustAlongAxis("all", {vec3(0,1,0):unpack()})
+        local vMaxUp = construct.getMaxThrustAlongAxis("all", {vec3(0,0,1):unpack()})
+        local vMaxDown = construct.getMaxThrustAlongAxis("all", {vec3(0,0,-1):unpack()})
+        local hMax = construct.getMaxThrustAlongAxis("all", {vec3(1,0,0):unpack()})
         if not self.elevatorActive then self.inertialDampening = self.inertialDampeningDesired end
         
         if self.direction.x ~= 0 then
@@ -379,20 +387,24 @@ function STEC(core, control, Cd)
         end
         if self.holdAlt then
             local hoverDist = {}
-            for k, v in ipairs(hovers) do 
-                table.insert(hoverDist,v.distance())
+            for k, v in ipairs(telemeters) do 
+                table.insert(hoverDist,v.raycast().distance)
             end
             self.hoverDistance = math.min(table.unpack(hoverDist))
+            if telemeters ~= nil and not self.followTerrain then
+                self.hoverDistance = telemeters[1].raycast().distance
+            end
+            --system.print(self.hoverDistance)
             local bottomOut = false
             local delta = self.hoverHeight - self.hoverDistance
             if self.hoverDistance < self.hoverHeight * 0.5 and self.hoverDistance > 0 then
-                system.print("BOTTOM OUT: "..self.hoverDistance..", Speed: "..self.world.velocity:len().." m/s")
+                --system.print("BOTTOM OUT: "..self.hoverDistance..", Speed: "..self.world.velocity:len().." m/s")
                 bottomOut = true
             end
             local intensity = self.hoverIntensity * 0.1
             if bottomOut and self.world.velocity:len() > 180 then intensity = 1 end
             if self.hoverDistance > 0 then
-                tmp = tmp - ((self.world.up * delta) * (self.vMax * intensity))
+                tmp = tmp + ((self.world.up * delta) * (self.vMax * intensity))
             end
         end
 
@@ -405,9 +417,9 @@ function STEC(core, control, Cd)
             --else
             --    scale = self.gravityFollowSpeed
             --end
-            local gFollow = (-self.world.up:cross(self.nearestPlanet:getGravity(core.getConstructWorldPos())))
+            local gFollow = (-self.world.up:cross(self.nearestPlanet:getGravity(construct.getWorldPosition())))
             if self.flippedCore then
-                gFollow = (self.world.up:cross(self.nearestPlanet:getGravity(core.getConstructWorldPos())))
+                gFollow = (self.world.up:cross(self.nearestPlanet:getGravity(construct.getWorldPosition())))
             end
             local scale = 1.5
             local smoothing = 6
@@ -428,12 +440,12 @@ function STEC(core, control, Cd)
             local delta = 0
             local smoothing = 6
 
-            local gFollow = (-self.world.up:cross(self.nearestPlanet:getGravity(core.getConstructWorldPos())))
+            local gFollow = (-self.world.up:cross(self.nearestPlanet:getGravity(construct.getWorldPosition())))
 		    if self.flippedCore then
-			    gFollow = (self.world.up:cross(self.nearestPlanet:getGravity(core.getConstructWorldPos())))
+			    gFollow = (self.world.up:cross(self.nearestPlanet:getGravity(construct.getWorldPosition())))
 		    end
-            local frontTelDist = frontTel:distance()
-            local rearTelDist = rearTel:distance()
+            local frontTelDist = frontTel:raycast().distance
+            local rearTelDist = rearTel:raycast().distance
             local intensity = 4
             local grav = ship.world.up:dot(ship.world.gravity)
             if grav < 0 then
@@ -450,7 +462,7 @@ function STEC(core, control, Cd)
             elseif frontTelDist > (self.hoverHeight * 3) or frontTelDist < 0 or rearTelDist < 0 then
                 delta = -0.45
                 --system.print("Big air!"..deltaTime)
-                gFollow = gFollow + ship.world.forward:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()) * (delta)) - ((self.AngularVelocity * (math.abs(delta) * smoothing)) - (self.AngularAirFriction * (math.abs(delta) * smoothing)))
+                gFollow = gFollow + ship.world.forward:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition()) * (delta)) - ((self.AngularVelocity * (math.abs(delta) * smoothing)) - (self.AngularAirFriction * (math.abs(delta) * smoothing)))
                 atmp = atmp + gFollow - ((self.AngularVelocity * smoothing) - (self.AngularAirFriction * smoothing))
                 
             else
@@ -461,14 +473,24 @@ function STEC(core, control, Cd)
             
 
         end
-
+        if self.alternateCM then
+            local speed = (self.cruiseSpeed / 3.6)
+            local dot = self.world.forward:dot(self.airFriction)
+            local modifiedVelocity = (speed - dot)
+            local desired = self.world.forward * modifiedVelocity
+            local delta = (desired - self.world.velocity  - self.world.acceleration)
+            --system.print(tostring(vec3(self.world.acceleration)))
+            tmp = tmp + (delta * self.mass)
+          end
+  
         if self.inertialDampening then
             local currentShipMomentum = self.localVelocity
             local delta = vec3(0,0,0)
             local moveDirection = self.direction or vec3(0,0,0)
-
+            local cruise = false
+            if self.alternateCM and ship.cruiseSpeed ~= 0 then cruise = true end
             if moveDirection.x == 0 then delta.x = currentShipMomentum.x end
-            if moveDirection.y == 0 then delta.y = currentShipMomentum.y end
+            if moveDirection.y == 0 and not cruise then delta.y = currentShipMomentum.y end
             if moveDirection.z == 0 then delta.z = currentShipMomentum.z end
 
             delta = self.localToRelative(delta, self.world.up, self.world.right, self.world.forward)
@@ -510,8 +532,8 @@ function STEC(core, control, Cd)
         
         -- must be applied last
         if self.counterGravity then
-            --tmp = tmp - self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass
-            tmp = tmp - self.world.gravity * self.mass
+            tmp = tmp - self.nearestPlanet:getGravity(construct.getWorldPosition()) * self.mass
+            --tmp = tmp - self.world.gravity * self.mass
         end
 
         if self.verticalLock then
@@ -526,10 +548,10 @@ function STEC(core, control, Cd)
         atmp = atmp - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
         tmp = tmp / self.mass
 
-        if self.controlMode ~= unit.getControlMasterModeId() then
-            self.controlMode = unit.getControlMasterModeId()
-            if unit.getControlMasterModeId() == 0 then self.alternateCM = false end
-            if unit.getControlMasterModeId() == 1 then self.alternateCM = true end
+        if self.controlMode ~= unit.getControlMode() then
+            self.controlMode = unit.getControlMode()
+            if unit.getControlMode() == 0 then self.alternateCM = false end
+            if unit.getControlMode() == 1 then self.alternateCM = true end
         end
 
 
@@ -537,7 +559,7 @@ function STEC(core, control, Cd)
         atmp = vec3(0, 0, 0)
         tmp = vec3(0, 0, 0)
         self.elevatorDestination = vec3(0,0,0)
-        lastUpdate = system.getTime()
+        lastUpdate = system.getArkTime()
     end
 
     return self
