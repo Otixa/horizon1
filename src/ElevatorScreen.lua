@@ -1,6 +1,5 @@
 --@class ElevatorScreen
 ElevatorScreen = (function ()
-    if screen then
         local self = {}
 
         function self.updateStats()
@@ -32,6 +31,5 @@ ElevatorScreen = (function ()
             ioScheduler.queueData(fuelSpace)
         end
         screen.clearScriptOutput()
-    end
     return self
 end)()
