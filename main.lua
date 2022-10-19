@@ -23,7 +23,7 @@ function Unit.onStart()
 	Events.Flush.Add(mouse.apply)
 	Events.Flush.Add(ship.apply)
 	Events.Update.Add(SHUD.Update)
-	manualSwitches[1].activate()
+	--manualSwitches[1].activate()
 	system.print([[Horizon 1.0.1.5]])
 end
 

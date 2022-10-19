@@ -119,7 +119,7 @@ Task(function()
 end)
 
 
-player.freeze(1)
+--player.freeze(1)
 ship.frozen = false
 --ship.throttle = 0
 

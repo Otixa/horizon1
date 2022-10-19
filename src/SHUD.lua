@@ -3,7 +3,7 @@ vec2 = require('cpml/vec2')
 mat4 = require("cpml/mat4")
 local json = require("dkjson") -- For AGG
 local format = string.format
-
+system.print("SHUD LOAD")
 function round2(num, numDecimalPlaces)
     if num ~= nil then
     return tonumber(string.format("%." .. (numDecimalPlaces or 0) .. "f", num))
@@ -271,6 +271,7 @@ SHUD =
             _ENV["_SHUDBUFFER"] = esc(buffer)
         else
             if player.isFrozen() == 0 then ship.frozen = true else ship.frozen = false end
+            
             _ENV["_SHUDBUFFER"] = DD([[<div class="item helpText">Press ]] .. "[" .. self.system.getActionKeyName("gear") .. "]" .. [[ to  toggle menu</div>
                     <div class="item helpText"><span>Character Movement:</span>]].. self.MakeBooleanIndicator("ship.frozen") .. [[</div>
                     <div class="item helpText"><span>Vertical Lock:</span>]].. self.MakeBooleanIndicator("ship.verticalLock") .. [[</div>
@@ -280,7 +281,8 @@ SHUD =
                     <div class="item helpText"><span>Control Mode:</span><span class="right">{{getControlMode()}}</span></div>
                     ]]).Read()
         end
-        if not self.FreezeUpdate then self.system.setScreen(template.Read()) end
+        --if not self.FreezeUpdate then self.system.setScreen(template.Read()) system.print("TEMPLATE.READ") end
+        self.system.setScreen(template.Read())
     end
 
     function self.Update()
@@ -305,7 +307,8 @@ SHUD =
         
     
 			end
-        self.UpdateMarkers()
+        --self.UpdateMarkers()
+        self.Render()
 		end
 
 end
