@@ -19,7 +19,7 @@ local System = _G.BuildSystem
 
 local disableFFOnStop = false --export: Deactivate force fields on stop?
 
-function Unit.Start()
+function Unit.onStart()
 	Events.Flush.Add(mouse.apply)
 	Events.Flush.Add(ship.apply)
 	Events.Update.Add(SHUD.Update)
@@ -27,7 +27,7 @@ function Unit.Start()
 	system.print([[Horizon 1.0.1.5]])
 end
 
-function Unit.Stop()
+function Unit.onStop()
 	system.showScreen(0)
 	if disableFFOnStop then manualSwitches[1].deactivate() end
 end
@@ -49,10 +49,10 @@ end
 function System.ActionLoop(action)
 end
 
-function System.Update()
+function System.onUpdate()
 	if Events then Events.Update() end
 end
 
-function System.Flush()
+function System.onFlush()
 	if Events then Events.Flush() end
 end

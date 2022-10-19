@@ -41,7 +41,7 @@ keybindPresets["keyboard"].Init = function()
     mouse.unlock()
     ship.ignoreVerticalThrottle = true
     ship.throttle = 1
-    system.freeze = 1
+    player.freeze = 1
 end
 
 
@@ -78,13 +78,13 @@ keybindPresets["keyboard"].keyUp.stopengines.Add(function () SHUD.Select() if no
 
 keybindPresets["keyboard"].keyUp.gear.Add(function () SHUD.Enabled = not SHUD.Enabled end)
 keybindPresets["keyboard"].keyUp["option1"].Add(function () ship.inertialDampening = not ship.inertialDampening end, "Inertial Dampening")
-keybindPresets["keyboard"].keyUp["option2"].Add(function () system.freeze( math.abs(1 - system.isFrozen())) end,"Freeze character")
+keybindPresets["keyboard"].keyUp["option2"].Add(function () system.freeze( math.abs(1 - player.isFrozen())) end,"Freeze character")
 keybindPresets["keyboard"].keyUp["option3"].Add(function () ship.followGravity = not ship.followGravity end, "Gravity Follow")
 keybindPresets["keyboard"].keyUp["option4"].Add(function () ship.counterGravity = not ship.counterGravity end, "Counter Gravity")
 keybindPresets["keyboard"].keyUp["option5"].Add(function ()
     ship.verticalLock = true
-    ship.lockVector = vec3(core.getConstructWorldOrientationUp())
-    ship.lockPos = vec3(core.getConstructWorldPos()) + (vec3(core.getConstructWorldOrientationUp()) * 1.235)
+    ship.lockVector = vec3(construct.getWorldOrientationUp())
+    ship.lockPos = vec3(construct.getWorldPosition()) + (vec3(construct.getWorldOrientationUp()) * 1.235)
     if flightModeDb ~= nil then
         flightModeDb.setFloatValue("lockVectorX",ship.lockVector.x)
         flightModeDb.setFloatValue("lockVectorY",ship.lockVector.y)
@@ -110,8 +110,8 @@ SHUD.Init(system, unit, keybindPresets[keybindPreset])
 Task(function()
     coroutine.yield()
     SHUD.FreezeUpdate = true
-    local endTime = system.getTime() + 2
-    while system.getTime() < endTime do
+    local endTime = system.getArkTime() + 2
+    while system.getArkTime() < endTime do
             coroutine.yield()
     end
     SHUD.FreezeUpdate = false
@@ -119,7 +119,7 @@ Task(function()
 end)
 
 
-system.freeze(1)
+player.freeze(1)
 ship.frozen = false
 --ship.throttle = 0
 

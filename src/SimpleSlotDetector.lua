@@ -8,8 +8,8 @@ manualSwitches = {}
 
 function getElements()
   for k,var in pairs(_G) do
-    if type(var) == "table" and var["getElementClass"] then
-      local class = var["getElementClass"]()
+    if type(var) == "table" and var["getClass"] then
+      local class = var["getClass"]()
 
       if class == "CoreUnitDynamic" or class == "CoreUnitStatic" or class == "CoreUnitSpace" then
         core = var

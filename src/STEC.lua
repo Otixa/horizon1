@@ -18,17 +18,18 @@
 function STEC(core, control, Cd)
     local self = {}
     self.core = core
+    self.construct = construct
     self.control = control
     self.world = {
-        up = vec3(core.getConstructWorldOrientationUp()),
-        down = -vec3(core.getConstructWorldOrientationUp()),
-        left = -vec3(core.getConstructWorldOrientationRight()),
-        right = vec3(core.getConstructWorldOrientationRight()),
-        forward = vec3(core.getConstructWorldOrientationForward()),
-        back = -vec3(core.getConstructWorldOrientationForward()),
-        velocity = vec3(core.getWorldVelocity()),
-        acceleration = vec3(core.getWorldAcceleration()),
-        position = vec3(core.getConstructWorldPos()),
+        up = vec3(construct.getWorldOrientationUp()),
+        down = -vec3(construct.getWorldOrientationUp()),
+        left = -vec3(construct.getWorldOrientationRight()),
+        right = vec3(construct.getWorldOrientationRight()),
+        forward = vec3(construct.getWorldOrientationForward()),
+        back = -vec3(construct.getWorldOrientationForward()),
+        velocity = vec3(construct.getWorldVelocity()),
+        acceleration = vec3(construct.getWorldAcceleration()),
+        position = vec3(construct.getWorldPosition()),
         gravity = vec3(core.getWorldGravity()),
         vertical = vec3(core.getWorldVertical()),
         atmosphericDensity = control.getAtmosphereDensity(),
@@ -43,9 +44,9 @@ function STEC(core, control, Cd)
         antinormal = function() return self.world.velocity:normalize():cross(-self.world.gravity:normalize()):normalize() end,
     }
     -- Construct id
-    self.id = core.getConstructId()
+    self.id = construct.getId()
     -- Control Mode - Travel (0) or Cruise (1)
-    self.controlMode = unit.getControlMasterModeId()
+    self.controlMode = unit.getControlMode()
     -- Alternate Control Mode for remote control
     self.alternateCM = false
     -- Active engine tags
@@ -60,7 +61,7 @@ function STEC(core, control, Cd)
     -- Current altitude
     self.altitude = 0
     -- Current mass of the vessel, in kilograms
-    self.mass = self.core.getConstructMass()
+    self.mass = self.construct.getMass()
     -- Amount of thrust to apply in world space, in Newton. Stacks with {{direction}}
     self.thrust = vec3(0, 0, 0)
     -- Amount of thrust to apply in local space, in percentage of fMax 0-1
@@ -102,26 +103,26 @@ function STEC(core, control, Cd)
     -- Whether or not to ignore throttle for vertical thrust calculations
     self.ignoreVerticalThrottle = false
     -- Local velocity
-    self.localVelocity = vec3(core.getVelocity())
+    self.localVelocity = vec3(construct.getVelocity())
     -- Roll Degrees
     self.rollDegrees = self.world.vertical:angle_between(self.world.left) / math.pi * 180 - 90
     if self.world.vertical:dot(self.world.up) > 0 then self.rollDegrees = 180 - self.rollDegrees end
     -- Pitch
     self.pitchRatio = self.world.vertical:angle_between(self.world.forward) / math.pi - 0.5
 
-    local lastUpdate = system.getTime()
+    local lastUpdate = system.getArkTime()
 
     function self.updateWorld()
         self.world = {
-            up = vec3(core.getConstructWorldOrientationUp()),
-            down = -vec3(core.getConstructWorldOrientationUp()),
-            left = -vec3(core.getConstructWorldOrientationRight()),
-            right = vec3(core.getConstructWorldOrientationRight()),
-            forward = vec3(core.getConstructWorldOrientationForward()),
-            back = -vec3(core.getConstructWorldOrientationForward()),
-            velocity = vec3(core.getWorldVelocity()),
-            acceleration = vec3(core.getWorldAcceleration()),
-            position = vec3(core.getConstructWorldPos()),
+            up = vec3(construct.getWorldOrientationUp()),
+            down = -vec3(construct.getWorldOrientationUp()),
+            left = -vec3(construct.getWorldOrientationRight()),
+            right = vec3(construct.getWorldOrientationRight()),
+            forward = vec3(construct.getWorldOrientationForward()),
+            back = -vec3(construct.getWorldOrientationForward()),
+            velocity = vec3(construct.getWorldVelocity()),
+            acceleration = vec3(construct.getWorldAcceleration()),
+            position = vec3(construct.getWorldPosition()),
             gravity = vec3(core.getWorldGravity()),
             vertical = vec3(core.getWorldVertical()),
             atmosphericDensity = control.getAtmosphereDensity(),
@@ -133,16 +134,16 @@ function STEC(core, control, Cd)
         -- Pitch
         self.pitchRatio = self.world.vertical:angle_between(self.world.forward) / math.pi - 0.5
 
-        self.AngularVelocity = vec3(core.getWorldAngularVelocity())
-        self.AngularAcceleration = vec3(core.getWorldAngularAcceleration())
-        self.AngularAirFriction = vec3(core.getWorldAirFrictionAngularAcceleration())
+        self.AngularVelocity = vec3(construct.getWorldAngularVelocity())
+        self.AngularAcceleration = vec3(construct.getWorldAngularAcceleration())
+        self.AngularAirFriction = vec3(construct.getWorldAirFrictionAngularAcceleration())
 
-	   self.airFriction = vec3(core.getWorldAirFrictionAcceleration())
+	   self.airFriction = vec3(construct.getWorldAirFrictionAcceleration())
 
-        self.mass = self.core.getConstructMass()
+        self.mass = self.construct.getMass()
         self.altitude = self.core.getAltitude()
-        self.localVelocity = vec3(core.getVelocity())
-        local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
+        self.localVelocity = vec3(construct.getVelocity())
+        local fMax = construct.getMaxThrustAlongAxis("all", {vec3(0,1,0):unpack()})
         if self.world.atmosphericDensity > 0.1 then --Temporary hack. Needs proper transition.
             self.fMax = math.max(fMax[1], -fMax[2])
         else
@@ -193,7 +194,7 @@ function STEC(core, control, Cd)
     end
 
     function self.apply()
-        local deltaTime = math.max(system.getTime() - lastUpdate, 0.001) --If delta is below 0.001 then something went wrong in game engine.
+        local deltaTime = math.max(system.getArkTime() - lastUpdate, 0.001) --If delta is below 0.001 then something went wrong in game engine.
         self.updateWorld()
         local tmp = self.thrust
         local atmp = self.angularThrust
@@ -339,17 +340,17 @@ function STEC(core, control, Cd)
 
         atmp = atmp - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
         tmp = tmp / self.mass
-        if self.controlMode ~= unit.getControlMasterModeId() then
-            self.controlMode = unit.getControlMasterModeId()
-            if unit.getControlMasterModeId() == 0 then self.alternateCM = false end
-            if unit.getControlMasterModeId() == 1 then self.alternateCM = true end
+        if self.controlMode ~= unit.getControlMode() then
+            self.controlMode = unit.getControlMode()
+            if unit.getControlMode() == 0 then self.alternateCM = false end
+            if unit.getControlMode() == 1 then self.alternateCM = true end
         end
         
 
         self.control.setEngineCommand(tostring(self.tags), {tmp:unpack()}, {atmp:unpack()})
         atmp = vec3(0, 0, 0)
         tmp = vec3(0, 0, 0)
-        lastUpdate = system.getTime()
+        lastUpdate = system.getArkTime()
     end
 
     return self
