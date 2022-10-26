@@ -443,10 +443,9 @@ if not DeviationInd then
                 box_y = box_y - utils.clamp((stats.data.deviationVec.y * 20),-58,58)
                 
                 --Triangle color
-                --logMessage(tostring(vec3(stats.data.deviationRot)))
-                tri_g = 1.0 - utils.map(utils.clamp(math.abs(stats.data.deviationRot.z), 0, 1.5),0,1.5,0,1)
-                tri_r = 0.0 + utils.map(utils.clamp(math.abs(stats.data.deviationRot.z), 0, 1.5),0,1.5,0,1)
-                degrees = utils.map(-stats.data.deviationRot.z,-9.9,9.9,90,-90)
+                tri_g = 1.0 - utils.map(utils.clamp(math.abs(stats.data.deviationRot.x), 0, 0.1),0,0.1,0,1)
+                tri_r = 0.0 + utils.map(utils.clamp(math.abs(stats.data.deviationRot.x), 0, 0.1),0,0.1,0,1)
+                degrees = utils.map(-stats.data.deviationRot.x,-0.270,0.270,-90,90)
             end
         end
         setNextFillColor(statsLayer, box_r, box_g, box_b, 1)
@@ -607,15 +606,18 @@ if stats.data then
         table.insert(statsDraw,StatsLine('Target Distance',mToKm(stats.data.target_dist,0.001),585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
         table.insert(statsDraw,StatsLine('Brake Distance',mToKm(stats.data.brake_dist),585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
         table.insert(statsDraw,StatsLine('Deviation',utils.round(stats.data.deviation,0.00001)..' m',585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
+        
 end
 
 local fgAtmo = {}
 local fgSpace = {}
+local topY = 130
 if fuelAtmo.tanks ~= nil and #fuelAtmo.tanks > 0 then
     local aSpacing = 200
+
     if #fuelAtmo.tanks <= 11 then
         for k,v in pairs(fuelAtmo.tanks) do
-            local fg = FuelGauge("", rx/1.8+100, 115 + aSpacing, "atmo", v.tm, v.pct,false)
+            local fg = FuelGauge("", rx/1.8+100, topY + aSpacing, "atmo", v.tm, v.pct,false)
             table.insert( fgAtmo, fg )
             aSpacing = aSpacing + 22
         end
@@ -624,11 +626,11 @@ if fuelAtmo.tanks ~= nil and #fuelAtmo.tanks > 0 then
         local rSpacing = aSpacing
         for i = 1, #fuelAtmo.tanks, 1 do
             if i <= 10 then
-                local fg = FuelGauge("", rx/1.8 + 50, 115 + lSpacing, "atmo", fuelAtmo.tanks[i].tm, fuelAtmo.tanks[i].pct,true,smallFuelFont)
+                local fg = FuelGauge("", rx/1.8 + 50, topY + lSpacing, "atmo", fuelAtmo.tanks[i].tm, fuelAtmo.tanks[i].pct,true,smallFuelFont)
                 table.insert( fgAtmo, fg )
                 lSpacing = lSpacing + 22
             else
-                local fg = FuelGauge("", rx/1.8 + 155, 115 + rSpacing, "atmo", fuelAtmo.tanks[i].tm, fuelAtmo.tanks[i].pct,true,smallFuelFont)
+                local fg = FuelGauge("", rx/1.8 + 155, topY + rSpacing, "atmo", fuelAtmo.tanks[i].tm, fuelAtmo.tanks[i].pct,true,smallFuelFont)
                 table.insert( fgAtmo, fg )
                 rSpacing = rSpacing + 22
             end
@@ -640,7 +642,7 @@ if fuelSpace.tanks ~= nil and #fuelSpace.tanks > 0 then
     if #fuelSpace.tanks < 10 then
             local sSpacing = 200
         	for k,v in spairs(fuelSpace.tanks) do
-                local fg = FuelGauge("", rx/1.8+315, 115 + sSpacing, "space", v.tm, v.pct)
+                local fg = FuelGauge("", rx/1.8+315, topY + sSpacing, "space", v.tm, v.pct)
                 table.insert( fgSpace, fg )
                 sSpacing = sSpacing + 22
             end

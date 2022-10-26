@@ -9,18 +9,18 @@ altHoldPreset4 = 2 --export: Altitude Hold Preset 4
 deviationThreshold = 0.5 --export: Deviation tolerace in m
 inertialDampening = true --export: Start with inertial dampening on/off
 followGravity = true --export: Start with gravity follow on/off
-minRotationSpeed = 0.01 --export: Minimum speed rotation scales from
+minRotationSpeed = 0.1 --export: Minimum speed rotation scales from
 maxRotationSpeed = 5 --export: Maximum speed rotation scales to
-rotationStep = 0.03 --export: Depermines how quickly rotation scales up
+rotationStep = 0.3 --export: Depermines how quickly rotation scales up
 verticalSpeedLimitAtmo = 1100 --export: Vertical speed limit in atmosphere
 verticalSpeedLimitSpace = 4000 --export: Vertical limit in space
 approachSpeed = 200 --export: Max final approach speed
 autoShutdown = true --export: Auto shutoff on RTB landing
 breadCrumbDist = 1000 --export: Distance of vector breadcrumbs for elevator control
-ContainerOptimization = 5 --export: Container ContainerOptimization
-FuelTankOptimization = 5 --export: Fuel Tank FuelTankOptimization
-fuelTankHandlingAtmo = 5 --export: Fuel Tank Handling Atmo
-fuelTankHandlingSpace = 5 --export: Fuel Tank Handling Space
+ContainerOptimization = 0 --export: Container ContainerOptimization
+FuelTankOptimization = 0 --export: Fuel Tank FuelTankOptimization
+fuelTankHandlingAtmo = 0 --export: Fuel Tank Handling Atmo
+fuelTankHandlingSpace = 0 --export: Fuel Tank Handling Space
 
 primaryColor = "b80000" --export: Primary color of HUD
 secondaryColor = "e30000" --export: Secondary color of HUD
@@ -30,7 +30,7 @@ fuelFontSize = 1.8 --export: Fuel Gauge Font Size
 
 
 showDockingWidget = true --export: Show Docking Widget
-dockingMode = 0 --export: Set docking mode (0:Manual, 1:Automatic, 2:Semi-Automatic)
+dockingMode = 2 --export: Set docking mode (1:Manual, 2:Automatic, 3:Semi-Automatic)
 setBaseOnStart = false --export: Set RTB location on start
 useGEAS = false --export:
 GEAS_Alt = 10 --export:

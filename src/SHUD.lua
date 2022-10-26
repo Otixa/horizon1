@@ -264,7 +264,6 @@ SHUD =
 
         self.SHUDFuelHtml = fuelHtml
     end
-
     
     opacity = 1.0
     local template = DD(fa..[[
@@ -321,7 +320,10 @@ SHUD =
             </div>
         
             </div>
-            <div id="fuelTanks">{{ SHUD.SHUDFuelHtml }}</div>
+            <div id="fuelTanks">
+            {{ SHUD.SHUDFuelHtml }}
+            
+            </div>
     
     </div>
     
