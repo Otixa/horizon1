@@ -1,8 +1,7 @@
+--@require SimpleSlotDetectorMin
 --@require ExportedVariables
-
 --@require PlanetRef
 --@require KinematicsMin
---@require SimpleSlotDetectorMin
 --@require Serializer
 --@require EventDelegateMin
 --@require TaskManagerMin
@@ -136,7 +135,7 @@ function Unit.Tick(timer)
 	end
 	if timer == "FuelStatus" then
 		getFuelRenderedHtml()
-		elevatorScreen.updateScreenFuel()
+		if elevatorScreen then elevatorScreen.updateScreenFuel() end
 		--ioScheduler.queueData(config)
 		
 	end

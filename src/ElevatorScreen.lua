@@ -30,6 +30,6 @@ ElevatorScreen = (function ()
             ioScheduler.queueData(fuelAtmo)
             ioScheduler.queueData(fuelSpace)
         end
-        screen.clearScriptOutput()
+        if screen then screen.clearScriptOutput() end
     return self
 end)()

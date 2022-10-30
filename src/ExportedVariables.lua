@@ -34,10 +34,28 @@ dockingMode = 0 --export: Set docking mode (0:Manual, 1:Automatic, 2:Semi-Automa
 setBaseOnStart = false --export: Set RTB location on start
 useGEAS = false --export:
 GEAS_Alt = 10 --export:
-activateFFonStart = false --export: Activate force fields on start (connected to button)
-local pocket = false --export: Pocket ship?
+activateFFonStart = false
+setactivateFFonStart = false --export: Activate force fields on start (connected to button)
+pocket = false
+setpocket = false --export: Pocket ship?
 mouseSensitivity = 1 --export: Enter your mouse sensativity setting
 enableARReticle = false --export: Enable AR reticle
 
 
 --charMovement = true --export: Enable/Disable Character Movement
+bool_to_number={ [true]=1, [false]=0 }
+number_to_bool={ [1]=true, [0]=false }
+  
+if flightModeDb.hasKey("activateFFonStart") == 0 or updateSettings then 
+    flightModeDb.setIntValue("activateFFonStart", bool_to_number[setactivateFFonStart])
+    activateFFonStart = setactivateFFonStart
+else activateFFonStart = number_to_bool[flightModeDb.getIntValue("activateFFonStart")] end
+
+
+
+if flightModeDb.hasKey("pocket") == 0 or updateSettings then 
+    flightModeDb.setIntValue("pocket", bool_to_number[setpocket])
+    pocket = setpocket
+else pocket = number_to_bool[flightModeDb.getIntValue("pocket")] end
+
+system.print("pocket: "..number_to_bool[flightModeDb.getIntValue("pocket")])

@@ -333,7 +333,8 @@ function STEC(core, control, Cd)
 
             if self.direction.x < 0 and math.abs(round2(hMax[2],0)) < 500 then
                 gravityCorrection = true
-                tmp = tmp + ((((self.world.right * self.direction.x) + gravCorrection):normalize() * self.mass * self.fMax) * self.throttle)
+                --tmp = tmp + ((((self.world.right * self.direction.x) + gravCorrection):normalize() * self.mass * self.fMax) * self.throttle)
+                tmp = tmp + ((((self.world.right * self.direction.x) + gravCorrection):normalize() * self.fMax) * self.throttle)
             elseif self.direction.x > 0 and math.abs(round2(hMax[1],0)) < 500 then
                 gravityCorrection = true
                 tmp = tmp + ((((self.world.right * self.direction.x) + gravCorrection):normalize() * self.fMax) * self.throttle)
