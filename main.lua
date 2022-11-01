@@ -52,6 +52,7 @@ function Unit.onStart()
 		manualControlSwitch()
 	end
 	if screen ~= nil then elevatorScreen = ElevatorScreen end
+	if system.showHelper then system.showHelper(0) end
 	system.print("ElevatorScreen: "..tostring(elevatorScreen))
 	local sName = ""
 	local coreMass = core.getMass()
