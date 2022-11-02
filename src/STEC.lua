@@ -40,9 +40,9 @@ function round(val, decimal)
 end
 
 function getBrakingInfo()
-    local curVelMs = vec3(core.getWorldVelocity()):len()
-    local cMass = core.getConstructMass()
-    local brakingForce = getJsonNum(unit.getData(), "maxBrake")
+    local curVelMs = vec3(construct.getWorldVelocity()):len()
+    local cMass = construct.getMass()
+    local brakingForce = getJsonNum(unit.getWidgetData(), "maxBrake")
     local brakeInfo = {}
     if brakingForce == 0 then
         brakeInfo.time = "BF: 0"
@@ -77,54 +77,55 @@ end
 function STEC(core, control, Cd)
     local self = {}
     self.core = core
-    self.constructMaxSpeed = core.getMaxSpeed() * 3.6
+    self.construct = construct
+    self.constructMaxSpeed = construct.getMaxSpeed() * 3.6
     self.control = control
-    self.nearestPlanet = helios:closestBody(core.getConstructWorldPos())
+    self.nearestPlanet = helios:closestBody(construct.getWorldPosition())
     self.world = {
-        up = vec3(core.getConstructWorldOrientationUp()),
-        down = -vec3(core.getConstructWorldOrientationUp()),
-        left = -vec3(core.getConstructWorldOrientationRight()),
-        right = vec3(core.getConstructWorldOrientationRight()),
-        forward = vec3(core.getConstructWorldOrientationForward()),
-        back = -vec3(core.getConstructWorldOrientationForward()),
-        velocity = vec3(core.getWorldVelocity()),
-        acceleration = vec3(core.getWorldAcceleration()),
-        position = vec3(core.getConstructWorldPos()),
+        up = vec3(construct.getWorldOrientationUp()),
+        down = -vec3(construct.getWorldOrientationUp()),
+        left = -vec3(construct.getWorldOrientationRight()),
+        right = vec3(construct.getWorldOrientationRight()),
+        forward = vec3(construct.getWorldOrientationForward()),
+        back = -vec3(construct.getWorldOrientationForward()),
+        velocity = vec3(construct.getWorldVelocity()),
+        acceleration = vec3(construct.getWorldAcceleration()),
+        position = vec3(construct.getWorldPosition()),
         gravity = vec3(core.getWorldGravity()),
         vertical = vec3(core.getWorldVertical()),
         atmosphericDensity = control.getAtmosphereDensity(),
         nearPlanet = unit.getClosestPlanetInfluence() > 0,
-        atlasAltitude = self.nearestPlanet:getAltitude(core.getConstructWorldPos()),
-        --nearestPlanetGravity = vec3(self.nearestPlanet.getGravity(core.getConstructWorldPos()))
+        atlasAltitude = self.nearestPlanet:getAltitude(construct.getWorldPosition()),
+        --nearestPlanetGravity = vec3(self.nearestPlanet.getGravity(construct.getWorldPosition()))
 
     }
     self.target = {
         prograde = function() return self.world.velocity:normalize() end,
         retrograde = function() return -self.world.velocity:normalize() end,
-        radial = function() return self.nearestPlanet:getGravity(core.getConstructWorldPos()):normalize() end,
-        antiradial = function() return -self.nearestPlanet:getGravity(core.getConstructWorldPos()):normalize() end,
+        radial = function() return self.nearestPlanet:getGravity(construct.getWorldPosition()):normalize() end,
+        antiradial = function() return -self.nearestPlanet:getGravity(construct.getWorldPosition()):normalize() end,
         normal = function() return self.world.velocity:cross(self.world.right):normalize() end,
         antinormal = function() return self.world.velocity:cross(self.world.left):normalize() end,
     }
     self.planets = {
-        sancuary = function() return helios[26]:getGravity(core.getConstructWorldPos()):normalize() end,
-        madis = function() return helios[1]:getGravity(core.getConstructWorldPos()):normalize() end,
-        thades = function() return helios[3]:getGravity(core.getConstructWorldPos()):normalize() end,
-        alioth = function() return helios[2]:getGravity(core.getConstructWorldPos()):normalize() end,
-        feli = function() return helios[5]:getGravity(core.getConstructWorldPos()):normalize() end,
-        ion = function() return helios[120]:getGravity(core.getConstructWorldPos()):normalize() end,
-        jago = function() return helios[9]:getGravity(core.getConstructWorldPos()):normalize() end,
-        lacobus = function() return helios[100]:getGravity(core.getConstructWorldPos()):normalize() end,
-        sicari = function() return helios[6]:getGravity(core.getConstructWorldPos()):normalize() end,
-        sinnen = function() return helios[7]:getGravity(core.getConstructWorldPos()):normalize() end,
-        symeon = function() return helios[110]:getGravity(core.getConstructWorldPos()):normalize() end,
-        talemai = function() return helios[4]:getGravity(core.getConstructWorldPos()):normalize() end,
-        teoma = function() return helios[8]:getGravity(core.getConstructWorldPos()):normalize() end,
+        sancuary = function() return helios[26]:getGravity(construct.getWorldPosition()):normalize() end,
+        madis = function() return helios[1]:getGravity(construct.getWorldPosition()):normalize() end,
+        thades = function() return helios[3]:getGravity(construct.getWorldPosition()):normalize() end,
+        alioth = function() return helios[2]:getGravity(construct.getWorldPosition()):normalize() end,
+        feli = function() return helios[5]:getGravity(construct.getWorldPosition()):normalize() end,
+        ion = function() return helios[120]:getGravity(construct.getWorldPosition()):normalize() end,
+        jago = function() return helios[9]:getGravity(construct.getWorldPosition()):normalize() end,
+        lacobus = function() return helios[100]:getGravity(construct.getWorldPosition()):normalize() end,
+        sicari = function() return helios[6]:getGravity(construct.getWorldPosition()):normalize() end,
+        sinnen = function() return helios[7]:getGravity(construct.getWorldPosition()):normalize() end,
+        symeon = function() return helios[110]:getGravity(construct.getWorldPosition()):normalize() end,
+        talemai = function() return helios[4]:getGravity(construct.getWorldPosition()):normalize() end,
+        teoma = function() return helios[8]:getGravity(construct.getWorldPosition()):normalize() end,
     }
     -- Construct id
-    self.id = core.getConstructId()
+    self.id = construct.getId()
     -- Control Mode - Travel (0) or Cruise (1)
-    self.controlMode = unit.getControlMasterModeId()
+    self.controlMode = unit.getControlMode()
     -- Alternate Control Mode for remote control
     self.alternateCM = false
     -- Placeholder for throttle value when switching control modes
@@ -142,7 +143,7 @@ function STEC(core, control, Cd)
     -- Current altitude
     self.altitude = 0
     -- Current mass of the vessel, in kilograms
-    self.mass = self.core.getConstructMass()
+    self.mass = self.construct.getMass()
     -- Amount of thrust to apply in world space, in Newton. Stacks with {{direction}}
     self.thrust = vec3(0, 0, 0)
     -- Amount of thrust to apply in local space, in percentage of fMax 0-1
@@ -185,7 +186,7 @@ function STEC(core, control, Cd)
     -- Whether or not to ignore throttle for horizontal thrust calculations
     self.ignoreHorizontalThrottle = true
     -- Local velocity
-    self.localVelocity = vec3(core.getVelocity())
+    self.localVelocity = vec3(construct.getVelocity())
     -- Roll Degrees
     self.rollDegrees = self.world.vertical:angle_between(self.world.left) / math.pi * 180 - 90
     if self.world.vertical:dot(self.world.up) > 0 then self.rollDegrees = 180 - self.rollDegrees end
@@ -194,7 +195,7 @@ function STEC(core, control, Cd)
     self.vtolPriority = true
     self.disableVtol = false
     self.disabledTags = ""
-    local lastUpdate = system.getTime()
+    local lastUpdate = system.getArkTime()
     self.thrustVec = vec3(0,0,0)
     self.trajectoryDiff = 0
     self.ETA = 0
@@ -207,7 +208,7 @@ function STEC(core, control, Cd)
     self.accelTime = 0
     self.targetDist = 0
     self.inertialMass = 0
-    self.maxBrake = jdecode(unit.getData()).maxBrake
+    self.maxBrake = jdecode(unit.getWidgetData()).maxBrake
     self.debug = vec3(0,0,0)
     self.deviationAngle = 0
     self.stopping = false
@@ -325,40 +326,40 @@ function STEC(core, control, Cd)
 
     function self.updateWorld()
         self.world = {
-            up = vec3(core.getConstructWorldOrientationUp()),
-            down = -vec3(core.getConstructWorldOrientationUp()),
-            left = -vec3(core.getConstructWorldOrientationRight()),
-            right = vec3(core.getConstructWorldOrientationRight()),
-            forward = vec3(core.getConstructWorldOrientationForward()),
-            back = -vec3(core.getConstructWorldOrientationForward()),
-            velocity = vec3(core.getWorldVelocity()),
-            acceleration = vec3(core.getWorldAcceleration()),
-            position = vec3(core.getConstructWorldPos()),
+            up = vec3(construct.getWorldOrientationUp()),
+            down = -vec3(construct.getWorldOrientationUp()),
+            left = -vec3(construct.getWorldOrientationRight()),
+            right = vec3(construct.getWorldOrientationRight()),
+            forward = vec3(construct.getWorldOrientationForward()),
+            back = -vec3(construct.getWorldOrientationForward()),
+            velocity = vec3(construct.getWorldVelocity()),
+            acceleration = vec3(construct.getWorldAcceleration()),
+            position = vec3(construct.getWorldPosition()),
             gravity = vec3(core.getWorldGravity()),
             vertical = vec3(core.getWorldVertical()),
             atmosphericDensity = control.getAtmosphereDensity(),
             nearPlanet = unit.getClosestPlanetInfluence() > 0,
-            atlasAltitude = self.nearestPlanet:getAltitude(core.getConstructWorldPos()),
-            --nearestPlanetGravity = vec3(self.nearestPlanet.getGravity(core.getConstructWorldPos()))
+            atlasAltitude = self.nearestPlanet:getAltitude(construct.getWorldPosition()),
+            --nearestPlanetGravity = vec3(self.nearestPlanet.getGravity(construct.getWorldPosition()))
             
     
         }
-        self.nearestPlanet = helios:closestBody(core.getConstructWorldPos())
+        self.nearestPlanet = helios:closestBody(construct.getWorldPosition())
 	   -- Roll Degrees
         self.rollDegrees = self.world.vertical:angle_between(self.world.left) / math.pi * 180 - 90
         if self.world.vertical:dot(self.world.up) > 0 then self.rollDegrees = 180 - self.rollDegrees end
         -- Pitch
         self.pitchRatio = self.world.vertical:angle_between(self.world.forward) / math.pi - 0.5
         
-        self.AngularVelocity = vec3(core.getWorldAngularVelocity())
-        self.AngularAcceleration = vec3(core.getWorldAngularAcceleration())
-        self.AngularAirFriction = vec3(core.getWorldAirFrictionAngularAcceleration())
+        self.AngularVelocity = vec3(construct.getWorldAngularVelocity())
+        self.AngularAcceleration = vec3(construct.getWorldAngularAcceleration())
+        self.AngularAirFriction = vec3(construct.getWorldAirFrictionAngularAcceleration())
         
-	   self.airFriction = vec3(core.getWorldAirFrictionAcceleration())
+	   self.airFriction = vec3(construct.getWorldAirFrictionAcceleration())
         
-        self.mass = self.core.getConstructMass()
-        self.altitude = self.nearestPlanet:getAltitude(core.getConstructWorldPos())
-        self.localVelocity = vec3(core.getVelocity())
+        self.mass = self.construct.getMass()
+        self.altitude = self.nearestPlanet:getAltitude(construct.getWorldPosition())
+        self.localVelocity = vec3(construct.getVelocity())
 
         if self.vtolPriority then
             self.priorityTags1 = "brake,airfoil,torque,vertical,lateral,longitudinal"
@@ -371,9 +372,9 @@ function STEC(core, control, Cd)
         end
 
 
-        local tkForward = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0, 1, 0):unpack()})
-        local tkUp = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0, 0, 1):unpack()})
-        local tkRight = core.getMaxKinematicsParametersAlongAxis("all", {vec3(1, 0, 0):unpack()})
+        local tkForward = construct.getMaxThrustAlongAxis("all", {vec3(0, 1, 0):unpack()})
+        local tkUp = construct.getMaxThrustAlongAxis("all", {vec3(0, 0, 1):unpack()})
+        local tkRight = construct.getMaxThrustAlongAxis("all", {vec3(1, 0, 0):unpack()})
         
         local tkOffset = 0
         if self.world.atmosphericDensity < 0.1 then
@@ -398,7 +399,7 @@ function STEC(core, control, Cd)
             Right = math.abs(tkRight[1 + tkOffset] + virtualGravityEngine.x),
             Left = math.abs(tkRight[2 + tkOffset] - virtualGravityEngine.x)
         }
-        self.maxBrake = jdecode(unit.getData()).maxBrake
+        self.maxBrake = jdecode(unit.getWidgetData()).maxBrake
         local c = 30000000 / 3600
         local v = self.world.velocity:len()
         local y = 1/math.sqrt(1-((v*v)/(c*c)))
@@ -497,7 +498,7 @@ function STEC(core, control, Cd)
     
 
     function self.apply()
-        local deltaTime = math.max(system.getTime() - lastUpdate, 0.001) --If delta is below 0.001 then something went wrong in game engine.
+        local deltaTime = math.max(system.getArkTime() - lastUpdate, 0.001) --If delta is below 0.001 then something went wrong in game engine.
         self.updateWorld()
         local tmp = self.thrust
         local atmp = self.angularThrust
@@ -554,7 +555,7 @@ function STEC(core, control, Cd)
             end
             --atmp = atmp + (self.world.up:cross(-self.world.vertical) * scale)
             
-            atmp = atmp + ((self.world.up:cross(-self.nearestPlanet:getGravity(core.getConstructWorldPos()))) - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2)))
+            atmp = atmp + ((self.world.up:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition()))) - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2)))
         end
 
 		if self.altitudeHold ~= 0 then
@@ -562,7 +563,7 @@ function STEC(core, control, Cd)
             local waypoint = moveWaypointY(self.altitudeHold, (self.world.velocity:len() * 3) + 50)
             self.targetVector = (waypoint - self.world.position ):normalize()
             atmp = atmp - (self.world.right:cross(self.world.forward:cross(self.world.gravity:normalize())) * self.rotationSpeed * 9) - ((self.AngularVelocity * 3) - (self.AngularAirFriction * 3))
-            --tmp = tmp - ((self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass) * deltaAltitude)
+            --tmp = tmp - ((self.nearestPlanet:getGravity(construct.getWorldPosition()) * self.mass) * deltaAltitude)
         end
         if self.targetVector == nil then self.gotoLock = nil end
         if self.gotoLock ~= nil then
@@ -674,22 +675,22 @@ function STEC(core, control, Cd)
         -- must be applied last
         if self.counterGravity then
             if self.direction.z >= 0 then
-                tmp = tmp - self.nearestPlanet:getGravity(core.getConstructWorldPos()) * self.mass
+                tmp = tmp - self.nearestPlanet:getGravity(construct.getWorldPosition()) * self.mass
             end
         end
 
         atmp = atmp - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
         tmp = tmp / self.mass
 
-        if self.controlMode ~= unit.getControlMasterModeId() then
-            self.controlMode = unit.getControlMasterModeId()
-            if unit.getControlMasterModeId() == 0 then
+        if self.controlMode ~= unit.getControlMode() then
+            self.controlMode = unit.getControlMode()
+            if unit.getControlMode() == 0 then
                 self.tempCruise = self.cruiseSpeed
                 self.cruiseSpeed = 0
                 self.throttle = self.tempThrottle
                 self.alternateCM = false
             end
-            if unit.getControlMasterModeId() == 1 then
+            if unit.getControlMode() == 1 then
                 self.tempThrottle = self.throttle
                 self.throttle = 0
                 --system.print("Velocity = "..tostring(math.round(self.world.velocity:len(), 100)))
@@ -713,7 +714,7 @@ function STEC(core, control, Cd)
         self.thrustVec = self.worldToLocal(tmp)
         atmp = vec3(0, 0, 0)
         tmp = vec3(0, 0, 0)
-        lastUpdate = system.getTime()
+        lastUpdate = system.getArkTime()
     end
 
     return self

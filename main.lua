@@ -29,9 +29,9 @@ function Unit.onStart()
 	Events.Flush.Add(ship.apply)
 	Events.Update.Add(SHUD.Update)
 	if flightModeDb then 
-		if flightModeDb.hasKey("controlMode") == 0 then flightModeDb.setIntValue("controlMode", unit.getControlMasterModeId()) end
+		if flightModeDb.hasKey("controlMode") == 0 then flightModeDb.setIntValue("controlMode", unit.getControlMode()) end
 		local controlMode = flightModeDb.getIntValue("controlMode")
-		if controlMode ~= unit.getControlMasterModeId() then
+		if controlMode ~= unit.getControlMode() then
 			unit.cancelCurrentControlMasterMode()
 		end
 	end
@@ -46,11 +46,11 @@ function Unit.onStart()
 	if showDockingWidget then
 		parentingPanelId = system.createWidgetPanel("Docking")
 		parentingWidgetId = system.createWidget(parentingPanelId,"parenting")
-		system.addDataToWidget(unit.getDataId(),parentingWidgetId)
+		system.addDataToWidget(unit.getWidgetDataId(),parentingWidgetId)
 	end
 	if system.showHelper then system.showHelper(0) end
-	--local fMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,1,0):unpack()})
-	--local vMax = core.getMaxKinematicsParametersAlongAxis("all", {vec3(0,0,1):unpack()})
+	--local fMax = construct.getMaxThrustAlongAxis("all", {vec3(0,1,0):unpack()})
+	--local vMax = construct.getMaxThrustAlongAxis("all", {vec3(0,0,1):unpack()})
 
 	--system.print(string.format( "fMax: %f, %f, %f, %f",fMax[1],fMax[2],fMax[3],fMax[4]))
 	--system.print(string.format( "vMax: %f, %f, %f, %f",vMax[1],vMax[2],vMax[3],vMax[4]))
@@ -70,7 +70,7 @@ function dump(o)
  
 function Unit.onStop()
 	if flightModeDb then
-		flightModeDb.setIntValue("controlMode", unit.getControlMasterModeId())
+		flightModeDb.setIntValue("controlMode", unit.getControlMode())
 	end
 	system.showScreen(0)
 end
@@ -86,7 +86,7 @@ function Unit.Tick(timer)
 	end
 	if timer == "FuelStatus" then
 		getFuelRenderedHtml()
-		--local msa = core.getMaxSpeedPerAxis()
+		--local msa = construct.getMaxSpeedPerAxis()
 		--system.print(dump(msa))
 	end
 	if timer == "KeplerSim" then

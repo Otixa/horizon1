@@ -31,7 +31,7 @@ function softLanding()
         ship.direction.x = 0
         unit.extendLandingGears()
         ship.throttle = 0
-        if unit.getControlMasterModeId() == 1 then 
+        if unit.getControlMode() == 1 then 
             unit.cancelCurrentControlMasterMode()
         end
     else
@@ -112,6 +112,7 @@ function gotoLock(a)
     if a ~= nil then
         if string.find(a, "::pos") ~= nil then
             local target = ship.nearestPlanet:convertToWorldCoordinates(a)
+            --local target = helios:closestBody(a):convertToWorldCoordinates(a)
             system.print(tostring(vec3(target)))
             ship.followGravity = false
             ship.targetVector = (target - ship.world.position):normalize()
@@ -152,7 +153,7 @@ tty.onCommand('goto10su', function()
     gotoLock("::pos{0,0,910554.2500,-951981.0625,1494420.1250}")
 end)
 tty.onCommand('home', function()
-    gotoLock("::pos{0,0,-7579.1226,195924.3281,41557.4922}")
+    gotoLock("::pos{0,2,28.4911,76.0307,132054.2656}")
 end)
 tty.onCommand('madis', function()
     gotoLock("::pos{0,0,17465536.0000,22665536.0000,-34464.0000}")
@@ -208,7 +209,7 @@ keybindPresets["mouse"].keyUp.stopengines.Add(function () SHUD.Select() if not S
 keybindPresets["mouse"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD.Enabled end)
 keybindPresets["mouse"].keyUp.speeddown.Add(function () if mouse.enabled then mouse.unlock() mouse.enabled = false else mouse.lock() mouse.enabled = true end end, "Mouse Steering")
 
-keybindPresets["mouse"].keyDown.lshift.Add(function () system.freeze( math.abs(1 - system.isFrozen())) end,"Freeze character")
+keybindPresets["mouse"].keyDown.lshift.Add(function () player.freeze( math.abs(1 - player.isFrozen())) end,"Freeze character")
 
 keybindPresets["mouse"].keyUp["booster"].Add(function () holdAlt() end, "Altitude Hold")
 keybindPresets["mouse"].keyUp["gear"].Add(function () landing = not landing; softLanding() end, "Toggle Landing Gear")
@@ -254,7 +255,7 @@ keybindPresets["keyboard"].keyUp.stopengines.Add(function () SHUD.Select() if no
 
 keybindPresets["keyboard"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD.Enabled end)
 
-keybindPresets["keyboard"].keyDown.lshift.Add(function () system.freeze( math.abs(1 - system.isFrozen())) end,"Freeze character")
+keybindPresets["keyboard"].keyDown.lshift.Add(function () player.freeze( math.abs(1 - player.isFrozen())) end,"Freeze character")
 
 keybindPresets["keyboard"].keyDown.lshift.Add(function () shiftLock = true end,"Shift Modifier")
 keybindPresets["keyboard"].keyUp.lshift.Add(function () shiftLock = false end)
@@ -290,8 +291,8 @@ SHUD.Init(system, unit, keybindPresets[keybindPreset])
 Task(function()
     coroutine.yield()
     SHUD.FreezeUpdate = true
-    local endTime = system.getTime() + 2
-    while system.getTime() < endTime do
+    local endTime = system.getArkTime() + 2
+    while system.getArkTime() < endTime do
             coroutine.yield()
     end
     SHUD.FreezeUpdate = false
@@ -323,6 +324,6 @@ SHUD.Markers = {
     }
 }
 
-system.freeze(1)
+player.freeze(1)
 ship.frozen = false
 unit.deactivateGroundEngineAltitudeStabilization()

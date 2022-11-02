@@ -31,7 +31,7 @@ function CruiseControl(value)
     elseif ship.cruiseSpeed >= 2000 and ship.cruiseSpeed <= 9999 then appliedCruise = value * 100 
     elseif ship.cruiseSpeed >= 10000 then appliedCruise = value * 1000 end
     
-    local max = core.getMaxSpeed()
+    local max = construct.getMaxSpeed()
     ship.cruiseSpeed = utils.clamp(ship.cruiseSpeed + appliedCruise,-max,max)
 end
 
@@ -87,7 +87,7 @@ SHUD =
     self.Enabled = false
     self.FreezeUpdate = false
     self.IntroPassed = false
-    self.FOV = system.getFov()
+    self.FOV = system.getCameraHorizontalFov()
     self.ScreenW = system.getScreenWidth()
     self.ScreenH = system.getScreenHeight()
     self.Resolution = vec2(self.ScreenW, self.ScreenH)
@@ -166,7 +166,7 @@ SHUD =
         end
 
        function readAGGState()
-          local agjson = antigrav.getData()
+          local agjson = antigrav.getWidgetData()
           local obj, pos, err = json.decode (agjson, 1, nil)
           gvCurrentBaseAltitude = 0
           gvCurrentAntiGPower = 0
@@ -186,9 +186,9 @@ SHUD =
         showAG = false
         function showAGToggle()
            if showAG then
-               antigrav.show()
+               antigrav.showWidget()
            else
-               antigrav.hide()
+               antigrav.hideWidget()
            end  
         end
     end
@@ -424,7 +424,7 @@ SHUD =
             end
             _ENV["_SHUDBUFFER"] = esc(buffer)
         else
-            if system.isFrozen() == 0 then 
+            if player.isFrozen() == 0 then 
                     ship.frozen = true 
             else 
                     ship.frozen = false 
@@ -456,7 +456,7 @@ SHUD =
     function self.Update()
         if unit.isRemoteControlled() == 1 then
 
-            if system.isFrozen() == 1 or self.Enabled then
+            if player.isFrozen() == 1 or self.Enabled then
                 self.Opacity = 1
             else
                 self.Opacity = 0.5
@@ -471,7 +471,7 @@ SHUD =
             end
         elseif not self.Enabled then
             --if ship.controlMode == 0 or not ship.alternateCM then
-            --if system.isFrozen() == 1 then
+            --if player.isFrozen() == 1 then
             local mw = system.getMouseWheel()
             if ship.direction.y == 0 and mw ~= 0 then ship.direction.y = 1 end
             if not ship.alternateCM then
@@ -491,7 +491,7 @@ SHUD =
         self.CurrentIndex = 1
         self.ScrollLock = false
         system.showScreen(1)
-        unit.hide()
+        unit.hideWidget()
         local keys = keybinds.GetNamedKeybinds()
         self.MenuList.hotkeys = {}
         for i=1,#keys do
