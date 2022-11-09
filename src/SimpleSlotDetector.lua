@@ -12,7 +12,7 @@ function getElements()
   for k,var in pairs(_G) do
     if type(var) == "table" and var["getClass"] then
       local class = var["getClass"]()
-
+      system.print(class)
       if class == "CoreUnitDynamic" or class == "CoreUnitStatic" or class == "CoreUnitSpace" then
         core = var
       end
@@ -26,7 +26,7 @@ function getElements()
         var.showWidget()
       end
       
-      if class == "RadarPvPAtmospheric" or class == "RadarPvPSpace" then
+      if class == "RadarPvPAtmospheric" or class == "RadarPVPSpaceSmallGroup" then
         radarUnit = var
         var.showWidget()
       end

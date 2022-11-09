@@ -1,8 +1,5 @@
 --@class FuelTankHelper
-local ContainerOptimization = 5 --export: Container ContainerOptimization
-local FuelTankOptimization = 5 --export: Fuel Tank FuelTankOptimization
-local fuelTankHandlingAtmo = 5 --export: Fuel Tank Handling Atmo
-local fuelTankHandlingSpace = 5 --export: Fuel Tank Handling Space
+
 
 fuelTanks = {}
 FuelMass = {}

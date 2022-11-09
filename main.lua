@@ -1,6 +1,7 @@
+--@require SimpleSlotDetector
+--@require ExportedVariables
 --@require PlanetRef
 --@require Kinematics
---@require SimpleSlotDetector
 --@require EventDelegate
 --@require TaskManager
 --@require DynamicDocument
@@ -17,6 +18,7 @@
 --@timer FuelStatus
 --@timer KeplerSim
 --@timer WaypointTest
+--@timer Debug
 --@class Main
 
 _G.BuildUnit = {}
@@ -40,8 +42,9 @@ function Unit.onStart()
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
 	unit.setTimer("KeplerSim", 0.1)
-	--unit.setTimer("WaypointTest", 1)
-	system.print([[Horizon 1.1.1.8_6]])
+	--unit.setTimer("Debug", 0.5)
+	unit.setTimer("WaypointTest", 1)
+	system.print([[Horizon 1.1.1.9]])
 
 	if showDockingWidget then
 		parentingPanelId = system.createWidgetPanel("Docking")
@@ -84,6 +87,12 @@ function Unit.Tick(timer)
 			updateAGGState()
 		end
 	end
+	if timer == "Debug" then
+		system.print("ship.direction.x: "..ship.direction.x)
+		system.print("ship.direction.y: "..ship.direction.y)
+		system.print("ship.direction.z: "..ship.direction.z)
+		system.print("ship.rotationSpeedz: "..ship.rotationSpeed)
+	end
 	if timer == "FuelStatus" then
 		getFuelRenderedHtml()
 		--local msa = construct.getMaxSpeedPerAxis()
@@ -101,15 +110,19 @@ function Unit.Tick(timer)
 	end
 	
 	if timer == "WaypointTest" then
-		system.print("Deviation angle: "..ship.deviationAngle.."°")
-		system.print("Target Dist: "..ship.targetDist)
-		system.print("Brake Dist: "..ship.brakeDistance)
-		system.print("Stopping: "..tostring(ship.stopping))
-		system.print("Brake Diff: "..(ship.targetDist - ship.brakeDistance))
-		system.print("Trajectory Diff: "..ship.trajectoryDiff)
-		system.print("Mass (tons): "..ship.mass / 1000)
-		system.print("Max Speed: "..ship.constructMaxSpeed)
-		system.print("ETA: "..disp_time(ship.ETA))
+		if ship.gotoLock ~= nil then
+			system.print("[----------------------------------------------]")
+			system.print("Deviation angle: "..ship.deviationAngle.."°")
+			system.print("Target Dist: "..ship.targetDist)
+			system.print("Brake Dist: "..ship.brakeDistance)
+			system.print("Stopping: "..tostring(ship.stopping))
+			system.print("Brake Diff: "..(ship.targetDist - ship.brakeDistance))
+			system.print("Trajectory Diff: "..ship.trajectoryDiff)
+			system.print("Mass (tons): "..ship.mass / 1000)
+			system.print("Max Speed: "..ship.constructMaxSpeed)
+			system.print("ETA: "..disp_time(ship.ETA))
+			system.print("[----------------------------------------------]")
+		end
 		
 		-- if switch then
 		-- 	local waypointString = ship.nearestPlanet:convertToMapPosition(ship.simulationPos)

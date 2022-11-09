@@ -39,40 +39,40 @@ function round(val, decimal)
   end
 end
 
-function getBrakingInfo()
-    local curVelMs = vec3(construct.getWorldVelocity()):len()
-    local cMass = construct.getMass()
-    local brakingForce = getJsonNum(unit.getWidgetData(), "maxBrake")
-    local brakeInfo = {}
-    if brakingForce == 0 then
-        brakeInfo.time = "BF: 0"
-        brakeInfo.dist = 1
-        return brakeInfo
-    end
-
-    local brakeForce = math.floor(brakingForce)
-    local rA = brakeForce / cMass
-    local c = 30000000 / 3600
-    local c2 = c * c
-    local cA = c * math.asin(curVelMs / c)
-    local cC = c2 * math.cos(cA / c) / rA
-    
-    local t = (c - cA) / rA
-    local d = cC - c2 * math.cos((rA * t + cA) / c) / rA
-      
-    local min = math.floor(t / 60)
-    t = t - (60 * min)
-    local sec = round(t, 0)
-        
-    local tms = string.format("%02dm:%02ds", min, sec)
-     
-    local km = round(d / 1000, 2)
-    
-    brakeInfo.time = tms
-    brakeInfo.dist = km
-    
-    return brakeInfo
-end
+--function getBrakingInfo()
+--    local curVelMs = vec3(construct.getWorldVelocity()):len()
+--    local cMass = construct.getMass()
+--    local brakingForce = getJsonNum(unit.getWidgetData(), "maxBrake")
+--    local brakeInfo = {}
+--    if brakingForce == 0 then
+--        brakeInfo.time = "BF: 0"
+--        brakeInfo.dist = 1
+--        return brakeInfo
+--    end
+--
+--    local brakeForce = math.floor(brakingForce)
+--    local rA = brakeForce / cMass
+--    local c = 30000000 / 3600
+--    local c2 = c * c
+--    local cA = c * math.asin(curVelMs / c)
+--    local cC = c2 * math.cos(cA / c) / rA
+--    
+--    local t = (c - cA) / rA
+--    local d = cC - c2 * math.cos((rA * t + cA) / c) / rA
+--      
+--    local min = math.floor(t / 60)
+--    t = t - (60 * min)
+--    local sec = round(t, 0)
+--        
+--    local tms = string.format("%02dm:%02ds", min, sec)
+--     
+--    local km = round(d / 1000, 2)
+--    
+--    brakeInfo.time = tms
+--    brakeInfo.dist = km
+--    
+--    return brakeInfo
+--end
 
 function STEC(core, control, Cd)
     local self = {}
@@ -177,6 +177,7 @@ function STEC(core, control, Cd)
     self.throttle = 1
     -- Maximum thrust which the vessel is capable of producing
     --self.fMax = 0
+    self.pocket = pocket
     -- Altitude which the vessel should attempt to hold
     self.altitudeHold = 0
     -- Speed which the vessel should attempt to maintain
@@ -400,7 +401,7 @@ function STEC(core, control, Cd)
             Left = math.abs(tkRight[2 + tkOffset] - virtualGravityEngine.x)
         }
         self.maxBrake = jdecode(unit.getWidgetData()).maxBrake
-        local c = 30000000 / 3600
+        local c = 50000000 / 3600
         local v = self.world.velocity:len()
         local y = 1/math.sqrt(1-((v*v)/(c*c)))
         self.inertialMass = utils.clamp(self.mass * y, self.mass, self.mass * 1.5)
@@ -504,15 +505,24 @@ function STEC(core, control, Cd)
         local atmp = self.angularThrust
         --Thrust
         --Lateral
+        local gravityCorrection = false
+        local fMax = construct.getMaxThrustAlongAxis("all", {vec3(0,1,0):unpack()})
+        local vMaxUp = construct.getMaxThrustAlongAxis("all", {vec3(0,0,1):unpack()})
+        local vMaxDown = construct.getMaxThrustAlongAxis("all", {vec3(0,0,-1):unpack()})
+        local hMax = construct.getMaxThrustAlongAxis("all", {vec3(1,0,0):unpack()})
+
         if self.direction.x > 0 then
-            tmp = tmp  + (self.world.right * self.MaxKinematics.Right)
+            tmp = tmp  + (self.world.right * self.MaxKinematics.Right) * self.throttle
         end
         if self.direction.x < 0 then
-            tmp = tmp  + (-self.world.right * self.MaxKinematics.Right)
+            tmp = tmp  - (self.world.right * self.MaxKinematics.Right) * self.throttle
         end
         --Forward
-        if self.direction.y ~= 0 then
+        if self.direction.y > 0 then
             tmp = tmp  + (self.world.forward * self.MaxKinematics.Forward) * self.throttle
+        end
+        if self.direction.y < 0 then
+            tmp = tmp  - (self.world.forward * self.MaxKinematics.Forward) * self.throttle
         end
         --Vertical
         if self.direction.z > 0 then
@@ -546,17 +556,37 @@ function STEC(core, control, Cd)
             --end
         end
         if self.followGravity and self.rotation.x == 0 then
-		    local current = self.localVelocity:len() * self.mass
-            local scale = nil
-            if ship.localVelocity:len() > 1000 then
-                scale = self.gravityFollowSpeed * math.min(math.max(current / self.MaxKinematics.Up, 0.1), 1) * 10
-            else
-                scale = self.gravityFollowSpeed
-            end
-            --atmp = atmp + (self.world.up:cross(-self.world.vertical) * scale)
             
-            atmp = atmp + ((self.world.up:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition()))) - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2)))
-        end
+            --system.print(tostring(self.direction))
+              --local current = self.localVelocity:len() * self.mass
+              --local scale = nil
+              --if ship.localVelocity:len() > 10 then
+              --    scale = self.gravityFollowSpeed * math.min(math.max(current / self.fMax, 0.1), 1) * 10
+              --else
+              --    scale = self.gravityFollowSpeed
+              --end
+              --local gFollow = (self.world.up:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition())))
+              local gFollow = (self.world.up:cross(-self.world.gravity))
+              --local gFollow = (self.world.up:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition())))
+              local scale = 1
+              if self.pocket then
+                  if self.direction.x < 0  then
+                      scale = 0.25
+                      --gFollow = gFollow + ship.world.right:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition()) * 0.25)
+                      gFollow = gFollow + ship.world.right:cross(-self.world.gravity * 0.25)
+                  elseif self.direction.x > 0  then
+                      scale = 0.25
+                      --gFollow = gFollow - ship.world.right:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition()) * 0.25)
+                      gFollow = gFollow - ship.world.right:cross(-self.world.gravity * 0.25)
+                  elseif self.direction.y < 0  then
+                      --gFollow = gFollow + ship.world.forward:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition()) * 0.25)
+                      gFollow = gFollow + ship.world.forward:cross(-self.world.gravity * 0.25)
+                  end
+              end
+              gFollow = gFollow * scale
+              atmp = atmp + gFollow
+          end
+  
 
 		if self.altitudeHold ~= 0 then
             --local deltaAltitude =  self.altitudeHold - self.altitude

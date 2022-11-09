@@ -1,11 +1,5 @@
 --@class CSS_SHUD
-displaySize = 0.65
---primaryColor = "0faea9" --export: Primary color of HUD
---secondaryColor = "0247b5" --export: Secondary color of HUD
---textShadow = "d9ff00" --export: Color of text shadow for speedometer
-primaryColor = "b80000" --export: Primary color of HUD
-secondaryColor = "e30000" --export: Secondary color of HUD
-textShadow = "e81313" --export: Color of text shadow for speedometer
+
 CSS_SHUD = [[
 #horizon { 
   left: 0;

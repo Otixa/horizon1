@@ -437,7 +437,7 @@ SHUD =
                         <div class="item helpText"><span>VTOL Priority:</span>]].. self.MakeBooleanIndicator("ship.vtolPriority") .. [[</div>
             	        <div class="item helpText"><span>Gravity Follow:</span>]].. self.MakeBooleanIndicator("ship.followGravity") .. [[</div>
             	        <div class="item helpText"><span>Gravity Supression:</span>]].. self.MakeBooleanIndicator("ship.counterGravity") .. [[</div>
-            	        <div class="item helpText"><span>Control Mode:</span><span class="right">{{getControlMode()}}</span></div>
+            	        <div class="item helpText"><span>Control Mode:</span><span class="right">{{keybindPreset}}</span></div>
             	        ]]).Read()
             else
                 _ENV["_SHUDBUFFER"] = DD([[<div class="item helpText">Press ]] .. "[" .. self.system.getActionKeyName("speedup") .. "]" .. [[ to  toggle menu</div>[[
@@ -446,7 +446,7 @@ SHUD =
                         <div class="item helpText"><span>VTOL Priority:</span>]].. self.MakeBooleanIndicator("ship.vtolPriority") .. [[</div>
             	        <div class="item helpText"><span>Gravity Follow:</span>]].. self.MakeBooleanIndicator("ship.followGravity") .. [[</div>
             	        <div class="item helpText"><span>Gravity Supression:</span>]].. self.MakeBooleanIndicator("ship.counterGravity") .. [[</div>
-            	        <div class="item helpText"><span>Control Mode:</span><span class="right">{{getControlMode()}}</span></div>
+            	        <div class="item helpText"><span>Control Mode:</span><span class="right">{{keybindPreset}}</span></div>
             	        ]]).Read()
              end
         end
