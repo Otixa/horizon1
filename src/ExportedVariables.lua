@@ -30,7 +30,7 @@ fuelFontSize = 1.8 --export: Fuel Gauge Font Size
 
 
 showDockingWidget = true --export: Show Docking Widget
-dockingMode = 0 --export: Set docking mode (0:Manual, 1:Automatic, 2:Semi-Automatic)
+dockingMode = 1 --export: Set docking mode (0:Manual, 1:Automatic, 2:Semi-Automatic)
 setBaseOnStart = false --export: Set RTB location on start
 useGEAS = false --export:
 GEAS_Alt = 10 --export:
