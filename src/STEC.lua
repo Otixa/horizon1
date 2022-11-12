@@ -597,7 +597,7 @@ function STEC(core, control, Cd)
         end
         if self.targetVector == nil then self.gotoLock = nil end
         if self.gotoLock ~= nil then
-            local targetRadius = 2000
+            local targetRadius = ap_stop_distance
             if not self.inertialDampening then self.inertialDampening = true end
             self.direction.y = 0
             self.vtolPriority = true
