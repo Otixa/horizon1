@@ -222,7 +222,7 @@ SHUD =
                function(system, _ , w) ship.hoverHeight = utils.clamp(ship.hoverHeight + (system.getMouseWheel()),0,35) end),
     }
     function self.updateTargetDest()
-        ship.targetDestination = moveWaypointZ(ship.customTarget, utils.clamp(ship.altitudeHold + (system.getMouseWheel() * altHoldAdjustmentSetting()),0,2000000) - ship.baseAltitude)
+        ship.targetDestination = moveWaypointZ(ship.baseLoc, utils.clamp(ship.altitudeHold + (system.getMouseWheel() * altHoldAdjustmentSetting()),0,2000000) - ship.baseAltitude)
         ship.altitudeHold = utils.clamp(ship.altitudeHold + (system.getMouseWheel() * altHoldAdjustmentSetting()),0,2000000)
     end
     self.MenuList.altHold = {

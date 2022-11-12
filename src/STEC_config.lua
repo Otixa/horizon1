@@ -130,14 +130,14 @@ function swapForceFields()
 end
 
 
-ship.baseAltitude = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
+ship.baseAltitude = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
 system.print("Altitude: "..ship.baseAltitude)
 
 if flightModeDb ~= nil then
     if flightModeDb.hasKey("BaseLocX") == 1 then
-        ship.customTarget = readTargetFromDb("BaseLoc")
+        ship.baseLoc = readTargetFromDb("BaseLoc")
     else
-        ship.customTarget = ship.world.position
+        ship.baseLoc = ship.world.position
         system.print("No RTB set")
         config.setBaseActive = true
     end
@@ -148,25 +148,25 @@ if flightModeDb ~= nil then
         config.setBaseActive = true
     end
 end
-config.rtb = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
+config.rtb = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
 function setBase(a)
     if a == nil then
-        ship.customTarget = ship.world.position
+        ship.baseLoc = ship.world.position
         ship.rot = ship.world.right:cross(ship.nearestPlanet:getGravity(construct.getWorldPosition()))
-        writeTargetToDb(ship.customTarget,"BaseLoc")
+        writeTargetToDb(ship.baseLoc,"BaseLoc")
         writeTargetToDb(ship.rot, "BaseRot")
         
-        system.print("Base Position: "..tostring(ship.nearestPlanet:convertToMapPosition(ship.customTarget)))
+        system.print("Base Position: "..tostring(ship.nearestPlanet:convertToMapPosition(ship.baseLoc)))
     else
         if string.find(a, "::pos") ~= nil then
-            ship.customTarget = ship.nearestPlanet:convertToWorldCoordinates(a)
-            writeTargetToDb(ship.customTarget,"BaseLoc")
+            ship.baseLoc = ship.nearestPlanet:convertToWorldCoordinates(a)
+            writeTargetToDb(ship.baseLoc,"BaseLoc")
             writeTargetToDb(ship.rot, "BaseRot")
-            system.print("Base Position: "..tostring(ship.nearestPlanet:convertToMapPosition(ship.customTarget)))
+            system.print("Base Position: "..tostring(ship.nearestPlanet:convertToMapPosition(ship.baseLoc)))
         end
     end
 
-    config.rtb = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
+    config.rtb = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
     ioScheduler.queueData(config)
 end
 
@@ -247,11 +247,11 @@ keybindPresets["keyboard"].keyUp["option6"].Add(function () ship.verticalLock = 
 --keybindPresets["keyboard"].keyUp["option7"].Add(function () ship.verticalCruise = not ship.verticalCruise end, "Vertical Cruise")
 keybindPresets["keyboard"].keyUp["option7"].Add(function() 
     ship.altitudeHold = ship.baseAltitude ship.elevatorActive = true
-    ship.targetDestination = moveWaypointZ(ship.customTarget, 0)
+    ship.targetDestination = moveWaypointZ(ship.baseLoc, 0)
 end, "RTB")
 keybindPresets["keyboard"].keyUp["option8"].Add(function () construct.setDockingMode(0); core.undock() end,"Undock")
 --keybindPresets["keyboard"].keyUp["option8"].Add(function () emitter.send("door_control","open") end, "Open Door")
---keybindPresets["keyboard"].keyUp["option9"].Add(function () if ship.targetDestination == nil then ship.targetDestination = moveWaypointZ(ship.customTarget, 10000 - baseAltitude) else ship.targetDestination = nil end end, "Preset 2")
+--keybindPresets["keyboard"].keyUp["option9"].Add(function () if ship.targetDestination == nil then ship.targetDestination = moveWaypointZ(ship.baseLoc, 10000 - baseAltitude) else ship.targetDestination = nil end end, "Preset 2")
 --keybindPresets["keyboard"].keyUp.option9.Add(function () if flightModeDb ~= nil then flightModeDb.clear() system.print("DB Cleared") end end,"Clear Databank")
 keybindPresets["keyboard"].keyUp["option9"].Add(function ()
     if shiftLock then
@@ -280,7 +280,7 @@ keybindPresets["screenui"].keyDown.brake.Add(function () ship.brake = true end)
 keybindPresets["screenui"].keyUp.brake.Add(function () ship.brake = false end)
 keybindPresets["screenui"].keyUp["option7"].Add(function() 
     ship.altitudeHold = ship.baseAltitude ship.elevatorActive = true
-    ship.targetDestination = moveWaypointZ(ship.customTarget, 0)
+    ship.targetDestination = moveWaypointZ(ship.baseLoc, 0)
 end, "RTB")
 keybindPresets["screenui"].keyUp["option8"].Add(function () construct.setDockingMode(0); core.undock() end,"Undock")
 keybindPresets["screenui"].keyUp["option9"].Add(function ()
@@ -357,7 +357,7 @@ config.floors.floor2 = ship.altHoldPreset2
 config.floors.floor3 = ship.altHoldPreset3
 config.floors.floor4 = ship.altHoldPreset4
 elevatorName = construct.getName()
-config.rtb = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
+config.rtb = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
 config.targetAlt = 0
 
 system.print("Preset 1: "..config.floors.floor1)

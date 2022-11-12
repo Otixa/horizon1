@@ -67,7 +67,7 @@ function STEC(core, control, Cd)
     -- Target vector to face if non-0. Can take in a vec3 or function which returns a vec3
     self.targetDestination = nil
     self.targetdestination = nil
-    self.customTarget = vec3(0,0,0)
+    self.baseLoc = vec3(0,0,0)
     self.baseAltitude = 0
     self.verticalLock = false
     self.lockVector = vec3(0,0,0)
@@ -391,6 +391,7 @@ function STEC(core, control, Cd)
             --    scale = self.gravityFollowSpeed
             --end
             local gFollow = (self.world.up:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition())))
+            if self.elevatorActive then gFollow = (self.world.up:cross(-self.nearestPlanet:getGravity(self.baseLoc))) end
             local scale = 1
             if self.pocket then
                 if self.direction.x < 0  then
@@ -407,7 +408,7 @@ function STEC(core, control, Cd)
             atmp = atmp + gFollow
         end
         
-        self.deviationVec = (moveWaypointZ(self.customTarget, self.altitude - self.baseAltitude) - self.world.position)
+        self.deviationVec = (moveWaypointZ(self.baseLoc, self.altitude - self.baseAltitude) - self.world.position)
         self.deviationRot = self.world.forward:cross(self.rot)
         self.deviation = self.deviationVec:len()
 
@@ -424,7 +425,7 @@ function STEC(core, control, Cd)
             --local self.breadCrumbDist = 500
             local distance = (self.world.position - self.targetDestination):len()
             
-            local realDistance = helios:closestBody(self.targetDestination):getAltitude(self.targetDestination) - self.altitude
+            local realDistance = helios:closestBody(self.baseLoc):getAltitude(self.targetDestination) - self.altitude
             local destination = vec3(0,0,0)
             local verticalSpeedLimit
             
@@ -452,7 +453,7 @@ function STEC(core, control, Cd)
             --system.print("Deviation threshold: "..deviationThreshold)
             if self.deviation > (deviationThreshold + self.world.velocity:len() * 10^-2) then
             --if self.deviation > deviationThreshold then
-                destination = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude))
+                destination = moveWaypointZ(self.baseLoc, (self.altitude - self.baseAltitude))
                 self.deviated = true
                 speed = self.deviation * self.IDIntensity
                 self.stateMessage = "Correcting Deviation"
@@ -475,12 +476,12 @@ function STEC(core, control, Cd)
 
             --system.print(breadCrumbDist)
             if realDistance > self.breadCrumbDist and not self.deviated then
-                breadCrumb = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude) + self.breadCrumbDist)
+                breadCrumb = moveWaypointZ(self.baseLoc, (self.altitude - self.baseAltitude) + self.breadCrumbDist)
                 destination = breadCrumb
                 --local waypointString = ship.nearestPlanet:convertToMapPosition(destination)
 			    --system.print(tostring(waypointString))
             elseif realDistance < -self.breadCrumbDist and not self.deviated then
-                breadCrumb = moveWaypointZ(self.customTarget, (self.altitude - self.baseAltitude) - self.breadCrumbDist)
+                breadCrumb = moveWaypointZ(self.baseLoc, (self.altitude - self.baseAltitude) - self.breadCrumbDist)
                 destination = breadCrumb
                 --local waypointString = ship.nearestPlanet:convertToMapPosition(destination)
 			    --system.print(tostring(waypointString))

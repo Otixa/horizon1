@@ -17,10 +17,10 @@ verticalSpeedLimitSpace = 4000 --export: Vertical limit in space
 approachSpeed = 200 --export: Max final approach speed
 autoShutdown = true --export: Auto shutoff on RTB landing
 breadCrumbDist = 1000 --export: Distance of vector breadcrumbs for elevator control
-ContainerOptimization = 5 --export: Container ContainerOptimization
-FuelTankOptimization = 5 --export: Fuel Tank FuelTankOptimization
-fuelTankHandlingAtmo = 5 --export: Fuel Tank Handling Atmo
-fuelTankHandlingSpace = 5 --export: Fuel Tank Handling Space
+ContainerOptimization = 0 --export: Container ContainerOptimization
+FuelTankOptimization = 0 --export: Fuel Tank FuelTankOptimization
+fuelTankHandlingAtmo = 4 --export: Fuel Tank Handling Atmo
+fuelTankHandlingSpace = 4 --export: Fuel Tank Handling Space
 
 primaryColor = "b80000" --export: Primary color of HUD
 secondaryColor = "e30000" --export: Secondary color of HUD

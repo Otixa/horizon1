@@ -40,7 +40,7 @@ function Unit.onStart()
 		manualControlSwitch()
 		system.print("Altitude: "..helios:closestBody(construct.getWorldPosition()):getAltitude(construct.getWorldPosition()))
 		ship.altitudeHold = helios:closestBody(construct.getWorldPosition()):getAltitude(construct.getWorldPosition())
-		ship.baseAltitude = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
+		ship.baseAltitude = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
 		--ship.elevatorActive = true
 	end
 	--if next(manualSwitches) ~= nil then manualSwitches[1].activate() end
@@ -74,7 +74,7 @@ function Unit.onStart()
 	unit.setTimer("DockingTrigger", 1)
 	if laser ~= nil then laser.deactivate() end
 
-	system.print([[Horizon 1.0.1.13]])
+	system.print([[Horizon 1.0.1.14]])
 	if showDockingWidget then
 		parentingPanelId = system.createWidgetPanel("Docking")
 		parentingWidgetId = system.createWidget(parentingPanelId,"parenting")
@@ -167,8 +167,8 @@ function System.ActionLoop(action)
 end
 
 function System.onUpdate()
-	--system.print("Cust Target: "..tostring(vec3(ship.customTarget)).." | alt: "..ship.altitude.." | baseAlt: "..ship.baseAltitude.." | worldPos: "..tostring(vec3(ship.world.position)).." | ")
-	--self.deviationVec = (moveWaypointZ(self.customTarget, self.altitude - self.baseAltitude) - self.world.position)
+	--system.print("Cust Target: "..tostring(vec3(ship.baseLoc)).." | alt: "..ship.altitude.." | baseAlt: "..ship.baseAltitude.." | worldPos: "..tostring(vec3(ship.world.position)).." | ")
+	--self.deviationVec = (moveWaypointZ(self.baseLoc, self.altitude - self.baseAltitude) - self.world.position)
 	ioScheduler.update()
 	if elevatorScreen then elevatorScreen.updateStats() end
 	if Events then Events.Update() end
@@ -189,8 +189,8 @@ function toggleVerticalLock()
 end
 function createBreadcrumbTrail(endAlt)
 	--Create a set of waypoints starting from the current position to the destination spaced 1km apart
-	local startPosition = moveWaypointZ(ship.customTarget, ship.world.atlasAltitude - ship.baseAltitude)
-	local endPosition = moveWaypointZ(ship.customTarget, endAlt)
+	local startPosition = moveWaypointZ(ship.baseLoc, ship.world.atlasAltitude - ship.baseAltitude)
+	local endPosition = moveWaypointZ(ship.baseLoc, endAlt)
 	local distance = (startPosition - endAlt):len()
 	if distance > 1000 then
 		for i = 1, round2(distance / 1000,0), 1 do
@@ -208,7 +208,7 @@ end
 --	system.print("POS: "..tostring(sw))
 --end
 function buildScreen.MouseUp(x,y,slot)
---ship.baseAltitude = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
+--ship.baseAltitude = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
 --	if settingsActive then
 --		if mousex >= 0.1515 and mousex <= 0.4934 and mousey >= 0.5504 and mousey <= 0.7107 then --Setbase button
 --			setBase()

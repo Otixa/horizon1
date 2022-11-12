@@ -95,7 +95,7 @@ HandleOutput = (function()
     end
 
     function self.Execute()
-        ship.baseAltitude = helios:closestBody(ship.customTarget):getAltitude(ship.customTarget)
+        ship.baseAltitude = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
         
         ship.altitudeHold = config.targetAlt
         
@@ -115,7 +115,7 @@ HandleOutput = (function()
         if ship.altitudeHold ~= 0 then
             ship.elevatorActive = true
             system.print("Alt diff: "..(config.targetAlt - ship.baseAltitude))
-            ship.targetDestination = moveWaypointZ(ship.customTarget, config.targetAlt - ship.baseAltitude)
+            ship.targetDestination = moveWaypointZ(ship.baseLoc, config.targetAlt - ship.baseAltitude)
         end
         if config.setBaseReq then
             setBase()
