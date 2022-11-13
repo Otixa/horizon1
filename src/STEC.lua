@@ -325,6 +325,17 @@ function STEC(core, control, Cd)
         local vMaxUp = construct.getMaxThrustAlongAxis("all", {vec3(0,0,1):unpack()})
         local vMaxDown = construct.getMaxThrustAlongAxis("all", {vec3(0,0,-1):unpack()})
         local hMax = construct.getMaxThrustAlongAxis("all", {vec3(1,0,0):unpack()})
+
+        -- Elevator stuff
+
+        if lockVerticalToBase then
+            --self.baseLoc
+            self.altitude = helios:closestBody(self.baseLoc):getAltitude(construct.getWorldPosition())
+            self.nearestPlanet = helios:closestBody(self.baseLoc)
+            atmoRadius = helios:closestBody(self.baseLoc).atmosphereRadius
+            planetRadius = helios:closestBody(self.baseLoc).radius
+
+        end
         if not self.elevatorActive then self.inertialDampening = self.inertialDampeningDesired end
         
         if self.direction.x ~= 0 then
@@ -391,7 +402,7 @@ function STEC(core, control, Cd)
             --    scale = self.gravityFollowSpeed
             --end
             local gFollow = (self.world.up:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition())))
-            if self.elevatorActive then gFollow = (self.world.up:cross(-self.nearestPlanet:getGravity(self.baseLoc))) end
+            if lockVerticalToBase then gFollow = (self.world.up:cross(-self.nearestPlanet:getGravity(self.baseLoc))) end
             local scale = 1
             if self.pocket then
                 if self.direction.x < 0  then
@@ -478,12 +489,14 @@ function STEC(core, control, Cd)
             if realDistance > self.breadCrumbDist and not self.deviated then
                 breadCrumb = moveWaypointZ(self.baseLoc, (self.altitude - self.baseAltitude) + self.breadCrumbDist)
                 destination = breadCrumb
-                --local waypointString = ship.nearestPlanet:convertToMapPosition(destination)
+                local waypointString = ship.nearestPlanet:convertToMapPosition(destination)
+                system.setWaypoint(waypointString,false)
 			    --system.print(tostring(waypointString))
             elseif realDistance < -self.breadCrumbDist and not self.deviated then
                 breadCrumb = moveWaypointZ(self.baseLoc, (self.altitude - self.baseAltitude) - self.breadCrumbDist)
                 destination = breadCrumb
-                --local waypointString = ship.nearestPlanet:convertToMapPosition(destination)
+                local waypointString = ship.nearestPlanet:convertToMapPosition(destination)
+                system.setWaypoint(waypointString,false)
 			    --system.print(tostring(waypointString))
             end
             

@@ -20,6 +20,7 @@
 --@timer SHUDRender
 --@timer FuelStatus
 --@timer DockingTrigger
+--@timer Debug
 --@class Main
 
 _G.BuildUnit = {}
@@ -39,7 +40,7 @@ function Unit.onStart()
 	if screen ~= nil then
 		manualControlSwitch()
 		system.print("Altitude: "..helios:closestBody(construct.getWorldPosition()):getAltitude(construct.getWorldPosition()))
-		ship.altitudeHold = helios:closestBody(construct.getWorldPosition()):getAltitude(construct.getWorldPosition())
+		ship.altitudeHold = helios:closestBody(ship.baseLoc):getAltitude(construct.getWorldPosition())
 		ship.baseAltitude = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
 		--ship.elevatorActive = true
 	end
@@ -72,9 +73,10 @@ function Unit.onStart()
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
 	unit.setTimer("DockingTrigger", 1)
+	--unit.setTimer("Debug", 1)
 	if laser ~= nil then laser.deactivate() end
 
-	system.print([[Horizon 1.0.1.14]])
+	system.print([[Horizon 1.0.1.15]])
 	if showDockingWidget then
 		parentingPanelId = system.createWidgetPanel("Docking")
 		parentingWidgetId = system.createWidget(parentingPanelId,"parenting")
@@ -148,6 +150,17 @@ function Unit.Tick(timer)
 				if ship.autoShutdown and not config.manualControl then system.print(ship.altitude) unit.exit() end
 			end
 		end
+	end
+
+	if timer == "Debug" then
+		system.print("[--------------------------------]")
+		system.print("ship.altitude: " .. ship.altitude)
+		system.print("ship.nearestPlanet: " .. tostring(ship.nearestPlanet.name[1]))
+		--local waypointString = ship.nearestPlanet:convertToMapPosition(ship.elevatorDestination)
+		--system.print("ship.elevatorDestination: "..tostring((ship.elevatorDestination)))
+		--system.print(waypointString)
+		
+		system.print("[--------------------------------]")
 	end
 end
 

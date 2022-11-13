@@ -41,6 +41,8 @@ setpocket = false --export: Pocket ship?
 mouseSensitivity = 1 --export: Enter your mouse sensativity setting
 enableARReticle = false --export: Enable AR reticle
 
+lockVerticalToBase = false --export: FOR ELEVATORS ONLY
+
 
 --charMovement = true --export: Enable/Disable Character Movement
 bool_to_number={ [true]=1, [false]=0 }
@@ -53,9 +55,13 @@ else activateFFonStart = number_to_bool[flightModeDb.getIntValue("activateFFonSt
 
 
 
+if flightModeDb.hasKey("lockVerticalToBase") == 0 or updateSettings then 
+    flightModeDb.setIntValue("lockVerticalToBase", bool_to_number[lockVerticalToBase])
+else lockVerticalToBase = number_to_bool[flightModeDb.getIntValue("lockVerticalToBase")] end
+
 if flightModeDb.hasKey("pocket") == 0 or updateSettings then 
     flightModeDb.setIntValue("pocket", bool_to_number[setpocket])
     pocket = setpocket
 else pocket = number_to_bool[flightModeDb.getIntValue("pocket")] end
 
-system.print("pocket: "..number_to_bool[flightModeDb.getIntValue("pocket")])
+--system.print("pocket: "..number_to_bool[flightModeDb.getIntValue("pocket")])
