@@ -19,10 +19,10 @@ primaryColor = "b80000" --export: Primary color of HUD
 secondaryColor = "e30000" --export: Secondary color of HUD
 textShadow = "e81313" --export: Color of text shadow for speedometer
 
-ContainerOptimization = 0 --export: Container ContainerOptimization
-FuelTankOptimization = 0 --export: Fuel Tank FuelTankOptimization
-fuelTankHandlingAtmo = 4 --export: Fuel Tank Handling Atmo
-fuelTankHandlingSpace = 4 --export: Fuel Tank Handling Space
+ContainerOptimization = 5 --export: Container ContainerOptimization
+FuelTankOptimization = 5 --export: Fuel Tank FuelTankOptimization
+fuelTankHandlingAtmo = 5 --export: Fuel Tank Handling Atmo
+fuelTankHandlingSpace = 5 --export: Fuel Tank Handling Space
 
 ap_stop_distance = 200000 --export: AP Stop distance
 

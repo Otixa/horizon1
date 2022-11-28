@@ -42,7 +42,7 @@ function Unit.onStart()
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
 	unit.setTimer("KeplerSim", 0.1)
-	--unit.setTimer("Debug", 0.5)
+	--unit.setTimer("Debug", 2)
 	unit.setTimer("WaypointTest", 1)
 	system.print([[Horizon 1.1.1.9]])
 
@@ -70,7 +70,17 @@ function dump(o)
 	   return tostring(o)
 	end
  end
- 
+ function format_int(number)
+	number = round2(number,0)
+	local i, j, minus, int, fraction = tostring(number):find('([-]?)(%d+)([.]?%d*)')
+  
+	-- reverse the int-string and append a comma to all blocks of 3 digits
+	int = int:reverse():gsub("(%d%d%d)", "%1,")
+  
+	-- reverse the int-string back remove an optional comma and put the 
+	-- optional minus and fractional part back
+	return minus .. int:reverse():gsub("^,", "") .. fraction
+  end
 function Unit.onStop()
 	if flightModeDb then
 		flightModeDb.setIntValue("controlMode", unit.getControlMode())
@@ -88,10 +98,20 @@ function Unit.Tick(timer)
 		end
 	end
 	if timer == "Debug" then
-		system.print("ship.direction.x: "..ship.direction.x)
-		system.print("ship.direction.y: "..ship.direction.y)
-		system.print("ship.direction.z: "..ship.direction.z)
-		system.print("ship.rotationSpeedz: "..ship.rotationSpeed)
+		--system.print("ship.direction.x: "..ship.direction.x)
+		--system.print("ship.direction.y: "..ship.direction.y)
+		--system.print("ship.direction.z: "..ship.direction.z)
+		--system.print("ship.rotationSpeedz: "..ship.rotationSpeed)
+		--system.print("ship.world.atmosphericDensity: "..ship.world.atmosphericDensity)
+		--system.print("ship.target.prograde(): "..tostring(vec3(ship.world.prograde())))
+		system.print("prograde.x: "..(ship.world.position + (ship.target.prograde() * 2)).x)
+
+		system.print("prograde.y: "..(ship.world.position + (ship.target.prograde() * 2)).y)
+
+		local x = ship.nearestPlanet:convertToMapPosition(ship.world.position + (ship.target.prograde() * 2))
+		system.print(x)
+		system.setWaypoint(x)
+		--system.print("ship.forwardThrust: "..format_int(ship.forwardThrust))
 	end
 	if timer == "FuelStatus" then
 		getFuelRenderedHtml()

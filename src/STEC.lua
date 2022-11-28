@@ -99,6 +99,9 @@ function STEC(core, control, Cd)
         --nearestPlanetGravity = vec3(self.nearestPlanet.getGravity(construct.getWorldPosition()))
 
     }
+    if antigrav and antigrav.getState() == 1 then
+        self.world.gravity = self.nearestPlanet:getGravity(construct.getWorldPosition())
+    end
     self.target = {
         prograde = function() return self.world.velocity:normalize() end,
         retrograde = function() return -self.world.velocity:normalize() end,
@@ -124,6 +127,9 @@ function STEC(core, control, Cd)
     }
     -- Construct id
     self.id = construct.getId()
+    self.forwardThrust = 0
+    self.atmoThrust = 0
+    self.spaceThrust = 0
     -- Control Mode - Travel (0) or Cruise (1)
     self.controlMode = unit.getControlMode()
     -- Alternate Control Mode for remote control
@@ -345,7 +351,11 @@ function STEC(core, control, Cd)
             
     
         }
+        
         self.nearestPlanet = helios:closestBody(construct.getWorldPosition())
+        if antigrav and antigrav.getState() == 1 then
+            self.world.gravity = self.nearestPlanet:getGravity(construct.getWorldPosition())
+        end
 	   -- Roll Degrees
         self.rollDegrees = self.world.vertical:angle_between(self.world.left) / math.pi * 180 - 90
         if self.world.vertical:dot(self.world.up) > 0 then self.rollDegrees = 180 - self.rollDegrees end
@@ -382,7 +392,7 @@ function STEC(core, control, Cd)
             tkOffset = 2
         end
         
-        local virtualGravityEngine =
+        virtualGravityEngine =
             vec3(
             library.systemResolution3(
                 {self.world.right:unpack()},
@@ -400,6 +410,9 @@ function STEC(core, control, Cd)
             Right = math.abs(tkRight[1 + tkOffset] + virtualGravityEngine.x),
             Left = math.abs(tkRight[2 + tkOffset] - virtualGravityEngine.x)
         }
+        if self.world.atmosphericDensity > 0.01 and self.world.atmosphericDensity < 0.1 then
+            self.MaxKinematics.Forward = math.abs((tkForward[1] + tkForward[3]) + virtualGravityEngine.y)
+        end
         self.maxBrake = jdecode(unit.getWidgetData()).maxBrake
         local c = 50000000 / 3600
         local v = self.world.velocity:len()
@@ -510,7 +523,9 @@ function STEC(core, control, Cd)
         local vMaxUp = construct.getMaxThrustAlongAxis("all", {vec3(0,0,1):unpack()})
         local vMaxDown = construct.getMaxThrustAlongAxis("all", {vec3(0,0,-1):unpack()})
         local hMax = construct.getMaxThrustAlongAxis("all", {vec3(1,0,0):unpack()})
+        self.forwardThrust = self.MaxKinematics.Forward
 
+ 
         if self.direction.x > 0 then
             tmp = tmp  + (self.world.right * self.MaxKinematics.Right) * self.throttle
         end
@@ -519,10 +534,12 @@ function STEC(core, control, Cd)
         end
         --Forward
         if self.direction.y > 0 then
+            --if self.world.atmosphericDensity < 0.1 then boost = 10000 end
+            --tmp = tmp + (((self.world.forward * self.direction.y) * self.fMax) * self.throttle)
             tmp = tmp  + (self.world.forward * self.MaxKinematics.Forward) * self.throttle
         end
         if self.direction.y < 0 then
-            tmp = tmp  - (self.world.forward * self.MaxKinematics.Forward) * self.throttle
+            tmp = tmp  - (self.world.forward * self.MaxKinematics.Backward) * self.throttle
         end
         --Vertical
         if self.direction.z > 0 then
@@ -597,6 +614,7 @@ function STEC(core, control, Cd)
         end
         if self.targetVector == nil then self.gotoLock = nil end
         if self.gotoLock ~= nil then
+            
             local targetRadius = ap_stop_distance
             if not self.inertialDampening then self.inertialDampening = true end
             self.direction.y = 0
@@ -605,7 +623,7 @@ function STEC(core, control, Cd)
             
             local dest = (self.world.position - self.gotoLock):normalize()
             
-            self.targetDist = (self.world.position - self.gotoLock):len() - targetRadius
+            self.targetDist = math.abs((self.world.position - self.gotoLock):len() - targetRadius)
             --local v = self.getTrajectory(self.targetDist)
             local v = self.simulationPos
             --local v = self.world.position - ((self.world.position - self.world.velocity):normalize() * self.targetDist)
@@ -735,7 +753,7 @@ function STEC(core, control, Cd)
             self.disabledTags = ""
         end
         
-        self.control.setEngineCommand("atmospheric_engine,space_engine,airfoil,brake,torque,ground",
+        self.control.setEngineCommand("all",
                                         {tmp:unpack()}, {atmp:unpack()}, false, false,
                                         self.priorityTags1,
                                         self.priorityTags2,
