@@ -102,40 +102,40 @@ SHUD =
         
     self.MarkerBuffer = {}
 
-    -- function self.worldToScreen(pos)
-    --     local P = mat4():perspective(self.FOV, self.ScreenW/self.ScreenH, 0.1, 100000)
-    --     local adjustedPos = ship.world.position - vec3(unit.getMasterPlayerRelativePosition())
-    --     local V = mat4():look_at(adjustedPos, adjustedPos + ship.world.forward, ship.world.up)
+    function self.worldToScreen(pos)
+        local P = mat4():perspective(self.FOV, self.ScreenW/self.ScreenH, 0.1, 100000)
+        local adjustedPos = ship.world.position - vec3(player.getWorldPosition())
+        local V = mat4():look_at(adjustedPos, adjustedPos + ship.world.forward, ship.world.up)
 
-    --     local pos = V * P * { pos.x, pos.y, pos.z, 1 }
+        local pos = V * P * { pos.x, pos.y, pos.z, 1 }
 
-    --     pos[1] = pos[1] / pos[4] * 0.5 + 0.5
-    --     pos[2] = pos[2] / pos[4] * 0.5 + 0.5
+        pos[1] = pos[1] / pos[4] * 0.5 + 0.5
+        pos[2] = pos[2] / pos[4] * 0.5 + 0.5
 
-    --     pos[1] = pos[1] * 100
-    --     pos[2] = pos[2] * 100
+        pos[1] = pos[1] * 100
+        pos[2] = pos[2] * 100
 
-    --     return vec3(pos[1], pos[2], pos[3])
-    -- end
+        return vec3(pos[1], pos[2], pos[3])
+    end
 
     local SMI = SHUDMenuItem
     local DD = DynamicDocument
-    
-    -- function self.UpdateMarkers()
-    --     self.MarkerBuffer = {}
-    --     for i=1,#self.Markers do
-    --         local m = self.Markers[i]
-    --         local marker = {}
-    --         local p = vec3(0,0,0)
-    --         if type(m.Position) == "function" then marker.pos = m.Position() p = m.Position() else marker.pos = m.Position p = m.Position end
-    --         marker.pos = self.worldToScreen(marker.pos)
-    --         marker.class = m.Class
-    --         marker.content = '&nbsp;'
-    --         if m.Name then marker.content = [[<div class="name">]] .. m.Name .. [[</div>]] end
-    --         if m.ShowDistance then marker.content = marker.content .. [[<div class="distance">]] .. round2((ship.world.position - p):len()) .. [[m</div>]] end
-    --         if marker.pos.z > 0 then self.MarkerBuffer[#self.MarkerBuffer + 1] = marker end
-    --     end
-    -- end
+
+    function self.UpdateMarkers()
+        self.MarkerBuffer = {}
+        for i=1,#self.Markers do
+            local m = self.Markers[i]
+            local marker = {}
+            local p = vec3(0,0,0)
+            if type(m.Position) == "function" then marker.pos = m.Position() p = m.Position() else marker.pos = m.Position p = m.Position end
+            marker.pos = self.worldToScreen(marker.pos)
+            marker.class = m.Class
+            marker.content = '&nbsp;'
+            if m.Name then marker.content = [[<div class="name">]] .. m.Name .. [[</div>]] end
+            if m.ShowDistance then marker.content = marker.content .. [[<div class="distance">]] .. round2((ship.world.position - p):len()) .. [[m</div>]] end
+            if marker.pos.z > 0 then self.MarkerBuffer[#self.MarkerBuffer + 1] = marker end
+        end
+    end
 
     local function esc(x)
         return (x:gsub("%%", "%%%%"))
@@ -343,7 +343,16 @@ SHUD =
               <path d="M 65 0 Q 50 0, 45 5 T 30 10 M 30 10 10 10" stroke="#]]..primaryColor..[[" fill="transparent" stroke-width="1.5px" />
             </svg>
         </div>
-        
+        <div style="position: absolute; display: block; left: {{SHUD.worldToScreen(SHUD.Markers[1].Position()).x}}%; top: 50%; height: 50vw; width: 50vw; transform: translate(-50%, -{{SHUD.worldToScreen(SHUD.Markers[1].Position()).y}}%); filter: drop-shadow(0px 3px 4px #000000);">
+            <svg id="svg-1" height="100%" width="100%" viewBox="{{SHUD.SvgMinX}} {{SHUD.SvgMinY}} {{SHUD.SvgWidth}} {{SHUD.SvgHeight}}">
+                <ellipse ry="7" rx="7" id="svg-1" cy="0" cx="0" fill-opacity="null" stroke-width="1" stroke="#]]..primaryColor..[[" fill="none"/>
+                <polyline points="0,7 0,12" fill="none" stroke="#]]..primaryColor..[[" stroke-width="1.5px" />
+                <polyline points="0,-7 0,-12" fill="none" stroke="#]]..primaryColor..[[" stroke-width="1.5px" />
+                <polyline points="7,0 12,0" fill="none" stroke="#]]..primaryColor..[[" stroke-width="1.5px" />
+                <polyline points="-7,0 -12,0" fill="none" stroke="#]]..primaryColor..[[" stroke-width="1.5px" />
+            </svg>
+        </div> 
+
         <div id="speedometerBar">&nbsp;</div>
            <div id="speedometer">
                <span class="display">
@@ -482,7 +491,7 @@ SHUD =
             end
             --end
         end
-        --self.UpdateMarkers()
+        self.UpdateMarkers()
     end
 
     function self.Init(system, unit, keybinds)
