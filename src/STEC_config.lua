@@ -39,10 +39,13 @@ function holdAlt()
     
     if ship.altitudeHold == 0 then
         ship.altitudeHold = round2(ship.altitude,0)
+        ship.inertialDampening = true
         system.print("altitudeHold: "..round2(ship.altitudeHold,0))
+
     else
         ship.targetVector = nil
         ship.altitudeHold = 0
+        ship.inertialDampening = false
         system.print("Altitude Hold OFF")
     end
     

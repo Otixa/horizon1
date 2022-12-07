@@ -325,7 +325,18 @@ SHUD =
 
 
     local fa = "<style>" .. CSS_SHUD .. "</style>"
-    
+ 
+     --   <div style="position: absolute; display: block; left: {{SHUD.worldToScreen(SHUD.Markers[1].Position()).x}}%; top: 50%; height: 50vw; width: 50vw; transform: translate(-50%, -{{SHUD.worldToScreen(SHUD.Markers[1].Position()).y}}%); filter: drop-shadow(0px 3px 4px #000000);">
+     --       <svg id="svg-1" height="100%" width="100%" viewBox="{{SHUD.SvgMinX}} {{SHUD.SvgMinY}} {{SHUD.SvgWidth}} {{SHUD.SvgHeight}}">
+     --           <ellipse ry="7" rx="7" id="svg-1" cy="0" cx="0" fill-opacity="null" stroke-width="1" stroke="#]]..primaryColor..[[" fill="none"/>
+     --           <polyline points="0,7 0,12" fill="none" stroke="#]]..primaryColor..[[" stroke-width="1.5px" />
+     --           <polyline points="0,-7 0,-12" fill="none" stroke="#]]..primaryColor..[[" stroke-width="1.5px" />
+     --           <polyline points="7,0 12,0" fill="none" stroke="#]]..primaryColor..[[" stroke-width="1.5px" />
+     --           <polyline points="-7,0 -12,0" fill="none" stroke="#]]..primaryColor..[[" stroke-width="1.5px" />
+     --       </svg>
+     --   </div>
+
+
     
     local template = DD(fa..[[
     <div id="horizon" style="opacity: {{SHUD.Opacity}};">
@@ -343,15 +354,7 @@ SHUD =
               <path d="M 65 0 Q 50 0, 45 5 T 30 10 M 30 10 10 10" stroke="#]]..primaryColor..[[" fill="transparent" stroke-width="1.5px" />
             </svg>
         </div>
-        <div style="position: absolute; display: block; left: {{SHUD.worldToScreen(SHUD.Markers[1].Position()).x}}%; top: 50%; height: 50vw; width: 50vw; transform: translate(-50%, -{{SHUD.worldToScreen(SHUD.Markers[1].Position()).y}}%); filter: drop-shadow(0px 3px 4px #000000);">
-            <svg id="svg-1" height="100%" width="100%" viewBox="{{SHUD.SvgMinX}} {{SHUD.SvgMinY}} {{SHUD.SvgWidth}} {{SHUD.SvgHeight}}">
-                <ellipse ry="7" rx="7" id="svg-1" cy="0" cx="0" fill-opacity="null" stroke-width="1" stroke="#]]..primaryColor..[[" fill="none"/>
-                <polyline points="0,7 0,12" fill="none" stroke="#]]..primaryColor..[[" stroke-width="1.5px" />
-                <polyline points="0,-7 0,-12" fill="none" stroke="#]]..primaryColor..[[" stroke-width="1.5px" />
-                <polyline points="7,0 12,0" fill="none" stroke="#]]..primaryColor..[[" stroke-width="1.5px" />
-                <polyline points="-7,0 -12,0" fill="none" stroke="#]]..primaryColor..[[" stroke-width="1.5px" />
-            </svg>
-        </div> 
+
 
         <div id="speedometerBar">&nbsp;</div>
            <div id="speedometer">

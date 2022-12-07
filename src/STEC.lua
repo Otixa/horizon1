@@ -583,21 +583,21 @@ function STEC(core, control, Cd)
               --    scale = self.gravityFollowSpeed
               --end
               --local gFollow = (self.world.up:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition())))
-              local gFollow = (self.world.up:cross(-self.world.gravity))
-              --local gFollow = (self.world.up:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition())))
+              --local gFollow = (self.world.up:cross(-self.world.gravity))
+              local gFollow = (self.world.up:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition())))
               local scale = 1
               if self.pocket then
                   if self.direction.x < 0  then
                       scale = 0.25
-                      --gFollow = gFollow + ship.world.right:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition()) * 0.25)
-                      gFollow = gFollow + ship.world.right:cross(-self.world.gravity * 0.25)
+                      gFollow = gFollow + ship.world.right:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition()) * 0.25)
+                      --gFollow = gFollow + ship.world.right:cross(-self.world.gravity * 0.25)
                   elseif self.direction.x > 0  then
                       scale = 0.25
-                      --gFollow = gFollow - ship.world.right:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition()) * 0.25)
-                      gFollow = gFollow - ship.world.right:cross(-self.world.gravity * 0.25)
+                      gFollow = gFollow - ship.world.right:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition()) * 0.25)
+                      --gFollow = gFollow - ship.world.right:cross(-self.world.gravity * 0.25)
                   elseif self.direction.y < 0  then
-                      --gFollow = gFollow + ship.world.forward:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition()) * 0.25)
-                      gFollow = gFollow + ship.world.forward:cross(-self.world.gravity * 0.25)
+                      gFollow = gFollow + ship.world.forward:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition()) * 0.25)
+                      --gFollow = gFollow + ship.world.forward:cross(-self.world.gravity * 0.25)
                   end
               end
               gFollow = gFollow * scale
@@ -606,11 +606,11 @@ function STEC(core, control, Cd)
   
 
 		if self.altitudeHold ~= 0 then
-            --local deltaAltitude =  self.altitudeHold - self.altitude
+            local deltaAltitude =  self.altitudeHold - self.altitude
             local waypoint = moveWaypointY(self.altitudeHold, (self.world.velocity:len() * 3) + 50)
             self.targetVector = (waypoint - self.world.position ):normalize()
             atmp = atmp - (self.world.right:cross(self.world.forward:cross(self.world.gravity:normalize())) * self.rotationSpeed * 9) - ((self.AngularVelocity * 3) - (self.AngularAirFriction * 3))
-            --tmp = tmp - ((self.nearestPlanet:getGravity(construct.getWorldPosition()) * self.mass) * deltaAltitude)
+            tmp = tmp - ((self.nearestPlanet:getGravity(construct.getWorldPosition()) * self.mass) * deltaAltitude)
         end
         if self.targetVector == nil then self.gotoLock = nil end
         if self.gotoLock ~= nil then
@@ -682,9 +682,10 @@ function STEC(core, control, Cd)
         if self.alternateCM then
           local speed = (self.cruiseSpeed / 3.6)
           local dot = self.world.forward:dot(self.airFriction)
+          --system.print(tostring(vec3(self.world.forward)))
           local modifiedVelocity = (speed - dot)
           local desired = self.world.forward * modifiedVelocity
-          local delta = (desired - self.world.velocity  - self.world.acceleration)
+          local delta = (desired - self.world.velocity)
           --system.print(tostring(vec3(self.world.acceleration)))
           tmp = tmp + (delta * self.mass)
         end
@@ -742,7 +743,7 @@ function STEC(core, control, Cd)
                 self.tempThrottle = self.throttle
                 self.throttle = 0
                 --system.print("Velocity = "..tostring(math.round(self.world.velocity:len(), 100)))
-                self.cruiseSpeed = math.round(self.world.velocity:len() * 3.6, 100)
+                --self.cruiseSpeed = math.round(self.world.velocity:len() * 3.6, 100)
                 self.alternateCM = true
             end
         end
