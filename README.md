@@ -14,6 +14,14 @@ New maintainers on these repositories are working on updating the codebase to be
 
 ### Updates
 
+#### 2024-02-26 *master* branch, @tobitege
+
+* Codebase revised to fix deprecated DU API calls.
+* Updated this README.md file.
+* Added "output" folder with installable "**Horizon1.json**"!
+* Added interim "build_tobitege.bat" file to run build of the main Horizon1 lua file (adapt paths to your env!).
+* Status: All good, flyable script! :)
+
 #### 2024-02-26 *elevator-lua-screen* branch, @tobitege
 
 * Codebase revised to fix deprecated DU API calls.
