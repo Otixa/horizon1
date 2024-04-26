@@ -18,6 +18,7 @@ New maintainers on these repositories are working on updating the codebase to be
 
 * Codebase revised to fix deprecated DU API calls.
 * Updated this README.md file.
+* Added "output" folder with installable "**Horizon1.json**"!
 * Added interim "build_tobitege.bat" file to run build of the main Horizon1 lua file (adapt paths to your env!).
 * Status: All good, flyable script! :)
 
