@@ -5,7 +5,7 @@ local vec3 = require('cpml/vec3')
 local concat = table.concat
 local sFormat = string.format
 -- Libs and helper functions
-local function internalSerialize(v,tC,t) local check = type(v) local intSerial=internalSerialize if check=='table' then t[tC]='{' local tempC=tC+1 if #v==0 then for k,e in pairs(v) do if type(k)~='number' then t[tempC]=k t[tempC+1]='=' tempC=tempC+2 else t[tempC]='[' t[tempC+1]=k t[tempC+2]=']=' tempC=tempC+3 end tempC=intSerial(e,tempC,t) t[tempC]=',' tempC=tempC+1 end else for k,e in pairs(v) do tempC=intSerial(e,tempC,t) t[tempC]=',' tempC=tempC+1 end end if tempC==(tC+1) then t[tempC]='}' return tempC+1 else t[tempC-1]='}' return tempC end elseif check=='string' then t[tC]=sFormat("%q",v) return tC+1 elseif check=='number' then t[tC]=tostring(v) return tC+1 else t[tC]=v and 'true' or 'false' return tC+1 end end 
+local function internalSerialize(v,tC,t) local check = type(v) local intSerial=internalSerialize if check=='table' then t[tC]='{' local tempC=tC+1 if #v==0 then for k,e in pairs(v) do if type(k)~='number' then t[tempC]=k t[tempC+1]='=' tempC=tempC+2 else t[tempC]='[' t[tempC+1]=k t[tempC+2]=']=' tempC=tempC+3 end tempC=intSerial(e,tempC,t) t[tempC]=',' tempC=tempC+1 end else for k,e in pairs(v) do tempC=intSerial(e,tempC,t) t[tempC]=',' tempC=tempC+1 end end if tempC==(tC+1) then t[tempC]='}' return tempC+1 else t[tempC-1]='}' return tempC end elseif check=='string' then t[tC]=sFormat("%q",v) return tC+1 elseif check=='number' then t[tC]=tostring(v) return tC+1 else t[tC]=v and 'true' or 'false' return tC+1 end end
 function serialize(v) local t={} local tC=1 local check = type(v) local intSerial=internalSerialize if check=='table' then t[tC]='{' tC=tC+1 local tempC=tC if #v==0 then for k,e in pairs(v) do if type(k)~='number' then t[tempC]=k t[tempC+1]='=' tempC=tempC+2 else t[tempC]='[' t[tempC+1]=k t[tempC+2]=']=' tempC=tempC+3 end tempC=intSerial(e,tempC,t) t[tempC]=',' tempC=tempC+1 end else for k,e in pairs(v) do tempC=intSerial(e,tempC,t) t[tempC]=',' tempC=tempC+1 end end if tempC==tC then t[tempC]='}' else t[tempC-1]='}' end elseif check=='string' then t[tC]=sFormat("%q",v) elseif check=='number' then t[tC]=tostring(v) else t[tC]=v and 'true' or 'false' end return concat(t) end
 function deserialize(s) local f=load('t='..s) f() return t end
 function spairs(a,b)local c={}for d in pairs(a)do c[#c+1]=d end;if b then table.sort(c,function(e,f)return b(a,e,f)end)else table.sort(c)end;local g=0;return function()g=g+1;if c[g]then return c[g],a[c[g]]end end end
@@ -14,20 +14,22 @@ function convertFromHex(a)if a:sub(1,1)=="#"then a=a:sub(2,-1)end;if#a==8 then r
 function mToKm(n,p)
     if n >= 1000 then
         local rtn = utils.round((n / 1000),p) or utils.round((n / 1000))
-        return  rtn .. " km" 
+        return  rtn .. " km"
     else
         local rtn = utils.round(n,p) or utils.round(n)
-        return rtn .. " m" end end
+        return rtn .. " m"
+	end end
 function massConvert(n,p)
     if n >= 1000 and n < 1000000 then
         local rtn = utils.round((n / 1000),p) or utils.round((n / 1000))
         return  rtn .. " t"
     elseif n >= 1000000 then
-            local rtn = utils.round((n / 1000000),p) or utils.round((n / 1000000))
-            return  rtn .. " kt" 
+        local rtn = utils.round((n / 1000000),p) or utils.round((n / 1000000))
+        return  rtn .. " kt"
     else
         local rtn = utils.round(n,p) or utils.round(n)
-        return rtn .. " kg" end end
+        return rtn .. " kg"
+	end end
 
 local stLogo = loadImage("assets.prod.novaquark.com/31879/70c4eeac-9aad-4fce-952f-db5dac287832.png")
 local stCover = loadImage("assets.prod.novaquark.com/27707/a8a9beb8-73de-4cd3-a0fb-d84e11e7a942.png")
@@ -175,9 +177,9 @@ if not GenericButton then
                 cr = cr + 0.1
                 cg = cg + 0.1
                 cb = cb + 0.1
-                if click then 
+                if click then
                     if type(self.action) == "function" then
-                       self.action() 
+                       self.action()
                     end
                 end
                 --Click action
@@ -194,7 +196,7 @@ if not GenericButton then
             else
                 setNextFillColor(self.fLayer, 1, 1, 1, 1)
             end
-            
+
             setNextTextAlign(self.fLayer, AlignH_Center, AlignV_Middle)
             addText(self.fLayer, esFont, self.text1, self.x, self.y - 20)
             if config.estop then
@@ -242,7 +244,7 @@ if not ButtonQuad then
         local y0 = self.y - sy/2
         local x1 = x0 + sx
         local y1 = y0 + sy
-        
+
         local r, g, b = 0.7, 0.7, 0.7
         local cr, cg, cb, ca
         if self.color ~= nil then
@@ -263,7 +265,7 @@ if not ButtonQuad then
                     if type(self.action) == "function" then
                         self.action()
                     end
-                     
+
                 end
                 --Click action
             end
@@ -372,7 +374,7 @@ if not StatsLine then
     end
 
     function mt:draw()
-        
+
         setNextStrokeColor(layer, 1, 1, 1, 0.2)
         addLine(layer,self.x,self.y,self.x + self.width,self.y)
         setNextStrokeColor(layer, 1, 1, 1, 0.2)
@@ -429,7 +431,7 @@ if not DeviationInd then
         --ship box
         local box_r, box_g, box_b = 0.0, 0.5, 0.1
         local tri_r, tri_g, tri_b = 0.0, 0.5, 0.1
-        
+
         local box_x = self.x + (self.width / 2) - 25
         local box_y = self.y + (self.height /2) - 25
         local degrees = 0
@@ -441,7 +443,7 @@ if not DeviationInd then
                 --Box movement
                 box_x = box_x + utils.clamp((stats.data.deviationVec.x * 20),-65,65)
                 box_y = box_y - utils.clamp((stats.data.deviationVec.y * 20),-58,58)
-                
+
                 --Triangle color
                 --logMessage(tostring(vec3(stats.data.deviationRot)))
                 tri_g = 1.0 - utils.map(utils.clamp(math.abs(stats.data.deviationRot.z), 0, 1.5),0,1.5,0,1)
@@ -454,7 +456,7 @@ if not DeviationInd then
         setNextStrokeWidth(statsLayer, 2)
         setNextRotationDegrees(statsLayer, degrees)
         addBoxRounded(statsLayer, box_x, box_y, 50,50,3)
-        
+
         setNextFillColor(statsLayer, tri_r, tri_g, tri_b, 1)
         setNextStrokeColor(statsLayer, 0, 0, 0, 1)
         setNextStrokeWidth(statsLayer, 1)
@@ -547,15 +549,15 @@ if config.manualControl then mcColor = '#3c00b3' end
 if config.estop then eStopColor = '#ff0000' end
 local buttons = {
     ButtonQuad('RTB',                135, 135, function() config.targetAlt = config.rtb outputMsg = serialize(config) end,false,'#006603'),
-    ButtonQuad('+10m',               135, 185, function() 
+    ButtonQuad('+10m',               135, 185, function()
         if config.targetAlt == 0 then
             config.targetAlt = stats.data.elevation + 10
         else
             config.targetAlt = config.targetAlt + 10
         end
-        outputMsg = serialize(config) 
+        outputMsg = serialize(config)
     end,false,'#0b0578'),
-    ButtonQuad('-10m',               135, 235, function() 
+    ButtonQuad('-10m',               135, 235, function()
         if config.targetAlt == 0 then
             config.targetAlt = stats.data.elevation - 10
         else
@@ -566,7 +568,7 @@ local buttons = {
     GenericButton('Emergency', 'Stop', eStopFont, 135, 400, 185, 165, eStopColor, function() config.estop = not config.estop outputMsg = serialize(config) end),
     GenericButton('Set RTB','',font3,135,515,185,30,'#006960',function() config.setBaseActive = true end),
     GenericButton('Settings','',font3,360,515,185,30,'#006960',function() config.settingsActive = true end),
-    
+
 }
 local rtbButtons = {
     ButtonQuad('Set Base',rx/2-112.5, ry-155, function() config.setBaseReq = true

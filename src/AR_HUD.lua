@@ -8,7 +8,6 @@ vec2 = require('cpml/vec2')
 utils = require('cpml/utils')
 mat4 = require("cpml/mat4")
 
-
 mouseDeltaSum = vec2(0,0)
 
 local function signum(number)
@@ -48,7 +47,7 @@ end
 function deltaSum(sum, delta)
    local deltaX = 0
    local deltaY = 0
-   
+
    if (sum.y + delta.y) <= 0 then deltaY = 0
    elseif (sum.y + delta.y) >= (1250 / mouseSensitivity) then deltaY = (1250 / mouseSensitivity)
    else deltaY = sum.y + delta.y
@@ -58,11 +57,12 @@ function deltaSum(sum, delta)
 end
 
 function updateAR()
-	local mouseDelta = vec2(system.getMouseDeltaX(),system.getMouseDeltaY())
-	mouseDeltaSum = deltaSum(mouseDeltaSum,mouseDelta)
-	playerQ = quat(unit.getMasterPlayerRelativeOrientation())
-	forwardX = (playerQ * vec3(core.getConstructOrientationForward()))
-	ship.viewY = scaleViewBoundsY(mouseDeltaSum.y)
-	ship.viewX = scaleViewBoundsX(forwardX.x)
+	---@TODO replace getMasterPlayerRelativeOrientation with ... ???
+	-- local mouseDelta = vec2(system.getMouseDeltaX(),system.getMouseDeltaY())
+	-- mouseDeltaSum = deltaSum(mouseDeltaSum,mouseDelta)
+	-- playerQ = quat(unit.getMasterPlayerRelativeOrientation())
+	-- forwardX = (playerQ * vec3(construct.getOrientationForward()))
+	-- ship.viewY = scaleViewBoundsY(mouseDeltaSum.y)
+	-- ship.viewX = scaleViewBoundsX(forwardX.x)
     --system.print("x: "..ship.viewX..", y: "..ship.viewY)
 end

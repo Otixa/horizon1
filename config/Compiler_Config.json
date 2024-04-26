@@ -4,109 +4,109 @@
         {
             "Files": ["src/STEC_config.lua"],
             "Slot":"-1",
-            "Signature":"start()",
+            "Signature":"onStart()",
             "Args":""
         },
         {
             "Files": ["src/ModuleRegistration.lua"],
             "Slot":"-1",
-            "Signature":"start()",
+            "Signature":"onStart()",
             "Args":""
         },
         {
-            "Code": "system.showScreen(0)",
+            "Code": "system.showScreen(false)",
             "Slot":"-1",
-            "Signature":"stop()",
+            "Signature":"onStop()",
             "Args":""
         },
         {
             "Code":"if SHUD then SHUD.Render() end",
             "Slot":"-1",
-            "Signature":"tick(timerId)",
+            "Signature":"onTimer(timerId)",
             "Args":"*"
         },
         {
             "Code":"keybindPresets[keybindPreset].Call(action, \"down\")",
             "Slot":"-2",
-            "Signature":"actionStart(action)",
+            "Signature":"onActionStart(action)",
             "Args":"*"
         },
         {
             "Code":"keybindPresets[keybindPreset].Call(action, \"up\")",
             "Slot":"-2",
-            "Signature":"actionStop(action)",
+            "Signature":"onActionStop(action)",
             "Args":"*"
         },
         {
             "Code":"keybindPresets[keybindPreset].Call(action, \"loop\")",
             "Slot":"-2",
-            "Signature":"actionLoop(action)",
+            "Signature":"onActionLoop(action)",
             "Args":"*"
         },
         {
             "Code":"if Events then Events.Flush() end",
             "Slot":"-2",
-            "Signature":"flush()",
+            "Signature":"onFlush()",
             "Args":""
         },
         {
             "Code":"if Events then Events.Update() end",
             "Slot":"-2",
-            "Signature":"update()",
+            "Signature":"onUpdate()",
             "Args":""
         },
         {
             "Files":["src/EventDelegate.lua"],
             "Slot":"-2",
-            "Signature":"start()",
+            "Signature":"onStart()",
             "Args":""
         },
         {
             "Files":["src/TaskManager.lua"],
             "Slot":"-2",
-            "Signature":"start()",
+            "Signature":"onStart()",
             "Args":""
         },
         {
             "Files":["src/DynamicDocument.lua"],
             "Slot":"-2",
-            "Signature":"start()",
+            "Signature":"onStart()",
             "Args":""
         },
         {
             "Files":["src/TagManager.lua"],
             "Slot":"-3",
-            "Signature":"start()",
+            "Signature":"onStart()",
             "Args":""
         },
         {
             "Files":["src/KeybindController.lua"],
             "Slot":"-3",
-            "Signature":"start()",
+            "Signature":"onStart()",
             "Args":""
         },
         {
             "Files":["src/STEC.lua"],
             "Slot":"-3",
-            "Signature":"start()",
+            "Signature":"onStart()",
             "Args":""
         },
         {
             "Files":["src/SHUD.lua"],
             "Slot":"-3",
-            "Signature":"start()",
+            "Signature":"onStart()",
             "Args":""
         },
         {
             "Files":["src/STMM.lua"],
             "Slot":"-3",
-            "Signature":"start()",
+            "Signature":"onStart()",
             "Args":""
         },
         {
             "Files":["src/shud2.css"],
             "Slot":"-3",
-            "Signature":"start()",
+            "Signature":"onStart()",
             "Args":""
         }
     ]

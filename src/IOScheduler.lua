@@ -2,14 +2,14 @@
 
 --[[
 Custom IO scheduler to deal with limited data packet size
-and tick rate of screen send/recieve. IOScheduler.defaultData
+and tick rate of screen send/receive. IOScheduler.defaultData
 will send as fast as possible, while IOScheduler.queueData()
 will interrupt default send and to send queued data.
 --]]
 
 IOScheduler = (function()
     local self = {}
-    
+
     self.defaultData = nil
     self.currentTask = nil
     self.taskQueue = {}
@@ -54,7 +54,7 @@ IOScheduler = (function()
             coroutine.resume(self.currentTask)
         end
     end
-    
+
     --Add to system.update()
     function self.update()
         if self.currentTask then
@@ -67,7 +67,7 @@ IOScheduler = (function()
             self.runQueue()
         end
     end
-    
+
     return self
 end)()
 
@@ -90,17 +90,17 @@ HandleOutput = (function()
                     system.print(tostring(s))
                 end
             end
-            
+
         end
     end
 
     function self.Execute()
         ship.baseAltitude = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
-        
+
         ship.altitudeHold = config.targetAlt
-        
+
         if config.estop then
-            
+
             ship.altitudeHold = 0
             config.targetAlt = 0
             ship.verticalLock = false
