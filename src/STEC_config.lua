@@ -1,7 +1,5 @@
 --@class STEC_Config
 
-
-
 ship.inertialDampening = inertialDampening
 ship.followGravity = followGravity
 ship.counterGravity = counterGravity
@@ -22,7 +20,7 @@ function softLanding()
         ship.direction.x = 0
         unit.extendLandingGears()
         ship.throttle = 0
-        if unit.getControlMode() == 1 then 
+        if unit.getControlMode() == 1 then
             unit.cancelCurrentControlMasterMode()
         end
     else
@@ -30,13 +28,11 @@ function softLanding()
         ship.inertialDampening = false
         unit.retractLandingGears()
     end
-
 end
 
 softLanding()
 
 function holdAlt()
-    
     if ship.altitudeHold == 0 then
         ship.altitudeHold = round2(ship.altitude,0)
         --ship.inertialDampening = true
@@ -48,7 +44,6 @@ function holdAlt()
         --ship.inertialDampening = false
         system.print("Altitude Hold OFF")
     end
-    
 end
 
 function goButton()
@@ -70,10 +65,8 @@ function goButton()
     end
 end
 
-
-
 function switchFlightMode(flightMode)
-    SHUD.Init(system, unit, keybindPresets[flightMode]) 
+    SHUD.Init(system, unit, keybindPresets[flightMode])
     keybindPreset = flightMode
     if flightModeDb then flightModeDb.setStringValue("flightMode",flightMode) end
 end
@@ -87,72 +80,71 @@ function math.round(v, bracket)
 end
 
 function switchControlMode()
-    if ship.alternateCM == false then 
+    if ship.alternateCM == false then
         ship.tempThrottle = ship.throttle
         ship.throttle = 0
         ship.cruiseSpeed = math.round(ship.world.velocity:len() * 3.6, 100)
         ship.alternateCM = true
 
-    else 
+    else
         ship.tempCruise = ship.cruiseSpeed
         ship.cruiseSpeed = 0
         ship.throttle = ship.tempThrottle
-        ship.alternateCM = false 
+        ship.alternateCM = false
     end
 end
 -- ::pos{0,2,40.4608,92.2665,4.3205}
-function gotoLock(a)
-    --::pos{0,0,-17729.2293,198268.4583,43236.0477}
-    if a ~= nil then
-        if string.find(a, "::pos") ~= nil then
-            x, y = helios:convertToBodyIdAndWorldCoordinates(a)
-            local target = y
-            --local target = helios:closestBody(a):convertToWorldCoordinates(a)
-            system.print(tostring(vec3(target)))
-            ship.followGravity = false
-            ship.targetVector = (target - ship.world.position):normalize()
-            ship.gotoLock = target
-            ship.stopping = false
-            system.print("Target lock: "..a)
-            system.setWaypoint(a)
-        end
-    else
-        local target = ship.nearestPlanet:convertToWorldCoordinates("::pos{0,0,-17729.2293,198268.4583,43236.0477}")
-        system.print(tostring(vec3(target)))
-        ship.followGravity = false
-        ship.targetVector = (target - ship.world.position):normalize()
-        ship.gotoLock = target
-        ship.stopping = false
-        system.print("Target lock: ::pos{0,0,-17729.2293,198268.4583,43236.0477}")
-        system.setWaypoint("::pos{0,0,-17729.2293,198268.4583,43236.0477}")
-    end
-    
-end
+-- function gotoLock(a)
+--     --::pos{0,0,-17729.2293,198268.4583,43236.0477}
+--     if a ~= nil then
+--         if string.find(a, "::pos") ~= nil then
+--             x, y = helios:convertToBodyIdAndWorldCoordinates(a)
+--             local target = y
+--             --local target = helios:closestBody(a):convertToWorldCoordinates(a)
+--             system.print(tostring(vec3(target)))
+--             ship.followGravity = false
+--             ship.targetVector = (target - ship.world.position):normalize()
+--             ship.gotoLock = target
+--             ship.stopping = false
+--             system.print("Target lock: "..a)
+--             system.setWaypoint(a)
+--         end
+--     else
+--         local target = ship.nearestPlanet:convertToWorldCoordinates("::pos{0,0,-17729.2293,198268.4583,43236.0477}")
+--         system.print(tostring(vec3(target)))
+--         ship.followGravity = false
+--         ship.targetVector = (target - ship.world.position):normalize()
+--         ship.gotoLock = target
+--         ship.stopping = false
+--         system.print("Target lock: ::pos{0,0,-17729.2293,198268.4583,43236.0477}")
+--         system.setWaypoint("::pos{0,0,-17729.2293,198268.4583,43236.0477}")
+--     end
+-- end
 
 -- ::pos{0,2,40.4652,92.2361,101.1699}
-local tty = DUTTY
-tty.onCommand('goto', function(a)
-    gotoLock(a)
-end)
+-- local tty = DUTTY
+-- tty.onCommand('goto', function(a)
+--     gotoLock(a)
+-- end)
 -- Testing commands to be removed
-tty.onCommand('goto1', function()
-    gotoLock("::pos{0,0,41351.6719,205839.2344,51086.4180}")
-end)
-tty.onCommand('goto2', function()
-    gotoLock("::pos{0,0,-17729.2293,198268.4583,43236.0477}")
-end)
-tty.onCommand('goto5su', function()
-    gotoLock("::pos{0,0,439874.4688,-363701.4062,749901.8750}")
-end)
-tty.onCommand('goto10su', function()
-    gotoLock("::pos{0,0,910554.2500,-951981.0625,1494420.1250}")
-end)
-tty.onCommand('home', function()
-    gotoLock("::pos{0,2,28.4911,76.0307,132054.2656}")
-end)
-tty.onCommand('madis', function()
-    gotoLock("::pos{0,0,17465536.0000,22665536.0000,-34464.0000}")
-end)
+-- tty.onCommand('goto1', function()
+--     gotoLock("::pos{0,0,41351.6719,205839.2344,51086.4180}")
+-- end)
+-- tty.onCommand('goto2', function()
+--     gotoLock("::pos{0,0,-17729.2293,198268.4583,43236.0477}")
+-- end)
+-- tty.onCommand('goto5su', function()
+--     gotoLock("::pos{0,0,439874.4688,-363701.4062,749901.8750}")
+-- end)
+-- tty.onCommand('goto10su', function()
+--     gotoLock("::pos{0,0,910554.2500,-951981.0625,1494420.1250}")
+-- end)
+-- tty.onCommand('home', function()
+--     gotoLock("::pos{0,2,28.4911,76.0307,132054.2656}")
+-- end)
+-- tty.onCommand('madis', function()
+--     gotoLock("::pos{0,0,17465536.0000,22665536.0000,-34464.0000}")
+-- end)
 
 --keybindPresets["mouse"] = KeybindController()
 --keybindPresets["mouse"].Init = function()
@@ -186,8 +178,6 @@ keybindPresets["maneuver"].Init = function()
     ship.direction.y = 0
 end
 
-
-
 -- Maneuver
 keybindPresets["maneuver"].keyDown.up.Add(function () ship.direction.z = 1 if not ship.counterGravity then ship.counterGravity = true end end) --space
 keybindPresets["maneuver"].keyUp.up.Add(function () ship.direction.z = 0 end) --space
@@ -213,7 +203,6 @@ keybindPresets["maneuver"].keyUp.right.Add(function () ship.direction.x = 0     
 
 keybindPresets["maneuver"].keyDown.lshift.Add(function () shiftLock = true end,"Shift Modifier")
 keybindPresets["maneuver"].keyUp.lshift.Add(function () shiftLock = false end)
-
 
 keybindPresets["maneuver"].keyDown.brake.Add(function () ship.brake = true end)
 keybindPresets["maneuver"].keyUp.brake.Add(function () ship.brake = false end)
@@ -264,7 +253,7 @@ keybindPresets["standard"].keyUp.stopengines.Add(function () SHUD.Select() if no
 
 keybindPresets["standard"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD.Enabled end)
 
-keybindPresets["standard"].keyDown.lshift.Add(function () player.freeze( math.abs(1 - player.isFrozen())) end,"Freeze character")
+keybindPresets["standard"].keyDown.lshift.Add(function () player.freeze(not player.isFrozen()) end,"Freeze character")
 
 keybindPresets["standard"].keyDown.lshift.Add(function () shiftLock = true end,"Shift Modifier")
 keybindPresets["standard"].keyUp.lshift.Add(function () shiftLock = false end)
@@ -272,21 +261,19 @@ keybindPresets["standard"].keyUp.lshift.Add(function () shiftLock = false end)
 keybindPresets["standard"].keyUp["booster"].Add(function () holdAlt() end, "Altitude Hold")
 keybindPresets["standard"].keyUp["gear"].Add(function () landing = not landing; softLanding() end, "Land")
 keybindPresets["standard"].keyUp["option1"].Add(function () ship.inertialDampening = not ship.inertialDampening end, "Inertial Dampening")
-keybindPresets["standard"].keyUp["option2"].Add(function ()  ship.targetVector = nil ship.followGravity = not ship.followGravity end, "Gravity Follow")
+keybindPresets["standard"].keyUp["option2"].Add(function () ship.targetVector = nil ship.followGravity = not ship.followGravity end, "Gravity Follow")
 keybindPresets["standard"].keyUp["option3"].Add(function () if ship.direction.y == 1 then ship.direction.y = 0 else ship.direction.y = 1 end end, "Thrust on/off")
 keybindPresets["standard"].keyUp["option4"].Add(function () ship.counterGravity = not ship.counterGravity end, "Counter Gravity")
 keybindPresets["standard"].keyUp["option5"].Add(function () switchFlightMode("maneuver") end, "Switch Flight Mode")
 keybindPresets["standard"].keyUp["option6"].Add(function () switchControlMode() end, "Alternate Control Mode Switch")
 keybindPresets["standard"].keyUp["option7"].Add(function ()
-    if shiftLock then
-        ship.disableVtol = not ship.disableVtol
-    else
-        ship.vtolPriority = not ship.vtolPriority
-    end
-    
-
+	if shiftLock then
+		ship.disableVtol = not ship.disableVtol
+	else
+		ship.vtolPriority = not ship.vtolPriority
+	end
 end, "VTOL Priority")
-keybindPresets["standard"].keyUp["option8"].Add(function () core.setDockingMode(0); core.undock() end,"Undock")
+keybindPresets["standard"].keyUp["option8"].Add(function () construct.setDockingMode(0); construct.undock() end,"Undock")
 keybindPresets["standard"].keyUp["option9"].Add(function () flightModeDb.clear() system.print("DB Cleared") end,"Clear DB")
 
 --[[ mouse
@@ -319,7 +306,7 @@ keybindPresets["mouse"].keyUp.stopengines.Add(function () SHUD.Select() if not S
 keybindPresets["mouse"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD.Enabled end)
 keybindPresets["mouse"].keyUp.speeddown.Add(function () if mouse.enabled then mouse.unlock() mouse.enabled = false else mouse.lock() mouse.enabled = true end end, "Mouse Steering")
 
-keybindPresets["mouse"].keyDown.lshift.Add(function () player.freeze( math.abs(1 - player.isFrozen())) end,"Freeze character")
+keybindPresets["mouse"].keyDown.lshift.Add(function () player.freeze(not player.isFrozen()) end,"Freeze character")
 
 keybindPresets["mouse"].keyUp["booster"].Add(function () holdAlt() end, "Altitude Hold")
 keybindPresets["mouse"].keyUp["gear"].Add(function () landing = not landing; softLanding() end, "Toggle Landing Gear")
@@ -330,20 +317,20 @@ keybindPresets["mouse"].keyUp["option4"].Add(function () ship.counterGravity = n
 keybindPresets["mouse"].keyUp["option5"].Add(function () switchFlightMode("standard") end, "Switch Flight Mode")
 keybindPresets["mouse"].keyUp["option6"].Add(function () switchControlMode() end, "Alternate Control Mode Switch")
 --]]
+keybindPreset = "standard"
 if flightModeDb then
-    if flightModeDb.hasKey("flightMode") == 0 then flightModeDb.setStringValue("flightMode","standard") end
-    keybindPreset = flightModeDb.getStringValue("flightMode")
-    if keybindPreset == "keyboard" then
-        flightModeDb.clear() 
-        system.print("DB Cleared")
-        keybindPreset = "standard"
-
-    end
- else
-    system.print("No databank installed.")
-    keybindPreset = "standard"
- end
-
+	if not flightModeDb.hasKey("flightMode") then
+		flightModeDb.setStringValue("flightMode","standard")
+	end
+	keybindPreset = flightModeDb.getStringValue("flightMode")
+	if keybindPreset == "keyboard" then
+		flightModeDb.clear()
+		system.print("DB Cleared")
+		keybindPreset = "standard"
+	end
+else
+	system.print("No databank installed.")
+end
 
 SHUD.Init(system, unit, keybindPresets[keybindPreset])
 
@@ -352,7 +339,7 @@ Task(function()
     SHUD.FreezeUpdate = true
     local endTime = system.getArkTime() + 2
     while system.getArkTime() < endTime do
-            coroutine.yield()
+        coroutine.yield()
     end
     SHUD.FreezeUpdate = false
     SHUD.IntroPassed = true
@@ -375,14 +362,14 @@ SHUD.Markers = {
         Position = function() return ship.world.position + (ship.target.antiradial() * 2) end,
         Class = "antiradial"
     },
-    {
-        Position = vec3(-15973, 106446, -60333),
-        Class = "target",
-        Name = "Shadow Templar HQ",
-        ShowDistance = true
-    }
+    -- {
+    --     Position = vec3(-15973, 106446, -60333),
+    --     Class = "target",
+    --     Name = "Shadow Templar HQ",
+    --     ShowDistance = true
+    -- }
 }
 
-player.freeze(1)
+player.freeze(true)
 ship.frozen = false
 unit.deactivateGroundEngineAltitudeStabilization()

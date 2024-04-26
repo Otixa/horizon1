@@ -15,7 +15,7 @@ function SpeedConvert(value)
     if value > 5000 then
         local ending = tonumber(tostring(round2(value/55.55, 2)):match("%.(%d+)"))
         ending = string.format("%02d",ending)
-        return {round2(value/55.55),ending,"su/h"}   
+        return {round2(value/55.55),ending,"su/h"}
     end
     local ending = tonumber(tostring(round2(value/3.6, 2)):match("%.(%d+)"))
     ending = string.format("%02d",ending)
@@ -24,19 +24,19 @@ end
 
 function CruiseControl(value)
     local appliedCruise = 0
-    
-    
+
+
     if ship.cruiseSpeed < 500 then appliedCruise = value * 10
-    elseif ship.cruiseSpeed >= 500 and ship.cruiseSpeed <= 1999 then appliedCruise = value * 50 
-    elseif ship.cruiseSpeed >= 2000 and ship.cruiseSpeed <= 9999 then appliedCruise = value * 100 
+    elseif ship.cruiseSpeed >= 500 and ship.cruiseSpeed <= 1999 then appliedCruise = value * 50
+    elseif ship.cruiseSpeed >= 2000 and ship.cruiseSpeed <= 9999 then appliedCruise = value * 100
     elseif ship.cruiseSpeed >= 10000 then appliedCruise = value * 1000 end
-    
+
     local max = construct.getMaxSpeed()
     ship.cruiseSpeed = utils.clamp(ship.cruiseSpeed + appliedCruise,-max*3.6,max*3.6)
 end
 
 function getControlMode()
-    if ship.alternateCM then 
+    if ship.alternateCM then
         return "Cruise"
     else
         return "Travel"
@@ -92,14 +92,14 @@ SHUD =
     self.ScreenH = system.getScreenHeight()
     self.Resolution = vec2(self.ScreenW, self.ScreenH)
     self.Opacity = 1
-    
+
     self.SvgMinX = -round((self.ScreenW / 4) / 2,0)
     self.SvgMinY = -round((self.ScreenH / 4) / 2,0)
     self.SvgWidth = round(self.ScreenW / 4,0)
     self.SvgHeight = round(self.ScreenH / 4,0)
-    
+
     self.Markers = {}
-        
+
     self.MarkerBuffer = {}
 
     function self.worldToScreen(pos)
@@ -140,8 +140,8 @@ SHUD =
     local function esc(x)
         return (x:gsub("%%", "%%%%"))
     end
-    
-    -- Begin Anti-Grav Stuff 
+
+    -- Begin Anti-Grav Stuff
     if antigrav ~= nil then
         antiGravState = false
         antiGravBaseAlt = antigrav.getBaseAltitude()
@@ -189,11 +189,11 @@ SHUD =
                antigrav.showWidget()
            else
                antigrav.hideWidget()
-           end  
+           end
         end
     end
-    -- End Anti-Grav Stuff      
-        
+    -- End Anti-Grav Stuff
+
     function self.MakeBooleanIndicator(varName)
         local tmpl = [[<span class="right">
             <i dd-if="varName == true">✓&nbsp;</i>
@@ -216,7 +216,7 @@ SHUD =
     self.BackButton = SMI([[<i>&lt;&nbsp;</i>&nbsp;]].."Back", function() SHUD.Menu = SHUD.MenuList.prev SHUD.CurrentIndex = 1 end)
     if antigrav ~= nil then
         self.Menu = {
-            SMI(DD([[<span>Throttle<span>]]..self.MakeSliderIndicator("round2(ship.throttle * 100)", "%")), 
+            SMI(DD([[<span>Throttle<span>]]..self.MakeSliderIndicator("round2(ship.throttle * 100)", "%")),
                 function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
                 function(system, _ , w) ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1) end),
             SMI(DD("<span>Mouse Steering<span>" .. self.MakeBooleanIndicator("mouse.enabled")),
@@ -230,7 +230,7 @@ SHUD =
         }
     else
         self.Menu = {
-            SMI(DD([[<span>Throttle<span>]]..self.MakeSliderIndicator("round2(ship.throttle * 100)", "%")), 
+            SMI(DD([[<span>Throttle<span>]]..self.MakeSliderIndicator("round2(ship.throttle * 100)", "%")),
                 function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
                 function(system, _ , w) ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1) end),
             SMI(DD("<span>Mouse Steering<span>" .. self.MakeBooleanIndicator("mouse.enabled")),
@@ -253,13 +253,13 @@ SHUD =
         SMI(DD([[<span>Pos Y:</span><span class="right">{{round2(ship.world.position.y)}}</span>]])).Disable(),
         SMI(DD([[<span>Pos Z:</span><span class="right">{{round2(ship.world.position.z)}}</span>]])).Disable(),
     }
-    if antigrav ~= nil then 
+    if antigrav ~= nil then
        self.MenuList.antigravity = {
            SMI(DD("<span>AGG Toggle<span>" .. self.MakeBooleanIndicator("antiGravState")), function() antigrav.toggle() end),
-           SMI(DD([[<span>Multiplier<span>]]..self.MakeSliderIndicator("antiGravAdjMultiplier", "")), 
+           SMI(DD([[<span>Multiplier<span>]]..self.MakeSliderIndicator("antiGravAdjMultiplier", "")),
                function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
                function(system, _ , w) antiGravAdjMultiplier = utils.clamp(antiGravAdjMultiplier + (system.getMouseWheel() * 10),1,500) end),
-           SMI(DD([[<span>Alt Setpoint<span>]]..self.MakeSliderIndicator("round2(targetAlt,0)", "m")), 
+           SMI(DD([[<span>Alt Setpoint<span>]]..self.MakeSliderIndicator("round2(targetAlt,0)", "m")),
                function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
                function(system, _ , w) targetAlt = utils.clamp(targetAlt + (system.getMouseWheel() * antiGravAdjMultiplier),1000,100000) antigrav.setBaseAltitude(targetAlt) end),
            SMI(DD([[<span>Base Altitude:</span><span class="right">{{round2(gvCurrentBaseAltitude,0)}}</span>]])).Disable(),
@@ -300,7 +300,7 @@ SHUD =
         SMI("Lock Teoma", function() ship.followGravity = false ship.targetVector = ship.planets.teoma end),
     }
     self.MenuList.hotkeys = {}
-    
+
     local fa = "<style>" .. CSS_SHUD .. "</style>"
     self.fuel = nil
     function getFuelRenderedHtml()
@@ -325,7 +325,7 @@ SHUD =
 
 
     local fa = "<style>" .. CSS_SHUD .. "</style>"
- 
+
      --   <div style="position: absolute; display: block; left: {{SHUD.worldToScreen(SHUD.Markers[1].Position()).x}}%; top: 50%; height: 50vw; width: 50vw; transform: translate(-50%, -{{SHUD.worldToScreen(SHUD.Markers[1].Position()).y}}%); filter: drop-shadow(0px 3px 4px #000000);">
      --       <svg id="svg-1" height="100%" width="100%" viewBox="{{SHUD.SvgMinX}} {{SHUD.SvgMinY}} {{SHUD.SvgWidth}} {{SHUD.SvgHeight}}">
      --           <ellipse ry="7" rx="7" id="svg-1" cy="0" cx="0" fill-opacity="null" stroke-width="1" stroke="#]]..primaryColor..[[" fill="none"/>
@@ -337,7 +337,7 @@ SHUD =
      --   </div>
 
 
-    
+
     local template = DD(fa..[[
     <div id="horizon" style="opacity: {{SHUD.Opacity}};">
         <div id="artificialHorizon">
@@ -373,21 +373,21 @@ SHUD =
                <span class="alt">
                	{{round2(ship.altitude)}}m
                </span>
-               
+
                <span class="misc">ATM {{round2(ship.world.atmosphericDensity, 2)}} | G {{round2(ship.world.gravity:len(), 2)}}m/s</span>
                <span dd-if="not ship.alternateCM" class="throttle">Throttle {{round2(ship.throttle * 100)}}%</span>
 		     <span dd-if="ship.alternateCM" class="throttle">Cruise {{round2(ship.cruiseSpeed)}} km/h</span>
             </div>
-        
+
             <div id="horizon-menu">
                 {{_SHUDBUFFER}}
             </div>
-        
+
             </div>
         <div id="fuelTanks">{{ SHUD.SHUDFuelHtml }}</div>
-    
+
     </div>
-    
+
     ]])
     local itemTemplate = [[<div class="item {{class}}">{{content}}</div>]]
     function self.SelectMenu(menuName)
@@ -409,13 +409,13 @@ SHUD =
     function self.Render()
         local buffer = ""
         local altHoldDisplay
-        
+
         if ship.altitudeHold ~= 0 then
             altHoldDisplay = ship.altitudeHold
         else
             altHoldDisplay = "OFF"
         end
-        if self.Enabled then 
+        if self.Enabled then
             for i = 1, #self.Menu do
                 local item = self.Menu[i]
                 if item.Active then item.Update(self.system, self.unit, item) end
@@ -436,12 +436,8 @@ SHUD =
             end
             _ENV["_SHUDBUFFER"] = esc(buffer)
         else
-            if player.isFrozen() == 0 then 
-                    ship.frozen = true 
-            else 
-                    ship.frozen = false 
-            end
-            if unit.isRemoteControlled() == 1 then
+            ship.frozen = not player.isFrozen()
+            if unit.isRemoteControlled() then
             	_ENV["_SHUDBUFFER"] = DD([[<div class="item helpText">Press ]] .. "[" .. self.system.getActionKeyName("speedup") .. "]" .. [[ to  toggle menu</div>[[
                         <div class="item helpText"><span>Altitude Hold: </span><span class="right">]] .. altHoldDisplay .. [[</span></div>
             	        <div class="item helpText"><span>Character movement:</span>]].. self.MakeBooleanIndicator("ship.frozen") .. [[</div>
@@ -466,9 +462,8 @@ SHUD =
     end
 
     function self.Update()
-        if unit.isRemoteControlled() == 1 then
-
-            if player.isFrozen() == 1 or self.Enabled then
+        if unit.isRemoteControlled() then
+            if player.isFrozen() or self.Enabled then
                 self.Opacity = 1
             else
                 self.Opacity = 0.5
@@ -483,13 +478,13 @@ SHUD =
             end
         elseif not self.Enabled then
             --if ship.controlMode == 0 or not ship.alternateCM then
-            --if player.isFrozen() == 1 then
+            --if player.isFrozen() then
             local mw = system.getMouseWheel()
             if ship.direction.y == 0 and mw ~= 0 then ship.direction.y = 1 end
             if not ship.alternateCM then
                 ship.throttle = utils.clamp(ship.throttle + (mw * 0.05),-1,1)
             elseif ship.alternateCM then
-                    --ship.cruiseSpeed = utils.clamp(ship.cruiseSpeed + (system.getMouseWheel() * 10),-29999,29999)
+                --ship.cruiseSpeed = utils.clamp(ship.cruiseSpeed + (system.getMouseWheel() * 10),-29999,29999)
                 CruiseControl(mw)
             end
             --end
@@ -502,7 +497,7 @@ SHUD =
         self.unit = unit
         self.CurrentIndex = 1
         self.ScrollLock = false
-        system.showScreen(1)
+        system.showScreen(true)
         unit.hideWidget()
         local keys = keybinds.GetNamedKeybinds()
         self.MenuList.hotkeys = {}
@@ -514,13 +509,13 @@ SHUD =
         self.MenuList.flightMode = {}
         for k,v in pairs(keybindPresets) do
             table.insert(self.MenuList.flightMode,
-            SMI(string.upper(k), function() 
+            SMI(string.lower(k), function()
                 self.Init(self.system, self.unit, v)
                 keybindPreset = k
                 keybindPresets[keybindPreset].Init()
             end))
         end
-        
+
         keybinds.Init()
     end
 

@@ -56,21 +56,21 @@ end
 --    local c2 = c * c
 --    local cA = c * math.asin(curVelMs / c)
 --    local cC = c2 * math.cos(cA / c) / rA
---    
+--
 --    local t = (c - cA) / rA
 --    local d = cC - c2 * math.cos((rA * t + cA) / c) / rA
---      
+--
 --    local min = math.floor(t / 60)
 --    t = t - (60 * min)
 --    local sec = round(t, 0)
---        
+--
 --    local tms = string.format("%02dm:%02ds", min, sec)
---     
+--
 --    local km = round(d / 1000, 2)
---    
+--
 --    brakeInfo.time = tms
 --    brakeInfo.dist = km
---    
+--
 --    return brakeInfo
 --end
 
@@ -137,7 +137,7 @@ function STEC(core, control, Cd)
     -- Placeholder for throttle value when switching control modes
     self.tempThrottle = 0
     -- Placeholder for cruise value when switching control modes
-    self.tempCruise = 0  
+    self.tempCruise = 0
     -- Active engine tags
     self.tags = TagManager("all")
     -- Target vector to face if non-0. Can take in a vec3 or function which returns a vec3
@@ -207,7 +207,7 @@ function STEC(core, control, Cd)
     self.trajectoryDiff = 0
     self.ETA = 0
     self.simulationPos = vec3(0,0,0)
-    
+
     self.priorityTags1 = "airfoil,torque,ground"
     self.priorityTags2 = "atmospheric_engine,space_engine"
     self.priorityTags3 = "brake,vertical"
@@ -235,7 +235,6 @@ function STEC(core, control, Cd)
         local sv = self.world.velocity:clone()
         local sp = self.world.position:clone()
         local sa = self.world.acceleration:clone()
-    
         local cutoff = simLength / timeStep
 
         for step = 0,cutoff do
@@ -269,7 +268,7 @@ function STEC(core, control, Cd)
             local bPos = vec3(body.center[1], body.center[2], body.center[3])
             local dir = (sPos - bPos):normalize()
             local dist = (sPos - bPos):len()
-            
+
             if dist < body.radius or collided ~= nil then
                 if collided == nil then
                     collided = body
@@ -281,25 +280,25 @@ function STEC(core, control, Cd)
                     ["collision"] = collided
                 }
             end
-    
+
             local Fg = G * (ship.mass * body.GM) / dist^2
             local dirMul = dir * ((Fg / ship.mass) * -stepSize)
             velocity = velocity + dirMul
             if closest == nil or ((dist - body.radius) / Fg < ((sPos - vec3(closest.center[1], closest.center[2], closest.center[3])):len() - closest.radius) / Fg) then
                 closest = body
             end
-            
+
             if velocity:len() > vFinal then
                 vFinal = velocity:len()
             end
-    
+
         end
-    
+
         if collided == nil and stepSize > 0 then
             if closest ~= nil then
-    
+
             end
-    
+
              velocity = velocity + (sAcc * stepSize)
              if velocity:len() > 8333.333333 then
                 velocity = velocity:normalize() * 8333.333333
@@ -326,9 +325,9 @@ function STEC(core, control, Cd)
         return _average
     end
 
-    local sMovingAverage5 = sMovingAverage(5)
-    local sMovingAverage10 = sMovingAverage(10)
-    local sMovingAverage15 = sMovingAverage(15)
+    -- local sMovingAverage5 = sMovingAverage(5)
+    -- local sMovingAverage10 = sMovingAverage(10)
+    -- local sMovingAverage15 = sMovingAverage(15)
     local sMovingAverage25 = sMovingAverage(25)
 
     function self.updateWorld()
@@ -348,10 +347,8 @@ function STEC(core, control, Cd)
             nearPlanet = unit.getClosestPlanetInfluence() > 0,
             atlasAltitude = self.nearestPlanet:getAltitude(construct.getWorldPosition()),
             --nearestPlanetGravity = vec3(self.nearestPlanet.getGravity(construct.getWorldPosition()))
-            
-    
         }
-        
+
         self.nearestPlanet = helios:closestBody(construct.getWorldPosition())
         if antigrav and antigrav.getState() == 1 then
             self.world.gravity = self.nearestPlanet:getGravity(construct.getWorldPosition())
@@ -361,13 +358,13 @@ function STEC(core, control, Cd)
         if self.world.vertical:dot(self.world.up) > 0 then self.rollDegrees = 180 - self.rollDegrees end
         -- Pitch
         self.pitchRatio = self.world.vertical:angle_between(self.world.forward) / math.pi - 0.5
-        
+
         self.AngularVelocity = vec3(construct.getWorldAngularVelocity())
         self.AngularAcceleration = vec3(construct.getWorldAngularAcceleration())
         self.AngularAirFriction = vec3(construct.getWorldAirFrictionAngularAcceleration())
-        
-	   self.airFriction = vec3(construct.getWorldAirFrictionAcceleration())
-        
+
+		self.airFriction = vec3(construct.getWorldAirFrictionAcceleration())
+
         self.mass = self.construct.getMass()
         self.altitude = self.nearestPlanet:getAltitude(construct.getWorldPosition())
         self.localVelocity = vec3(construct.getVelocity())
@@ -382,16 +379,15 @@ function STEC(core, control, Cd)
             self.priorityTags3 = "vertical"
         end
 
-
         local tkForward = construct.getMaxThrustAlongAxis("all", {vec3(0, 1, 0):unpack()})
         local tkUp = construct.getMaxThrustAlongAxis("all", {vec3(0, 0, 1):unpack()})
         local tkRight = construct.getMaxThrustAlongAxis("all", {vec3(1, 0, 0):unpack()})
-        
+
         local tkOffset = 0
         if self.world.atmosphericDensity < 0.1 then
             tkOffset = 2
         end
-        
+
         virtualGravityEngine =
             vec3(
             library.systemResolution3(
@@ -419,7 +415,7 @@ function STEC(core, control, Cd)
         local y = 1/math.sqrt(1-((v*v)/(c*c)))
         self.inertialMass = utils.clamp(self.mass * y, self.mass, self.mass * 1.5)
 
-        
+
 
     end
     function self.calculateAccelerationForce(acceleration, time)
@@ -509,7 +505,7 @@ function STEC(core, control, Cd)
         return self.world.position - ((self.world.position - v):normalize() * distance)
     end
 
-    
+
 
     function self.apply()
         local deltaTime = math.max(system.getArkTime() - lastUpdate, 0.001) --If delta is below 0.001 then something went wrong in game engine.
@@ -525,7 +521,7 @@ function STEC(core, control, Cd)
         local hMax = construct.getMaxThrustAlongAxis("all", {vec3(1,0,0):unpack()})
         self.forwardThrust = self.MaxKinematics.Forward
 
- 
+
         if self.direction.x > 0 then
             tmp = tmp  + (self.world.right * self.MaxKinematics.Right) * self.throttle
         end
@@ -573,7 +569,7 @@ function STEC(core, control, Cd)
             --end
         end
         if self.followGravity and self.rotation.x == 0 then
-            
+
             --system.print(tostring(self.direction))
               --local current = self.localVelocity:len() * self.mass
               --local scale = nil
@@ -603,7 +599,7 @@ function STEC(core, control, Cd)
               gFollow = gFollow * scale
               atmp = atmp + gFollow
           end
-  
+
 
 		if self.altitudeHold ~= 0 then
             local deltaAltitude =  self.altitudeHold - self.altitude
@@ -614,37 +610,35 @@ function STEC(core, control, Cd)
         end
         if self.targetVector == nil then self.gotoLock = nil end
         if self.gotoLock ~= nil then
-            
+
             local targetRadius = ap_stop_distance
             if not self.inertialDampening then self.inertialDampening = true end
             self.direction.y = 0
             self.vtolPriority = true
             local speed = self.constructMaxSpeed
-            
+
             local dest = (self.world.position - self.gotoLock):normalize()
-            
+
             self.targetDist = math.abs((self.world.position - self.gotoLock):len() - targetRadius)
             --local v = self.getTrajectory(self.targetDist)
             local v = self.simulationPos
             --local v = self.world.position - ((self.world.position - self.world.velocity):normalize() * self.targetDist)
             self.trajectoryDiff = sMovingAverage25((v - self.gotoLock):len())
-            
+
             local force = tmp:dot(self.world.position - self.gotoLock)
 
             self.brakeDistance, self.accelTime = kinematics.computeDistanceAndTime((self.world.velocity + self.world.gravity):len(), 0, self.inertialMass, force, 0, self.maxBrake)
-            
+
             if self.brakeDistance >= (self.targetDist - targetRadius) or self.targetDist <= targetRadius then
                 speed = self.targetDist - self.brakeDistance
                 self.stopping = true
             end
             if self.trajectoryDiff > 10 and self.world.velocity:len() > 250 / 3.6 and not self.stopping then
             --    self.inertialDampening = false
-  --
 --
             --    local a = self.targetDist
             --    local b = (self.world.position - v):len()
             --    local c = (self.gotoLock - v):len()
---
 --
             --    self.deviationAngle = utils.clamp(math.deg(self.world.forward:angle_between(v)),0,45)
 --
@@ -653,8 +647,7 @@ function STEC(core, control, Cd)
             --        --system.print("adjust...")
             --        tri = getGapFromAngle(a,b,self.deviationAngle)
             --    end
-            --        
---
+            --
             --    --local aa = moveWaypoint(self.world.position, v, self.targetDist)
             --    --local ab = moveWaypoint(self.gotoLock, aa, -c)
 --
@@ -678,7 +671,7 @@ function STEC(core, control, Cd)
             self.ETA = (self.targetDist / self.world.velocity:len()) + self.accelTime
             tmp = tmp - dest * self.mass * utils.clamp(self.targetDist * 3.6,0.3,((math.abs(speed)/3.6) * self.IDIntensity))
         end
-        
+
         if self.alternateCM then
           local speed = (self.cruiseSpeed / 3.6)
           local dot = self.world.forward:dot(self.airFriction)
@@ -747,13 +740,13 @@ function STEC(core, control, Cd)
                 self.alternateCM = true
             end
         end
-        
+
         if self.disableVtol then
             self.disabledTags = "vtol"
         else
             self.disabledTags = ""
         end
-        
+
         self.control.setEngineCommand("all",
                                         {tmp:unpack()}, {atmp:unpack()}, false, false,
                                         self.priorityTags1,

@@ -20,15 +20,15 @@ function STMM(stec, system)
     self.system = system
 
     local isLocked = false
-    
+
     function self.lock()
         isLocked = true
-        system.lockView(1)
+        system.lockView(true)
     end
 
     function self.unlock()
         isLocked = false
-        system.lockView(0)
+        system.lockView(false)
     end
 
     function self.isLocked()
@@ -67,5 +67,3 @@ function STMM(stec, system)
 end
 
 mouse = STMM(ship, system)
-
-
