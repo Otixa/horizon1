@@ -51,23 +51,24 @@ function Unit.onStart()
 		ship.elevatorActive = false
 		config.manualControl = not config.manualControl
 		manualControlSwitch()
+	else
+		elevatorScreen = ElevatorScreen
 	end
-	if screen ~= nil then elevatorScreen = ElevatorScreen end
-	if system.showHelper then system.showHelper(0) end
+	if system.showHelper then system.showHelper(false) end
 	system.print("ElevatorScreen: "..tostring(elevatorScreen))
 	local sName = ""
-	local coreMass = core.getMass()
+	local coreMass = construct.getTotalMass()
 	if emitter ~= nil then
 		system.print("Emitter Range: "..emitter.getRange())
 	end
 	if activateFFonStart then
-		if next(manualSwitches) ~= nil then 
+		if next(manualSwitches) ~= nil then
 			for _, sw in ipairs(manualSwitches) do
 				sw.activate()
 			end
 		end
 	end
-	
+
 	shipName = construct.getName()
 	system.print(player.getId())
 	unit.setTimer("SHUDRender", 0.02)
@@ -88,8 +89,6 @@ function Unit.onStart()
 	--ioScheduler.queueData(config)
 end
 
-
-
 function Unit.onStop()
 	if next(manualSwitches) ~= nil then
 		for _, sw in ipairs(manualSwitches) do
@@ -98,25 +97,25 @@ function Unit.onStop()
 	end
 	config.shutDown = true
 	if screen then screen.setScriptInput(serialize(config)) end
-	system.showScreen(0)
+	system.showScreen(false)
 	if laser ~= nil then laser.deactivate() end
-	
+
 	for _, sw in ipairs(forceFields) do
-		sw.deactivate()
+		sw.retract()
 	end
 end
 
 function manualControlSwitch()
 	if not config.manualControl then
 		SHUD.Init(system, unit, keybindPresets["screenui"])
-		system.showScreen(0)
-		player.freeze(0)
+		system.showScreen(false)
+		player.freeze(false)
 		ship.frozen = true
 		ship.stateMessage = "Idle"
 	else
 		SHUD.Init(system, unit, keybindPresets["keyboard"])
-		system.showScreen(1)
-		player.freeze(1)
+		system.showScreen(true)
+		player.freeze(true)
 		ship.frozen = false
 		ship.stateMessage = "Manual Control"
 	end
@@ -125,7 +124,7 @@ end
 local emitterOn = false
 local tmpClamp = ship.dockingClamps
 
-function Unit.Tick(timer)
+function Unit.onTimer(timer)
 	if timer == "SHUDRender" then
 		if screen == nil then
 			if SHUD then SHUD.Render() end
@@ -133,14 +132,14 @@ function Unit.Tick(timer)
 			if SHUD then SHUD.Render() end
 			if enableARReticle then updateAR() end
 		else
-			
+
 		end
 	end
 	if timer == "FuelStatus" then
 		getFuelRenderedHtml()
 		if elevatorScreen then elevatorScreen.updateScreenFuel() end
 		--ioScheduler.queueData(config)
-		
+
 	end
 	if timer == "DockingTrigger" then
 		if telemeter ~= nil then telDistance = telemeter.raycast().distance end
@@ -159,24 +158,24 @@ function Unit.Tick(timer)
 		--local waypointString = ship.nearestPlanet:convertToMapPosition(ship.elevatorDestination)
 		--system.print("ship.elevatorDestination: "..tostring((ship.elevatorDestination)))
 		--system.print(waypointString)
-		
+
 		system.print("[--------------------------------]")
 	end
 end
 
-function System.ActionStart(action)
+function System.onActionStart(action)
 	keybindPresets[keybindPreset].Call(action, "down")
 end
 
-function System.ActionStop(action)
+function System.onActionStop(action)
 	keybindPresets[keybindPreset].Call(action, "up")
 end
 
-function System.InputText(action)
+function System.onInputText(action)
 	if DUTTY then DUTTY.input(action) end
 end
 
-function System.ActionLoop(action) 
+function System.onActionLoop(action)
 end
 
 function System.onUpdate()
@@ -192,14 +191,16 @@ function System.onFlush()
 	if Events then Events.Flush() end
 end
 
-function buildScreen.MouseDown(x,y,slot)
+function buildScreen.mouseDown(x,y,slot)
 	--system.print("Mouse X: "..x..", Mouse Y: "..y)
 end
+
 function toggleVerticalLock()
 	--ship.verticalLock = true
     ship.lockVector = vec3(construct.getWorldOrientationUp())
     ship.lockPos = vec3(construct.getWorldPosition()) + (vec3(construct.getWorldOrientationUp()))
 end
+
 function createBreadcrumbTrail(endAlt)
 	--Create a set of waypoints starting from the current position to the destination spaced 1km apart
 	local startPosition = moveWaypointZ(ship.baseLoc, ship.world.atlasAltitude - ship.baseAltitude)
@@ -220,7 +221,7 @@ end
 --for _, sw in ipairs(ship.breadCrumbs) do
 --	system.print("POS: "..tostring(sw))
 --end
-function buildScreen.MouseUp(x,y,slot)
+function buildScreen.mouseUp(x,y,slot)
 --ship.baseAltitude = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
 --	if settingsActive then
 --		if mousex >= 0.1515 and mousex <= 0.4934 and mousey >= 0.5504 and mousey <= 0.7107 then --Setbase button

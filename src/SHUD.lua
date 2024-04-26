@@ -5,45 +5,41 @@ local json = require("dkjson") -- For AGG
 local format = string.format
 
 
-
-if next(manualSwitches) ~= nil then 
+if next(manualSwitches) ~= nil then
     for _, sw in ipairs(manualSwitches) do
       system.print("Deactivate!")
       sw.deactivate()
     end
-  end
+end
 
 function SpeedConvert(value)
     if not value or value == 0 then return {0,"00","km/h"} end
     if value > 5000 then
-        local ending = tonumber(tostring(round2(value/55.55, 2)):match("%.(%d+)"))
-        ending = string.format("%02d",ending)
-        return {round2(value/55.55),ending,"su/h"}   
+        local endnum = tonumber(tostring(round2(value/55.55, 2)):match("%.(%d+)"))
+        local ending = string.format("%02d",endnum)
+        return {round2(value/55.55),ending,"su/h"}
     end
-    local ending = tonumber(tostring(round2(value/3.6, 2)):match("%.(%d+)"))
-    ending = string.format("%02d",ending)
+    local endnum = tonumber(tostring(round2(value/3.6, 2)):match("%.(%d+)"))
+    local ending = string.format("%02d",endnum)
     return {round2(value*3.6),ending,"km/h"}
 end
 
 function CruiseControl(value)
     local appliedCruise = 0
-    
-    
+
     if ship.cruiseSpeed < 500 then appliedCruise = value * 10
-    elseif ship.cruiseSpeed >= 500 and ship.cruiseSpeed <= 1999 then appliedCruise = value * 50 
-    elseif ship.cruiseSpeed >= 2000 and ship.cruiseSpeed <= 9999 then appliedCruise = value * 100 
+    elseif ship.cruiseSpeed >= 500 and ship.cruiseSpeed <= 1999 then appliedCruise = value * 50
+    elseif ship.cruiseSpeed >= 2000 and ship.cruiseSpeed <= 9999 then appliedCruise = value * 100
     elseif ship.cruiseSpeed >= 10000 then appliedCruise = value * 1000 end
-    
-    
-    ship.cruiseSpeed = utils.clamp(ship.cruiseSpeed + appliedCruise,-29990,29990) 
+
+    ship.cruiseSpeed = utils.clamp(ship.cruiseSpeed + appliedCruise,-29990,29990)
 end
 
 function getControlMode()
-    if ship.alternateCM then 
+    if ship.alternateCM then
         return "Cruise"
-    else
-        return "Travel"
     end
+    return "Travel"
 end
 
 altHoldAdjustment = 0.1
@@ -53,11 +49,8 @@ function altHoldAdjustmentSetting()
     return altHoldAdjustment * (10^altAdjustment)
 end
 
-
 function setAltHoldAdjustment()
-    
 end
-
 
 function SHUDMenuItem(content, action, update)
     local self = {}
@@ -95,8 +88,6 @@ function SHUDMenuItem(content, action, update)
     return self
 end
 
-
-
 SHUD =
 (function()
     local self = {}
@@ -108,7 +99,7 @@ SHUD =
     self.ScreenW = system.getScreenWidth()
     self.ScreenH = system.getScreenHeight()
     self.Resolution = vec2(self.ScreenW, self.ScreenH)
-    
+
     self.SvgMinX = -round((self.ScreenW / 4) / 2,0)
     self.SvgMinY = -round((self.ScreenH / 4) / 2,0)
     self.SvgWidth = round(self.ScreenW / 4,0)
@@ -125,17 +116,17 @@ SHUD =
     shipPitch = scaleViewBounds(ship.pitchRatio)
 
     self.SHUDFuelHtml = ""
-    
+
     self.Markers = {}
-        
+
     self.MarkerBuffer = {}
 
-    function self.worldToScreen(pos)
+    function self.worldToScreen(position)
         local P = mat4():perspective(self.FOV, self.ScreenW/self.ScreenH, 0.1, 100000)
-        local adjustedPos = ship.world.position - vec3(unit.getMasterPlayerRelativePosition())
+        local adjustedPos = ship.world.position - vec3(unit.getPlayerWorldPos())
         local V = mat4():look_at(adjustedPos, adjustedPos + ship.world.forward, ship.world.up)
 
-        local pos = V * P * { pos.x, pos.y, pos.z, 1 }
+        local pos = V * P * { position.x, position.y, position.z, 1 }
 
         pos[1] = pos[1] / pos[4] * 0.5 + 0.5
         pos[2] = pos[2] / pos[4] * 0.5 + 0.5
@@ -148,7 +139,7 @@ SHUD =
 
     local SMI = SHUDMenuItem
     local DD = DynamicDocument
-    
+
     function self.UpdateMarkers()
         self.MarkerBuffer = {}
         for i=1,#self.Markers do
@@ -169,9 +160,6 @@ SHUD =
         return (x:gsub("%%", "%%%%"))
     end
 
-        
-    
-        
     function self.MakeBooleanIndicator(varName)
         local tmpl = [[<span class="right">
             <i dd-if="varName == true">✓&nbsp;</i>
@@ -193,10 +181,10 @@ SHUD =
     self.MenuIcon = [[<span class="right"><i>&gt;&nbsp;</i></span>]]
     self.BackButton = SMI([[<i>&lt;&nbsp;</i>&nbsp;]].."Back", function() SHUD.Menu = SHUD.MenuList.prev SHUD.CurrentIndex = 1 end)
     self.Menu = {
-            SMI(DD([[<span>Throttle<span>]]..self.MakeSliderIndicator("round2(ship.throttle * 100)", "%")), 
+            SMI(DD([[<span>Throttle<span>]]..self.MakeSliderIndicator("round2(ship.throttle * 100)", "%")),
                 function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
                 function(system, _ , w) ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1) end),
-            
+
             self.GenerateMenuLink("Stability Assist", "stability"),
             self.GenerateMenuLink("Altitude Hold", "altHold"),
             self.GenerateMenuLink("Ship Stats", "shipStats"),
@@ -212,12 +200,12 @@ SHUD =
         SMI(DD([[<span>Pos Y:</span><span class="right">{{round2(ship.world.position.y)}}</span>]])).Disable(),
         SMI(DD([[<span>Pos Z:</span><span class="right">{{round2(ship.world.position.z)}}</span>]])).Disable(),
     }
-    
+
     self.MenuList.stability = {
         SMI(DD("<span>Gravity Suppression<span>" .. self.MakeBooleanIndicator("ship.counterGravity")), function() ship.counterGravity = not ship.counterGravity end),
         SMI(DD("<span>Gravity Follow</span>" .. self.MakeBooleanIndicator("ship.followGravity")), function() ship.followGravity = not ship.followGravity end),
         SMI(DD("<span>Inertial Dampening<span>" .. self.MakeBooleanIndicator("ship.inertialDampening")), function() ship.inertialDampeningDesired = not ship.inertialDampeningDesired end),
-        SMI(DD([[<span>Hover Height<span>]]..self.MakeSliderIndicator("ship.hoverHeight", "m")), 
+        SMI(DD([[<span>Hover Height<span>]]..self.MakeSliderIndicator("ship.hoverHeight", "m")),
                function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
                function(system, _ , w) ship.hoverHeight = utils.clamp(ship.hoverHeight + (system.getMouseWheel()),0,35) end),
     }
@@ -227,10 +215,10 @@ SHUD =
     end
     self.MenuList.altHold = {
         SMI(DD("<span>Altitude Hold<span>" .. self.MakeBooleanIndicator("ship.elevatorActive")), function() ship.elevatorActive = not ship.elevatorActive end),
-        SMI(DD([[<span>Multiplier<span>]]..self.MakeSliderIndicator("round2(altHoldAdjustmentSetting(),3)", "")), 
+        SMI(DD([[<span>Multiplier<span>]]..self.MakeSliderIndicator("round2(altHoldAdjustmentSetting(),3)", "")),
                function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
                function(system, _ , w) altAdjustment = utils.clamp(altAdjustment + (system.getMouseWheel()),-1,4) end),
-        SMI(DD([[<span>Alt Setpoint<span>]]..self.MakeSliderIndicator("round2(ship.altitudeHold,3)", "m")), 
+        SMI(DD([[<span>Alt Setpoint<span>]]..self.MakeSliderIndicator("round2(ship.altitudeHold,3)", "m")),
                function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
                function(system, _ , w) self.updateTargetDest() end),
         SMI(DD([[<span>Preset 1:</span><span class="right">]].. mToKm(ship.altHoldPreset1).."</span>"), function() ship.altitudeHold = ship.altHoldPreset1 ship.elevatorActive = true end),
@@ -239,16 +227,16 @@ SHUD =
         SMI(DD([[<span>Preset 4:</span><span class="right">]].. mToKm(ship.altHoldPreset4).."</span>"), function() ship.altitudeHold = ship.altHoldPreset4 ship.elevatorActive = true end),
         SMI(DD([[<span>Altitude:</span><span class="right">{{round2(ship.altitude,4)}}</span>]])).Disable(),
     }
-    
+
     self.MenuList.hotkeys = {}
-    
+
     local fa = "<style>" .. CSS_SHUD .. "</style>"
     self.fuel = nil
     function getFuelRenderedHtml()
         local fuelHtmlAtmo = ""
         local fuelHtmlSpace = ""
         local fuelHtmlRocket = ""
-        
+
         self.fuel = getFuelSituation()
         local fuelHtml = ""
 
@@ -265,7 +253,6 @@ SHUD =
         self.SHUDFuelHtml = fuelHtml
     end
 
-    
     opacity = 1.0
     local template = DD(fa..[[
     <div id="horizon" style="opacity: {{opacity}};">
@@ -290,8 +277,6 @@ SHUD =
                     <polyline class="st2" points="53,-10.5 84.49,-10.5 94,-10.5 84.5,-14.5 84.5,-10.5 "/>
                 </g dd-if="ship.world.nearPlanet">
             </g>
-            
-            
         </svg>
         <div id="speedometerBar">&nbsp;</div>
            <div id="speedometer">
@@ -310,21 +295,19 @@ SHUD =
                <span class="alt">
                	{{round2(ship.altitude)}}m
                </span>
-               
+
                <span class="misc">ATM {{round2(ship.world.atmosphericDensity, 2)}} | G {{round2(ship.world.gravity:len(), 2)}}m/s</span>
                <span dd-if="not ship.alternateCM" class="throttle">Throttle {{round2(ship.throttle * 100)}}%</span>
 		     <span dd-if="ship.alternateCM" class="throttle">Cruise {{round2(ship.cruiseSpeed)}} km/h</span>
             </div>
-        
+
             <div id="horizon-menu">
                 {{_SHUDBUFFER}}
             </div>
-        
+
             </div>
             <div id="fuelTanks">{{ SHUD.SHUDFuelHtml }}</div>
-    
     </div>
-    
     ]])
     local itemTemplate = [[<div class="item {{class}}">{{content}}</div>]]
     function self.SelectMenu(menuName)
@@ -345,7 +328,7 @@ SHUD =
 
     function self.Render()
         local buffer = ""
-        if self.Enabled then 
+        if self.Enabled then
             for i = 1, #self.Menu do
                 local item = self.Menu[i]
                 if item.Active then item.Update(self.system, self.unit, item) end
@@ -366,7 +349,7 @@ SHUD =
             end
             _ENV["_SHUDBUFFER"] = esc(buffer)
         else
-            if player.isFrozen() == 0 then ship.frozen = true else ship.frozen = false end
+            ship.frozen = player.isFrozen()
             _ENV["_SHUDBUFFER"] = DD([[<div class="item helpText">Press ]] .. "[" .. self.system.getActionKeyName("speedup") .. "]" .. [[ to  toggle menu</div>
                     <div class="item helpText"><span>Character Movement:</span>]].. self.MakeBooleanIndicator("ship.frozen") .. [[</div>
                     <div class="item helpText"><span>Vertical Lock:</span>]].. self.MakeBooleanIndicator("ship.verticalLock") .. [[</div>
@@ -382,7 +365,7 @@ SHUD =
         if useGEAS then
             unit.activateGroundEngineAltitudeStabilization(ship.hoverHeight)
         end
-        if player.isFrozen() == 1 or self.Enabled then
+        if player.isFrozen() or self.Enabled then
             opacity = 1
         else
             opacity = 0.5
@@ -395,24 +378,19 @@ SHUD =
                 elseif self.CurrentIndex < 1 then self.CurrentIndex = #self.Menu end
             end
         elseif not self.Enabled then
-            if player.isFrozen() == 1 and unit.isRemoteControlled() == 1 then
-                
-                	ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1)
-                
-             
-        
-    
+            if player.isFrozen() and unit.isRemoteControlled() then
+                ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1)
 			end
-        self.UpdateMarkers()
+        	self.UpdateMarkers()
 		end
+	end
 
-end
     function self.Init(system, unit, keybinds)
         self.system = system
         self.unit = unit
         self.CurrentIndex = 1
         self.ScrollLock = false
-        system.showScreen(1)
+        system.showScreen(true)
         unit.hideWidget()
         local keys = keybinds.GetNamedKeybinds()
         self.MenuList.hotkeys = {}
@@ -424,21 +402,15 @@ end
         self.MenuList.flightMode = {}
         for k,v in pairs(keybindPresets) do
             table.insert(self.MenuList.flightMode,
-            SMI(string.upper(k), function() 
+            SMI(string.upper(k), function()
                 self.Init(self.system, self.unit, v)
                 keybindPreset = k
                 keybindPresets[keybindPreset].Init()
             end))
         end
-        
+
         keybinds.Init()
     end
 
     return self
 end)()
-
-
-
-
-
-

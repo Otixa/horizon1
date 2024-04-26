@@ -4,57 +4,57 @@
     "encrypted":true,
     "slots": [
         {
-            "code":"system.showScreen(0)",
+            "code":"system.showScreen(false)",
             "slot":"-1",
-            "signature":"stop()",
+            "signature":"onStop()",
             "args":[]
         },
         {
             "code":"keybindPresets[keybindPreset].Call(action, \"down\")",
             "slot":"-2",
-            "signature":"actionStart(action)",
+            "signature":"onActionStart(action)",
             "args":[{"variable":"*"}]
         },
         {
             "code":"keybindPresets[keybindPreset].Call(action, \"up\")",
             "slot":"-2",
-            "signature":"actionStop(action)",
+            "signature":"onActionStop(action)",
             "args":[{"variable":"*"}]
         },
         {
             "code":"keybindPresets[keybindPreset].Call(action, \"loop\")",
             "slot":"-2",
-            "signature":"actionLoop(action)",
+            "signature":"onActionLoop(action)",
             "args":[{"variable":"*"}]
         },
         {
-            "code":"if mouse then mouse.apply() end\nif ship then ship.apply() SHUD.UpdateMarkers() end",
+            "code":"if mouse then mouse.apply() end\nif ship then ship.apply() if SHUD then SHUD.UpdateMarkers() end end",
             "slot":"-2",
-            "signature":"flush()",
+            "signature":"onFlush()",
             "args":[]
         },
         {
             "code":"if SHUD then SHUD.Render() end",
             "slot":"-1",
-            "signature":"tick(timerId)",
+            "signature":"onTimer(timerId)",
             "args":[{"value":"HUD"}]
         },
         {
             "code":"if SHUD then SHUD.Update() end",
             "slot":"-2",
-            "signature":"update()",
+            "signature":"onUpdate()",
             "args":[]
         },
         {
             "code":"TaskManager.Update()",
             "slot":"-2",
-            "signature":"update()",
+            "signature":"onUpdate()",
             "args":[]
         },
         {
             "file":["src/DynamicDocument.lua", "src/STEC.lua", "src/STMM.lua", "src/SHUD.lua"],
             "slot":"-3",
-            "signature":"start()",
+            "signature":"onStart()",
             "args":[],
             "configFile":"src/STEC_config.lua",
             "encrypt":true
@@ -62,7 +62,7 @@
         {
             "file":["src/TagManager.lua", "src/KeybindController.lua"],
             "slot":"-3",
-            "signature":"start()",
+            "signature":"onStart()",
             "args":[],
             "encrypt":false
         }
