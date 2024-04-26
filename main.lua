@@ -20,6 +20,7 @@
 --@timer WaypointTest
 --@timer Debug
 --@class Main
+--@outFilename Horizon1.json
 
 _G.BuildUnit = {}
 local Unit = _G.BuildUnit
@@ -30,20 +31,20 @@ function Unit.onStart()
 	Events.Flush.Add(mouse.apply)
 	Events.Flush.Add(ship.apply)
 	Events.Update.Add(SHUD.Update)
-	if flightModeDb then 
+	if flightModeDb then
 		if flightModeDb.hasKey("controlMode") == 0 then flightModeDb.setIntValue("controlMode", unit.getControlMode()) end
 		local controlMode = flightModeDb.getIntValue("controlMode")
 		if controlMode ~= unit.getControlMode() then
 			unit.cancelCurrentControlMasterMode()
 		end
 	end
-	
+
 	if flightModeDb ~= nil then getFuelRenderedHtml() end
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
 	unit.setTimer("KeplerSim", 0.1)
 	--unit.setTimer("Debug", 2)
-	unit.setTimer("WaypointTest", 1)
+	-- unit.setTimer("WaypointTest", 1)
 	system.print([[Horizon 1.1.1.9]])
 
 	if showDockingWidget then
@@ -58,6 +59,7 @@ function Unit.onStart()
 	--system.print(string.format( "fMax: %f, %f, %f, %f",fMax[1],fMax[2],fMax[3],fMax[4]))
 	--system.print(string.format( "vMax: %f, %f, %f, %f",vMax[1],vMax[2],vMax[3],vMax[4]))
 end
+
 function dump(o)
 	if type(o) == 'table' then
 	   local s = '{ '
@@ -69,26 +71,28 @@ function dump(o)
 	else
 	   return tostring(o)
 	end
- end
- function format_int(number)
+end
+function format_int(number)
 	number = round2(number,0)
 	local i, j, minus, int, fraction = tostring(number):find('([-]?)(%d+)([.]?%d*)')
-  
+
 	-- reverse the int-string and append a comma to all blocks of 3 digits
 	int = int:reverse():gsub("(%d%d%d)", "%1,")
-  
-	-- reverse the int-string back remove an optional comma and put the 
+
+	-- reverse the int-string back remove an optional comma and put the
 	-- optional minus and fractional part back
 	return minus .. int:reverse():gsub("^,", "") .. fraction
-  end
+end
+
 function Unit.onStop()
 	if flightModeDb then
 		flightModeDb.setIntValue("controlMode", unit.getControlMode())
 	end
-	system.showScreen(0)
+	system.showScreen(false)
 end
+
 local switch = false
-function Unit.Tick(timer)
+function Unit.onTimer(timer)
 	if timer == "SHUDRender" then
 		if SHUD then SHUD.Render() end
 		if antigrav ~= nil then
@@ -97,22 +101,22 @@ function Unit.Tick(timer)
 			updateAGGState()
 		end
 	end
-	if timer == "Debug" then
-		--system.print("ship.direction.x: "..ship.direction.x)
-		--system.print("ship.direction.y: "..ship.direction.y)
-		--system.print("ship.direction.z: "..ship.direction.z)
-		--system.print("ship.rotationSpeedz: "..ship.rotationSpeed)
-		--system.print("ship.world.atmosphericDensity: "..ship.world.atmosphericDensity)
-		--system.print("ship.target.prograde(): "..tostring(vec3(ship.world.prograde())))
-		system.print("prograde.x: "..(ship.world.position + (ship.target.prograde() * 2)).x)
+	-- if timer == "Debug" then
+	-- 	--system.print("ship.direction.x: "..ship.direction.x)
+	-- 	--system.print("ship.direction.y: "..ship.direction.y)
+	-- 	--system.print("ship.direction.z: "..ship.direction.z)
+	-- 	--system.print("ship.rotationSpeedz: "..ship.rotationSpeed)
+	-- 	--system.print("ship.world.atmosphericDensity: "..ship.world.atmosphericDensity)
+	-- 	--system.print("ship.target.prograde(): "..tostring(vec3(ship.world.prograde())))
+	-- 	system.print("prograde.x: "..(ship.world.position + (ship.target.prograde() * 2)).x)
 
-		system.print("prograde.y: "..(ship.world.position + (ship.target.prograde() * 2)).y)
+	-- 	system.print("prograde.y: "..(ship.world.position + (ship.target.prograde() * 2)).y)
 
-		local x = ship.nearestPlanet:convertToMapPosition(ship.world.position + (ship.target.prograde() * 2))
-		system.print(x)
-		system.setWaypoint(x)
-		--system.print("ship.forwardThrust: "..format_int(ship.forwardThrust))
-	end
+	-- 	local x = ship.nearestPlanet:convertToMapPosition(ship.world.position + (ship.target.prograde() * 2))
+	-- 	system.print(x)
+	-- 	system.setWaypoint(x)
+	-- 	--system.print("ship.forwardThrust: "..format_int(ship.forwardThrust))
+	-- end
 	if timer == "FuelStatus" then
 		getFuelRenderedHtml()
 		--local msa = construct.getMaxSpeedPerAxis()
@@ -128,22 +132,22 @@ function Unit.Tick(timer)
 			end)
 		end
 	end
-	
+
 	if timer == "WaypointTest" then
-		if ship.gotoLock ~= nil then
-			system.print("[----------------------------------------------]")
-			system.print("Deviation angle: "..ship.deviationAngle.."°")
-			system.print("Target Dist: "..ship.targetDist)
-			system.print("Brake Dist: "..ship.brakeDistance)
-			system.print("Stopping: "..tostring(ship.stopping))
-			system.print("Brake Diff: "..(ship.targetDist - ship.brakeDistance))
-			system.print("Trajectory Diff: "..ship.trajectoryDiff)
-			system.print("Mass (tons): "..ship.mass / 1000)
-			system.print("Max Speed: "..ship.constructMaxSpeed)
-			system.print("ETA: "..disp_time(ship.ETA))
-			system.print("[----------------------------------------------]")
-		end
-		
+		-- if ship.gotoLock ~= nil then
+		-- 	system.print("[----------------------------------------------]")
+		-- 	system.print("Deviation angle: "..ship.deviationAngle.."°")
+		-- 	system.print("Target Dist: "..ship.targetDist)
+		-- 	system.print("Brake Dist: "..ship.brakeDistance)
+		-- 	system.print("Stopping: "..tostring(ship.stopping))
+		-- 	system.print("Brake Diff: "..(ship.targetDist - ship.brakeDistance))
+		-- 	system.print("Trajectory Diff: "..ship.trajectoryDiff)
+		-- 	system.print("Mass (tons): "..ship.mass / 1000)
+		-- 	system.print("Max Speed: "..ship.constructMaxSpeed)
+		-- 	system.print("ETA: "..disp_time(ship.ETA))
+		-- 	system.print("[----------------------------------------------]")
+		-- end
+
 		-- if switch then
 		-- 	local waypointString = ship.nearestPlanet:convertToMapPosition(ship.simulationPos)
 		-- 	system.setWaypoint(tostring(waypointString))
@@ -154,25 +158,22 @@ function Unit.Tick(timer)
 		-- 	end
 		-- end
 		-- switch = not switch
-
-
 	end
-
 end
 
-function System.ActionStart(action)
+function System.onActionStart(action)
 	keybindPresets[keybindPreset].Call(action, "down")
 end
 
-function System.ActionStop(action)
+function System.onActionStop(action)
 	keybindPresets[keybindPreset].Call(action, "up")
 end
 
-function System.InputText(action)
+function System.onInputText(action)
 	if DUTTY then DUTTY.input(action) end
 end
 
-function System.ActionLoop(action)
+function System.onActionLoop(action)
 end
 
 function System.onUpdate()

@@ -1,0 +1,958 @@
+{
+  "slots": {
+    "0": {
+      "name": "slot1",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "1": {
+      "name": "slot2",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "2": {
+      "name": "slot3",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "3": {
+      "name": "slot4",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "4": {
+      "name": "slot5",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "5": {
+      "name": "slot6",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "6": {
+      "name": "slot7",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "7": {
+      "name": "slot8",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "8": {
+      "name": "slot9",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "9": {
+      "name": "slot10",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "10": {
+      "name": "slot11",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "11": {
+      "name": "slot12",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "12": {
+      "name": "slot13",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "13": {
+      "name": "slot14",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "14": {
+      "name": "slot15",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "15": {
+      "name": "slot16",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "16": {
+      "name": "slot17",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "17": {
+      "name": "slot18",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "18": {
+      "name": "slot19",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "19": {
+      "name": "slot20",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "20": {
+      "name": "slot21",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "-3": {
+      "name": "library",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "-2": {
+      "name": "system",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    },
+    "-1": {
+      "name": "unit",
+      "type": {
+        "events": [],
+        "methods": []
+      }
+    }
+  },
+  "handlers": [
+    {
+      "code": "--@class SimpleSlotDetector\r\ncore = nil\r\nantigrav = nil\r\nwarpDrive = nil\r\nradarUnit = nil\r\nflightModeDb = nil\r\nmanualSwitches = {}\r\nforceFields = {}\r\nscreen = nil\r\n\r\nfunction getElements()\r\n  for k,var in pairs(_G) do\r\n    if type(var) == \"table\" and var[\"getClass\"] then\r\n      local class = var[\"getClass\"]()\r\n    --   system.print(class)\r\n      if class == \"CoreUnitDynamic\" or class == \"CoreUnitStatic\" or class == \"CoreUnitSpace\" then\r\n        core = var\r\n      end\r\n\r\n      if class == \"AtmoFuelContainer\" or class == \"SpaceFuelContainer\" then\r\n        var.showWidget()\r\n      end\r\n\r\n      if class == \"WarpDriveUnit\" then\r\n        warpDrive = var\r\n        var.showWidget()\r\n      end\r\n\r\n      if class == \"RadarPvPAtmospheric\" or class == \"RadarPVPSpaceSmallGroup\" then\r\n        radarUnit = var\r\n        var.showWidget()\r\n      end\r\n\r\n      if class == \"DataBankUnit\" then\r\n        flightModeDb = var\r\n      end\r\n\r\n      if class == \"AntiGravityGeneratorUnit\" then\r\n        antigrav = var\r\n      end\r\n      if class == \"ManualSwitchUnit\" then\r\n        --manualSwitch = var\r\n        table.insert(manualSwitches, var)\r\n      end\r\n      if class == \"ForceFieldUnit\" then\r\n        table.insert(forceFields, var)\r\n      end\r\n      if class == \"ScreenUnit\" then\r\n        screen = var\r\n      end\r\n    end\r\n  end\r\nend\r\n\r\ngetElements()\r\n",
+      "filter": {
+        "args": [],
+        "signature": "onStart",
+        "slotKey": "-1"
+      },
+      "key": "0"
+    },
+    {
+      "code": "--@class ExportedVariables\n\ngoButtonSpeed = 1050 --export: GO Button Speed\ninertialDampening = false --export: Start with inertial dampening on/off\nfollowGravity = true --export: Start with gravity follow on/off\ncounterGravity = false --export: Start with gravity follow on/off\nrotationMin = 0.2 --export: Auto-scaling rotation speed starting point\nrotationMax = 5 --export: Auto-scaling rotaiton max speed\nrotationStep = 0.1 --export: Controls how quickly the rotation speed scales up\nshowDockingWidget = true --export: Show Docking Widget\ndockingMode = 3 --export: Set docking mode (1:Manual, 2:Automatic, 3:Semi-Automatic)\nvtolShip = true --export:\n\ndisplaySize = 0.65\n--primaryColor = \"0faea9\" --export: Primary color of HUD\n--secondaryColor = \"0247b5\" --export: Secondary color of HUD\n--textShadow = \"d9ff00\" --export: Color of text shadow for speedometer\nprimaryColor = \"b80000\" --export: Primary color of HUD\nsecondaryColor = \"e30000\" --export: Secondary color of HUD\ntextShadow = \"e81313\" --export: Color of text shadow for speedometer\n\nContainerOptimization = 5 --export: Container ContainerOptimization\nFuelTankOptimization = 5 --export: Fuel Tank FuelTankOptimization\nfuelTankHandlingAtmo = 5 --export: Fuel Tank Handling Atmo\nfuelTankHandlingSpace = 5 --export: Fuel Tank Handling Space\n\nap_stop_distance = 200000 --export: AP Stop distance\n\nactivateFFonStart = false\nsetactivateFFonStart = false --export: Activate force fields on start (connected to button)\npocket = false\nsetpocket = false --export: Pocket ship?\n\nbool_to_number={ [true]=1, [false]=0 }\nnumber_to_bool={ [1]=true, [0]=false }\n  \nif flightModeDb.hasKey(\"activateFFonStart\") == 0 or updateSettings then \n    flightModeDb.setIntValue(\"activateFFonStart\", bool_to_number[setactivateFFonStart])\n    activateFFonStart = setactivateFFonStart\nelse activateFFonStart = number_to_bool[flightModeDb.getIntValue(\"activateFFonStart\")] end\n\n\n\nif flightModeDb.hasKey(\"pocket\") == 0 or updateSettings then \n    flightModeDb.setIntValue(\"pocket\", bool_to_number[setpocket])\n    pocket = setpocket\nelse pocket = number_to_bool[flightModeDb.getIntValue(\"pocket\")] end\n",
+      "filter": {
+        "args": [],
+        "signature": "onStart",
+        "slotKey": "-1"
+      },
+      "key": "1"
+    },
+    {
+      "code": "--@class PlanetRef\nfunction PlanetRef()\n    local function isNumber(n)  return type(n)           == 'number' end\n    local function isSNumber(n) return type(tonumber(n)) == 'number' end\n    local function isTable(t)   return type(t)           == 'table'  end\n    local function isString(s)  return type(s)           == 'string' end\n    local function isVector(v)  return isTable(v)\n                                        and isNumber(v.x and v.y and v.z) end\n\n    local function isMapPosition(m) return isTable(m) and isNumber(m.latitude  and\n                                                                m.longitude and\n                                                                m.altitude  and\n                                                                m.bodyId    and\n                                                                m.systemId) end\n\n    -- Constants\n\n    local deg2rad    = math.pi/180\n    local rad2deg    = 180/math.pi\n    local epsilon    = 1e-10\n    local num        = ' *([+-]?%d+%.?%d*e?[+-]?%d*)'\n    local posPattern = '::pos{' .. num .. ',' .. num .. ',' ..  num .. ',' ..\n                    num ..  ',' .. num .. '}'\n\n    -- Utilities\n\n    local utils  = require('cpml.utils')\n    local vec3   = require('cpml.vec3')\n    local clamp  = utils.clamp\n\n    local function float_eq(a,b)\n        if a == 0 then return math.abs(b) < 1e-09 end\n        if b == 0 then return math.abs(a) < 1e-09 end\n        return math.abs(a - b) < math.max(math.abs(a),math.abs(b))*epsilon\n    end\n\n    local function formatNumber(n)\n        local result = string.gsub(\n                        string.reverse(string.format('%.4f',n)),\n                        '^0*%.?','')\n        return result == '' and '0' or string.reverse(result)\n    end\n\n    local function formatValue(obj)\n        if isVector(obj) then\n            return string.format('{x=%.3f,y=%.3f,z=%.3f}', obj.x, obj.y, obj.z)\n        end\n\n        if isTable(obj) and not getmetatable(obj) then\n            local list = {}\n            local nxt  = next(obj)\n\n            if type(nxt) == 'nil' or nxt == 1 then -- assume this is an array\n                for i,a in ipairs(obj) do\n                    list[i] = formatValue(a)\n                end\n            else\n                for k,v in pairs(obj) do\n                    local value = formatValue(v)\n                    if type(k) == 'number' then\n                        table.insert(list, string.format('[%s]=%s', k, value))\n                    else\n                        table.insert(list, string.format('%s=%s',   k, value))\n                    end\n                end\n            end\n            return string.format('{%s}', table.concat(list, ','))\n        end\n\n        if isString(obj) then\n            return string.format(\"[[%s]]\", obj)\n        end\n        return tostring(obj)\n    end\n\n    -- CLASSES\n\n    -- BodyParameters: Attributes of planetary bodies (planets and moons)\n\n    local BodyParameters = {}\n    BodyParameters.__index = BodyParameters\n    BodyParameters.__tostring =\n        function(obj, indent)\n            local keys = {}\n            for k in pairs(obj) do table.insert(keys, k) end\n            table.sort(keys)\n            local list = {}\n            for _, k in ipairs(keys) do\n                local value = formatValue(obj[k])\n                if type(k) == 'number' then\n                    table.insert(list, string.format('[%s]=%s', k, value))\n                else\n                    table.insert(list, string.format('%s=%s', k, value))\n                end\n            end\n            if indent then\n                return string.format('%s%s',\n                                    indent,\n                                    table.concat(list, ',\\n' .. indent))\n            end\n            return string.format('{%s}', table.concat(list, ','))\n        end\n    BodyParameters.__eq = function(lhs, rhs)\n            return lhs.planetarySystemId == rhs.planetarySystemId and\n                lhs.bodyId            == rhs.bodyId            and\n                float_eq(lhs.radius, rhs.radius)               and\n                float_eq(lhs.center.x, rhs.center.x)           and\n                float_eq(lhs.center.y, rhs.center.y)           and\n                float_eq(lhs.center.z, rhs.center.z)           and\n                float_eq(lhs.GM, rhs.GM)\n        end\n\n    local function mkBodyParameters(systemId, bodyId, radius, worldCoordinates, GM)\n        -- 'worldCoordinates' can be either table or vec3\n        assert(isSNumber(systemId),\n            'Argument 1 (planetarySystemId) must be a number:' .. type(systemId))\n        assert(isSNumber(bodyId),\n            'Argument 2 (bodyId) must be a number:' .. type(bodyId))\n        assert(isSNumber(radius),\n            'Argument 3 (radius) must be a number:' .. type(radius))\n        assert(isTable(worldCoordinates),\n            'Argument 4 (worldCoordinates) must be a array or vec3.' ..\n            type(worldCoordinates))\n        assert(isSNumber(GM),\n            'Argument 5 (GM) must be a number:' .. type(GM))\n        return setmetatable({planetarySystemId = tonumber(systemId),\n                            bodyId            = tonumber(bodyId),\n                            radius            = tonumber(radius),\n                            center            = vec3(worldCoordinates),\n                            GM                = tonumber(GM) }, BodyParameters)\n    end\n\n    -- MapPosition: Geographical coordinates of a point on a planetary body.\n\n    local MapPosition = {}\n    MapPosition.__index = MapPosition\n    MapPosition.__tostring = function(p)\n            return string.format('::pos{%d,%d,%s,%s,%s}',\n                                p.systemId,\n                                p.bodyId,\n                                formatNumber(p.latitude*rad2deg),\n                                formatNumber(p.longitude*rad2deg),\n                                formatNumber(p.altitude))\n        end\n    MapPosition.__eq       = function(lhs, rhs)\n            return lhs.bodyId   == rhs.bodyId              and\n                lhs.systemId == rhs.systemId            and\n                float_eq(lhs.latitude,   rhs.latitude)  and\n                float_eq(lhs.altitude,   rhs.altitude)  and\n                (float_eq(lhs.longitude, rhs.longitude) or\n                    float_eq(lhs.latitude, math.pi/2)      or\n                    float_eq(lhs.latitude, -math.pi/2))\n        end\n\n    -- latitude and longitude are in degrees while altitude is in meters\n\n    local function mkMapPosition(overload, bodyId, latitude, longitude, altitude)\n        local systemId = overload -- Id or '::pos{...}' string\n\n        if isString(overload) and not longitude and not altitude and\n                                not bodyId    and not latitude then\n            systemId, bodyId, latitude, longitude, altitude =\n                                                string.match(overload, posPattern)\n            assert(systemId, 'Argument 1 (position string) is malformed.')\n        else\n            assert(isSNumber(systemId),\n                'Argument 1 (systemId) must be a number:' .. type(systemId))\n            assert(isSNumber(bodyId),\n                'Argument 2 (bodyId) must be a number:' .. type(bodyId))\n            assert(isSNumber(latitude),\n                'Argument 3 (latitude) must be in degrees:' .. type(latitude))\n            assert(isSNumber(longitude),\n                'Argument 4 (longitude) must be in degrees:' .. type(longitude))\n            assert(isSNumber(altitude),\n                'Argument 5 (altitude) must be in meters:' .. type(altitude))\n        end\n        systemId  = tonumber(systemId)\n        bodyId    = tonumber(bodyId)\n        latitude  = tonumber(latitude)\n        longitude = tonumber(longitude)\n        altitude  = tonumber(altitude)\n\n        if bodyId == 0 then -- this is a hack to represent points in space\n            return setmetatable({latitude  = latitude,\n                                longitude = longitude,\n                                altitude  = altitude,\n                                bodyId    = bodyId,\n                                systemId  = systemId}, MapPosition)\n        end\n        return setmetatable({latitude  = deg2rad*clamp(latitude, -90, 90),\n                            longitude = deg2rad*(longitude % 360),\n                            altitude  = altitude,\n                            bodyId    = bodyId,\n                            systemId  = systemId}, MapPosition)\n    end\n\n    -- PlanetarySystem - map body IDs to BodyParameters\n\n    local PlanetarySystem = {}\n    PlanetarySystem.__index = PlanetarySystem\n\n    PlanetarySystem.__tostring =\n        function (obj, indent)\n            local sep = indent and (indent .. '  ' )\n            local bdylist = {}\n            local keys = {}\n            for k in pairs(obj) do table.insert(keys, k) end\n            table.sort(keys)\n            for _, bi in ipairs(keys) do\n                bdy = obj[bi]\n                local bdys = BodyParameters.__tostring(bdy, sep)\n                if indent then\n                    table.insert(bdylist,\n                                string.format('[%s]={\\n%s\\n%s}',\n                                            bi, bdys, indent))\n                else\n                    table.insert(bdylist, string.format('  [%s]=%s', bi, bdys))\n                end\n            end\n            if indent then\n                return string.format('\\n%s%s%s',\n                                    indent,\n                                    table.concat(bdylist, ',\\n' .. indent),\n                                    indent)\n            end\n            return string.format('{\\n%s\\n}', table.concat(bdylist, ',\\n'))\n        end\n\n    local function mkPlanetarySystem(systemReferenceTable)\n        local atlas = {}\n        local pid\n        for _, v in pairs(systemReferenceTable) do\n            local id = v.planetarySystemId\n\n            if id == nil then\n                id = 0\n                v.planetarySystemId = id\n            end\n\n            if type(id) ~= 'number' then\n                error('Invalid planetary system ID: ' .. tostring(id))\n            elseif pid and id ~= pid then\n                error('Mismatch planetary system IDs: ' .. id .. ' and '\n                    .. pid)\n            end\n            local bid = v.bodyId\n\n            if bid == nil then\n                bid      = v.id\n                v.bodyId = bid\n            end\n            if type(bid) ~= 'number' then\n                error('Invalid body ID: ' .. tostring(bid))\n            elseif atlas[bid] then\n                error('Duplicate body ID: ' .. tostring(bid))\n            end\n            v.center = vec3(v.center)\n            atlas[bid] = setmetatable(v, BodyParameters)\n            pid = id\n        end\n        return setmetatable(atlas, PlanetarySystem)\n    end\n\n    -- PlanetaryReference - map planetary system ID to PlanetarySystem\n\n    PlanetaryReference = {}\n\n    local function mkPlanetaryReference(referenceTable)\n        return setmetatable({ galaxyAtlas = referenceTable or {} },\n                            PlanetaryReference)\n    end\n\n    PlanetaryReference.__index        = \n        function(t,i)\n            if type(i) == 'number' then\n                local system = t.galaxyAtlas[i]\n                return mkPlanetarySystem(system)\n            end\n            return rawget(PlanetaryReference, i)\n        end\n    PlanetaryReference.__pairs        =\n        function(obj)\n            return  function(t, k)\n                        local nk, nv = next(t, k)\n                        return nk, nv and mkPlanetarySystem(nv)\n                    end, obj.galaxyAtlas, nil\n        end\n    PlanetaryReference.__tostring     =\n        function (obj)\n            local pslist = {}\n            for _,ps in pairs(obj or {}) do\n                local psi = ps:getPlanetarySystemId()\n                local pss = PlanetarySystem.__tostring(ps, '    ')\n                table.insert(pslist,\n                            string.format('  [%s]={%s\\n  }', psi, pss))\n            end\n            return string.format('{\\n%s\\n}\\n', table.concat(pslist,',\\n'))\n        end\n    PlanetaryReference.BodyParameters = mkBodyParameters\n    PlanetaryReference.MapPosition    = mkMapPosition\n    PlanetaryReference.PlanetarySystem = mkPlanetarySystem\n\n    function PlanetaryReference.createBodyParameters(planetarySystemId,\n                                                    bodyId,\n                                                    surfaceArea,\n                                                    aPosition,\n                                                    verticalAtPosition,\n                                                    altitudeAtPosition,\n                                                    gravityAtPosition)\n        assert(isSNumber(planetarySystemId),\n            'Argument 1 (planetarySystemId) must be a number:' ..\n            type(planetarySystemId))\n        assert(isSNumber(bodyId),\n            'Argument 2 (bodyId) must be a number:' .. type(bodyId))\n        assert(isSNumber(surfaceArea),\n            'Argument 3 (surfaceArea) must be a number:' .. type(surfaceArea))\n        assert(isTable(aPosition),\n            'Argument 4 (aPosition) must be an array or vec3:' ..\n            type(aPosition))\n        assert(isTable(verticalAtPosition),\n            'Argument 5 (verticalAtPosition) must be an array or vec3:' ..\n            type(verticalAtPosition))\n        assert(isSNumber(altitudeAtPosition),\n            'Argument 6 (altitude) must be in meters:' ..\n            type(altitudeAtPosition))\n        assert(isSNumber(gravityAtPosition),\n            'Argument 7 (gravityAtPosition) must be number:' ..\n            type(gravityAtPosition))\n        local radius   = math.sqrt(surfaceArea/4/math.pi)\n        local distance = radius + altitudeAtPosition\n        local center   = vec3(aPosition) + distance*vec3(verticalAtPosition)\n        local GM       = gravityAtPosition * distance * distance\n        return mkBodyParameters(planetarySystemId, bodyId, radius, center, GM)\n    end\n    PlanetaryReference.isMapPosition  = isMapPosition\n    function PlanetaryReference:getPlanetarySystem(overload)\n        if self.galaxyAtlas then\n            local planetarySystemId = overload\n\n            if isMapPosition(overload) then\n                planetarySystemId = overload.systemId\n            end\n\n            if type(planetarySystemId) == 'number' then\n                local system = self.galaxyAtlas[planetarySystemId]\n                if system then\n                    if getmetatable(system) ~= PlanetarySystem then\n                        system = mkPlanetarySystem(system)\n                    end\n                    return system\n                end\n            end\n        end\n        return nil\n    end\n\n    function PlanetarySystem:castIntersections(origin,\n                                            direction,\n                                            sizeCalculator,\n                                            bodyIds)\n        local sizeCalculator = sizeCalculator or \n                                function (body) return 1.05*body.radius end\n        local candidates = {}\n\n        if bodyIds then\n            for _,i in ipairs(bodyIds) do candidates[i] = self[i] end\n        else\n            bodyIds = {}\n            for k,body in pairs(self) do\n                table.insert(bodyIds, k)\n                candidates[k] = body\n            end\n        end\n        local function compare(b1,b2)\n            local v1 = candidates[b1].center - origin\n            local v2 = candidates[b2].center - origin\n            return v1:len() < v2:len()\n        end\n        table.sort(bodyIds, compare)\n        local dir = direction:normalize()\n\n        for i, id in ipairs(bodyIds) do\n            local body   = candidates[id]\n            local c_oV3  = body.center - origin\n            local radius = sizeCalculator(body)\n            local dot    = c_oV3:dot(dir)\n            local desc   = dot^2 - (c_oV3:len2() - radius^2)\n\n            if desc >= 0 then\n                local root     = math.sqrt(desc)\n                local farSide  = dot + root\n                local nearSide = dot - root\n                if nearSide > 0 then\n                    return body, farSide, nearSide\n                elseif farSide > 0 then\n                    return body, farSide, nil\n                end\n            end\n        end\n        return nil, nil, nil\n    end\n\n    function PlanetarySystem:closestBody(coordinates)\n        assert(type(coordinates) == 'table', 'Invalid coordinates.')\n        local minDistance2, body\n        local coord = vec3(coordinates)\n\n        for _,params in pairs(self) do\n            local distance2 = (params.center - coord):len2()\n            if not body or distance2 < minDistance2 then\n                body         = params\n                minDistance2 = distance2\n            end\n        end\n        return body\n    end\n\n    function PlanetarySystem:convertToBodyIdAndWorldCoordinates(overload)\n        local mapPosition = overload\n        if isString(overload) then\n            mapPosition = mkMapPosition(overload)\n        end\n\n        if mapPosition.bodyId == 0 then\n            return 0, vec3(mapPosition.latitude,\n                        mapPosition.longitude,\n                        mapPosition.altitude)\n        end\n        local params = self:getBodyParameters(mapPosition)\n\n        if params then\n            return mapPosition.bodyId,\n                params:convertToWorldCoordinates(mapPosition)\n        end\n    end\n\n    function PlanetarySystem:getBodyParameters(overload)\n        local bodyId = overload\n\n        if isMapPosition(overload) then\n            bodyId = overload.bodyId\n        end\n        assert(isSNumber(bodyId),\n                'Argument 1 (bodyId) must be a number:' .. type(bodyId))\n\n        return self[bodyId]\n    end\n\n    function PlanetarySystem:getPlanetarySystemId()\n        local k, v = next(self)\n        return v and v.planetarySystemId\n    end\n\n    function PlanetarySystem:netGravity(coordinates)\n        assert(type(coordinates) == 'table', 'Invalid coordinates.')\n        local netGravity   = vec3()\n        local coord        = vec3(coordinates)\n        local maxG, body\n\n        for _,params in pairs(self) do\n            local radial   = params.center - coord\n            local len2     = radial:len2()\n            local g        = params.GM/len2\n            if not body or g > maxG then\n                body       = params\n                maxG       = g\n            end\n            netGravity = netGravity + g/math.sqrt(len2)*radial\n        end\n        return body, netGravity\n    end\n\n    function BodyParameters:convertToMapPosition(worldCoordinates)\n        assert(isTable(worldCoordinates),\n            'Argument 1 (worldCoordinates) must be an array or vec3:' ..\n            type(worldCoordinates))\n        local worldVec  = vec3(worldCoordinates) \n\n        if self.bodyId == 0 then\n            return setmetatable({latitude  = worldVec.x,\n                                longitude = worldVec.y,\n                                altitude  = worldVec.z,\n                                bodyId    = 0,\n                                systemId  = self.planetarySystemId}, MapPosition)\n        end\n        local coords    = worldVec - self.center\n        local distance  = coords:len()\n        local altitude  = distance - self.radius\n        local latitude  = 0\n        local longitude = 0\n\n        if not float_eq(distance, 0) then\n            local phi = math.atan(coords.y, coords.x)\n            longitude = phi >= 0 and phi or (2*math.pi + phi)\n            latitude  = math.pi/2 - math.acos(coords.z/distance)\n        end\n        return setmetatable({latitude  = latitude,\n                            longitude = longitude,\n                            altitude  = altitude,\n                            bodyId    = self.bodyId,\n                            systemId  = self.planetarySystemId}, MapPosition)\n    end\n\n    function BodyParameters:convertToWorldCoordinates(overload)\n        local mapPosition = isString(overload) and\n                                            mkMapPosition(overload) or overload\n        if mapPosition.bodyId == 0 then -- support deep space map position\n            return vec3(mapPosition.latitude,\n                        mapPosition.longitude,\n                        mapPosition.altitude)\n        end\n        assert(isMapPosition(mapPosition),\n            'Argument 1 (mapPosition) is not an instance of \"MapPosition\".')\n        assert(mapPosition.systemId == self.planetarySystemId,\n            'Argument 1 (mapPosition) has a different planetary system ID.')\n        assert(mapPosition.bodyId == self.bodyId,\n            'Argument 1 (mapPosition) has a different planetary body ID.')\n        local xproj = math.cos(mapPosition.latitude)\n        return self.center + (self.radius + mapPosition.altitude) *\n            vec3(xproj*math.cos(mapPosition.longitude),\n                    xproj*math.sin(mapPosition.longitude),\n                    math.sin(mapPosition.latitude))\n    end\n\n    function BodyParameters:getAltitude(worldCoordinates)\n        return (vec3(worldCoordinates) - self.center):len() - self.radius\n    end\n\n    function BodyParameters:getDistance(worldCoordinates)\n        return (vec3(worldCoordinates) - self.center):len()\n    end\n\n    function BodyParameters:getGravity(worldCoordinates)\n        local radial = self.center - vec3(worldCoordinates) -- directed towards body\n        local len2   = radial:len2()\n        return (self.GM/len2) * radial/math.sqrt(len2)\n    end\n\n    return setmetatable(PlanetaryReference,\n                        { __call = function(_,...)\n                                        return mkPlanetaryReference(...)\n                                end })\nend\n",
+      "filter": {
+        "args": [],
+        "signature": "onStart",
+        "slotKey": "-1"
+      },
+      "key": "2"
+    },
+    {
+      "code": "--@class Kinematics\nfunction Kinematics()\n    local Kinematic = {} -- just a namespace\n\nlocal ITERATIONS = 100 -- iterations over engine \"warm-up\" period\n\n--\n-- computeAccelerationTime - solve vf = vi + a*t for t\n-- initial      [in]: initial (positive) speed in meters per second.\n-- acceleration [in]: constant acceleration until 'finalSpeed' is reached.\n-- final        [in]: the speed at the end of the time interval.\n-- return: the time in seconds to reach the \"final\" velocity\n--\nfunction Kinematic.computeAccelerationTime(initial, acceleration, final)\n    -- ans: t = (vf - vi)/a\n    return (final - initial)/acceleration\nend\n\n--\n-- computeDistanceAndTime - Return distance & time needed to reach final speed.\n-- initial[in]:     Initial speed in meters per second.\n-- final[in]:       Final speed in meters per second.\n-- mass[in]:        Mass of the construct in Kg.\n-- thrust[in]:      Engine's maximum thrust in Newtons.\n-- t50[in]:         (default: 0) Time interval to reach 50% thrust in seconds.\n-- brakeThrust[in]: (default: 0) Constant thrust term when braking.\n-- return: Distance (in meters), time (in seconds) required for change.\n--\nfunction Kinematic.computeDistanceAndTime(initial,\n                                          final,\n                                          mass,\n                                          thrust,\n                                          t50,\n                                          brakeThrust)\n    -- This function assumes that the applied thrust is colinear with the\n    -- velocity. Furthermore, it does not take into account the influence\n    -- of gravity, not just in terms of its impact on velocity, but also\n    -- its impact on the orientation of thrust relative to velocity.\n    -- These factors will introduce (usually) small errors which grow as\n    -- the length of the trip increases.\n    t50            = t50 or 0\n    brakeThrust    = brakeThrust or 0 -- usually zero when accelerating\n\n    local speedUp  = initial < final\n    local a0       = thrust / (speedUp and mass or -mass)\n    local b0       = -brakeThrust/mass\n    local totA     = a0+b0\n\n    if initial == final then\n        return 0, 0   -- trivial\n    elseif speedUp and totA <= 0 or not speedUp and totA >= 0 then\n        return -1, -1 -- no solution\n    end\n\n    local distanceToMax, timeToMax = 0, 0\n\n    -- If, the T50 time is set, then assume engine is at zero thrust and will\n    -- reach full thrust in 2*T50 seconds. Thrust curve is given by:\n    -- Thrust: F(z)=(m*a0*(1+sin(z))+2*m*b0)/2 where z=pi*(t/t50 - 1)/2\n    -- Acceleration is given by F(z)/m\n    -- or v(z)' = (a0*(1+sin(z))+2*b0)/2\n\n    if a0 ~= 0 and t50 > 0 then\n        -- Closed form solution for velocity exists (t <= 2*t50):\n        -- v(t) = a0*(t/2 - t50*sin(pi*(t/2)/t50)/pi)+b0*t)+c\n        -- @ t=0, v(0) = vi => c=vi\n\n        local c1  = math.pi/t50/2\n\n        local v = function(t)\n            return a0*(t/2 - t50*math.sin(c1*t)/math.pi) + b0*t + initial\n        end\n\n        local speedchk = speedUp and function(s) return s >= final end or\n                                     function(s) return s <= final end\n        timeToMax  = 2*t50\n\n        if speedchk(v(timeToMax)) then\n            local lasttime = 0\n\n            while math.abs(timeToMax - lasttime) > 0.25 do\n                local t = (timeToMax + lasttime)/2\n                if speedchk(v(t)) then\n                    timeToMax = t \n                else\n                    lasttime = t\n                end\n            end\n        end\n\n        -- Closed form solution for distance exists (t <= 2*t50):\n        local K       = 2*a0*t50^2/math.pi^2\n        distanceToMax = K*(math.cos(c1*timeToMax) - 1) +\n                        (a0+2*b0)*timeToMax^2/4 + initial*timeToMax\n\n        if timeToMax < 2*t50 then\n            return distanceToMax, timeToMax\n        end\n        initial = v(timeToMax)\n    end\n    -- At full thrust, motion follows Newton's formula:\n    local a = a0+b0\n    local t = Kinematic.computeAccelerationTime(initial, a, final)\n    local d = initial*t + a*t*t/2\n    return distanceToMax+d, timeToMax+t\nend\n\n--\n-- computeTravelTime - solve d=vi*t+a*t**2/2 for t\n-- initialSpeed [in]: initial (positive) speed in meters per second\n-- acceleration [in]: constant acceleration until 'distance' is traversed\n-- distance [in]: the distance traveled in meters\n-- return: the time in seconds spent in traversing the distance\n--\nfunction Kinematic.computeTravelTime(initial, acceleration, distance)\n    -- quadratic equation: t=(sqrt(2ad+v^2)-v)/a\n    if distance == 0 then return 0 end\n\n    if acceleration ~= 0 then\n        return (math.sqrt(2*acceleration*distance+initial^2) - initial)/\n                    acceleration\n    end\n    assert(initial > 0, 'Acceleration and initial speed are both zero.')\n    return distance/initial\nend\n\nreturn Kinematic\n\n\nend",
+      "filter": {
+        "args": [],
+        "signature": "onStart",
+        "slotKey": "-1"
+      },
+      "key": "3"
+    },
+    {
+      "code": "--@class EventDelegate\nfunction EventDelegate()local a={}a.Delegates={}function a.Add(b)if type(b)~=\"function\"then error(\"[EventDelegate] Unable to add callback - not a function\")return end;for c=1,#a.Delegates do if a.Delegates[c]==b then return false end end;table.insert(a.Delegates,b)return true end;function a.Remove(b)if type(b)~=\"function\"then error(\"[EventDelegate] Unable to remove callback - not a function\")return end;for c=1,#a.Delegates do if a.Delegates[c]==b then table.remove(a.Delegates,c)return true end end;return false end;function a.Call(...)for c=1,#a.Delegates do a.Delegates[c](...)end end;function a.Count()return#a.Delegates end;setmetatable(a,{__call=function(d,...)a.Call(...)end,__add=function(e,f)if e==a then a.Add(f)return a end;if f==a then a.Add(e)return a end;return a end,__sub=function(e,f)if e==a then a.Remove(f)return a end;if f==a then a.Remove(e)return a end;return a end,__tostring=function()return\"EventDelegate(#\"..#a.Delegates..\")\"end})return a end;Events={Update=EventDelegate(),Flush=EventDelegate()}",
+      "filter": {
+        "args": [],
+        "signature": "onStart",
+        "slotKey": "-1"
+      },
+      "key": "4"
+    },
+    {
+      "code": "--@class TaskManager\n--[[\n    Shadow Templar Task Manager\n    Version 1.04\n    (c) Copyright 2019 Shadow Templar <http://www.shadowtemplar.org>\n\n    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n]]\nTaskManager = (function()\n    local self = {}\n    self.Stack = {}\n\n    function self.Register(task)\n        if not task.Coroutine then error(\"[TaskManager] Trying to register a non-Task\") end\n        table.insert(self.Stack, task)\n    end\n\n    function self.Update()\n        for i=1,#self.Stack do\n            local task = self.Stack[i]\n            if task and task.Coroutine ~= nil then\n                if coroutine.status(task.Coroutine) ~= \"dead\" then\n                    local state, retn = coroutine.resume(task.Coroutine)\n                    task.Error = not state\n                    task.LastReturn = retn\n                else\n                    table.remove(self.Stack, i)\n                    if task.Error and task._Catch then \n                        task._Catch(task.LastReturn)\n                    elseif task._Then ~= nil then \n                        task._Then(task.LastReturn)\n                    end\n                    if task._Finally ~= nil then task._Finally() end\n                    task.Finished = true\n                end\n            end\n        end\n    end\n    return self\nend)()\n\n\nfunction Task(func)\n    local self = {}\n    self.LastReturn = nil\n    self.Error = nil\n    self.Finished = false\n    if type(func) ~= \"function\" then error(\"[Task] Not a function.\") end\n    self.Coroutine = coroutine.create(func)\n\n    function self.Then(func)\n        if type(func) ~= \"function\" then error(\"[Task] Then callback not a function.\") end\n        self._Then = func\n        return self\n    end\n\n    function self.Finally(func)\n        if type(func) ~= \"function\" then error(\"[Task] Finally callback not a function.\") end\n        self._Finally = func\n        return self\n    end\n\n    function self.Catch(func)\n        if type(func) ~= \"function\" then error(\"[Task] Catch callback not a function.\") end\n        self._Catch = func\n        return self\n    end\n    TaskManager.Register(self)\n    return self\nend\n\nfunction await(task)\n    if not task or not task.Coroutine then error(\"Trying to await non-task object\") end\n    while not task.Finished do\n       coroutine.yield()\n    end\n    return task.LastReturn\nend\n\n",
+      "filter": {
+        "args": [],
+        "signature": "onStart",
+        "slotKey": "-1"
+      },
+      "key": "5"
+    },
+    {
+      "code": "--@class DynamicDocument\nfunction DynamicDocument(a)local self={}self.template=a or\"\"local b=\"\"local c={}self.tree={}local d={br=true,hr=true,img=true,embed=true,param=true,area=true,col=true,input=true,meta=true,link=true,base=true,basefont=true,iframe=true,isindex=true,circle=true,polygon=true,polyline=true,ellipse=true,path=true,line=true,rect=true,use=true}function table.indexOf(val,table)for e,f in ipairs(table)do if f==val then return e end end;return nil end;function self.makeFunc(string)local val=\"nil\"if c[string]==nil then local g,h=pcall(load(\"return function() return \"..string..\" end\",nil,\"t\",_ENV))if g then c[string]=h;val=h()if type(val)==\"function\"then c[string]=h()val=val()end end else val=c[string]()end;return val end;local function i(a)local j=0;local k={}local l={}l.dd={}table.insert(k,l)local node={}for m,n,o,p,q,r,val,s in string.gmatch(a,\"(<)(%/?!?)([%w:_-'\\\\\\\"%[]+)(.-)(%/?%-?)>([%s\\r\\n\\t]*)([^<]*)([%s\\r\\n\\t]*)\")do o=string.lower(o)if n==\"/\"then if j==0 then return l end;j=j-1;table.remove(k)else local function t(u)local v=\"dd-\"return u:sub(1,#v)==v end;j=j+1;node={}node.name=o;node.children={}node.attr={}if k[j-1]then node.parent=k[j-1][#k[j-1]]else node.parent=nil end;if p~=\"\"then for w,f in string.gmatch(p,\"%s([^%s=]+)=\\\"([^\\\"]+)\\\"\")do node.attr[w]=string.gsub(f,'\"','[^\\\\]\\\\\"')if t(w)then if not l.dd[w]then l.dd[w]={}end;table.insert(l.dd[w],node)end end;for w,f in string.gmatch(p,\"%s([^%s=]+)='([^']+)'\")do node.attr[w]=string.gsub(f,'\"','[^\\\\]\\\\\"')if t(w)then if not l.dd[w]then l.dd[w]={}end;table.insert(l.dd[w],node)end end end;if not k[j]then k[j]={}end;table.insert(k[j],node)if d[o]then if val~=\"\"then table.insert(k[j],{name=\"textNode\",value=val})end;node.children={}j=j-1 else if val~=\"\"then table.insert(node.children,{name=\"textNode\",value=val})end;table.insert(k,node.children)end end end;return l end;local function x(y,z)local k={y}local A=\"\"local function B(C)local D=0;for E in pairs(C)do D=D+1 end;return D end;if not z and B(y.dd)>0 then if y.dd[\"dd-repeat\"]then for F=#y.dd[\"dd-repeat\"],1,-1 do local node=y.dd[\"dd-repeat\"][F]var,array=string.match(node.attr[\"dd-repeat\"],\"(.*) in (.*)\")node.attr[\"dd-repeat\"]=nil;local G=x({node},true)local H=string.gmatch(G,\"{{([^}}]+)}}\")local I={}for J in H do if string.match(J,var)then table.insert(I,J)end end;local b=\"\"local K=self.makeFunc(array)for F=1,#K do _ENV[var]=K[F]local L=G;local M=i(L:gsub(\"^%s*(.-)%s*$\",\"%1\"))b=b..x(M)end;node.children={}node.name=\"textNode\"node.value=b end end;if y.dd[\"dd-if\"]then for F=#y.dd[\"dd-if\"],1,-1 do local node=y.dd[\"dd-if\"][F]local N=self.makeFunc(node.attr[\"dd-if\"])if N then node.attr[\"dd-if\"]=nil else local O=table.indexOf(node,node.parent.children)if O then table.remove(node.parent.children,O)end;node=nil;table.remove(y.dd[\"dd-if\"],F)y.dd[\"dd-if\"][F]=nil end end end;if y.dd[\"dd-init\"]then for F=#y.dd[\"dd-init\"],1,-1 do local node=y.dd[\"dd-init\"][F]pcall(load(node.attr[\"dd-init\"],nil,\"t\",_ENV))node.attr[\"dd-init\"]=nil end end end;while#k~=0 do node=k[#k][1]if not node then break end;if node.name==\"textNode\"then local val=node.value:gsub(\"^%s*(.-)%s*$\",\"%1\")if not z then val=self.transformClosures(val)end;A=A..val else A=A..\"\\n\"..string.rep(\" \",#k-1)A=A..\"<\"..node.name;if node.attr then for P,f in pairs(node.attr)do if not z then P=self.transformClosures(P)f=self.transformClosures(f)end;A=A..\" \"..P..'=\"'..f..'\"'end end;if d[node.name]then A=A..\"/>\"else A=A..\">\"end end;if node.children and#node.children>0 then table.insert(k,node.children)else table.remove(k[#k],1)if node.children and#node.children==0 and not d[node.name]and not node.name==\"textNode\"then A=A..\"</\"..node.name..\">\"end;while#k>0 and#k[#k]==0 do table.remove(k)if#k>0 then if#k[#k][1].children>1 then A=A..\"\\n\"..string.rep(\" \",#k-1)..\"</\"..k[#k][1].name..\">\"else A=A..\"</\"..k[#k][1].name..\">\"end;table.remove(k[#k],1)end end end end;return A:match\"^%s*(.-)%s*$\"end;function self.transformClosures(Q)local R={}local S=string.gmatch(Q,\"{{([^}}]+)}}\")for F in S do table.insert(R,F)end;if#R>0 then for F=1,#R do local T=R[F]val=self.makeFunc(T)Q=string.gsub(Q,self.literalize(\"{{\"..T..\"}}\"),tostring(val))end end;return Q end;function self.literalize(u)return u:gsub(\"[%(%)%.%%%+%-%*%?%[%]%^%$]\",function(J)return\"%\"..J end)end;function self.Read()return x(i(self.template))end;return self end",
+      "filter": {
+        "args": [],
+        "signature": "onStart",
+        "slotKey": "-1"
+      },
+      "key": "6"
+    },
+    {
+      "code": "--@class DUTTY\nDUTTY={}local a={}local b={}local function c(d,e)return d:sub(e,e)end;local function f(d)local g={}local h=false;local i=''local j=false;for k=1,#d do local l=c(d,k)if j==false and h and l==h then table.insert(g,i)h=false;i=''elseif j==false and#i==0 and(not h and(l=='\"'or l==\"'\"))then h=l elseif j==false and l==' 'and h==false then if#i>0 then table.insert(g,i)i=''end elseif j==false and l=='\\\\'then j=true else if j then j=false end;i=i..l end end;if#i>0 then table.insert(g,i)end;return g end;function DUTTY.input(d)for k,m in pairs(a)do if'function'==type(m)then m(d)end end;local n=f(d)if#n>0 then local o=''local p={}for k,d in pairs(n)do if k==1 then o=d:lower()else table.insert(p,d)end end;if b[o]and'function'==type(b[o])then b[o](table.unpack(p))end end end;function DUTTY.onInput(m)if not'function'==type(m)then error('Event handler must be of type function')end;table.insert(a,m)end;function DUTTY.onCommand(g,m)if not'function'==type(m)then error('Event handler must be of type function')end;b[g:lower()]=m end",
+      "filter": {
+        "args": [],
+        "signature": "onStart",
+        "slotKey": "-1"
+      },
+      "key": "7"
+    },
+    {
+      "code": "--@class CSS_SHUD\n\nCSS_SHUD = [[\n#horizon { \n  left: 0;\n  top: 0;\n  position: fixed;\n  width: 100vw;\n  height: 100vh;\n  background: radial-gradient(ellipse 27vw 11vw at 50% 51vw, rgba(1,5,8,0.6) 50%,rgba(1,5,8,0) 90%);\n  font-family: Verdana;\n  \n}\n#artificialHorizon\n{\n  position: absolute;\n  display: block;\n  left: 50%;\n  top: 50%;\n  height: 50vw;\n  width: 50vw;\n  transform: translate(-50%, -50%);\n  filter: drop-shadow(0px 3px 4px #000000);\n}\n\n#artificialHorizon > svg {\n  width: 100%;\n}\n\n#speedometer::before {\n  display: block;\n  position: absolute;\n  content: ' ';\n  top: 0.25vh;\n  bottom: -17vh;\n  left: 50%;\n  width: 31vw;\n  border: 10px solid #]]..primaryColor..[[;\n  border-bottom: 0;\n  border-right: 0;\n  border-left: 0;\n  border-radius: 100%;\n  transform: translateX(-50%);\n  background-color: transparent;\n  filter: blur(100vw);\n}\n\n#speedometerBar {\n  display: block;\n  position: fixed;\n  left: 50%;\n  top: 77.2vh;\n  width: 30vw;\n  height: 24.5vh;\n  transform: translate(-50%);\n  content: ' ';\n  border: 10px solid #]]..primaryColor..[[;\n  border-bottom: 0;\n  border-right: 0;\n  border-left: 0;\n  border-radius: 100%;\n  background-size: contain;\n  background-color: transparent;\n  filter: blur(0.1vw);\n}\n\n#speedometer {\n  font-family: 'Verdana';\n  font-weight: normal;\n  font-style: normal;\n  position: fixed;\n  left: 50%;\n  bottom: 13vh;\n  font-size: 2vw;\n  transform: translate(-50%);\n  background-color: transparent;\n  width: 30vw;\n  height: 10vh;\n  text-align: center;\n}\n\n#speedometer .display {\n  position: absolute;\n  top: calc(50% + 1vh);\n  left: calc(50% + 0.25em);\n  transform: translate(-50%, -50%);\n  text-shadow: 0 0 0.75vw #]]..textShadow..[[;\n  padding: 0;\n  margin: 0;\n  font-size: 2.8vw;\n}\n\n#speedometer .display .minor, #speedometer .unit {\n  position: relative;\n  left: -0.5em;\n  vertical-align: super;\n  font-size: 40%;\n}\n\n#speedometer .unit {\n  vertical-align: 50%;\n  font-size: 23%;\n  left: -1.33em;\n}\n\n#speedometer .accel {\n  font-size: 1.2vw;\n  text-shadow: 0 0 0.15vw #000000;\n  position: absolute;\n  left: 12.5%;\n  bottom: 0;\n  opacity: 0.75;\n}\n\n#speedometer .accel .major::before {\n  content: 'Δ';\n  font-size: 40%;\n}\n\n#speedometer .accel .unit {\n  left: -0.66em;\n}\n\n#speedometer .alt {\n  position: absolute;\n  left: 50%;\n  bottom: -0.65vh;\n  transform: translateX(-50%);\n  font-size: 0.65vw;\n  text-align: center;\n}\n\n#speedometer .misc {\n  position: absolute;\n  left: 50%;\n  bottom: -1.5vh;\n  transform: translateX(-50%);\n  font-size: 0.4vw;\n  text-align: center;\n}\n\n#speedometer .throttle {\n  position: absolute;\n  left: 50%;\n  bottom: -4.3vh;\n  transform: translateX(-50%);\n  font-size: 0.7vw;\n  text-align: center;\n}\n\n#speedometer .vertical {\n  font-size: 1.3vw;\n  text-shadow: 0 0 0.15vw #000000;\n  position: absolute;\n  right: 12.5%;\n  bottom: 0;\n  opacity: 0.75;\n  text-align: right;\n}\n\n#speedometer .vertical::after {\n  content: '↕ m/s';\n  vertical-align: 50%;\n  font-size: 33%;\n}\n\n#speedometer::after {\n  display: block;\n  font-size: 0;\n  background-size: contain;\n  content: ' ';\n  position: absolute;\n  top: 0.5vh;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  z-index: 666;\n  opacity: 0.5;\n}\n\n#horizon-menu {\n  text-transform: uppercase;\n  font-family: 'Verdana';\n  font-size: ]] .. displaySize .. [[vw;\n  display: flex;\n  flex-direction: column;\n  position: fixed;\n  bottom: 35%;\n  left: 2vw;\n  width: 18vw;\n  padding: 1vw;\n  transform: perspective(50vw) rotateY(35deg);\n  text-shadow: 0.1vw 0 0.25vw #000000;\n}\n#horizon-menu .item {\n  color: #fff;\n  padding: 0.2vw 0.5vw;\n  z-index: 99999;\n}\n#horizon-menu .item .right {\n  float: right;\n}\n#horizon-menu .item .red {\n  color: #]]..secondaryColor..[[;\n}\n#horizon-menu .item.active {\n  position: relative;\n  text-shadow: 0 0 0.75vw #]]..secondaryColor..[[;\n  transform: translateZ(0.33vw);\n  font-size: 1.15em;\n  transform-style: preserve-3d;\n}\n\n#horizon-menu .item.active::before {\n  display: block;\n  content: ' ';\n  position: absolute;\n  top: 15%;\n  bottom: 15%;\n  left: 0.1vw;\n  right: 0.1vw;\n  background: #]]..secondaryColor..[[aa;\n  z-index: -50;\n  filter: blur(1vw);\n  opacity: 0.2;\n}\n\n#horizon-menu .item.active::after {\n  display: block;\n  content: ' ';\n  position: absolute;\n  top: 20%;\n  bottom: 40%;\n  left: 0.1vw;\n  right: 0.1vw;\n  background: #]]..secondaryColor..[[aa;\n  z-index: -50;\n  filter: blur(0.2vw);\n  opacity: 0.3; \n}\n#horizon-menu .item.locked {\n  padding-left: 0.4vw;\n}\n#horizon-menu .item.locked::before {\n  display: block;\n  content: ' ';\n  position: absolute;\n  top: 15%;\n  bottom: 15%;\n  left: 0.1vw;\n  right: 0.1vw;\n  background: #]]..primaryColor..[[aa;\n  z-index: -50;\n  filter: blur(1vw);\n  opacity: 0.2;\n}\n#horizon-menu .item.locked::after {\n  display: block;\n  content: ' ';\n  position: absolute;\n  top: 20%;\n  bottom: 40%;\n  left: 0.1vw;\n  right: 0.1vw;\n  background: #]]..primaryColor..[[aa;\n  z-index: -50;\n  filter: blur(0.2vw);\n  opacity: 0.6; \n}\n\n#horizon-menu::after {\n  content: ' ';\n  filter: blur(1vw);\n  display: block;\n  border-top-left-radius: 1vw;\n  border-top-right-radius: 1vw;\n  border-image: linear-gradient(to bottom, #]]..primaryColor..[[ff, #]]..primaryColor..[[00) 1 100%;\n  background: linear-gradient(to bottom, rgba(0,0,0,0.65) 50%,rgba(0,0,0,0) 100%);\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  z-index: -99;\n}\n\n#horizon-menu::before {\n  content: ' ';\n  filter: blur(0.05vw);\n  display: block;\n  border-top-left-radius: 1vw;\n  border-top-right-radius: 1vw;\n  border-top: 0.25vw solid #]]..primaryColor..[[;\n  border-left: 0.25vw solid #]]..primaryColor..[[;\n  border-right: 0.25vw solid #]]..primaryColor..[[;\n  border-image: linear-gradient(to bottom, #]]..primaryColor..[[ff, #]]..primaryColor..[[00) 1 100%;\n  background: radial-gradient(ellipse at top, rgba(0,0,0,0.65) 0%,rgba(0,0,0,0) 100%);\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  z-index: -100;\n}\n\n#fuelTanks {\n  position: absolute;\n  top: 2%;\n  left: 2%;\n  width: 12vw;\n\n  color: #1b1b1b;\n  font-family: Verdana;\n  font-size: 0.8vh;\n  text-align: center;\n}\n#fuelTanks .fuel-meter {\n  display: block;\n  position: relative;\n  z-index: 1;\n  border-radius: 0.5em;\n  background: #c6c6c6;\n  padding: 0.5em 1em;\n  margin-bottom: 0.5em;\n  overflow: hidden;\n  box-sizing: border-box;\n}\n#fuelTanks .fuel-meter .fuel-level {\n  display: block;\n  position: absolute;\n  top: 0px;\n  left: 0px;\n  bottom: 0px;\n  z-index: -1;\n  border: 0px none;\n  margin: 0;\n  padding: 0;\n}\n#fuelTanks .fuel-meter.fuel-type-atmo .fuel-level { background: #1dd1f9; }\n#fuelTanks .fuel-meter.fuel-type-space .fuel-level { background: #fac31e; }\n#fuelTanks .fuel-meter.fuel-type-rocket .fuel-level { background: #bfa6ff; }\n\n\n]]\n--system.print([[Shadow Templar Mining Chair H1R3<style>#custom_screen_click_layer{ display: none !important; }</style>]])",
+      "filter": {
+        "args": [],
+        "signature": "onStart",
+        "slotKey": "-1"
+      },
+      "key": "8"
+    },
+    {
+      "code": "--@class FuelTankHelper\n\nfuelTanks = {}\nFuelMass = {}\nFuelTime = {}\nfuelTypes = {\n  atmo = {\n    density = 4.000,\n  },\n  space = {\n    density = 6.000,\n  },\n  rocket = {\n    density = 0.800,\n  },\n}\nlocal function calcAtmoVolume(baseCap)\n  if fuelTankHandlingAtmo > 0 then\n    return baseCap + (baseCap * (fuelTankHandlingAtmo * 0.2))\n  else\n    return baseCap\n  end\nend\nlocal function calcSpaceVolume(baseCap)\n  if fuelTankHandlingSpace > 0 then\n    return baseCap + (baseCap * (fuelTankHandlingSpace * 0.2))\n  else\n    return baseCap\n  end\nend\nlocal function calcMaxMass(cap, type)\n  local maxMass = cap * fuelTypes[type].density\n\n  local adjustedMaxMass = maxMass\n  if ContainerOptimization > 0 then adjustedMaxMass = maxMass - (maxMass * ContainerOptimization * 0.05) end\n  if FuelTankOptimization > 0 then adjustedMaxMass = adjustedMaxMass - (maxMass * FuelTankOptimization * 0.05) end\n\n  return adjustedMaxMass\nend\nfunction normalizeHp(type,hp)\n  local adjHp = 0\n\n  if type == \"atmo\" then\n    if hp >= 50 and hp < 163 then adjHp = 50\n    elseif hp >= 163 and hp < 1315 then adjHp = 163\n    elseif hp >= 1315 and hp < 10461 then adjHp = 1315\n    elseif hp >= 10461 then adjHp = 10461 end\n  elseif type == \"space\" then\n    if hp >= 50 and hp < 187 then adjHp = 50\n    elseif hp >= 187 and hp < 1496 then adjHp = 187\n    elseif hp >= 1496 and hp < 15933 then adjHp = 1496\n    elseif hp >= 15933 then adjHp = 15933 end\n  elseif type == \"rocket\" then\n    if hp >= 366 and hp < 736 then adjHp = 366\n    elseif hp >= 736 and hp < 6231 then adjHp = 736\n    elseif hp >= 6231 and hp < 68824 then adjHp = 6231\n    elseif hp >= 68824 then adjHp = 68824 end\n  end\n\n  return adjHp\nend\nfunction normalizeHpAtmo(hp)\n\nend\nfunction normalizeHpSpace(hp)\n  -- 187\n  -- 1496\n  -- 15933\n\nend\nfunction normalizeHpRocket(hp)\n  -- 366\n  -- 736\n  -- 6231\n  -- 68824\n\nend\nfuelTankSpecsByMaxHP = {\n  -- Atmo Tanks\n  atmo = {\n    _50 = {\n      type = \"atmo\",\n      size = \"XS\",\n      capacity = function() return calcAtmoVolume(100) end,\n      baseWeight = 35.030,\n      maxWeight = function() return calcMaxMass(calcAtmoVolume(100),\"atmo\") end,\n    },\n    _163 = {\n      type = \"atmo\",\n      size = \"S\",\n      capacity = function() return calcAtmoVolume(400) end,\n      baseWeight = 182.670,\n      maxWeight = function() return calcMaxMass(calcAtmoVolume(400),\"atmo\") end,\n    },\n    _1315 = {\n      type = \"atmo\",\n      size = \"M\",\n      capacity = function() return calcAtmoVolume(1600) end,\n      baseWeight = 988.670,\n      maxWeight = function() return calcMaxMass(calcAtmoVolume(1600),\"atmo\") end,\n    },\n    _10461 = {\n      type = \"atmo\",\n      size = \"L\",\n      capacity = function() return calcAtmoVolume(12800) end,\n      baseWeight = 5480.000,\n      maxWeight = function() return calcMaxMass(calcAtmoVolume(12800),\"atmo\") end,\n    },\n  },\n\n  -- Space Tanks\n  space = {\n    _50 = {\n      type = \"space\",\n      size = \"XS\",\n      capacity = function() return calcAtmoVolume(100) end,\n      baseWeight = 35.030,\n      maxWeight = function() return calcMaxMass(calcAtmoVolume(100),\"space\") end,\n    },\n    _187 = {\n      type = \"space\",\n      size = \"S\",\n      capacity = function() return calcSpaceVolume(400) end,\n      baseWeight = 182.670,\n      maxWeight = function() return calcMaxMass(calcAtmoVolume(400),\"space\") end,\n    },\n    _1496 = {\n      type = \"space\",\n      size = \"M\",\n      capacity = function() return calcSpaceVolume(1600) end,\n      baseWeight = 988.670,\n      maxWeight = function() return calcMaxMass(calcAtmoVolume(1600),\"space\") end,\n    },\n    _15933 = {\n      type = \"space\",\n      size = \"L\",\n      capacity = function() return calcSpaceVolume(12800) end,\n      baseWeight = 5480.000,\n      maxWeight = function() return calcMaxMass(calcAtmoVolume(12800),\"space\") end,\n    },\n  },\n\n  -- Rocket Tanks\n  rocket = {\n    _366 = {\n      type = \"rocket\",\n      size = \"XS\",\n      capacity = function() return 400 end,\n      baseWeight = 173.420,\n      maxWeight = function() return calcMaxMass(calcAtmoVolume(400),\"rocket\") end,\n    },\n    _736 = {\n      type = \"rocket\",\n      size = \"S\",\n      capacity = function() return 800 end,\n      baseWeight = 886.720,\n      maxWeight = function() return calcMaxMass(calcAtmoVolume(800),\"rocket\") end,\n    },\n    _6231 = {\n      type = \"rocket\",\n      size = \"M\",\n      capacity = function() return 6400 end,\n      baseWeight = 4720.000,\n      maxWeight = function() return calcMaxMass(calcAtmoVolume(6400),\"rocket\") end,\n    },\n    _68824 = {\n      type = \"rocket\",\n      size = \"L\",\n      capacity = function() return 50000 end,\n      baseWeight = 25740.000,\n      maxWeight = function() return calcMaxMass(calcAtmoVolume(50000),\"rocket\") end,\n    },\n  },\n}\n\nlocal function isINF(value)\n  return value == math.huge or value == -math.huge\nend\n\nlocal function isNAN(value)\n  return value ~= value\nend\n\nfunction disp_time(time)\n  if isINF(time) or isNAN(time) then return \"inf\" end\n  local days = math.floor(time/86400)\n  local hours = math.floor(math.fmod(time, 86400)/3600)\n  local minutes = math.floor(math.fmod(time,3600)/60)\n  local seconds = math.floor(math.fmod(time,60))\n  if time >= 86400 then\n      return string.format(\"%dd:%02dh\",days,hours)\n  elseif time < 86400 and time > 3600 then\n      return string.format(\"%02dh:%02dm:%02ds\",hours,minutes,seconds)\n  elseif time < 3600 and time > 60 then\n      return string.format(\"%02dm:%02ds\",minutes,seconds)\n  else\n      return string.format(\"%02ds\",seconds)\n  end\nend\n\nlocal unpack = table.unpack\n\nfunction fuelUsed(period)\n\tlocal t = {}\n\tfunction sum(a, ...)\n\t\tif a then\n            return a-sum(...)\n        else\n            return 0\n        end\n\tend\n\tfunction average(n)\n\t\tif #t == period then table.remove(t, 1) end\n\t\tif n ~= 0 and n ~= nil then t[#t + 1] = n end\n\t\treturn sum(unpack(t))\n\tend\n\treturn average\nend\n\nfunction getFuelSituation()\n  local tanks = {\n    atmo = {},\n    space = {},\n    rocket = {},\n  }\n\n  for id, specs in pairs(fuelTanks) do\n    table.insert(tanks[specs.type], {\n      name = core.getElementNameById(id),\n      level = getFuelTankLevel(id),\n      time = getFuelTime(id),\n      specs = specs,\n    })\n  end\n\n  return tanks\nend\n\nfunction getFuelTankSpecs(fuelTankType, fuelTankId)\n  local maxHP = math.floor(core.getElementMaxHitPointsById(fuelTankId))\n--   system.print(fuelTankType..\"........\"..maxHP)\n  return fuelTankSpecsByMaxHP[fuelTankType]['_' .. normalizeHp(fuelTankType,maxHP)]\nend\n\nfunction getFuelTankLiters(fuelTankId)\n  local fuelTankSpecs = fuelTanks[fuelTankId]\n  local massTotal = core.getElementMassById(fuelTankId)\n  local massContents = massTotal - fuelTankSpecs.baseWeight\n  return massContents\nend\n--vanillaMaxVolume = vanillaMaxVolume - (vanillaMaxVolume * ContainerOptimization * 0.05)\nfunction getFuelTankLevel(fuelTankId)\n  local fuelTankSpecs = fuelTanks[fuelTankId]\n  local adjustedMaxMass = fuelTankSpecs.maxWeight()\n  return getFuelTankLiters(fuelTankId) / adjustedMaxMass\nend\n\nfunction getFuelTime(fuelTankId)\n  local fuelTankSpecs = fuelTanks[fuelTankId]\n  local lastUpdate = FuelTime[fuelTankId] or system.getArkTime()\n  local deltaTime = math.max(system.getArkTime() - lastUpdate, 0.001)\n  local massTotal = core.getElementMassById(fuelTankId)\n  local minMass = fuelTankSpecs.baseWeight\n  local fuelUsed = FuelMass[fuelTankId](massTotal)\n  local fuelTime = (deltaTime / fuelUsed) * (massTotal - minMass)\n  local fuelTimeFormatted = disp_time(fuelTime)\n  FuelTime[fuelTankId] = system.getArkTime()\n  return fuelTimeFormatted\n\nend\n\nfunction getFuelTanks()\n  local elementIds = core.getElementIdList()\n  for k, elementId in pairs(elementIds) do\n    local elementType = core.getElementDisplayNameById(elementId)\n    -- Fuel tank configuration routine\n    if elementType == \"Atmospheric Fuel Tank\" then\n      --system.print(elementType..\"_\"..elementId)\n      local tank = getFuelTankSpecs(\"atmo\", elementId)\n      fuelTanks[elementId] = tank\n      FuelMass[elementId] = fuelUsed(2)\n    elseif elementType == \"Space Fuel Tank\" then\n      fuelTanks[elementId] = getFuelTankSpecs(\"space\", elementId)\n      FuelMass[elementId] = fuelUsed(2)\n    elseif elementType == \"Rocket Fuel Tank\" then\n      fuelTanks[elementId] = getFuelTankSpecs(\"rocket\", elementId)\n      FuelMass[elementId] = fuelUsed(2)\n    end\n  end\n\n--   for _, v in ipairs(fuelTankSpecsByMaxHP) do\n--     --system.print(\"Fuel Tank: \"..v)\n--     for k,t in ipairs(v) do\n--       for x,y in pairs(t) do\n--         --system.print(\"Capacity: \"..y.capacity())\n--       end\n--     end\n--   end\nend\n\ngetFuelTanks()\n",
+      "filter": {
+        "args": [],
+        "signature": "onStart",
+        "slotKey": "-1"
+      },
+      "key": "9"
+    },
+    {
+      "code": "--@class TagManager\n--[[\n    Shadow Templar Tag Manager\n    Version 1.02\n\t\n\tusage:\n\t\texampleGroup = TagManager(\"all,vertical\")\n\t\texampleGroup.Add(\"booster\")\n\t\texampleGroup.Remove(\"vertical\")\n\t\tengines.tags = exampleGroup \n]]\n\nfunction TagManager(tagString)\n\tself = {}\n\tlocal tagArray = {}\n\tlocal tags = \"\"\n\n\tlocal function explode(div,str)\n\t\tif (div=='') then return false end\n\t\tlocal pos,arr = 0,{}\n\t\tfor st,sp in function() return string.find(str,div,pos,true) end do\n\t\t  table.insert(arr,string.sub(str,pos,st-1))\n\t\t  pos = sp + 1\n\t\tend\n\t\ttable.insert(arr,string.sub(str,pos))\n\t\treturn arr\n\tend\n\t\n\tfunction self.tagsToString()\n\t\tif #tagArray == 0 then\n\t\t\ttags = \"all\"\n\t\telse\n\t\t\ttags = table.concat(tagArray,\",\")\n\t\tend\n\tend\n\t\n\tfunction self.Remove(s)\n\t\tif type(s) ~= \"string\" then error(\"[TagManager] Unable to remove a tag - Not a string\") end\n\t\tfor k,v in pairs(tagArray) do\n\t\t\tif s == v then\n\t\t\t\ttable.remove(tagArray,k)\n\t\t\tend\n\t\tend\n\t\tself.tagsToString()\n\tend\n\t\n\tfunction self.Add(s)\n\t\tif type(s) ~= \"string\" then error(\"[TagManager] Unable to add a tag - Not a string\") end\n\t\tfor k,v in pairs(tagArray) do\n\t\t\tif s == v then\n\t\t\t\treturn\n\t\t\tend\n\t\tend\n\t\ttable.insert(tagArray,s)\n\t\tself.tagsToString()\n\tend\n\t\n\tif (tagString ~= nil and type(tagString) == \"string\") then\n\t\tfor k,v in pairs(explode(\",\",tagString)) do\n\t\t\tself.Add(v)\n\t\tend\n\telse\n\t\tself.Add(\"all\")\n\tend\n\t\n\tsetmetatable (self, { __tostring = function (self) return tags end })\n\treturn self\nend\n\n\n",
+      "filter": {
+        "args": [],
+        "signature": "onStart",
+        "slotKey": "-1"
+      },
+      "key": "10"
+    },
+    {
+      "code": "--@class KeybindController\n--[[\n\tShadow Templar Keybind Controller\n\tVersion 1.24\n\t(c) Copyright 2019 Shadow Templar <http://www.shadowtemplar.org>\n\n\tPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\tThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\tTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n]]\nfunction Keybind(key)\n\tlocal self = {}\n\tself.Key = key\n\tlocal bindings = {}\n\n\tfunction self.Add(f, keybindName)\n\t\tif type(f) ~= \"function\" then error(\"[Keybind] Unable to add callback - not a function\") end\n\t\ttable.insert(bindings, {Function = f, Name = keybindName})\n\tend\n\n\tfunction self.Remove(f)\n\t\tif type(f) ~= \"function\" then error(\"[Keybind] Unable to remove callback - not a function\") end\n\t\tlocal reverse = {}\n\t\tfor k,v in pairs(bindings) do reverse[v.Function]=k end\n\t\tfor k,v in pairs(reverse) do if k == f then bindings[v]=nil end end\n\tend\n\n\tfunction self.GetNames()\n\t\tlocal out = {}\n\t\tfor _,v in pairs(bindings) do if v.Name then table.insert(out, v.Name) end end\n\t\treturn out\n\tend\n\n\tfunction self.Call() for _,v in pairs(bindings) do v.Function(self.Key) end end\n\treturn self\nend\n\nfunction KeybindController()\n\tlocal self = {}\n\tlocal keyList = {\n\t\t\"forward\", \"backward\", \"left\", \"right\", \"yawleft\", \"yawright\", \"up\", \"down\", \"gear\", \"light\", \"landing\", \"brake\",\n\t\t\"option1\", \"option2\", \"option3\", \"option4\", \"option5\", \"option6\", \"option7\", \"option8\", \"option9\",\n\t\t\"stopengines\", \"speedup\", \"speeddown\", \"antigravity\", \"booster\",\"lshift\",\"lalt\",\"lalt\",\"strafeleft\",\"straferight\"\n\t}\n\tself.keyUp = {}\n\tself.keyDown = {}\n\tself.keyLoop = {}\n\n\tfunction self.Call(action, type)\n\t\tif type == \"up\" then\n\t\t\tif self.keyUp[action] then self.keyUp[action].Call(action) end\n\t\telseif type == \"down\" then\n\t\t\tif self.keyDown[action] then self.keyDown[action].Call(action) end\n\t\telse\n\t\t\tif self.keyLoop[action] then self.keyDown[action].Call(action) end\n\t\tend\n\tend\n\n\tfunction self.GetNamedKeybinds()\n\t\tlocal out = {}\n\t\tfor k,v in pairs(self.keyUp) do\n\t\t\tlocal names = v.GetNames()\n\t\t\tif #names > 0 then for i=1,#names do table.insert(out, { Key = v.Key, Name = names[i]}) end end\n\t\tend\n\t\tfor k,v in pairs(self.keyDown) do\n\t\t\tlocal names = v.GetNames()\n\t\t\tif #names > 0 then for i=1,#names do table.insert(out, { Key = v.Key, Name = names[i]}) end end\n\t\tend\n\t\tfor k,v in pairs(self.keyLoop) do\n\t\t\tlocal names = v.GetNames()\n\t\t\tif #names > 0 then for i=1,#names do table.insert(out, { Key = v.Key, Name = names[i]}) end end\n\t\tend\n\t\ttable.sort(out, function(a,b) return a.Key < b.Key end)\n\t\treturn out\n\tend\n\n\tself.Init = function() end\n\n\tlocal function init()\n\t\tfor i=1,#keyList do\n\t\t\tself.keyUp[keyList[i]] = Keybind(keyList[i])\n\t\t\tself.keyDown[keyList[i]] = Keybind(keyList[i])\n\t\t\tself.keyLoop[keyList[i]] = Keybind(keyList[i])\n\t\tend\n\tend\n\tinit()\n\treturn self\nend\n\nkeybindPresets = {}\n",
+      "filter": {
+        "args": [],
+        "signature": "onStart",
+        "slotKey": "-1"
+      },
+      "key": "11"
+    },
+    {
+      "code": "--@class STEC\n--[[\n    Shadow Templar Engine Control\n    Version: 1.17\n\n    Setup:\n        - Put this file in system.start\n        - Replace system.flush with: engines.apply()\n        - Replace all controls with the appropriate STEC equivalent:\n            - ship.direction.x - left/right\n            - ship.direction.y - forward/back\n            - ship.direction.z - forward/back\n            - ship.rotation.x - pitch\n            - ship.rotation.y - roll\n            - ship.rotation.z - yaw\n        - See comments for additional functionality\n]]\nlocal atlas = require('atlas')\nplanetaryReference = PlanetRef()\ngalaxyReference = planetaryReference(atlas)\nhelios = galaxyReference[0]\n\nkinematics = Kinematics()\nlocal json = require(\"dkjson\")\nlocal jdecode = json.decode\nlocal atlas = require('atlas')\nlocal find = string.find\nfunction getJsonNum (json, key, init)\n  local pattern = [[\"]] .. key .. [[\"%s*:%s*(-?[0-9.e-]+)]]\n  local startIndex, endIndex, valueStr = find(json, pattern, init)\n  return tonumber(valueStr), startIndex, endIndex\nend\n\nfunction round(val, decimal)\n  if (decimal) then\n    return math.floor((val * 10 ^ decimal) + 0.5) / (10 ^ decimal)\n  else\n    return math.floor(val + 0.5)\n  end\nend\n\n--function getBrakingInfo()\n--    local curVelMs = vec3(construct.getWorldVelocity()):len()\n--    local cMass = construct.getMass()\n--    local brakingForce = getJsonNum(unit.getWidgetData(), \"maxBrake\")\n--    local brakeInfo = {}\n--    if brakingForce == 0 then\n--        brakeInfo.time = \"BF: 0\"\n--        brakeInfo.dist = 1\n--        return brakeInfo\n--    end\n--\n--    local brakeForce = math.floor(brakingForce)\n--    local rA = brakeForce / cMass\n--    local c = 30000000 / 3600\n--    local c2 = c * c\n--    local cA = c * math.asin(curVelMs / c)\n--    local cC = c2 * math.cos(cA / c) / rA\n--\n--    local t = (c - cA) / rA\n--    local d = cC - c2 * math.cos((rA * t + cA) / c) / rA\n--\n--    local min = math.floor(t / 60)\n--    t = t - (60 * min)\n--    local sec = round(t, 0)\n--\n--    local tms = string.format(\"%02dm:%02ds\", min, sec)\n--\n--    local km = round(d / 1000, 2)\n--\n--    brakeInfo.time = tms\n--    brakeInfo.dist = km\n--\n--    return brakeInfo\n--end\n\nfunction STEC(core, control, Cd)\n    local self = {}\n    self.core = core\n    self.construct = construct\n    self.constructMaxSpeed = construct.getMaxSpeed() * 3.6\n    self.control = control\n    self.nearestPlanet = helios:closestBody(construct.getWorldPosition())\n    self.world = {\n        up = vec3(construct.getWorldOrientationUp()),\n        down = -vec3(construct.getWorldOrientationUp()),\n        left = -vec3(construct.getWorldOrientationRight()),\n        right = vec3(construct.getWorldOrientationRight()),\n        forward = vec3(construct.getWorldOrientationForward()),\n        back = -vec3(construct.getWorldOrientationForward()),\n        velocity = vec3(construct.getWorldVelocity()),\n        acceleration = vec3(construct.getWorldAcceleration()),\n        position = vec3(construct.getWorldPosition()),\n        gravity = vec3(core.getWorldGravity()),\n        vertical = vec3(core.getWorldVertical()),\n        atmosphericDensity = control.getAtmosphereDensity(),\n        nearPlanet = unit.getClosestPlanetInfluence() > 0,\n        atlasAltitude = self.nearestPlanet:getAltitude(construct.getWorldPosition()),\n        --nearestPlanetGravity = vec3(self.nearestPlanet.getGravity(construct.getWorldPosition()))\n\n    }\n    if antigrav and antigrav.getState() == 1 then\n        self.world.gravity = self.nearestPlanet:getGravity(construct.getWorldPosition())\n    end\n    self.target = {\n        prograde = function() return self.world.velocity:normalize() end,\n        retrograde = function() return -self.world.velocity:normalize() end,\n        radial = function() return self.nearestPlanet:getGravity(construct.getWorldPosition()):normalize() end,\n        antiradial = function() return -self.nearestPlanet:getGravity(construct.getWorldPosition()):normalize() end,\n        normal = function() return self.world.velocity:cross(self.world.right):normalize() end,\n        antinormal = function() return self.world.velocity:cross(self.world.left):normalize() end,\n    }\n    self.planets = {\n        sancuary = function() return helios[26]:getGravity(construct.getWorldPosition()):normalize() end,\n        madis = function() return helios[1]:getGravity(construct.getWorldPosition()):normalize() end,\n        thades = function() return helios[3]:getGravity(construct.getWorldPosition()):normalize() end,\n        alioth = function() return helios[2]:getGravity(construct.getWorldPosition()):normalize() end,\n        feli = function() return helios[5]:getGravity(construct.getWorldPosition()):normalize() end,\n        ion = function() return helios[120]:getGravity(construct.getWorldPosition()):normalize() end,\n        jago = function() return helios[9]:getGravity(construct.getWorldPosition()):normalize() end,\n        lacobus = function() return helios[100]:getGravity(construct.getWorldPosition()):normalize() end,\n        sicari = function() return helios[6]:getGravity(construct.getWorldPosition()):normalize() end,\n        sinnen = function() return helios[7]:getGravity(construct.getWorldPosition()):normalize() end,\n        symeon = function() return helios[110]:getGravity(construct.getWorldPosition()):normalize() end,\n        talemai = function() return helios[4]:getGravity(construct.getWorldPosition()):normalize() end,\n        teoma = function() return helios[8]:getGravity(construct.getWorldPosition()):normalize() end,\n    }\n    -- Construct id\n    self.id = construct.getId()\n    self.forwardThrust = 0\n    self.atmoThrust = 0\n    self.spaceThrust = 0\n    -- Control Mode - Travel (0) or Cruise (1)\n    self.controlMode = unit.getControlMode()\n    -- Alternate Control Mode for remote control\n    self.alternateCM = false\n    -- Placeholder for throttle value when switching control modes\n    self.tempThrottle = 0\n    -- Placeholder for cruise value when switching control modes\n    self.tempCruise = 0\n    -- Active engine tags\n    self.tags = TagManager(\"all\")\n    -- Target vector to face if non-0. Can take in a vec3 or function which returns a vec3\n    self.targetVector = nil\n    -- Whether the target vector should unlock automatically if the ship is rotated by the pilot\n    self.targetVectorAutoUnlock = true\n    -- Roid AP\n    self.targetGoTo = nil\n    -- Current altitude\n    self.altitude = 0\n    -- Current mass of the vessel, in kilograms\n    self.mass = self.construct.getMass()\n    -- Amount of thrust to apply in world space, in Newton. Stacks with {{direction}}\n    self.thrust = vec3(0, 0, 0)\n    -- Amount of thrust to apply in local space, in percentage of fMax 0-1\n    self.direction = vec3(0, 0, 0)\n    -- Amount of rotation to apply in local space\n    self.rotation = vec3(0, 0, 0)\n    -- Speed scale factor for rotations\n    self.rotationSpeed = 2\n    -- Starting speed for auto-scaling rotation\n    self.rotationSpeedMin = 0.01\n    -- Maximum speed for auto-scaling rotation\n    self.rotationSpeedMax = 5\n    -- Step for increasing the rotation speed\n    self.rotationStep = 0.03\n    -- Breaking speed multiplier\n    self.brakingFactor = 10\n    -- Amount of angular thrust to apply, in world space\n    self.angularThrust = vec3(0, 0, 0)\n    -- Whether or not the vessel should attempt to cancel out its current velocity in directions that are not being accelerated towards\n    self.inertialDampening = false\n    self.IDIntensity = 5\n    -- Whether or not the vessel should attempt to completely cancel out its current velocity\n    self.brake = false\n    -- Whether or not the vessel should attempt to counter gravity influence\n    self.counterGravity = true\n    -- Whether or not the vessel should attempt to face perpendicular to the gravity vector\n    self.followGravity = false\n    -- Aggressiveness of the gravity follow adjustment\n    self.gravityFollowSpeed = 4\n    -- Amount of throttle to apply. 0-1 range\n    self.throttle = 1\n    -- Maximum thrust which the vessel is capable of producing\n    --self.fMax = 0\n    self.pocket = pocket\n    -- Altitude which the vessel should attempt to hold\n    self.altitudeHold = 0\n    -- Speed which the vessel should attempt to maintain\n    self.cruiseSpeed = 0\n    -- Whether or not to ignore throttle for vertical thrust calculations\n    self.ignoreVerticalThrottle = false\n    -- Whether or not to ignore throttle for horizontal thrust calculations\n    self.ignoreHorizontalThrottle = true\n    -- Local velocity\n    self.localVelocity = vec3(construct.getVelocity())\n    -- Roll Degrees\n    self.rollDegrees = self.world.vertical:angle_between(self.world.left) / math.pi * 180 - 90\n    if self.world.vertical:dot(self.world.up) > 0 then self.rollDegrees = 180 - self.rollDegrees end\n    -- Pitch\n    self.pitchRatio = self.world.vertical:angle_between(self.world.forward) / math.pi - 0.5\n    self.vtolPriority = true\n    self.disableVtol = false\n    self.disabledTags = \"\"\n    local lastUpdate = system.getArkTime()\n    self.thrustVec = vec3(0,0,0)\n    self.trajectoryDiff = 0\n    self.ETA = 0\n    self.simulationPos = vec3(0,0,0)\n\n    self.priorityTags1 = \"airfoil,torque,ground\"\n    self.priorityTags2 = \"atmospheric_engine,space_engine\"\n    self.priorityTags3 = \"brake,vertical\"\n    self.brakeDistance = 0\n    self.accelTime = 0\n    self.targetDist = 0\n    self.inertialMass = 0\n    self.maxBrake = jdecode(unit.getWidgetData()).maxBrake\n    self.debug = vec3(0,0,0)\n    self.deviationAngle = 0\n    self.stopping = false\n\n    function getAngle(a,b,c)\n        if a + c < b then b = a end\n        return math.deg(math.acos((a^2+b^2-c^2)/(2*(a*b))))\n    end\n    function getGapFromAngle(a,b,angle)\n        return math.sqrt((a^2 + b^2) - (2*(b*a)*math.cos(angle)))\n    end\n    function errHandler(x)\n        system.print(\"Error: \" .. x)\n        return \"ERROR\"\n    end\n    function simulateAhead(simLength, timeStep)\n        local sv = self.world.velocity:clone()\n        local sp = self.world.position:clone()\n        local sa = self.world.acceleration:clone()\n        local cutoff = simLength / timeStep\n\n        for step = 0,cutoff do\n            --system.print(\"Start simulate\")\n            local stepResult = simulate(timeStep, sp, sv, sa)\n            sv = stepResult.velocity\n            sp = stepResult.position\n            --system.print(tostring(vec3(sp)))\n            if stepResult.collision ~= nil then\n                stepResult.time = step * timeStep\n                --stepResult.time = step / timeStep\n                return stepResult\n            end\n        end\n        return {\n            [\"position\"] = sp,\n            [\"velocity\"] = sv,\n            [\"collision\"] = nil\n        }\n    end\n\n    function simulate(stepSize, sPos, sVel, sAcc)\n        local G = 6.6740831 * 10^-11\n        local closest = nil\n        local vFinal = 0\n        local velocity = sVel\n        local collided = nil\n        local position = sPos\n        for i = 1, #atlas[0] do\n            local body = atlas[0][i]\n            local bPos = vec3(body.center[1], body.center[2], body.center[3])\n            local dir = (sPos - bPos):normalize()\n            local dist = (sPos - bPos):len()\n\n            if dist < body.radius or collided ~= nil then\n                if collided == nil then\n                    collided = body\n                    closest = body\n                end\n                return {\n                    [\"position\"] = position,\n                    [\"velocity\"] = vec3(0,0,0),\n                    [\"collision\"] = collided\n                }\n            end\n\n            local Fg = G * (ship.mass * body.GM) / dist^2\n            local dirMul = dir * ((Fg / ship.mass) * -stepSize)\n            velocity = velocity + dirMul\n            if closest == nil or ((dist - body.radius) / Fg < ((sPos - vec3(closest.center[1], closest.center[2], closest.center[3])):len() - closest.radius) / Fg) then\n                closest = body\n            end\n\n            if velocity:len() > vFinal then\n                vFinal = velocity:len()\n            end\n\n        end\n\n        if collided == nil and stepSize > 0 then\n            if closest ~= nil then\n\n            end\n\n             velocity = velocity + (sAcc * stepSize)\n             if velocity:len() > 8333.333333 then\n                velocity = velocity:normalize() * 8333.333333\n             end\n             position = position + (velocity * stepSize)\n        end\n        return {\n            [\"position\"] = position,\n            [\"velocity\"] = velocity,\n            [\"collision\"] = collided\n        }\n    end\n\n    function sMovingAverage(period)\n        local t = {}\n        function _sum(a, ...)\n            if a then return a+_sum(...) else return 0 end\n        end\n        function _average(n)\n            if #t == period then table.remove(t, 1) end\n            t[#t + 1] = n\n            return _sum(table.unpack(t)) / #t\n        end\n        return _average\n    end\n\n    -- local sMovingAverage5 = sMovingAverage(5)\n    -- local sMovingAverage10 = sMovingAverage(10)\n    -- local sMovingAverage15 = sMovingAverage(15)\n    local sMovingAverage25 = sMovingAverage(25)\n\n    function self.updateWorld()\n        self.world = {\n            up = vec3(construct.getWorldOrientationUp()),\n            down = -vec3(construct.getWorldOrientationUp()),\n            left = -vec3(construct.getWorldOrientationRight()),\n            right = vec3(construct.getWorldOrientationRight()),\n            forward = vec3(construct.getWorldOrientationForward()),\n            back = -vec3(construct.getWorldOrientationForward()),\n            velocity = vec3(construct.getWorldVelocity()),\n            acceleration = vec3(construct.getWorldAcceleration()),\n            position = vec3(construct.getWorldPosition()),\n            gravity = vec3(core.getWorldGravity()),\n            vertical = vec3(core.getWorldVertical()),\n            atmosphericDensity = control.getAtmosphereDensity(),\n            nearPlanet = unit.getClosestPlanetInfluence() > 0,\n            atlasAltitude = self.nearestPlanet:getAltitude(construct.getWorldPosition()),\n            --nearestPlanetGravity = vec3(self.nearestPlanet.getGravity(construct.getWorldPosition()))\n        }\n\n        self.nearestPlanet = helios:closestBody(construct.getWorldPosition())\n        if antigrav and antigrav.getState() == 1 then\n            self.world.gravity = self.nearestPlanet:getGravity(construct.getWorldPosition())\n        end\n\t   -- Roll Degrees\n        self.rollDegrees = self.world.vertical:angle_between(self.world.left) / math.pi * 180 - 90\n        if self.world.vertical:dot(self.world.up) > 0 then self.rollDegrees = 180 - self.rollDegrees end\n        -- Pitch\n        self.pitchRatio = self.world.vertical:angle_between(self.world.forward) / math.pi - 0.5\n\n        self.AngularVelocity = vec3(construct.getWorldAngularVelocity())\n        self.AngularAcceleration = vec3(construct.getWorldAngularAcceleration())\n        self.AngularAirFriction = vec3(construct.getWorldAirFrictionAngularAcceleration())\n\n\t\tself.airFriction = vec3(construct.getWorldAirFrictionAcceleration())\n\n        self.mass = self.construct.getMass()\n        self.altitude = self.nearestPlanet:getAltitude(construct.getWorldPosition())\n        self.localVelocity = vec3(construct.getVelocity())\n\n        if self.vtolPriority then\n            self.priorityTags1 = \"brake,airfoil,torque,vertical,lateral,longitudinal\"\n            self.priorityTags2 = \"atmospheric_engine,space_engine\"\n            self.priorityTags3 = \"\"\n        else\n            self.priorityTags1 = \"brake,airfoil,torque,lateral,longitudinal\"\n            self.priorityTags2 = \"atmospheric_engine,space_engine\"\n            self.priorityTags3 = \"vertical\"\n        end\n\n        local tkForward = construct.getMaxThrustAlongAxis(\"all\", {vec3(0, 1, 0):unpack()})\n        local tkUp = construct.getMaxThrustAlongAxis(\"all\", {vec3(0, 0, 1):unpack()})\n        local tkRight = construct.getMaxThrustAlongAxis(\"all\", {vec3(1, 0, 0):unpack()})\n\n        local tkOffset = 0\n        if self.world.atmosphericDensity < 0.1 then\n            tkOffset = 2\n        end\n\n        virtualGravityEngine =\n            vec3(\n            library.systemResolution3(\n                {self.world.right:unpack()},\n                {self.world.forward:unpack()},\n                {self.world.up:unpack()},\n               {(self.world.gravity * self.mass):unpack()}\n            )\n        )\n\n        self.MaxKinematics = {\n            Forward = math.abs(tkForward[1 + tkOffset] + virtualGravityEngine.y),\n            Backward = math.abs(tkForward[2 + tkOffset] - virtualGravityEngine.y),\n            Up = math.abs(tkUp[1 + tkOffset] + virtualGravityEngine.z),\n            Down = math.abs(tkUp[2 + tkOffset] - virtualGravityEngine.z),\n            Right = math.abs(tkRight[1 + tkOffset] + virtualGravityEngine.x),\n            Left = math.abs(tkRight[2 + tkOffset] - virtualGravityEngine.x)\n        }\n        if self.world.atmosphericDensity > 0.01 and self.world.atmosphericDensity < 0.1 then\n            self.MaxKinematics.Forward = math.abs((tkForward[1] + tkForward[3]) + virtualGravityEngine.y)\n        end\n        self.maxBrake = jdecode(unit.getWidgetData()).maxBrake\n        local c = 50000000 / 3600\n        local v = self.world.velocity:len()\n        local y = 1/math.sqrt(1-((v*v)/(c*c)))\n        self.inertialMass = utils.clamp(self.mass * y, self.mass, self.mass * 1.5)\n\n\n\n    end\n    function self.calculateAccelerationForce(acceleration, time)\n        return self.mass * (acceleration / time)\n    end\n\n    function clamp(n, min, max)\n        return math.min(max, math.max(n, min))\n    end\n    function round(num, numDecimalPlaces)\n        local mult = 10^(numDecimalPlaces or 0)\n        return math.floor(num * mult + 0.5) / mult\n    end\n\n    function math.sign(v)\n        return (v >= 0 and 1) or -1\n    end\n    function math.round(v, bracket)\n        bracket = bracket or 1\n        return math.floor(v/bracket + math.sign(v) * 0.5) * bracket\n    end\n\n    function self.throttleUp()\n        self.throttle = clamp(self.throttle + 0.05, 0, 1)\n    end\n\n    function self.throttleDown()\n        self.throttle = clamp(self.throttle - 0.05, 0, 1)\n    end\n\n    function self.scaleRotation()\n        if self.rotationSpeed <= self.rotationSpeedMax then self.rotationSpeed = self.rotationSpeed + self.rotationStep end\n    end\n\n    function self.worldToLocal(vector)\n        return vec3(\n            library.systemResolution3(\n                {self.world.right:unpack()},\n                {self.world.forward:unpack()},\n                {self.world.up:unpack()},\n                {vector:unpack()}\n            )\n        )\n    end\n\n    function self.localToRelative(pos, up, right, forward)\n        -- this is horrible, can optimize?\n        local rightX, rightY, rightZ = right:unpack()\n        local forwardX, forwardY, forwardZ = forward:unpack()\n        local upX, upY, upZ = up:unpack()\n        local rfuX, rfuY, rfuZ = pos:unpack()\n        local relX = rfuX * rightX + rfuY * forwardX + rfuZ * upX\n        local relY = rfuX * rightY + rfuY * forwardY + rfuZ * upY\n        local relZ = rfuX * rightZ + rfuY * forwardZ + rfuZ * upZ\n        return vec3(relX, relY, relZ)\n    end\n\n    function self.localToWorld(vector)\n        vector = {vector:unpack()}\n        local rightX, rightY, rightZ = self.world.right:unpack()\n        local forwardX, forwardY, forwardZ = self.world.forward:unpack()\n        local upX, upY, upZ = self.world.up:unpack()\n        local rfuX, rfuY, rfuZ = vector:unpack()\n        local relX = rfuX * rightX + rfuY * forwardX + rfuZ * upX\n        local relY = rfuX * rightY + rfuY * forwardY + rfuZ * upY\n        local relZ = rfuX * rightZ + rfuY * forwardZ + rfuZ * upZ\n        return vec3(relX, relY, relZ)\n    end\n\n\n    function moveWaypointZ(vector, altitude)\n        return (vector - (self.nearestPlanet:getGravity(vector)):normalize() * (altitude))\n    end\n    function moveWaypointY(altitude, distance)\n        local z = moveWaypointZ(self.world.position, altitude - self.altitude)\n        return z - (self.world.right:cross(self.nearestPlanet:getGravity(self.world.position)):normalize()) * -distance\n    end\n\n    function moveWaypoint(origin, intersect, distance)\n        return origin + ((origin - intersect):normalize() * distance)\n    end\n\n    function self.getTrajectory(distance)\n        distance = distance or 1\n        local v = self.world.position + (self.world.velocity + self.world.gravity):normalize()\n        --local v = self.simulationPos\n        return self.world.position - ((self.world.position - v):normalize() * distance)\n    end\n\n\n\n    function self.apply()\n        local deltaTime = math.max(system.getArkTime() - lastUpdate, 0.001) --If delta is below 0.001 then something went wrong in game engine.\n        self.updateWorld()\n        local tmp = self.thrust\n        local atmp = self.angularThrust\n        --Thrust\n        --Lateral\n        local gravityCorrection = false\n        local fMax = construct.getMaxThrustAlongAxis(\"all\", {vec3(0,1,0):unpack()})\n        local vMaxUp = construct.getMaxThrustAlongAxis(\"all\", {vec3(0,0,1):unpack()})\n        local vMaxDown = construct.getMaxThrustAlongAxis(\"all\", {vec3(0,0,-1):unpack()})\n        local hMax = construct.getMaxThrustAlongAxis(\"all\", {vec3(1,0,0):unpack()})\n        self.forwardThrust = self.MaxKinematics.Forward\n\n\n        if self.direction.x > 0 then\n            tmp = tmp  + (self.world.right * self.MaxKinematics.Right) * self.throttle\n        end\n        if self.direction.x < 0 then\n            tmp = tmp  - (self.world.right * self.MaxKinematics.Right) * self.throttle\n        end\n        --Forward\n        if self.direction.y > 0 then\n            --if self.world.atmosphericDensity < 0.1 then boost = 10000 end\n            --tmp = tmp + (((self.world.forward * self.direction.y) * self.fMax) * self.throttle)\n            tmp = tmp  + (self.world.forward * self.MaxKinematics.Forward) * self.throttle\n        end\n        if self.direction.y < 0 then\n            tmp = tmp  - (self.world.forward * self.MaxKinematics.Backward) * self.throttle\n        end\n        --Vertical\n        if self.direction.z > 0 then\n            tmp = tmp + self.world.up * self.MaxKinematics.Up\n            if not self.ignoreVerticalThrottle then tmp = tmp * self.throttle end\n        end\n        if self.direction.z < 0 then\n            tmp = tmp + -self.world.up * self.MaxKinematics.Down\n            if not self.ignoreVerticalThrottle then tmp = tmp * self.throttle end\n        end\n        --Rotation\n        if self.rotation.x ~= 0 then\n            self.scaleRotation()\n            atmp = atmp + ((self.world.forward:cross(self.world.up) * self.rotation.x) * self.rotationSpeed)\n            if self.targetVectorAutoUnlock then\n                self.targetVector = nil\n                self.followGravity = false\n                self.altitudeHold = 0\n            end\n        end\n        if self.rotation.y ~= 0 then\n            self.scaleRotation()\n            atmp = atmp + ((self.world.up:cross(self.world.right) * self.rotation.y) * self.rotationSpeed)\n        end\n        if self.rotation.z ~= 0 then\n            self.scaleRotation()\n            atmp = atmp + ((self.world.forward:cross(self.world.right) * self.rotation.z) * self.rotationSpeed)\n            --if self.targetVectorAutoUnlock then\n            --    self.targetVector = nil\n            --    self.altitudeHold = 0\n            --end\n        end\n        if self.followGravity and self.rotation.x == 0 then\n\n            --system.print(tostring(self.direction))\n              --local current = self.localVelocity:len() * self.mass\n              --local scale = nil\n              --if ship.localVelocity:len() > 10 then\n              --    scale = self.gravityFollowSpeed * math.min(math.max(current / self.fMax, 0.1), 1) * 10\n              --else\n              --    scale = self.gravityFollowSpeed\n              --end\n              --local gFollow = (self.world.up:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition())))\n              --local gFollow = (self.world.up:cross(-self.world.gravity))\n              local gFollow = (self.world.up:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition())))\n              local scale = 1\n              if self.pocket then\n                  if self.direction.x < 0  then\n                      scale = 0.25\n                      gFollow = gFollow + ship.world.right:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition()) * 0.25)\n                      --gFollow = gFollow + ship.world.right:cross(-self.world.gravity * 0.25)\n                  elseif self.direction.x > 0  then\n                      scale = 0.25\n                      gFollow = gFollow - ship.world.right:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition()) * 0.25)\n                      --gFollow = gFollow - ship.world.right:cross(-self.world.gravity * 0.25)\n                  elseif self.direction.y < 0  then\n                      gFollow = gFollow + ship.world.forward:cross(-self.nearestPlanet:getGravity(construct.getWorldPosition()) * 0.25)\n                      --gFollow = gFollow + ship.world.forward:cross(-self.world.gravity * 0.25)\n                  end\n              end\n              gFollow = gFollow * scale\n              atmp = atmp + gFollow\n          end\n\n\n\t\tif self.altitudeHold ~= 0 then\n            local deltaAltitude =  self.altitudeHold - self.altitude\n            local waypoint = moveWaypointY(self.altitudeHold, (self.world.velocity:len() * 3) + 50)\n            self.targetVector = (waypoint - self.world.position ):normalize()\n            atmp = atmp - (self.world.right:cross(self.world.forward:cross(self.world.gravity:normalize())) * self.rotationSpeed * 9) - ((self.AngularVelocity * 3) - (self.AngularAirFriction * 3))\n            tmp = tmp - ((self.nearestPlanet:getGravity(construct.getWorldPosition()) * self.mass) * deltaAltitude)\n        end\n        if self.targetVector == nil then self.gotoLock = nil end\n        if self.gotoLock ~= nil then\n\n            local targetRadius = ap_stop_distance\n            if not self.inertialDampening then self.inertialDampening = true end\n            self.direction.y = 0\n            self.vtolPriority = true\n            local speed = self.constructMaxSpeed\n\n            local dest = (self.world.position - self.gotoLock):normalize()\n\n            self.targetDist = math.abs((self.world.position - self.gotoLock):len() - targetRadius)\n            --local v = self.getTrajectory(self.targetDist)\n            local v = self.simulationPos\n            --local v = self.world.position - ((self.world.position - self.world.velocity):normalize() * self.targetDist)\n            self.trajectoryDiff = sMovingAverage25((v - self.gotoLock):len())\n\n            local force = tmp:dot(self.world.position - self.gotoLock)\n\n            self.brakeDistance, self.accelTime = kinematics.computeDistanceAndTime((self.world.velocity + self.world.gravity):len(), 0, self.inertialMass, force, 0, self.maxBrake)\n\n            if self.brakeDistance >= (self.targetDist - targetRadius) or self.targetDist <= targetRadius then\n                speed = self.targetDist - self.brakeDistance\n                self.stopping = true\n            end\n            if self.trajectoryDiff > 10 and self.world.velocity:len() > 250 / 3.6 and not self.stopping then\n            --    self.inertialDampening = false\n--\n            --    local a = self.targetDist\n            --    local b = (self.world.position - v):len()\n            --    local c = (self.gotoLock - v):len()\n--\n            --    self.deviationAngle = utils.clamp(math.deg(self.world.forward:angle_between(v)),0,45)\n--\n            --    local tri = getGapFromAngle(a,b,0)\n            --    if utils.round(self.deviationAngle) ~= 0 and a > c and b > c then\n            --        --system.print(\"adjust...\")\n            --        tri = getGapFromAngle(a,b,self.deviationAngle)\n            --    end\n            --\n            --    --local aa = moveWaypoint(self.world.position, v, self.targetDist)\n            --    --local ab = moveWaypoint(self.gotoLock, aa, -c)\n--\n            --    --self.debug = ab\n            --    self.debug = moveWaypoint(self.gotoLock,v,tri)\n            --    dest = (self.world.position - self.debug):normalize()\n            --    self.targetVector = -(self.world.position - self.debug):normalize()\n            --else\n            --    dest = (self.world.position - self.gotoLock):normalize()\n            --    self.targetVector = -dest\n            end\n            dest = (self.world.position - self.gotoLock):normalize()\n            self.targetVector = -dest\n            if self.targetDist < 1 then\n                speed = 0\n                self.gotoLock = nil\n                self.targetVector = nil\n                self.stopping = false\n            end\n            --self.ETA = math.sqrt((2*self.targetDist + targetRadius)/sMovingAverage15(self.world.acceleration:len()))\n            self.ETA = (self.targetDist / self.world.velocity:len()) + self.accelTime\n            tmp = tmp - dest * self.mass * utils.clamp(self.targetDist * 3.6,0.3,((math.abs(speed)/3.6) * self.IDIntensity))\n        end\n\n        if self.alternateCM then\n          local speed = (self.cruiseSpeed / 3.6)\n          local dot = self.world.forward:dot(self.airFriction)\n          --system.print(tostring(vec3(self.world.forward)))\n          local modifiedVelocity = (speed - dot)\n          local desired = self.world.forward * modifiedVelocity\n          local delta = (desired - self.world.velocity)\n          --system.print(tostring(vec3(self.world.acceleration)))\n          tmp = tmp + (delta * self.mass)\n        end\n        if self.inertialDampening then\n            local currentShipMomentum = self.localVelocity\n            local delta = vec3(0,0,0)\n            local moveDirection = self.direction or vec3(0,0,0)\n\n            if moveDirection.x == 0 then delta.x = currentShipMomentum.x end\n            if moveDirection.y == 0 then delta.y = currentShipMomentum.y end\n            if moveDirection.z == 0 then delta.z = currentShipMomentum.z end\n\n            delta = self.localToRelative(delta, self.world.up, self.world.right, self.world.forward)\n            tmp = tmp - (delta * (self.mass * self.IDIntensity))\n\n        end\n\n        if self.brake then\n            local velocityLen = self.world.velocity:len()\n            tmp =\n                -self.world.velocity * self.mass *\n                math.max(self.brakingFactor * math.max(1, velocityLen * 0.5), velocityLen * velocityLen)\n        end\n        if self.targetVector ~= nil then\n            local vec = vec3(self.world.forward.x, self.world.forward.y, self.world.forward.z)\n            if type(self.targetVector) == \"function\" then\n                vec = self.targetVector()\n            elseif type(self.targetVector) == \"table\" then\n                vec = self.targetVector\n            end\n\n            local damp = self.mass * 0.000001 * 2 + 4\n            atmp = atmp + (self.world.forward:cross(vec) * self.rotationSpeedMax) - ((self.AngularVelocity * damp) - (self.AngularAirFriction * damp))\n        end\n\n        -- must be applied last\n        if self.counterGravity then\n            if self.direction.z >= 0 then\n                tmp = tmp - self.nearestPlanet:getGravity(construct.getWorldPosition()) * self.mass\n            end\n        end\n\n        atmp = atmp - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))\n        tmp = tmp / self.mass\n\n        if self.controlMode ~= unit.getControlMode() then\n            self.controlMode = unit.getControlMode()\n            if unit.getControlMode() == 0 then\n                self.tempCruise = self.cruiseSpeed\n                self.cruiseSpeed = 0\n                self.throttle = self.tempThrottle\n                self.alternateCM = false\n            end\n            if unit.getControlMode() == 1 then\n                self.tempThrottle = self.throttle\n                self.throttle = 0\n                --system.print(\"Velocity = \"..tostring(math.round(self.world.velocity:len(), 100)))\n                --self.cruiseSpeed = math.round(self.world.velocity:len() * 3.6, 100)\n                self.alternateCM = true\n            end\n        end\n\n        if self.disableVtol then\n            self.disabledTags = \"vtol\"\n        else\n            self.disabledTags = \"\"\n        end\n\n        self.control.setEngineCommand(\"all\",\n                                        {tmp:unpack()}, {atmp:unpack()}, false, false,\n                                        self.priorityTags1,\n                                        self.priorityTags2,\n                                        self.priorityTags3)\n        self.control.setEngineCommand(self.disabledTags)\n        self.thrustVec = self.worldToLocal(tmp)\n        atmp = vec3(0, 0, 0)\n        tmp = vec3(0, 0, 0)\n        lastUpdate = system.getArkTime()\n    end\n\n    return self\nend\n\nship = STEC(core, unit)",
+      "filter": {
+        "args": [],
+        "signature": "onStart",
+        "slotKey": "-1"
+      },
+      "key": "12"
+    },
+    {
+      "code": "--@class SHUD\nvec2 = require('cpml/vec2')\nmat4 = require(\"cpml/mat4\")\n -- For AGG\nlocal format = string.format\n\nfunction round2(num, numDecimalPlaces)\n    if num ~= nil then\n    return tonumber(string.format(\"%.\" .. (numDecimalPlaces or 0) .. \"f\", num))\n        end\nend\n\nfunction SpeedConvert(value)\n    if not value or value == 0 then return {0,\"00\",\"km/h\"} end\n    if value > 5000 then\n        local ending = tonumber(tostring(round2(value/55.55, 2)):match(\"%.(%d+)\"))\n        ending = string.format(\"%02d\",ending)\n        return {round2(value/55.55),ending,\"su/h\"}\n    end\n    local ending = tonumber(tostring(round2(value/3.6, 2)):match(\"%.(%d+)\"))\n    ending = string.format(\"%02d\",ending)\n    return {round2(value*3.6),ending,\"km/h\"}\nend\n\nfunction CruiseControl(value)\n    local appliedCruise = 0\n\n\n    if ship.cruiseSpeed < 500 then appliedCruise = value * 10\n    elseif ship.cruiseSpeed >= 500 and ship.cruiseSpeed <= 1999 then appliedCruise = value * 50\n    elseif ship.cruiseSpeed >= 2000 and ship.cruiseSpeed <= 9999 then appliedCruise = value * 100\n    elseif ship.cruiseSpeed >= 10000 then appliedCruise = value * 1000 end\n\n    local max = construct.getMaxSpeed()\n    ship.cruiseSpeed = utils.clamp(ship.cruiseSpeed + appliedCruise,-max*3.6,max*3.6)\nend\n\nfunction getControlMode()\n    if ship.alternateCM then\n        return \"Cruise\"\n    else\n        return \"Travel\"\n    end\nend\n\nfunction SHUDMenuItem(content, action, update)\n    local self = {}\n    self.Enabled = true\n    self.Active = false\n    self.Content = content\n    self.Class = \"\"\n    self.Action = action or function(system, unit, self) end\n    self.Update = update or function(system, unit, self) end\n\n    function self.Disable()\n        self.Enabled = false\n        return self\n    end\n\n    function self.Enable()\n        self.True = false\n        return self\n    end\n\n    function self.Lock()\n        SHUD.ScrollLock = true\n        self.Active = true\n        self.Class = \"locked\"\n        return self\n    end\n\n    function self.Unlock()\n        SHUD.ScrollLock = false\n        self.Active = false\n        self.Class = \"\"\n        return self\n    end\n\n    return self\nend\n\n\n\nSHUD =\n(function()\n    local self = {}\n    self.Enabled = false\n    self.FreezeUpdate = false\n    self.IntroPassed = false\n    self.FOV = system.getCameraHorizontalFov()\n    self.ScreenW = system.getScreenWidth()\n    self.ScreenH = system.getScreenHeight()\n    self.Resolution = vec2(self.ScreenW, self.ScreenH)\n    self.Opacity = 1\n\n    self.SvgMinX = -round((self.ScreenW / 4) / 2,0)\n    self.SvgMinY = -round((self.ScreenH / 4) / 2,0)\n    self.SvgWidth = round(self.ScreenW / 4,0)\n    self.SvgHeight = round(self.ScreenH / 4,0)\n\n    self.Markers = {}\n\n    self.MarkerBuffer = {}\n\n    function self.worldToScreen(pos)\n        local P = mat4():perspective(self.FOV, self.ScreenW/self.ScreenH, 0.1, 100000)\n        local adjustedPos = ship.world.position - vec3(player.getWorldPosition())\n        local V = mat4():look_at(adjustedPos, adjustedPos + ship.world.forward, ship.world.up)\n\n        local pos = V * P * { pos.x, pos.y, pos.z, 1 }\n\n        pos[1] = pos[1] / pos[4] * 0.5 + 0.5\n        pos[2] = pos[2] / pos[4] * 0.5 + 0.5\n\n        pos[1] = pos[1] * 100\n        pos[2] = pos[2] * 100\n\n        return vec3(pos[1], pos[2], pos[3])\n    end\n\n    local SMI = SHUDMenuItem\n    local DD = DynamicDocument\n\n    function self.UpdateMarkers()\n        self.MarkerBuffer = {}\n        for i=1,#self.Markers do\n            local m = self.Markers[i]\n            local marker = {}\n            local p = vec3(0,0,0)\n            if type(m.Position) == \"function\" then marker.pos = m.Position() p = m.Position() else marker.pos = m.Position p = m.Position end\n            marker.pos = self.worldToScreen(marker.pos)\n            marker.class = m.Class\n            marker.content = '&nbsp;'\n            if m.Name then marker.content = [[<div class=\"name\">]] .. m.Name .. [[</div>]] end\n            if m.ShowDistance then marker.content = marker.content .. [[<div class=\"distance\">]] .. round2((ship.world.position - p):len()) .. [[m</div>]] end\n            if marker.pos.z > 0 then self.MarkerBuffer[#self.MarkerBuffer + 1] = marker end\n        end\n    end\n\n    local function esc(x)\n        return (x:gsub(\"%%\", \"%%%%\"))\n    end\n\n    -- Begin Anti-Grav Stuff\n    if antigrav ~= nil then\n        antiGravState = false\n        antiGravBaseAlt = antigrav.getBaseAltitude()\n        antiGravSetPoint = antigrav.getBaseAltitude()\n        targetAlt = antigrav.getBaseAltitude()\n        antiGravAdjMultiplier = 100\n\n\n        function updateAGGState()\n            if antigrav.getState() == 1 then\n                antiGravState = true\n\n            else\n                antiGravState = false\n            end\n        end\n       antiGravSetPoint = 1000\n\n\n       function updateAGGBaseAlt()\n            antiGravBaseAlt = antigrav.getBaseAltitude()\n        end\n\n       function readAGGState()\n          local agjson = antigrav.getWidgetData()\n          local obj, pos, err = json.decode (agjson, 1, nil)\n          gvCurrentBaseAltitude = 0\n          gvCurrentAntiGPower = 0\n          gvCurrentAntiGravityField = 0\n\n          if err then\n            debugp (\"Error:\" .. err)\n          else\n            if type(obj) ==\"table\" then\n              gvCurrentBaseAltitude = math.floor(obj.baseAltitude)\n              gvCurrentAntiGPower = math.floor(obj.antiGPower * 100)\n              gvCurrentAntiGravityField = math.floor(obj.antiGravityField * 100)\n            end\n          end\n        end\n\n        showAG = false\n        function showAGToggle()\n           if showAG then\n               antigrav.showWidget()\n           else\n               antigrav.hideWidget()\n           end\n        end\n    end\n    -- End Anti-Grav Stuff\n\n    function self.MakeBooleanIndicator(varName)\n        local tmpl = [[<span class=\"right\">\n            <i dd-if=\"varName == true\">✓&nbsp;</i>\n            <i dd-if=\"varName == false\">✘&nbsp;</i>\n        </span>]]\n        return tmpl:gsub(\"varName\", esc(varName))\n    end\n\n    function self.MakeSliderIndicator(varName, suffix)\n        suffix = suffix or \"\"\n        local tmpl = [[<span class=\"right\">{{varName}}{{suffix}}<i>&udarr;&nbsp;</i></span>]]\n        return tmpl:gsub(\"varName\", esc(varName)):gsub(\"{{suffix}}\", esc(suffix))\n    end\n\n    function self.GenerateMenuLink(text, link)\n        return SMI(text..self.MenuIcon,  function() self.SelectMenu(link) end)\n    end\n\n    self.MenuIcon = [[<span class=\"right\"><i>&gt;&nbsp;</i></span>]]\n    self.BackButton = SMI([[<i>&lt;&nbsp;</i>&nbsp;]]..\"Back\", function() SHUD.Menu = SHUD.MenuList.prev SHUD.CurrentIndex = 1 end)\n    if antigrav ~= nil then\n        self.Menu = {\n            SMI(DD([[<span>Throttle<span>]]..self.MakeSliderIndicator(\"round2(ship.throttle * 100)\", \"%\")),\n                function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,\n                function(system, _ , w) ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1) end),\n            SMI(DD(\"<span>Mouse Steering<span>\" .. self.MakeBooleanIndicator(\"mouse.enabled\")),\n                function() mouse.enabled = not mouse.enabled if mouse.enabled then mouse.lock() else mouse.unlock() end end),\n            self.GenerateMenuLink(\"Flight Mode\", \"flightMode\"),\n            self.GenerateMenuLink(\"Anti-Gravity\", \"antigravity\"),\n            self.GenerateMenuLink(\"Stability Assist\", \"stability\"),\n            self.GenerateMenuLink(\"Vector Locking\", \"vectorLock\"),\n            self.GenerateMenuLink(\"Ship Stats\", \"shipStats\"),\n            SMI([[<i>&#9432;&nbsp;</i><span>&nbsp;Hotkeys</span>]]..self.MenuIcon, function() self.SelectMenu(\"hotkeys\") end)\n        }\n    else\n        self.Menu = {\n            SMI(DD([[<span>Throttle<span>]]..self.MakeSliderIndicator(\"round2(ship.throttle * 100)\", \"%\")),\n                function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,\n                function(system, _ , w) ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1) end),\n            SMI(DD(\"<span>Mouse Steering<span>\" .. self.MakeBooleanIndicator(\"mouse.enabled\")),\n                function() mouse.enabled = not mouse.enabled if mouse.enabled then mouse.lock() else mouse.unlock() end end),\n            self.GenerateMenuLink(\"Flight Mode\", \"flightMode\"),\n            self.GenerateMenuLink(\"Stability Assist\", \"stability\"),\n            self.GenerateMenuLink(\"Vector Locking\", \"vectorLock\"),\n            self.GenerateMenuLink(\"Planetary V-Lock\", \"planetaryVLock\"),\n            self.GenerateMenuLink(\"Ship Stats\", \"shipStats\"),\n            SMI([[<i>&#9432;&nbsp;</i><span>&nbsp;Hotkeys</span>]]..self.MenuIcon, function() self.SelectMenu(\"hotkeys\") end)\n    }\n    end\n    self.MenuList = {}\n    self.MenuList.flightMode = {}\n    self.MenuList.shipStats = {\n        SMI(DD([[<span>Core ID:</span><span class=\"right\">{{ship.id}}</span>]])).Disable(),\n        SMI(DD([[<span>Mass:</span><span class=\"right\">{{round2(ship.mass/1000,2)}} Ton</span>]])).Disable(),\n        SMI(DD([[<span>FMax:</span><span class=\"right\">{{round2(ship.fMax/1000,2)}} KN</span>]])).Disable(),\n        SMI(DD([[<span>Pos X:</span><span class=\"right\">{{round2(ship.world.position.x)}}</span>]])).Disable(),\n        SMI(DD([[<span>Pos Y:</span><span class=\"right\">{{round2(ship.world.position.y)}}</span>]])).Disable(),\n        SMI(DD([[<span>Pos Z:</span><span class=\"right\">{{round2(ship.world.position.z)}}</span>]])).Disable(),\n    }\n    if antigrav ~= nil then\n       self.MenuList.antigravity = {\n           SMI(DD(\"<span>AGG Toggle<span>\" .. self.MakeBooleanIndicator(\"antiGravState\")), function() antigrav.toggle() end),\n           SMI(DD([[<span>Multiplier<span>]]..self.MakeSliderIndicator(\"antiGravAdjMultiplier\", \"\")),\n               function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,\n               function(system, _ , w) antiGravAdjMultiplier = utils.clamp(antiGravAdjMultiplier + (system.getMouseWheel() * 10),1,500) end),\n           SMI(DD([[<span>Alt Setpoint<span>]]..self.MakeSliderIndicator(\"round2(targetAlt,0)\", \"m\")),\n               function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,\n               function(system, _ , w) targetAlt = utils.clamp(targetAlt + (system.getMouseWheel() * antiGravAdjMultiplier),1000,100000) antigrav.setBaseAltitude(targetAlt) end),\n           SMI(DD([[<span>Base Altitude:</span><span class=\"right\">{{round2(gvCurrentBaseAltitude,0)}}</span>]])).Disable(),\n           SMI(DD([[<span>HOLD:</span><span class=\"right\">{{gvCurrentAntiGPower}}%</span>]])).Disable(),\n           SMI(DD([[<span>AG Field:</span><span class=\"right\">{{gvCurrentAntiGravityField}}Es</span>]])).Disable(),\n           SMI(DD(\"<span>Show AG Widget<span>\" .. self.MakeBooleanIndicator(\"showAG\")), function() showAG = not showAG showAGToggle() end),\n       }\n         end\n\n    self.MenuList.stability = {\n        SMI(DD(\"<span>Gravity Suppression<span>\" .. self.MakeBooleanIndicator(\"ship.counterGravity\")), function() ship.counterGravity = not ship.counterGravity end),\n        SMI(DD(\"<span>Gravity Follow</span>\" .. self.MakeBooleanIndicator(\"ship.followGravity\")), function()  ship.targetVector = nil ship.followGravity = not ship.followGravity end),\n        SMI(DD(\"<span>Inertial Dampening<span>\" .. self.MakeBooleanIndicator(\"ship.inertialDampening\")), function() ship.inertialDampening = not ship.inertialDampening end),\n    }\n    self.MenuList.vectorLock = {\n        SMI(DD(\"<span>Auto Unlock<span>\" .. self.MakeBooleanIndicator(\"ship.targetVectorAutoUnlock\")), function() ship.targetVectorAutoUnlock = not ship.targetVectorAutoUnlock end),\n        SMI(\"Unlock\", function() ship.followGravity = false ship.targetVector = nil end),\n        SMI(\"Lock Prograde\", function() ship.followGravity = false ship.targetVector = ship.target.prograde end),\n        SMI(\"Lock Retrograde\", function() ship.followGravity = false ship.targetVector = ship.target.retrograde end),\n        SMI(\"Lock Radial\", function() ship.followGravity = false ship.targetVector = ship.target.radial end),\n        SMI(\"Lock Anti-Radial\", function() ship.followGravity = false ship.targetVector = ship.target.antiradial end),\n        SMI(\"Lock Normal\", function() ship.followGravity = false ship.targetVector = ship.target.normal end),\n        SMI(\"Lock Anti-Normal\", function() ship.followGravity = false ship.targetVector = ship.target.antinormal end)\n    }\n    self.MenuList.planetaryVLock = {\n        SMI(\"Lock Sancuary\", function() ship.followGravity = false ship.targetVector = ship.planets.sancuary end),\n        SMI(\"Lock Madis\", function() ship.followGravity = false ship.targetVector = ship.planets.madis end),\n        SMI(\"Lock Thades\", function() ship.followGravity = false ship.targetVector = ship.planets.thades end),\n        SMI(\"Lock Alioth\", function() ship.followGravity = false ship.targetVector = ship.planets.alioth end),\n        SMI(\"Lock Feli\", function() ship.followGravity = false ship.targetVector = ship.planets.feli end),\n        SMI(\"Lock Ion\", function() ship.followGravity = false ship.targetVector = ship.planets.ion end),\n        SMI(\"Lock Jago\", function() ship.followGravity = false ship.targetVector = ship.planets.jago end),\n        SMI(\"Lock Lacobus\", function() ship.followGravity = false ship.targetVector = ship.planets.lacobus end),\n        SMI(\"Lock Sicari\", function() ship.followGravity = false ship.targetVector = ship.planets.sicari end),\n        SMI(\"Lock Sinnen\", function() ship.followGravity = false ship.targetVector = ship.planets.sinnen end),\n        SMI(\"Lock Symeon\", function() ship.followGravity = false ship.targetVector = ship.planets.symeon end),\n        SMI(\"Lock Talemai\", function() ship.followGravity = false ship.targetVector = ship.planets.talemai end),\n        SMI(\"Lock Teoma\", function() ship.followGravity = false ship.targetVector = ship.planets.teoma end),\n    }\n    self.MenuList.hotkeys = {}\n\n    local fa = \"<style>\" .. CSS_SHUD .. \"</style>\"\n    self.fuel = nil\n    function getFuelRenderedHtml()\n        self.fuel = getFuelSituation()\n        local fuelHtml = \"\"\n\n        local mkTankHtml = (function (type, tank)\n            local tankLevel = 100 * tank.level\n            local tankLiters = tank.level * tank.specs.capacity()\n\n            -- return '<div class=\"fuel-meter fuel-type-' .. type .. '\"><hr class=\"fuel-level\" style=\"width:50%;\" />' .. tank.name .. '</div>'\n            --return '<div class=\"fuel-meter fuel-type-' .. type .. '\"><hr class=\"fuel-level\" style=\"width:' .. tankLevel .. '%%;\" />' .. tank.time .. ' (' .. math.ceil(tankLevel) .. '%%,)</div>'\n            return '<div class=\"fuel-meter fuel-type-' .. type .. '\"><hr class=\"fuel-level\" style=\"width:' .. tankLevel .. '%%;\" />' .. tank.time .. ' (' .. math.floor(tankLevel) .. '%%, ' .. math.floor(tankLiters) .. 'L)</div>'\n        end)\n\n        for _, tank in pairs(self.fuel.atmo) do fuelHtml = fuelHtml .. mkTankHtml(\"atmo\", tank) end\n        for _, tank in pairs(self.fuel.space) do fuelHtml = fuelHtml .. mkTankHtml(\"space\", tank) end\n        for _, tank in pairs(self.fuel.rocket) do fuelHtml = fuelHtml .. mkTankHtml(\"rocket\", tank) end\n\n        self.SHUDFuelHtml = fuelHtml\n    end\n\n\n    local fa = \"<style>\" .. CSS_SHUD .. \"</style>\"\n\n     --   <div style=\"position: absolute; display: block; left: {{SHUD.worldToScreen(SHUD.Markers[1].Position()).x}}%; top: 50%; height: 50vw; width: 50vw; transform: translate(-50%, -{{SHUD.worldToScreen(SHUD.Markers[1].Position()).y}}%); filter: drop-shadow(0px 3px 4px #000000);\">\n     --       <svg id=\"svg-1\" height=\"100%\" width=\"100%\" viewBox=\"{{SHUD.SvgMinX}} {{SHUD.SvgMinY}} {{SHUD.SvgWidth}} {{SHUD.SvgHeight}}\">\n     --           <ellipse ry=\"7\" rx=\"7\" id=\"svg-1\" cy=\"0\" cx=\"0\" fill-opacity=\"null\" stroke-width=\"1\" stroke=\"#]]..primaryColor..[[\" fill=\"none\"/>\n     --           <polyline points=\"0,7 0,12\" fill=\"none\" stroke=\"#]]..primaryColor..[[\" stroke-width=\"1.5px\" />\n     --           <polyline points=\"0,-7 0,-12\" fill=\"none\" stroke=\"#]]..primaryColor..[[\" stroke-width=\"1.5px\" />\n     --           <polyline points=\"7,0 12,0\" fill=\"none\" stroke=\"#]]..primaryColor..[[\" stroke-width=\"1.5px\" />\n     --           <polyline points=\"-7,0 -12,0\" fill=\"none\" stroke=\"#]]..primaryColor..[[\" stroke-width=\"1.5px\" />\n     --       </svg>\n     --   </div>\n\n\n\n    local template = DD(fa..[[\n    <div id=\"horizon\" style=\"opacity: {{SHUD.Opacity}};\">\n        <div id=\"artificialHorizon\">\n            <svg height=\"100%\" width=\"100%\" viewBox=\"{{SHUD.SvgMinX}} {{SHUD.SvgMinY}} {{SHUD.SvgWidth}} {{SHUD.SvgHeight}}\">\n                <g dd-if=\"ship.world.nearPlanet\" transform=\"translate(0,{{ ship.pitchRatio * 1200 }})\">\n                  <path dd-if=\"ship.world.nearPlanet\" d=\"M -150 0 Q -165 0 -170 10 M -150 0 -95 0\" stroke=\"#]]..primaryColor..[[\" fill=\"transparent\" stroke-width=\"1.5px\" />\n                  <path dd-if=\"ship.world.nearPlanet\" d=\"M 150 0 Q 165 0 170 10 M 150 0 95 0\" stroke=\"#]]..primaryColor..[[\" fill=\"transparent\" stroke-width=\"1.5px\" />\n                </g dd-if=\"ship.world.nearPlanet\">\n                <g dd-if=\"ship.world.nearPlanet\" transform=\"rotate({{ ship.rollDegrees * -1 }} 0,0)\">\n                   <polyline dd-if=\"ship.world.nearPlanet\" points=\"-95,0 -65,0\" fill=\"none\" stroke=\"#]]..primaryColor..[[\" stroke-width=\"1.5px\" />\n                   <polyline dd-if=\"ship.world.nearPlanet\" points=\"95,0 65,0\" fill=\"none\" stroke=\"#]]..primaryColor..[[\" stroke-width=\"1.5px\" />\n                </g dd-if=\"ship.world.nearPlanet\">\n              <path d=\"M -65 0 Q -50 0, -45 5 T -30 10 M -30 10 -10 10\" stroke=\"#]]..primaryColor..[[\" fill=\"transparent\" stroke-width=\"1.5px\" />\n              <path d=\"M 65 0 Q 50 0, 45 5 T 30 10 M 30 10 10 10\" stroke=\"#]]..primaryColor..[[\" fill=\"transparent\" stroke-width=\"1.5px\" />\n            </svg>\n        </div>\n\n\n        <div id=\"speedometerBar\">&nbsp;</div>\n           <div id=\"speedometer\">\n               <span class=\"display\">\n               \t<span class=\"major\">{{SpeedConvert(ship.world.velocity:len())[1]}}</span>\n               \t<span class=\"minor\">{{SpeedConvert(ship.world.velocity:len())[2]}}</span>\n               \t<span class=\"unit\">{{SpeedConvert(ship.world.velocity:len())[3]}}</span>\n               </span>\n               <span class=\"accel\">\n               \t<span class=\"major\">{{round2(ship.world.acceleration:len(), 1)}}</span>\n               \t<span class=\"unit\">m/s</span>\n               </span>\n               <span class=\"vertical\">\n               \t{{round2(ship.world.velocity:dot(-ship.world.gravity:normalize()), 1)}}\n               </span>\n               <span class=\"alt\">\n               \t{{round2(ship.altitude)}}m\n               </span>\n\n               <span class=\"misc\">ATM {{round2(ship.world.atmosphericDensity, 2)}} | G {{round2(ship.world.gravity:len(), 2)}}m/s</span>\n               <span dd-if=\"not ship.alternateCM\" class=\"throttle\">Throttle {{round2(ship.throttle * 100)}}%</span>\n\t\t     <span dd-if=\"ship.alternateCM\" class=\"throttle\">Cruise {{round2(ship.cruiseSpeed)}} km/h</span>\n            </div>\n\n            <div id=\"horizon-menu\">\n                {{_SHUDBUFFER}}\n            </div>\n\n            </div>\n        <div id=\"fuelTanks\">{{ SHUD.SHUDFuelHtml }}</div>\n\n    </div>\n\n    ]])\n    local itemTemplate = [[<div class=\"item {{class}}\">{{content}}</div>]]\n    function self.SelectMenu(menuName)\n        if not SHUD.MenuList[menuName] then error(\"[SHUD] Undefined menu: \" .. menuName) end\n        SHUD.MenuList.prev = SHUD.Menu\n        SHUD.Menu = SHUD.MenuList[menuName]\n        SHUD.CurrentIndex = 1\n        if SHUD.Menu[#SHUD.Menu] ~= SHUD.BackButton then table.insert(SHUD.Menu, SHUD.BackButton) end\n    end\n\n    function self.Select()\n        if not self.Enabled then return end\n        if #self.Menu < 1 then\n            return\n        end\n        self.Menu[self.CurrentIndex].Action(self.system, self.unit, self.Menu[self.CurrentIndex])\n    end\n\n    function self.Render()\n        local buffer = \"\"\n        local altHoldDisplay\n\n        if ship.altitudeHold ~= 0 then\n            altHoldDisplay = ship.altitudeHold\n        else\n            altHoldDisplay = \"OFF\"\n        end\n        if self.Enabled then\n            for i = 1, #self.Menu do\n                local item = self.Menu[i]\n                if item.Active then item.Update(self.system, self.unit, item) end\n                local lb = itemTemplate\n                local cls = \"\"\n                local content = item.Content\n                if content.Read then\n                    content = content.Read()\n                end\n                content = esc(content)\n                if self.CurrentIndex == i then\n                    cls = \"active\"\n                end\n                if not item.Enabled then cls = cls .. \" disabled\" end\n                lb = lb:gsub(\"{{class}}\", cls .. \" \" .. item.Class)\n                lb = lb:gsub(\"{{content}}\", content)\n                buffer = buffer .. lb\n            end\n            _ENV[\"_SHUDBUFFER\"] = esc(buffer)\n        else\n            ship.frozen = not player.isFrozen()\n            if unit.isRemoteControlled() then\n            \t_ENV[\"_SHUDBUFFER\"] = DD([[<div class=\"item helpText\">Press ]] .. \"[\" .. self.system.getActionKeyName(\"speedup\") .. \"]\" .. [[ to  toggle menu</div>[[\n                        <div class=\"item helpText\"><span>Altitude Hold: </span><span class=\"right\">]] .. altHoldDisplay .. [[</span></div>\n            \t        <div class=\"item helpText\"><span>Character movement:</span>]].. self.MakeBooleanIndicator(\"ship.frozen\") .. [[</div>\n            \t        <div class=\"item helpText\"><span>Inertial Dampening:</span>]].. self.MakeBooleanIndicator(\"ship.inertialDampening\") .. [[</div>\n                        <div class=\"item helpText\"><span>VTOL Priority:</span>]].. self.MakeBooleanIndicator(\"ship.vtolPriority\") .. [[</div>\n            \t        <div class=\"item helpText\"><span>Gravity Follow:</span>]].. self.MakeBooleanIndicator(\"ship.followGravity\") .. [[</div>\n            \t        <div class=\"item helpText\"><span>Gravity Supression:</span>]].. self.MakeBooleanIndicator(\"ship.counterGravity\") .. [[</div>\n            \t        <div class=\"item helpText\"><span>Control Mode:</span><span class=\"right\">{{keybindPreset}}</span></div>\n            \t        ]]).Read()\n            else\n                _ENV[\"_SHUDBUFFER\"] = DD([[<div class=\"item helpText\">Press ]] .. \"[\" .. self.system.getActionKeyName(\"speedup\") .. \"]\" .. [[ to  toggle menu</div>[[\n                        <div class=\"item helpText\"><span>Altitude Hold: </span><span class=\"right\">]] .. altHoldDisplay .. [[</span></div>\n            \t        <div class=\"item helpText\"><span>Inertial Dampening:</span>]].. self.MakeBooleanIndicator(\"ship.inertialDampening\") .. [[</div>\n                        <div class=\"item helpText\"><span>VTOL Priority:</span>]].. self.MakeBooleanIndicator(\"ship.vtolPriority\") .. [[</div>\n            \t        <div class=\"item helpText\"><span>Gravity Follow:</span>]].. self.MakeBooleanIndicator(\"ship.followGravity\") .. [[</div>\n            \t        <div class=\"item helpText\"><span>Gravity Supression:</span>]].. self.MakeBooleanIndicator(\"ship.counterGravity\") .. [[</div>\n            \t        <div class=\"item helpText\"><span>Control Mode:</span><span class=\"right\">{{keybindPreset}}</span></div>\n            \t        ]]).Read()\n             end\n        end\n        if not self.FreezeUpdate then self.system.setScreen(template.Read()) end\n    end\n\n    function self.Update()\n        if unit.isRemoteControlled() then\n            if player.isFrozen() or self.Enabled then\n                self.Opacity = 1\n            else\n                self.Opacity = 0.5\n            end\n        end\n        if not self.ScrollLock and self.Enabled then\n            local wheel = system.getMouseWheel()\n            if wheel ~= 0 then\n                self.CurrentIndex = self.CurrentIndex - wheel\n                if self.CurrentIndex > #self.Menu then self.CurrentIndex = 1\n                elseif self.CurrentIndex < 1 then self.CurrentIndex = #self.Menu end\n            end\n        elseif not self.Enabled then\n            --if ship.controlMode == 0 or not ship.alternateCM then\n            --if player.isFrozen() then\n            local mw = system.getMouseWheel()\n            if ship.direction.y == 0 and mw ~= 0 then ship.direction.y = 1 end\n            if not ship.alternateCM then\n                ship.throttle = utils.clamp(ship.throttle + (mw * 0.05),-1,1)\n            elseif ship.alternateCM then\n                --ship.cruiseSpeed = utils.clamp(ship.cruiseSpeed + (system.getMouseWheel() * 10),-29999,29999)\n                CruiseControl(mw)\n            end\n            --end\n        end\n        self.UpdateMarkers()\n    end\n\n    function self.Init(system, unit, keybinds)\n        self.system = system\n        self.unit = unit\n        self.CurrentIndex = 1\n        self.ScrollLock = false\n        system.showScreen(true)\n        unit.hideWidget()\n        local keys = keybinds.GetNamedKeybinds()\n        self.MenuList.hotkeys = {}\n        for i=1,#keys do\n            local key = keys[i]\n            table.insert(self.MenuList.hotkeys, SMI([[<span>]]..key.Name..[[</span><span class=\"right\">]]..self.system.getActionKeyName(key.Key)..[[</span>]]).Disable())\n        end\n\n        self.MenuList.flightMode = {}\n        for k,v in pairs(keybindPresets) do\n            table.insert(self.MenuList.flightMode,\n            SMI(string.lower(k), function()\n                self.Init(self.system, self.unit, v)\n                keybindPreset = k\n                keybindPresets[keybindPreset].Init()\n            end))\n        end\n\n        keybinds.Init()\n    end\n\n    return self\nend)()",
+      "filter": {
+        "args": [],
+        "signature": "onStart",
+        "slotKey": "-1"
+      },
+      "key": "13"
+    },
+    {
+      "code": "--@class MouseMovement\n--[[\n    Shadow Templar Mouse Movement\n    Version 1.2\n\n    Requires: STEC\n    Note: Always apply() before STEC.apply() !\n]]\n\nfunction STMM(stec, system)\n    local self = {}\n    self.enabled = true\n    self.enableX = true\n    self.enableY = true\n    self.sensitivity = 0.005\n    self.threshold = 0.2\n    self.deltaClamp = 3000\n    self.recenterSpeed = 20\n    self.deltaPos = vec3(0, 0, 0)\n    self.system = system\n\n    local isLocked = false\n\n    function self.lock()\n        isLocked = true\n        system.lockView(true)\n    end\n\n    function self.unlock()\n        isLocked = false\n        system.lockView(false)\n    end\n\n    function self.isLocked()\n        return isLocked\n    end\n\n    function self.toggleLock()\n        if self.isLocked() then self.unlock() else self.lock() end\n    end\n\n    function clamp(n, min, max)\n        return math.min(max, math.max(n, min))\n    end\n\n    function withinThreshold(n ,threshold)\n        return (n > threshold and n > 0) or (n < -threshold and n < 0)\n    end\n\n    function self.apply()\n        if not self.enabled then return end\n        self.deltaPos = ( self.deltaPos - ( self.deltaPos / self.recenterSpeed )) - vec3(self.system.getMouseDeltaX() * self.sensitivity, self.system.getMouseDeltaY() * self.sensitivity, 0)\n        self.deltaPos = vec3(clamp(self.deltaPos.x, -self.deltaClamp, self.deltaClamp), clamp(self.deltaPos.y, -self.deltaClamp, self.deltaClamp), 0)\n        if withinThreshold(self.deltaPos.x, self.threshold) then\n             if self.enableX then stec.rotation.z = -self.deltaPos.x end\n        else\n            if self.enableX then stec.rotation.z = 0 end\n        end\n        if withinThreshold(self.deltaPos.y, self.threshold) then\n            if self.enableY then stec.rotation.x = self.deltaPos.y end\n        else\n            if self.enableY then stec.rotation.x = 0 end\n        end\n    end\n    self.lock()\n    return self\nend\n\nmouse = STMM(ship, system)\n",
+      "filter": {
+        "args": [],
+        "signature": "onStart",
+        "slotKey": "-1"
+      },
+      "key": "14"
+    },
+    {
+      "code": "--@class STEC_Config\n\nship.inertialDampening = inertialDampening\nship.followGravity = followGravity\nship.counterGravity = counterGravity\nship.rotationSpeed = rotationMin\nship.rotationSpeedMin = rotationMin\nship.rotationSpeedMax = rotationMax\nship.rotationStep = rotationStep\n\nlocal landing = false\nlocal shiftLock = false\n\nfunction softLanding()\n    if landing then\n        ship.counterGravity = false\n        ship.inertialDampening = true\n        ship.followGravity = true\n        ship.direction.y = 0\n        ship.direction.x = 0\n        unit.extendLandingGears()\n        ship.throttle = 0\n        if unit.getControlMode() == 1 then\n            unit.cancelCurrentControlMasterMode()\n        end\n    else\n        ship.counterGravity = true\n        ship.inertialDampening = false\n        unit.retractLandingGears()\n    end\nend\n\nsoftLanding()\n\nfunction holdAlt()\n    if ship.altitudeHold == 0 then\n        ship.altitudeHold = round2(ship.altitude,0)\n        --ship.inertialDampening = true\n        system.print(\"altitudeHold: \"..round2(ship.altitudeHold,0))\n\n    else\n        ship.targetVector = nil\n        ship.altitudeHold = 0\n        --ship.inertialDampening = false\n        system.print(\"Altitude Hold OFF\")\n    end\nend\n\nfunction goButton()\n    ship.direction.y = 1\n    if not ship.alternateCM then\n        -- Set throttle to 100% or 0\n        if ship.throttle ~= 0 then\n            ship.throttle = 0\n        else\n            ship.throttle = 1\n        end\n    else\n        -- Set cruise speed to preset or 0\n        if ship.cruiseSpeed ~= goButtonSpeed then\n            ship.cruiseSpeed = goButtonSpeed\n        elseif ship.cruiseSpeed == goButtonSpeed then\n            ship.cruiseSpeed = 0\n        end\n    end\nend\n\nfunction switchFlightMode(flightMode)\n    SHUD.Init(system, unit, keybindPresets[flightMode])\n    keybindPreset = flightMode\n    if flightModeDb then flightModeDb.setStringValue(\"flightMode\",flightMode) end\nend\n\nfunction math.sign(v)\n    return (v >= 0 and 1) or -1\nend\nfunction math.round(v, bracket)\n    bracket = bracket or 1\n    return math.floor(v/bracket + math.sign(v) * 0.5) * bracket\nend\n\nfunction switchControlMode()\n    if ship.alternateCM == false then\n        ship.tempThrottle = ship.throttle\n        ship.throttle = 0\n        ship.cruiseSpeed = math.round(ship.world.velocity:len() * 3.6, 100)\n        ship.alternateCM = true\n\n    else\n        ship.tempCruise = ship.cruiseSpeed\n        ship.cruiseSpeed = 0\n        ship.throttle = ship.tempThrottle\n        ship.alternateCM = false\n    end\nend\n-- ::pos{0,2,40.4608,92.2665,4.3205}\n-- function gotoLock(a)\n--     --::pos{0,0,-17729.2293,198268.4583,43236.0477}\n--     if a ~= nil then\n--         if string.find(a, \"::pos\") ~= nil then\n--             x, y = helios:convertToBodyIdAndWorldCoordinates(a)\n--             local target = y\n--             --local target = helios:closestBody(a):convertToWorldCoordinates(a)\n--             system.print(tostring(vec3(target)))\n--             ship.followGravity = false\n--             ship.targetVector = (target - ship.world.position):normalize()\n--             ship.gotoLock = target\n--             ship.stopping = false\n--             system.print(\"Target lock: \"..a)\n--             system.setWaypoint(a)\n--         end\n--     else\n--         local target = ship.nearestPlanet:convertToWorldCoordinates(\"::pos{0,0,-17729.2293,198268.4583,43236.0477}\")\n--         system.print(tostring(vec3(target)))\n--         ship.followGravity = false\n--         ship.targetVector = (target - ship.world.position):normalize()\n--         ship.gotoLock = target\n--         ship.stopping = false\n--         system.print(\"Target lock: ::pos{0,0,-17729.2293,198268.4583,43236.0477}\")\n--         system.setWaypoint(\"::pos{0,0,-17729.2293,198268.4583,43236.0477}\")\n--     end\n-- end\n\n-- ::pos{0,2,40.4652,92.2361,101.1699}\n-- local tty = DUTTY\n-- tty.onCommand('goto', function(a)\n--     gotoLock(a)\n-- end)\n-- Testing commands to be removed\n-- tty.onCommand('goto1', function()\n--     gotoLock(\"::pos{0,0,41351.6719,205839.2344,51086.4180}\")\n-- end)\n-- tty.onCommand('goto2', function()\n--     gotoLock(\"::pos{0,0,-17729.2293,198268.4583,43236.0477}\")\n-- end)\n-- tty.onCommand('goto5su', function()\n--     gotoLock(\"::pos{0,0,439874.4688,-363701.4062,749901.8750}\")\n-- end)\n-- tty.onCommand('goto10su', function()\n--     gotoLock(\"::pos{0,0,910554.2500,-951981.0625,1494420.1250}\")\n-- end)\n-- tty.onCommand('home', function()\n--     gotoLock(\"::pos{0,2,28.4911,76.0307,132054.2656}\")\n-- end)\n-- tty.onCommand('madis', function()\n--     gotoLock(\"::pos{0,0,17465536.0000,22665536.0000,-34464.0000}\")\n-- end)\n\n--keybindPresets[\"mouse\"] = KeybindController()\n--keybindPresets[\"mouse\"].Init = function()\n--    mouse.enabled = true\n--    mouse.lock()\n--    ship.ignoreVerticalThrottle = true\n--    ship.throttle = 1\n--    ship.direction.y = 0\n--end\n\nkeybindPresets[\"standard\"] = KeybindController()\nkeybindPresets[\"standard\"].Init = function()\n    mouse.enabled = false\n    mouse.unlock()\n    ship.ignoreVerticalThrottle = true\n    ship.ignoreHorizontalThrottle = true\n    ship.inertialDampening = false\n    ship.throttle = 0\n    ship.direction.y = 1\nend\n\nkeybindPresets[\"maneuver\"] = KeybindController()\nkeybindPresets[\"maneuver\"].Init = function()\n    keybindPreset = \"maneuver\"\n    mouse.enabled = false\n    mouse.unlock()\n    ship.ignoreVerticalThrottle = true\n    ship.inertialDampening = true\n    ship.followGravity = true\n    ship.throttle = 1\n    ship.direction.y = 0\nend\n\n-- Maneuver\nkeybindPresets[\"maneuver\"].keyDown.up.Add(function () ship.direction.z = 1 if not ship.counterGravity then ship.counterGravity = true end end) --space\nkeybindPresets[\"maneuver\"].keyUp.up.Add(function () ship.direction.z = 0 end) --space\nkeybindPresets[\"maneuver\"].keyDown.down.Add(function () ship.direction.z = -1 end) --c\nkeybindPresets[\"maneuver\"].keyUp.down.Add(function () ship.direction.z = 0 end) --c\n\nkeybindPresets[\"maneuver\"].keyDown.yawleft.Add(function () ship.rotation.z = -1 end) --a\nkeybindPresets[\"maneuver\"].keyUp.yawleft.Add(function () ship.rotation.z = 0 ship.rotationSpeed = ship.rotationSpeedMin end)--a\nkeybindPresets[\"maneuver\"].keyDown.yawright.Add(function () ship.rotation.z = 1 end) --d\nkeybindPresets[\"maneuver\"].keyUp.yawright.Add(function () ship.rotation.z = 0 ship.rotationSpeed = ship.rotationSpeedMin end) --d\n\nkeybindPresets[\"maneuver\"].keyDown.forward.Add(function () ship.direction.y = 1 end) --w\nkeybindPresets[\"maneuver\"].keyUp.forward.Add(function () ship.direction.y = 0 end) --w\n\n\nkeybindPresets[\"maneuver\"].keyDown.backward.Add(function () ship.direction.y = -1 end) --s\nkeybindPresets[\"maneuver\"].keyUp.backward.Add(function () ship.direction.y = 0 end) --s\n\nkeybindPresets[\"maneuver\"].keyDown.left.Add(function () ship.direction.x = -1  end) --q\nkeybindPresets[\"maneuver\"].keyUp.left.Add(function () ship.direction.x = 0  end) --q\nkeybindPresets[\"maneuver\"].keyDown.right.Add(function () ship.direction.x = 1  end) --e\nkeybindPresets[\"maneuver\"].keyUp.right.Add(function () ship.direction.x = 0      end) --e\n\nkeybindPresets[\"maneuver\"].keyDown.lshift.Add(function () shiftLock = true end,\"Shift Modifier\")\nkeybindPresets[\"maneuver\"].keyUp.lshift.Add(function () shiftLock = false end)\n\nkeybindPresets[\"maneuver\"].keyDown.brake.Add(function () ship.brake = true end)\nkeybindPresets[\"maneuver\"].keyUp.brake.Add(function () ship.brake = false end)\n\n--keybindPresets[\"maneuver\"].keyDown.stopengines.Add(function () if ship.direction.y == 1 then ship.direction.y = 0 else ship.direction.y = 1 end end, \"Cruise\")\nkeybindPresets[\"maneuver\"].keyUp.stopengines.Add(function () SHUD.Select() if not SHUD.Enabled then if ship.direction.y == 1 then ship.direction.y = 0 else ship.direction.y = 1 end end end, \"Cruise\")\n\nkeybindPresets[\"maneuver\"].keyUp.gear.Add(function () useGEAS = not useGEAS; updateGEAS() end)\nkeybindPresets[\"maneuver\"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD.Enabled end)\nkeybindPresets[\"maneuver\"].keyUp[\"option1\"].Add(function () ship.inertialDampening = not ship.inertialDampening end, \"Inertial Dampening\")\nkeybindPresets[\"maneuver\"].keyUp[\"option2\"].Add(function () ship.targetVector = nil ship.followGravity = not ship.followGravity end, \"Gravity Follow\")\nkeybindPresets[\"maneuver\"].keyUp[\"option3\"].Add(function () ship.followGravity = not ship.followGravity end, \"Gravity Follow\")\nkeybindPresets[\"maneuver\"].keyUp[\"option4\"].Add(function () ship.counterGravity = not ship.counterGravity end, \"Counter Gravity\")\nkeybindPresets[\"maneuver\"].keyUp[\"option5\"].Add(function () switchFlightMode(\"standard\") end, \"Switch Flight Mode\")\n\n-- Standard\nkeybindPresets[\"standard\"].keyDown.up.Add(function () ship.direction.z = 1 end)\nkeybindPresets[\"standard\"].keyUp.up.Add(function () ship.direction.z = 0 end)\nkeybindPresets[\"standard\"].keyDown.down.Add(function () ship.direction.z = -1 end)\nkeybindPresets[\"standard\"].keyUp.down.Add(function () ship.direction.z = 0 end)\n\nkeybindPresets[\"standard\"].keyDown.yawleft.Add(function () ship.rotation.z = -1 end)\nkeybindPresets[\"standard\"].keyUp.yawleft.Add(function () ship.rotation.z = 0 ship.rotationSpeed = ship.rotationSpeedMin end)\nkeybindPresets[\"standard\"].keyDown.yawright.Add(function () ship.rotation.z = 1 end)\nkeybindPresets[\"standard\"].keyUp.yawright.Add(function () ship.rotation.z = 0 ship.rotationSpeed = ship.rotationSpeedMin end)\n\nkeybindPresets[\"standard\"].keyDown.forward.Add(function () ship.rotation.x = -1 end)\nkeybindPresets[\"standard\"].keyUp.forward.Add(function () ship.rotation.x = 0 ship.rotationSpeed = ship.rotationSpeedMin end)\nkeybindPresets[\"standard\"].keyDown.backward.Add(function () ship.rotation.x = 1 end)\nkeybindPresets[\"standard\"].keyUp.backward.Add(function () ship.rotation.x = 0 ship.rotationSpeed = ship.rotationSpeedMin end)\n\nkeybindPresets[\"standard\"].keyDown.left.Add(function () ship.rotation.y = -1 end)\nkeybindPresets[\"standard\"].keyUp.left.Add(function () ship.rotation.y = 0 ship.rotationSpeed = ship.rotationSpeedMin end)\nkeybindPresets[\"standard\"].keyDown.right.Add(function () ship.rotation.y = 1 end)\nkeybindPresets[\"standard\"].keyUp.right.Add(function () ship.rotation.y = 0 ship.rotationSpeed = ship.rotationSpeedMin end)\n\nkeybindPresets[\"standard\"].keyDown.strafeleft.Add(function () ship.direction.x = -1 end)\nkeybindPresets[\"standard\"].keyUp.strafeleft.Add(function () ship.direction.x = 0 end)\nkeybindPresets[\"standard\"].keyDown.straferight.Add(function () ship.direction.x = 1 end)\nkeybindPresets[\"standard\"].keyUp.straferight.Add(function () ship.direction.x = 0 end)\n\n\nkeybindPresets[\"standard\"].keyDown.brake.Add(function () ship.brake = true ship.gotoLock = nil end)\nkeybindPresets[\"standard\"].keyUp.brake.Add(function () ship.brake = false end)\n\n--keybindPresets[\"standard\"].keyDown.stopengines.Add(function () if not SHUD.Enabled then mouse.unlock() mouse.enabled = false end end, \"Free Look\")\nkeybindPresets[\"standard\"].keyUp.stopengines.Add(function () SHUD.Select() if not SHUD.Enabled then goButton() end end, \"Go Button\")\n\nkeybindPresets[\"standard\"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD.Enabled end)\n\nkeybindPresets[\"standard\"].keyDown.lshift.Add(function () player.freeze(not player.isFrozen()) end,\"Freeze character\")\n\nkeybindPresets[\"standard\"].keyDown.lshift.Add(function () shiftLock = true end,\"Shift Modifier\")\nkeybindPresets[\"standard\"].keyUp.lshift.Add(function () shiftLock = false end)\n\nkeybindPresets[\"standard\"].keyUp[\"booster\"].Add(function () holdAlt() end, \"Altitude Hold\")\nkeybindPresets[\"standard\"].keyUp[\"gear\"].Add(function () landing = not landing; softLanding() end, \"Land\")\nkeybindPresets[\"standard\"].keyUp[\"option1\"].Add(function () ship.inertialDampening = not ship.inertialDampening end, \"Inertial Dampening\")\nkeybindPresets[\"standard\"].keyUp[\"option2\"].Add(function () ship.targetVector = nil ship.followGravity = not ship.followGravity end, \"Gravity Follow\")\nkeybindPresets[\"standard\"].keyUp[\"option3\"].Add(function () if ship.direction.y == 1 then ship.direction.y = 0 else ship.direction.y = 1 end end, \"Thrust on/off\")\nkeybindPresets[\"standard\"].keyUp[\"option4\"].Add(function () ship.counterGravity = not ship.counterGravity end, \"Counter Gravity\")\nkeybindPresets[\"standard\"].keyUp[\"option5\"].Add(function () switchFlightMode(\"maneuver\") end, \"Switch Flight Mode\")\nkeybindPresets[\"standard\"].keyUp[\"option6\"].Add(function () switchControlMode() end, \"Alternate Control Mode Switch\")\nkeybindPresets[\"standard\"].keyUp[\"option7\"].Add(function ()\n\tif shiftLock then\n\t\tship.disableVtol = not ship.disableVtol\n\telse\n\t\tship.vtolPriority = not ship.vtolPriority\n\tend\nend, \"VTOL Priority\")\nkeybindPresets[\"standard\"].keyUp[\"option8\"].Add(function () construct.setDockingMode(0); construct.undock() end,\"Undock\")\nkeybindPresets[\"standard\"].keyUp[\"option9\"].Add(function () flightModeDb.clear() system.print(\"DB Cleared\") end,\"Clear DB\")\n\n--[[ mouse\nkeybindPresets[\"mouse\"].keyDown.up.Add(function () landing = false softLanding() ship.direction.z = 1 end)\nkeybindPresets[\"mouse\"].keyUp.up.Add(function () ship.direction.z = 0 end)\nkeybindPresets[\"mouse\"].keyDown.down.Add(function () ship.direction.z = -1 end)\nkeybindPresets[\"mouse\"].keyUp.down.Add(function () ship.direction.z = 0 end)\n\nkeybindPresets[\"mouse\"].keyDown.yawleft.Add(function () ship.direction.x = -1 end)\nkeybindPresets[\"mouse\"].keyUp.yawleft.Add(function () ship.direction.x = 0 end)\nkeybindPresets[\"mouse\"].keyDown.yawright.Add(function () ship.direction.x = 1 end)\nkeybindPresets[\"mouse\"].keyUp.yawright.Add(function () ship.direction.x = 0 end)\n\nkeybindPresets[\"mouse\"].keyDown.forward.Add(function () ship.direction.y = 1 end)\nkeybindPresets[\"mouse\"].keyUp.forward.Add(function () ship.direction.y = 0 end)\nkeybindPresets[\"mouse\"].keyDown.backward.Add(function () ship.direction.y = -1 end)\nkeybindPresets[\"mouse\"].keyUp.backward.Add(function () ship.direction.y = 0 end)\n\nkeybindPresets[\"mouse\"].keyDown.left.Add(function () ship.rotation.y = -1 end)\nkeybindPresets[\"mouse\"].keyUp.left.Add(function () ship.rotation.y = 0 end)\nkeybindPresets[\"mouse\"].keyDown.right.Add(function () ship.rotation.y = 1 end)\nkeybindPresets[\"mouse\"].keyUp.right.Add(function () ship.rotation.y = 0 end)\n\nkeybindPresets[\"mouse\"].keyDown.brake.Add(function () ship.brake = true end)\nkeybindPresets[\"mouse\"].keyUp.brake.Add(function () ship.brake = false end)\n\n--keybindPresets[\"mouse\"].keyDown.stopengines.Add(function () if not SHUD.Enabled then mouse.unlock() mouse.enabled = false end end, \"Free Look\")\nkeybindPresets[\"mouse\"].keyUp.stopengines.Add(function () SHUD.Select() if not SHUD.Enabled then goButton() end end, \"Go Button\")\n\nkeybindPresets[\"mouse\"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD.Enabled end)\nkeybindPresets[\"mouse\"].keyUp.speeddown.Add(function () if mouse.enabled then mouse.unlock() mouse.enabled = false else mouse.lock() mouse.enabled = true end end, \"Mouse Steering\")\n\nkeybindPresets[\"mouse\"].keyDown.lshift.Add(function () player.freeze(not player.isFrozen()) end,\"Freeze character\")\n\nkeybindPresets[\"mouse\"].keyUp[\"booster\"].Add(function () holdAlt() end, \"Altitude Hold\")\nkeybindPresets[\"mouse\"].keyUp[\"gear\"].Add(function () landing = not landing; softLanding() end, \"Toggle Landing Gear\")\nkeybindPresets[\"mouse\"].keyUp[\"option1\"].Add(function () ship.inertialDampening = not ship.inertialDampening end, \"Inertial Dampening\")\nkeybindPresets[\"mouse\"].keyUp[\"option2\"].Add(function ()  ship.targetVector = nil ship.followGravity = not ship.followGravity end, \"Gravity Follow\")\nkeybindPresets[\"mouse\"].keyUp[\"option3\"].Add(function () if ship.direction.y == 1 then ship.direction.y = 0 else ship.direction.y = 1 end end, \"keyboard Control\")\nkeybindPresets[\"mouse\"].keyUp[\"option4\"].Add(function () ship.counterGravity = not ship.counterGravity end, \"Counter Gravity\")\nkeybindPresets[\"mouse\"].keyUp[\"option5\"].Add(function () switchFlightMode(\"standard\") end, \"Switch Flight Mode\")\nkeybindPresets[\"mouse\"].keyUp[\"option6\"].Add(function () switchControlMode() end, \"Alternate Control Mode Switch\")\n--]]\nkeybindPreset = \"standard\"\nif flightModeDb then\n\tif not flightModeDb.hasKey(\"flightMode\") then\n\t\tflightModeDb.setStringValue(\"flightMode\",\"standard\")\n\tend\n\tkeybindPreset = flightModeDb.getStringValue(\"flightMode\")\n\tif keybindPreset == \"keyboard\" then\n\t\tflightModeDb.clear()\n\t\tsystem.print(\"DB Cleared\")\n\t\tkeybindPreset = \"standard\"\n\tend\nelse\n\tsystem.print(\"No databank installed.\")\nend\n\nSHUD.Init(system, unit, keybindPresets[keybindPreset])\n\nTask(function()\n    coroutine.yield()\n    SHUD.FreezeUpdate = true\n    local endTime = system.getArkTime() + 2\n    while system.getArkTime() < endTime do\n        coroutine.yield()\n    end\n    SHUD.FreezeUpdate = false\n    SHUD.IntroPassed = true\nend)\n\nSHUD.Markers = {\n    {\n        Position = function() return ship.world.position + (ship.target.prograde() * 2) end,\n        Class = \"prograde\"\n    },\n    {\n        Position = function() return ship.world.position + (ship.target.retrograde() * 2) end,\n        Class = \"retrograde\"\n    },\n    {\n        Position = function() return ship.world.position + (ship.target.radial() * 2) end,\n        Class = \"radial\"\n    },\n    {\n        Position = function() return ship.world.position + (ship.target.antiradial() * 2) end,\n        Class = \"antiradial\"\n    },\n    -- {\n    --     Position = vec3(-15973, 106446, -60333),\n    --     Class = \"target\",\n    --     Name = \"Shadow Templar HQ\",\n    --     ShowDistance = true\n    -- }\n}\n\nplayer.freeze(true)\nship.frozen = false\nunit.deactivateGroundEngineAltitudeStabilization()",
+      "filter": {
+        "args": [],
+        "signature": "onStart",
+        "slotKey": "-1"
+      },
+      "key": "15"
+    },
+    {
+      "code": "--@require SimpleSlotDetector\n--@require ExportedVariables\n--@require PlanetRef\n--@require Kinematics\n--@require EventDelegate\n--@require TaskManager\n--@require DynamicDocument\n--@require DUTTY\n--@require CSS_SHUD\n--@require FuelTankHelper\n--@require TagManager\n--@require KeybindController\n--@require STEC\n--@require SHUD\n--@require MouseMovement\n--@require STEC_Config\n--@timer SHUDRender\n--@timer FuelStatus\n--@timer KeplerSim\n--@timer WaypointTest\n--@timer Debug\n--@class Main\n--@outFilename Horizon1.json\n\n_G.BuildUnit = {}\nlocal Unit = _G.BuildUnit\n_G.BuildSystem = {}\nlocal System = _G.BuildSystem\n\nfunction Unit.onStart()\n\tEvents.Flush.Add(mouse.apply)\n\tEvents.Flush.Add(ship.apply)\n\tEvents.Update.Add(SHUD.Update)\n\tif flightModeDb then\n\t\tif flightModeDb.hasKey(\"controlMode\") == 0 then flightModeDb.setIntValue(\"controlMode\", unit.getControlMode()) end\n\t\tlocal controlMode = flightModeDb.getIntValue(\"controlMode\")\n\t\tif controlMode ~= unit.getControlMode() then\n\t\t\tunit.cancelCurrentControlMasterMode()\n\t\tend\n\tend\n\n\tif flightModeDb ~= nil then getFuelRenderedHtml() end\n\tunit.setTimer(\"SHUDRender\", 0.02)\n\tunit.setTimer(\"FuelStatus\", 3)\n\tunit.setTimer(\"KeplerSim\", 0.1)\n\t--unit.setTimer(\"Debug\", 2)\n\t-- unit.setTimer(\"WaypointTest\", 1)\n\tsystem.print([[Horizon 1.1.1.9]])\n\n\tif showDockingWidget then\n\t\tparentingPanelId = system.createWidgetPanel(\"Docking\")\n\t\tparentingWidgetId = system.createWidget(parentingPanelId,\"parenting\")\n\t\tsystem.addDataToWidget(unit.getWidgetDataId(),parentingWidgetId)\n\tend\n\tif system.showHelper then system.showHelper(0) end\n\t--local fMax = construct.getMaxThrustAlongAxis(\"all\", {vec3(0,1,0):unpack()})\n\t--local vMax = construct.getMaxThrustAlongAxis(\"all\", {vec3(0,0,1):unpack()})\n\n\t--system.print(string.format( \"fMax: %f, %f, %f, %f\",fMax[1],fMax[2],fMax[3],fMax[4]))\n\t--system.print(string.format( \"vMax: %f, %f, %f, %f\",vMax[1],vMax[2],vMax[3],vMax[4]))\nend\n\nfunction dump(o)\n\tif type(o) == 'table' then\n\t   local s = '{ '\n\t   for k,v in pairs(o) do\n\t\t  if type(k) ~= 'number' then k = '\"'..k..'\"' end\n\t\t  s = s .. '['..k..'] = ' .. dump(v) .. ','\n\t   end\n\t   return s .. '} '\n\telse\n\t   return tostring(o)\n\tend\nend\nfunction format_int(number)\n\tnumber = round2(number,0)\n\tlocal i, j, minus, int, fraction = tostring(number):find('([-]?)(%d+)([.]?%d*)')\n\n\t-- reverse the int-string and append a comma to all blocks of 3 digits\n\tint = int:reverse():gsub(\"(%d%d%d)\", \"%1,\")\n\n\t-- reverse the int-string back remove an optional comma and put the\n\t-- optional minus and fractional part back\n\treturn minus .. int:reverse():gsub(\"^,\", \"\") .. fraction\nend\n\nfunction Unit.onStop()\n\tif flightModeDb then\n\t\tflightModeDb.setIntValue(\"controlMode\", unit.getControlMode())\n\tend\n\tsystem.showScreen(false)\nend\n\nlocal switch = false\nfunction Unit.onTimer(timer)\n\tif timer == \"SHUDRender\" then\n\t\tif SHUD then SHUD.Render() end\n\t\tif antigrav ~= nil then\n\t\t\tupdateAGGBaseAlt()\n\t\t\treadAGGState()\n\t\t\tupdateAGGState()\n\t\tend\n\tend\n\t-- if timer == \"Debug\" then\n\t-- \t--system.print(\"ship.direction.x: \"..ship.direction.x)\n\t-- \t--system.print(\"ship.direction.y: \"..ship.direction.y)\n\t-- \t--system.print(\"ship.direction.z: \"..ship.direction.z)\n\t-- \t--system.print(\"ship.rotationSpeedz: \"..ship.rotationSpeed)\n\t-- \t--system.print(\"ship.world.atmosphericDensity: \"..ship.world.atmosphericDensity)\n\t-- \t--system.print(\"ship.target.prograde(): \"..tostring(vec3(ship.world.prograde())))\n\t-- \tsystem.print(\"prograde.x: \"..(ship.world.position + (ship.target.prograde() * 2)).x)\n\n\t-- \tsystem.print(\"prograde.y: \"..(ship.world.position + (ship.target.prograde() * 2)).y)\n\n\t-- \tlocal x = ship.nearestPlanet:convertToMapPosition(ship.world.position + (ship.target.prograde() * 2))\n\t-- \tsystem.print(x)\n\t-- \tsystem.setWaypoint(x)\n\t-- \t--system.print(\"ship.forwardThrust: \"..format_int(ship.forwardThrust))\n\t-- end\n\tif timer == \"FuelStatus\" then\n\t\tgetFuelRenderedHtml()\n\t\t--local msa = construct.getMaxSpeedPerAxis()\n\t\t--system.print(dump(msa))\n\tend\n\tif timer == \"KeplerSim\" then\n\t\tif ship.gotoLock ~= nil then\n\t\t\tTask(function()\n\t\t\t\tlocal t = ship.ETA - ship.accelTime\n\t\t\t\tif ship.ETA == 0 then t = 30 end\n\t\t\t\tlocal f = simulateAhead(t,t * 0.1)\n\t\t\t\tship.simulationPos = f.position\n\t\t\tend)\n\t\tend\n\tend\n\n\tif timer == \"WaypointTest\" then\n\t\t-- if ship.gotoLock ~= nil then\n\t\t-- \tsystem.print(\"[----------------------------------------------]\")\n\t\t-- \tsystem.print(\"Deviation angle: \"..ship.deviationAngle..\"°\")\n\t\t-- \tsystem.print(\"Target Dist: \"..ship.targetDist)\n\t\t-- \tsystem.print(\"Brake Dist: \"..ship.brakeDistance)\n\t\t-- \tsystem.print(\"Stopping: \"..tostring(ship.stopping))\n\t\t-- \tsystem.print(\"Brake Diff: \"..(ship.targetDist - ship.brakeDistance))\n\t\t-- \tsystem.print(\"Trajectory Diff: \"..ship.trajectoryDiff)\n\t\t-- \tsystem.print(\"Mass (tons): \"..ship.mass / 1000)\n\t\t-- \tsystem.print(\"Max Speed: \"..ship.constructMaxSpeed)\n\t\t-- \tsystem.print(\"ETA: \"..disp_time(ship.ETA))\n\t\t-- \tsystem.print(\"[----------------------------------------------]\")\n\t\t-- end\n\n\t\t-- if switch then\n\t\t-- \tlocal waypointString = ship.nearestPlanet:convertToMapPosition(ship.simulationPos)\n\t\t-- \tsystem.setWaypoint(tostring(waypointString))\n\t\t-- else\n\t\t-- \tif ship.gotoLock ~= nil then\n\t\t-- \t\tlocal waypointString = ship.nearestPlanet:convertToMapPosition(ship.gotoLock)\n\t\t-- \t\tsystem.setWaypoint(tostring(waypointString))\n\t\t-- \tend\n\t\t-- end\n\t\t-- switch = not switch\n\tend\nend\n\nfunction System.onActionStart(action)\n\tkeybindPresets[keybindPreset].Call(action, \"down\")\nend\n\nfunction System.onActionStop(action)\n\tkeybindPresets[keybindPreset].Call(action, \"up\")\nend\n\nfunction System.onInputText(action)\n\tif DUTTY then DUTTY.input(action) end\nend\n\nfunction System.onActionLoop(action)\nend\n\nfunction System.onUpdate()\n\tif Events then Events.Update() end\n\tif TaskManager then TaskManager.Update() end\nend\n\nfunction System.onFlush()\n\tif Events then Events.Flush() end\nend",
+      "filter": {
+        "args": [],
+        "signature": "onStart",
+        "slotKey": "-1"
+      },
+      "key": "16"
+    },
+    {
+      "code": "_G.BuildUnit.onStart()",
+      "filter": {
+        "args": [],
+        "signature": "onStart",
+        "slotKey": "-1"
+      },
+      "key": "17"
+    },
+    {
+      "code": "_G.BuildUnit.onStop()",
+      "filter": {
+        "args": [],
+        "signature": "onStop",
+        "slotKey": "-1"
+      },
+      "key": "18"
+    },
+    {
+      "code": "_G.BuildSystem.onActionStart(action)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onActionStart(action)",
+        "slotKey": "-2"
+      },
+      "key": "19"
+    },
+    {
+      "code": "_G.BuildSystem.onActionStop(action)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onActionStop(action)",
+        "slotKey": "-2"
+      },
+      "key": "20"
+    },
+    {
+      "code": "_G.BuildSystem.onInputText(action)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onInputText(action)",
+        "slotKey": "-2"
+      },
+      "key": "21"
+    },
+    {
+      "code": "_G.BuildSystem.onUpdate()",
+      "filter": {
+        "args": [],
+        "signature": "onUpdate",
+        "slotKey": "-2"
+      },
+      "key": "22"
+    },
+    {
+      "code": "_G.BuildSystem.onFlush()",
+      "filter": {
+        "args": [],
+        "signature": "onFlush",
+        "slotKey": "-2"
+      },
+      "key": "23"
+    },
+    {
+      "code": "_G.BuildUnit.onTimer(\"SHUDRender\")",
+      "filter": {
+        "args": [
+          {
+            "variable": "SHUDRender"
+          }
+        ],
+        "signature": "onTimer(timerId)",
+        "slotKey": "-1"
+      },
+      "key": "24"
+    },
+    {
+      "code": "_G.BuildUnit.onTimer(\"FuelStatus\")",
+      "filter": {
+        "args": [
+          {
+            "variable": "FuelStatus"
+          }
+        ],
+        "signature": "onTimer(timerId)",
+        "slotKey": "-1"
+      },
+      "key": "25"
+    },
+    {
+      "code": "_G.BuildUnit.onTimer(\"KeplerSim\")",
+      "filter": {
+        "args": [
+          {
+            "variable": "KeplerSim"
+          }
+        ],
+        "signature": "onTimer(timerId)",
+        "slotKey": "-1"
+      },
+      "key": "26"
+    },
+    {
+      "code": "_G.BuildUnit.onTimer(\"WaypointTest\")",
+      "filter": {
+        "args": [
+          {
+            "variable": "WaypointTest"
+          }
+        ],
+        "signature": "onTimer(timerId)",
+        "slotKey": "-1"
+      },
+      "key": "27"
+    },
+    {
+      "code": "_G.BuildUnit.onTimer(\"Debug\")",
+      "filter": {
+        "args": [
+          {
+            "variable": "Debug"
+          }
+        ],
+        "signature": "onTimer(timerId)",
+        "slotKey": "-1"
+      },
+      "key": "28"
+    },
+    {
+      "code": "_G.BuildReceiver.onReceived(channel, message, slot1)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onReceived(channel,message)",
+        "slotKey": "0"
+      },
+      "key": "29"
+    },
+    {
+      "code": "_G.BuildScreen.onMouseDown(x, y, slot1)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onMouseDown(x,y)",
+        "slotKey": "0"
+      },
+      "key": "30"
+    },
+    {
+      "code": "_G.BuildScreen.onMouseUp(x, y, slot1)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onMouseUp(x,y)",
+        "slotKey": "0"
+      },
+      "key": "31"
+    },
+    {
+      "code": "_G.BuildReceiver.onReceived(channel, message, slot2)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onReceived(channel,message)",
+        "slotKey": "1"
+      },
+      "key": "32"
+    },
+    {
+      "code": "_G.BuildScreen.onMouseDown(x, y, slot2)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onMouseDown(x,y)",
+        "slotKey": "1"
+      },
+      "key": "33"
+    },
+    {
+      "code": "_G.BuildScreen.onMouseUp(x, y, slot2)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onMouseUp(x,y)",
+        "slotKey": "1"
+      },
+      "key": "34"
+    },
+    {
+      "code": "_G.BuildReceiver.onReceived(channel, message, slot3)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onReceived(channel,message)",
+        "slotKey": "2"
+      },
+      "key": "35"
+    },
+    {
+      "code": "_G.BuildScreen.onMouseDown(x, y, slot3)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onMouseDown(x,y)",
+        "slotKey": "2"
+      },
+      "key": "36"
+    },
+    {
+      "code": "_G.BuildScreen.onMouseUp(x, y, slot3)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onMouseUp(x,y)",
+        "slotKey": "2"
+      },
+      "key": "37"
+    },
+    {
+      "code": "_G.BuildReceiver.onReceived(channel, message, slot4)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onReceived(channel,message)",
+        "slotKey": "3"
+      },
+      "key": "38"
+    },
+    {
+      "code": "_G.BuildScreen.onMouseDown(x, y, slot4)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onMouseDown(x,y)",
+        "slotKey": "3"
+      },
+      "key": "39"
+    },
+    {
+      "code": "_G.BuildScreen.onMouseUp(x, y, slot4)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onMouseUp(x,y)",
+        "slotKey": "3"
+      },
+      "key": "40"
+    },
+    {
+      "code": "_G.BuildReceiver.onReceived(channel, message, slot5)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onReceived(channel,message)",
+        "slotKey": "4"
+      },
+      "key": "41"
+    },
+    {
+      "code": "_G.BuildScreen.onMouseDown(x, y, slot5)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onMouseDown(x,y)",
+        "slotKey": "4"
+      },
+      "key": "42"
+    },
+    {
+      "code": "_G.BuildScreen.onMouseUp(x, y, slot5)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onMouseUp(x,y)",
+        "slotKey": "4"
+      },
+      "key": "43"
+    },
+    {
+      "code": "_G.BuildReceiver.onReceived(channel, message, slot6)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onReceived(channel,message)",
+        "slotKey": "5"
+      },
+      "key": "44"
+    },
+    {
+      "code": "_G.BuildScreen.onMouseDown(x, y, slot6)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onMouseDown(x,y)",
+        "slotKey": "5"
+      },
+      "key": "45"
+    },
+    {
+      "code": "_G.BuildScreen.onMouseUp(x, y, slot6)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onMouseUp(x,y)",
+        "slotKey": "5"
+      },
+      "key": "46"
+    },
+    {
+      "code": "_G.BuildReceiver.onReceived(channel, message, slot7)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onReceived(channel,message)",
+        "slotKey": "6"
+      },
+      "key": "47"
+    },
+    {
+      "code": "_G.BuildScreen.onMouseDown(x, y, slot7)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onMouseDown(x,y)",
+        "slotKey": "6"
+      },
+      "key": "48"
+    },
+    {
+      "code": "_G.BuildScreen.onMouseUp(x, y, slot7)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onMouseUp(x,y)",
+        "slotKey": "6"
+      },
+      "key": "49"
+    },
+    {
+      "code": "_G.BuildReceiver.onReceived(channel, message, slot8)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onReceived(channel,message)",
+        "slotKey": "7"
+      },
+      "key": "50"
+    },
+    {
+      "code": "_G.BuildScreen.onMouseDown(x, y, slot8)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onMouseDown(x,y)",
+        "slotKey": "7"
+      },
+      "key": "51"
+    },
+    {
+      "code": "_G.BuildScreen.onMouseUp(x, y, slot8)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onMouseUp(x,y)",
+        "slotKey": "7"
+      },
+      "key": "52"
+    },
+    {
+      "code": "_G.BuildReceiver.onReceived(channel, message, slot9)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onReceived(channel,message)",
+        "slotKey": "8"
+      },
+      "key": "53"
+    },
+    {
+      "code": "_G.BuildScreen.onMouseDown(x, y, slot9)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onMouseDown(x,y)",
+        "slotKey": "8"
+      },
+      "key": "54"
+    },
+    {
+      "code": "_G.BuildScreen.onMouseUp(x, y, slot9)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onMouseUp(x,y)",
+        "slotKey": "8"
+      },
+      "key": "55"
+    },
+    {
+      "code": "_G.BuildReceiver.onReceived(channel, message, slot10)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onReceived(channel,message)",
+        "slotKey": "9"
+      },
+      "key": "56"
+    },
+    {
+      "code": "_G.BuildScreen.onMouseDown(x, y, slot10)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onMouseDown(x,y)",
+        "slotKey": "9"
+      },
+      "key": "57"
+    },
+    {
+      "code": "_G.BuildScreen.onMouseUp(x, y, slot10)",
+      "filter": {
+        "args": [
+          {
+            "variable": "*"
+          },
+          {
+            "variable": "*"
+          }
+        ],
+        "signature": "onMouseUp(x,y)",
+        "slotKey": "9"
+      },
+      "key": "58"
+    },
+    {
+      "code": "_G._ModuleIndex={}\r\n_G._ModuleIndex[0]='SimpleSlotDetector.lua';_G._ModuleIndex[1]='ExportedVariables.lua';_G._ModuleIndex[2]='PlanetRef.lua';_G._ModuleIndex[3]='Kinematics.lua';_G._ModuleIndex[4]='EventDelegate.lua';_G._ModuleIndex[5]='TaskManager.lua';_G._ModuleIndex[6]='DynamicDocument.lua';_G._ModuleIndex[7]='DUTTY.lua';_G._ModuleIndex[8]='shud2.lua';_G._ModuleIndex[9]='FuelTankHelper.lua';_G._ModuleIndex[10]='TagManager.lua';_G._ModuleIndex[11]='KeybindController.lua';_G._ModuleIndex[12]='STEC.lua';_G._ModuleIndex[13]='SHUD.lua';_G._ModuleIndex[14]='STMM.lua';_G._ModuleIndex[15]='STEC_config.lua';_G._ModuleIndex[16]='main.lua';",
+      "filter": {
+        "args": [],
+        "signature": "onStart",
+        "slotKey": "-3"
+      },
+      "key": "1"
+    }
+  ],
+  "methods": [],
+  "events": []
+}
