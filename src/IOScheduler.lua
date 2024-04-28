@@ -18,10 +18,11 @@ IOScheduler = (function()
     end
     --Send queued data to screen
     function self.send(T)
+		if not screen then return end
         output = screen.getScriptOutput()
         screen.clearScriptOutput()
         if output ~= "ack" then
-            if output ~= "" then
+            if output and output ~= "" then
                 handleOutput.Read(output)
             end
             coroutine.yield()
@@ -35,9 +36,9 @@ IOScheduler = (function()
         if #self.taskQueue == 0 then
             --Send default table
             if self.defaultData ~= nil then
-                   self.currentTask = coroutine.create(function()
-                       self.send(self.defaultData)
-                   end)
+				self.currentTask = coroutine.create(function()
+					self.send(self.defaultData)
+				end)
             coroutine.resume(self.currentTask)
             end
         else
@@ -74,24 +75,28 @@ end)()
 HandleOutput = (function()
     local self = {}
     function self.Read(output)
-        --system.print("handleOutput.Read(): "..output)
-        if output ~= nil and output ~= "" then
-            if type(output) == "string" then
-                --system.print(output)
-                local s = deserialize(output)
-
-                if s.dataType == "config" then
-                    config = s
-                    stats.data.target = config.targetAlt
-                    self.Execute()
-                elseif s.updateReq then
-                    ioScheduler.queueData(config)
-                else
-                    system.print(tostring(s))
-                end
-            end
-
-        end
+		if type(output) ~= "string" or output == "" then
+			return
+		end
+		local s = deserialize(output)
+		if type(s) ~= "table" then
+			system.print('[E] Communication error!')
+			return
+		end
+		if s.dataType == "config" then
+			config = s
+			local delta = tonumber(config.delta)
+			-- fix for +/- 10m buttons:
+			if delta ~= nil then
+				config.targetAlt = ship.altitude + delta
+			end
+			stats.data.target = config.targetAlt
+			self.Execute()
+		elseif s.updateReq then
+			ioScheduler.queueData(config)
+		else
+			system.print(tostring(s))
+		end
     end
 
     function self.Execute()
@@ -100,21 +105,20 @@ HandleOutput = (function()
         ship.altitudeHold = config.targetAlt
 
         if config.estop then
-
-            ship.altitudeHold = 0
             config.targetAlt = 0
-            ship.verticalLock = false
-            ship.elevatorActive = false
+            ship.altitudeHold = 0
             ship.brake = true
+            ship.elevatorActive = false
+            ship.verticalLock = false
             ship.stateMessage = "EMERGENCY STOP"
             system.print(ship.stateMessage)
             ioScheduler.queueData(config)
         else
             ship.brake = false
         end
-        if ship.altitudeHold ~= 0 then
+        if ship.altitudeHold and ship.altitudeHold ~= 0 then
             ship.elevatorActive = true
-            system.print("Alt diff: "..(config.targetAlt - ship.baseAltitude))
+            system.print("Alt. diff: "..(config.targetAlt - ship.baseAltitude))
             ship.targetDestination = moveWaypointZ(ship.baseLoc, config.targetAlt - ship.baseAltitude)
         end
         if config.setBaseReq then

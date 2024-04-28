@@ -1,5 +1,5 @@
 --@class FuelTankHelper
-system.print("ContainerOp"..ContainerOptimization)
+-- system.print("ContainerOp"..ContainerOptimization)
 fuelTanks = {}
 FuelMass = {}
 FuelTime = {}
@@ -40,7 +40,7 @@ end
 function normalizeHp(type,hp)
   local adjHp = 0
 
-  if type == "atmo" then 
+  if type == "atmo" then
     if hp >= 50 and hp < 163 then adjHp = 50
     elseif hp >= 163 and hp < 1315 then adjHp = 163
     elseif hp >= 1315 and hp < 10461 then adjHp = 1315
@@ -60,20 +60,20 @@ function normalizeHp(type,hp)
   return adjHp
 end
 function normalizeHpAtmo(hp)
-  
+
 end
 function normalizeHpSpace(hp)
   -- 187
   -- 1496
   -- 15933
-  
+
 end
 function normalizeHpRocket(hp)
   -- 366
   -- 736
   -- 6231
   -- 68824
-  
+
 end
 fuelTankSpecsByMaxHP = {
   -- Atmo Tanks
@@ -182,7 +182,7 @@ local function isNAN(value)
 end
 
 function disp_time(time)
-  if isINF(time) or isNAN(time) then return "inf" end
+  if isINF(time) or isNAN(time) then return "-:-" end
   local days = math.floor(time/86400)
   local hours = math.floor(math.fmod(time, 86400)/3600)
   local minutes = math.floor(math.fmod(time,3600)/60)
@@ -203,10 +203,10 @@ local unpack = table.unpack
 function fuelUsed(period)
 	local t = {}
 	function sum(a, ...)
-		if a then 
-            return a-sum(...) 
-        else 
-            return 0 
+		if a then
+            return a-sum(...)
+        else
+            return 0
         end
 	end
 	function average(n)
@@ -216,8 +216,6 @@ function fuelUsed(period)
 	end
 	return average
 end
-
-
 
 function getFuelSituation()
   local tanks = {
@@ -240,7 +238,7 @@ end
 
 function getFuelTankSpecs(fuelTankType, fuelTankId)
   local maxHP = math.floor(core.getElementMaxHitPointsById(fuelTankId))
-  system.print(fuelTankType.."........"..maxHP)
+--   system.print(fuelTankType.."........"..maxHP)
   return fuelTankSpecsByMaxHP[fuelTankType]['_' .. normalizeHp(fuelTankType,maxHP)]
 end
 
@@ -268,12 +266,9 @@ function getFuelTime(fuelTankId)
   local fuelTimeFormatted = disp_time(fuelTime)
   FuelTime[fuelTankId] = system.getArkTime()
   return fuelTimeFormatted
-
 end
 
 function getFuelTanks()
-  
-
   local elementIds = core.getElementIdList()
   for k, elementId in pairs(elementIds) do
     local elementType = core.getElementDisplayNameById(elementId)
@@ -292,14 +287,14 @@ function getFuelTanks()
     end
   end
 
-  for _, v in ipairs(fuelTankSpecsByMaxHP) do
-    --system.print("Fuel Tank: "..v)
-    for k,t in ipairs(v) do
-      for x,y in pairs(t) do
-        --system.print("Capacity: "..y.capacity())
-      end
-    end
-  end
+--   for _, v in ipairs(fuelTankSpecsByMaxHP) do
+--     --system.print("Fuel Tank: "..v)
+--     for k,t in ipairs(v) do
+--       for x,y in pairs(t) do
+--         --system.print("Capacity: "..y.capacity())
+--       end
+--     end
+--   end
 end
 
 getFuelTanks()

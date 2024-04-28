@@ -1,4 +1,4 @@
---@require SimpleSlotDetectorMin
+--@require SimpleSlotDetector
 --@require ExportedVariables
 --@require PlanetRef
 --@require KinematicsMin
@@ -13,7 +13,6 @@
 --@require KeybindControllerMin
 --@require IOScheduler
 --@require STEC
---@require AR_HUDMin
 --@require SHUD
 --@require STEC_Config
 --@require ElevatorScreen
@@ -22,6 +21,7 @@
 --@timer DockingTrigger
 --@timer Debug
 --@class Main
+--@outFilename Elevator.json
 
 _G.BuildUnit = {}
 local Unit = _G.BuildUnit
@@ -30,54 +30,72 @@ local System = _G.BuildSystem
 _G.BuildScreen = {}
 local buildScreen = _G.BuildScreen
 local elevatorScreen = nil
+local P = system.print
 
 function Unit.onStart()
 	--Events.Flush.Add(mouse.apply)
 	Events.Flush.Add(ship.apply)
 	Events.Update.Add(SHUD.Update)
 	getFuelRenderedHtml()
-	system.print("Screen: "..tostring(screen))
-	if screen ~= nil then
+	if system.showHelper then system.showHelper(false) end
+
+	system.print('=== Horizon 1.0.1.16 ===')
+
+	if construct.setDockingMode(dockingMode) then
+		P("[I] Docking mode set to: "..dockingMode)
+	else
+		P("[W] Could not set docking mode to: "..dockingMode)
+	end
+
+	if telemeter then
+		P("[I] Telemeter found.")
+	else
+		P("[E] Telemeter not found!")
+	end
+	if screen then
+		P("[I] Screen found.")
+	else
+		P("[E] No screen found!")
+	end
+
+	STEC_configInit()
+
+	-- do not allow elevator mode if element(s) are missing
+	local cwp = construct.getWorldPosition()
+	if screen and telemeter and flightModeDb then
 		manualControlSwitch()
-		system.print("Altitude: "..helios:closestBody(construct.getWorldPosition()):getAltitude(construct.getWorldPosition()))
-		ship.altitudeHold = helios:closestBody(ship.baseLoc):getAltitude(construct.getWorldPosition())
+		ship.altitudeHold = helios:closestBody(ship.baseLoc):getAltitude(cwp)
 		ship.baseAltitude = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
 		--ship.elevatorActive = true
-	end
-	--if next(manualSwitches) ~= nil then manualSwitches[1].activate() end
-	if screen == nil then
+		elevatorScreen = ElevatorScreen
+	else
 		ship.verticalLock = false
 		ship.intertialDampening = true
 		ship.elevatorActive = false
-		config.manualControl = not config.manualControl
+		config.manualControl = true
 		manualControlSwitch()
-	else
-		elevatorScreen = ElevatorScreen
+		P'[E] Elevator mode not possible, elements missing!'
 	end
-	if system.showHelper then system.showHelper(false) end
-	system.print("ElevatorScreen: "..tostring(elevatorScreen))
-	local sName = ""
-	local coreMass = construct.getTotalMass()
-	if emitter ~= nil then
-		system.print("Emitter Range: "..emitter.getRange())
+	P("[I] Altitude: "..helios:closestBody(cwp):getAltitude(cwp))
+
+	if elevatorScreen then
+		ElevatorInit()
 	end
-	if activateFFonStart then
-		if next(manualSwitches) ~= nil then
-			for _, sw in ipairs(manualSwitches) do
-				sw.activate()
-			end
+
+	if emitter then
+		P("[I] Emitter range: "..emitter.getRange())
+	end
+	if activateFFonStart and manualSwitches and next(manualSwitches) ~= nil then
+		for _, sw in ipairs(manualSwitches) do
+			sw.activate()
 		end
 	end
 
-	shipName = construct.getName()
-	system.print(player.getId())
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
 	unit.setTimer("DockingTrigger", 1)
-	--unit.setTimer("Debug", 1)
-	if laser ~= nil then laser.deactivate() end
+	if laser then laser.deactivate() end
 
-	system.print([[Horizon 1.0.1.15]])
 	if showDockingWidget then
 		parentingPanelId = system.createWidgetPanel("Docking")
 		parentingWidgetId = system.createWidget(parentingPanelId,"parenting")
@@ -85,7 +103,6 @@ function Unit.onStart()
 	end
 
 	if setBaseOnStart then setBase() end
-	--StepOne.Start()
 	--ioScheduler.queueData(config)
 end
 
@@ -119,47 +136,24 @@ function manualControlSwitch()
 		ship.frozen = false
 		ship.stateMessage = "Manual Control"
 	end
-
 end
-local emitterOn = false
-local tmpClamp = ship.dockingClamps
 
 function Unit.onTimer(timer)
 	if timer == "SHUDRender" then
-		if screen == nil then
-			if SHUD then SHUD.Render() end
-		elseif config.manualControl then
-			if SHUD then SHUD.Render() end
-			if enableARReticle then updateAR() end
-		else
-
+		if (not screen or config.manualControl) and SHUD then
+			SHUD.Render()
 		end
-	end
-	if timer == "FuelStatus" then
+	elseif timer == "FuelStatus" then
 		getFuelRenderedHtml()
 		if elevatorScreen then elevatorScreen.updateScreenFuel() end
-		--ioScheduler.queueData(config)
-
-	end
-	if timer == "DockingTrigger" then
-		if telemeter ~= nil then telDistance = telemeter.raycast().distance end
+	elseif timer == "DockingTrigger" then
+		if telemeter then telDistance = telemeter.raycast().distance end
 		if ship.dockingClamps then
 			if laser ~= nil then laser.activate() end
-			if telemeter ~= nil and telDistance > 0 and telDistance < 1 then
+			if telemeter and telDistance > 0 and telDistance < 1 then
 				if ship.autoShutdown and not config.manualControl then system.print(ship.altitude) unit.exit() end
 			end
 		end
-	end
-
-	if timer == "Debug" then
-		system.print("[--------------------------------]")
-		system.print("ship.altitude: " .. ship.altitude)
-		system.print("ship.nearestPlanet: " .. tostring(ship.nearestPlanet.name[1]))
-		--local waypointString = ship.nearestPlanet:convertToMapPosition(ship.elevatorDestination)
-		--system.print("ship.elevatorDestination: "..tostring((ship.elevatorDestination)))
-		--system.print(waypointString)
-
-		system.print("[--------------------------------]")
 	end
 end
 
@@ -191,14 +185,11 @@ function System.onFlush()
 	if Events then Events.Flush() end
 end
 
-function buildScreen.mouseDown(x,y,slot)
-	--system.print("Mouse X: "..x..", Mouse Y: "..y)
-end
-
 function toggleVerticalLock()
+	local woup =construct.getWorldOrientationUp()
 	--ship.verticalLock = true
-    ship.lockVector = vec3(construct.getWorldOrientationUp())
-    ship.lockPos = vec3(construct.getWorldPosition()) + (vec3(construct.getWorldOrientationUp()))
+    ship.lockVector = vec3(woup)
+    ship.lockPos = vec3(construct.getWorldPosition()) + (vec3(woup))
 end
 
 function createBreadcrumbTrail(endAlt)
@@ -221,7 +212,7 @@ end
 --for _, sw in ipairs(ship.breadCrumbs) do
 --	system.print("POS: "..tostring(sw))
 --end
-function buildScreen.mouseUp(x,y,slot)
+function buildScreen.onMouseUp(x,y,slot)
 --ship.baseAltitude = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
 --	if settingsActive then
 --		if mousex >= 0.1515 and mousex <= 0.4934 and mousey >= 0.5504 and mousey <= 0.7107 then --Setbase button
@@ -239,4 +230,7 @@ function buildScreen.mouseUp(x,y,slot)
 --			settingsActive = true
 --		end
 --	end
+end
+function buildScreen.onMouseDown(x,y,slot)
+	--system.print("Mouse X: "..x..", Mouse Y: "..y)
 end

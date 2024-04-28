@@ -53,7 +53,7 @@ function STEC(core, control, Cd)
         normal = function() return self.world.velocity:normalize():cross(self.world.gravity:normalize()):normalize() end,
         antinormal = function() return self.world.velocity:normalize():cross(-self.world.gravity:normalize()):normalize() end,
     }
-    
+
     self.rot = vec3(0,0,0)
     self.deviationRot = vec3(0,0,0)
     -- Construct id
@@ -175,7 +175,7 @@ function STEC(core, control, Cd)
     self.priorityTags1 = "brake,airfoil,torque,vertical,lateral,longitudinal"
     self.priorityTags2 = "atmospheric_engine,space_engine"
     self.priorityTags3 = ""
-	
+
     local lastUpdate = system.getArkTime()
 
     function self.updateWorld()
@@ -201,13 +201,13 @@ function STEC(core, control, Cd)
         if self.world.vertical:dot(self.world.up) > 0 then self.rollDegrees = 180 - self.rollDegrees end
         -- Pitch
         self.pitchRatio = self.world.vertical:angle_between(self.world.forward) / math.pi - 0.5
-        
+
         self.AngularVelocity = vec3(construct.getWorldAngularVelocity())
         self.AngularAcceleration = vec3(construct.getWorldAngularAcceleration())
         self.AngularAirFriction = vec3(construct.getMaxThrustAlongAxis())
 
 	    self.airFriction = vec3(construct.getWorldAirFrictionAcceleration())
-        
+
         local atmoRadius = helios:closestBody(construct.getWorldPosition()).atmosphereRadius
         local planetRadius = helios:closestBody(construct.getWorldPosition()).radius
 
@@ -215,7 +215,7 @@ function STEC(core, control, Cd)
         --system.print("Planet Radius: "..helios:closestBody(construct.getWorldPosition()).radius)
         --system.print("atmosphereThreshold = " .. self.atmosphereThreshold)
 	    self.airFriction = vec3(construct.getWorldAirFrictionAcceleration())
-        
+
         self.mass = self.construct.getMass()
         --self.altitude = self.core.getAltitude()
         self.altitude = helios:closestBody(construct.getWorldPosition()):getAltitude(construct.getWorldPosition())
@@ -314,7 +314,7 @@ function STEC(core, control, Cd)
     function KmhToMs(kmh)
         return kmh / 3.6
     end
-    
+
     function self.apply()
         local deltaTime = math.max(system.getArkTime() - lastUpdate, 0.001) --If delta is below 0.001 then something went wrong in game engine.
         self.updateWorld()
@@ -337,7 +337,7 @@ function STEC(core, control, Cd)
 
         end
         if not self.elevatorActive then self.inertialDampening = self.inertialDampeningDesired end
-        
+
         if self.direction.x ~= 0 then
             local dot  = (1 - self.world.up:dot(-self.world.gravity:normalize())) * (self.mass * 0.000095) -- Magic number is magic
             local gravCorrection = -self.world.vertical * dot
@@ -353,9 +353,9 @@ function STEC(core, control, Cd)
                 tmp = tmp + (((self.world.right * self.direction.x) * self.fMax) * self.throttle) -- OG code
             end
         end
-        
+
         if self.direction.y ~= 0 then
-            
+
             --tmp = tmp + (((self.world.forward * self.direction.y) * self.fMax) * self.throttle)
             --tmp = tmp + (((self.world.gravity:normalize():cross(-self.world.right) * self.direction.y) * self.fMax) * self.throttle)
             local dot  = (1 - self.world.up:dot(-self.world.gravity:normalize())) * (self.mass * 0.000095)
@@ -367,7 +367,7 @@ function STEC(core, control, Cd)
             else
                 tmp = tmp + (((self.world.forward * self.direction.y) * self.fMax) * self.throttle)
             end
-            
+
         end
         if self.direction.z ~= 0 then
             local a = ((self.world.up * self.direction.z) * self.fMax)
@@ -392,7 +392,7 @@ function STEC(core, control, Cd)
             end
         end
         if self.followGravity and self.rotation.x == 0 then
-            
+
           --system.print(tostring(self.direction))
 		    local current = self.localVelocity:len() * self.mass
             local scale = nil
@@ -418,7 +418,7 @@ function STEC(core, control, Cd)
             gFollow = gFollow * scale
             atmp = atmp + gFollow
         end
-        
+
         self.deviationVec = (moveWaypointZ(self.baseLoc, self.altitude - self.baseAltitude) - self.world.position)
         self.deviationRot = self.world.forward:cross(self.rot)
         self.deviation = self.deviationVec:len()
@@ -428,37 +428,37 @@ function STEC(core, control, Cd)
             if not self.counterGravity then self.counterGravity = true end
             self.targetVector = self.rot
             if self.world.velocity:len() > (2000 / 3.6) then deviation = 0 end
-            
+
             local deltaAltitude =  self.altitudeHold - self.altitude
             local brakeBuffer = 1000
-            
+
             local speed = 0
             --local self.breadCrumbDist = 500
             local distance = (self.world.position - self.targetDestination):len()
-            
+
             local realDistance = helios:closestBody(self.baseLoc):getAltitude(self.targetDestination) - self.altitude
             local destination = vec3(0,0,0)
             local verticalSpeedLimit
-            
-            
+
+
             local dampen = 1
 
             --if self.world.velocity:len() < 55.555 then
-                
+
             --end
-            
-            if self.altitude <= (self.atmosphereThreshold + self.brakeDistance) or self.altitude <= self.brakeDistance then 
+
+            if self.altitude <= (self.atmosphereThreshold + self.brakeDistance) or self.altitude <= self.brakeDistance then
                 verticalSpeedLimit = self.verticalSpeedLimitAtmo
-            else 
+            else
                 verticalSpeedLimit = self.verticalSpeedLimitSpace
             end
             if  (self.brakeDistance + brakeBuffer) >= math.abs(deltaAltitude) then
                 verticalSpeedLimit = self.approachSpeed
             end
-            
+
             --system.print("self.deviation: "..self.deviation)
-            
-            
+
+
             local deviationThreshold = self.deviationThreshold
             if self.deviated or self.world.velocity:len() < 1 then deviationThreshold = 0.05 end
             --system.print("Deviation threshold: "..deviationThreshold)
@@ -499,14 +499,14 @@ function STEC(core, control, Cd)
                 system.setWaypoint(waypointString,false)
 			    --system.print(tostring(waypointString))
             end
-            
+
             self.elevatorDestination = (self.world.position - destination):normalize()
             --system.print("TEST: "..round2((distance * distance),4))
 
             tmp = tmp - self.elevatorDestination * self.mass * utils.clamp(distance * 3.6,0.3,((math.abs(speed)/3.6) * self.IDIntensity))
             --if breadCrumb ~= nil then system.print("Breadcrumb distance: "..(self.world.position - breadCrumb):len()) end
             if distance < 0.01 and not manualControl then
-                self.elevatorActive = false self.targetVector = nil 
+                self.elevatorActive = false self.targetVector = nil
                 self.stateMessage = "Idle"
                 self.dockingClamps = true
             elseif distance < 2 and self.world.velocity:len() == 0 and not manualControl then
@@ -516,7 +516,7 @@ function STEC(core, control, Cd)
             else
                 self.dockingClamps = false
             end
-            
+
 	    else
             --self.stateMessage = "Idle"
             self.destination = vec3(0,0,0)
@@ -564,9 +564,9 @@ function STEC(core, control, Cd)
             else
                 atmp = atmp + (self.world.up:cross(vec) * (self.rotationSpeed / 4))  - ((self.AngularVelocity * 2) - (self.AngularAirFriction * 2))
             end
-            
+
         end
-        
+
         -- must be applied last
         if self.counterGravity then
             --tmp = tmp - self.nearestPlanet:getGravity(construct.getWorldPosition()) * self.mass

@@ -14,6 +14,7 @@ ElevatorScreen = (function ()
             stats.data.deviationVec = ship.worldToLocal(ship.deviationVec)
             stats.data.deviationRot = ship.worldToLocal(ship.deviationRot)
             stats.data.state = ship.stateMessage
+			stats.data.delta = nil
         end
         self.updateStats()
         function self.updateScreenFuel()

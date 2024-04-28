@@ -28,7 +28,6 @@ textShadow = "e81313" --export: Color of text shadow for speedometer
 ARCrosshair = "ebbb0c" --export: Color of the AR crosshair
 fuelFontSize = 1.8 --export: Fuel Gauge Font Size
 
-
 showDockingWidget = true --export: Show Docking Widget
 dockingMode = 1 --export: Set docking mode (1:Manual, 2:Automatic, 3:Semi-Automatic)
 setBaseOnStart = false --export: Set RTB location on start
@@ -39,29 +38,38 @@ setactivateFFonStart = false --export: Activate force fields on start (connected
 pocket = false
 setpocket = false --export: Pocket ship?
 mouseSensitivity = 1 --export: Enter your mouse sensativity setting
-enableARReticle = false --export: Enable AR reticle
 
-lockVerticalToBase = false --export: FOR ELEVATORS ONLY
-
+lockVerticalToBase = false --export: FOR ELEVATORS ONLY!
 
 --charMovement = true --export: Enable/Disable Character Movement
 bool_to_number={ [true]=1, [false]=0 }
 number_to_bool={ [1]=true, [0]=false }
-  
-if flightModeDb.hasKey("activateFFonStart") == 0 or updateSettings then 
-    flightModeDb.setIntValue("activateFFonStart", bool_to_number[setactivateFFonStart])
-    activateFFonStart = setactivateFFonStart
-else activateFFonStart = number_to_bool[flightModeDb.getIntValue("activateFFonStart")] end
 
+dockingMode = utils.clamp(dockingMode, 1, 3)
 
+if flightModeDb then
+	-- assure that keys exist in the databank for each saved setting
+	if not flightModeDb.hasKey("dockingMode") or updateSettings then
+		flightModeDb.setIntValue("dockingMode", dockingMode)
+	end
+	dockingMode = flightModeDb.getIntValue("dockingMode")
 
-if flightModeDb.hasKey("lockVerticalToBase") == 0 or updateSettings then 
-    flightModeDb.setIntValue("lockVerticalToBase", bool_to_number[lockVerticalToBase])
-else lockVerticalToBase = number_to_bool[flightModeDb.getIntValue("lockVerticalToBase")] end
+	if not flightModeDb.hasKey("activateFFonStart") or updateSettings then
+		flightModeDb.setIntValue("activateFFonStart", bool_to_number[setactivateFFonStart])
+		activateFFonStart = setactivateFFonStart
+	end
+	activateFFonStart = number_to_bool[flightModeDb.getIntValue("activateFFonStart")]
 
-if flightModeDb.hasKey("pocket") == 0 or updateSettings then 
-    flightModeDb.setIntValue("pocket", bool_to_number[setpocket])
-    pocket = setpocket
-else pocket = number_to_bool[flightModeDb.getIntValue("pocket")] end
+	if not flightModeDb.hasKey("lockVerticalToBase") or updateSettings then
+		flightModeDb.setIntValue("lockVerticalToBase", bool_to_number[lockVerticalToBase])
+	end
+	lockVerticalToBase = number_to_bool[flightModeDb.getIntValue("lockVerticalToBase")]
+
+	if not flightModeDb.hasKey("pocket") or updateSettings then
+		flightModeDb.setIntValue("pocket", bool_to_number[setpocket])
+		pocket = setpocket
+	end
+	pocket = number_to_bool[flightModeDb.getIntValue("pocket")]
+end
 
 --system.print("pocket: "..number_to_bool[flightModeDb.getIntValue("pocket")])
