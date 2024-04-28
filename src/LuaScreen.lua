@@ -12,6 +12,7 @@ function spairs(a,b)local c={}for d in pairs(a)do c[#c+1]=d end;if b then table.
 function tablelength(T) local count = 0 for _ in pairs(T) do count = count + 1 end return count end
 function convertFromHex(a)if a:sub(1,1)=="#"then a=a:sub(2,-1)end;if#a==8 then return tonumber("0x"..a:sub(1,2))/255,tonumber("0x"..a:sub(3,4))/255,tonumber("0x"..a:sub(5,6))/255,tonumber("0x"..a:sub(7,8))/255 elseif#a==6 then return tonumber("0x"..a:sub(1,2))/255,tonumber("0x"..a:sub(3,4))/255,tonumber("0x"..a:sub(5,6))/255,1 elseif#a==3 then return tonumber("0x"..a:sub(1,1))/15,tonumber("0x"..a:sub(2,2))/15,tonumber("0x"..a:sub(3,3))/15,1 else return 1,1,1,1 end end
 function mToKm(n,p)
+	if n == nil then return "nan" end
     if n >= 1000 then
         local rtn = utils.round((n / 1000),p) or utils.round((n / 1000))
         return  rtn .. " km"
@@ -20,6 +21,7 @@ function mToKm(n,p)
         return rtn .. " m"
 	end end
 function massConvert(n,p)
+	if n == nil then return "nan" end
     if n >= 1000 and n < 1000000 then
         local rtn = utils.round((n / 1000),p) or utils.round((n / 1000))
         return  rtn .. " t"
@@ -548,27 +550,27 @@ local eStopColor = '#7a0101'
 if config.manualControl then mcColor = '#3c00b3' end
 if config.estop then eStopColor = '#ff0000' end
 local buttons = {
-    ButtonQuad('RTB',                135, 135, function() config.targetAlt = config.rtb outputMsg = serialize(config) end,false,'#006603'),
-    ButtonQuad('+10m',               135, 185, function()
-        if config.targetAlt == 0 then
-            config.targetAlt = stats.data.elevation + 10
+    ButtonQuad('RTB',		135, 135, function() config.targetAlt = config.rtb outputMsg = serialize(config) end,false,'#006603'),
+    ButtonQuad('+10m',		135, 185, function()
+        if not config.targetAlt or config.targetAlt == 0 then
+			config.delta = 10
         else
             config.targetAlt = config.targetAlt + 10
         end
         outputMsg = serialize(config)
-    end,false,'#0b0578'),
-    ButtonQuad('-10m',               135, 235, function()
-        if config.targetAlt == 0 then
-            config.targetAlt = stats.data.elevation - 10
+		config.delta = nil; end, false,'#0b0578'),
+    ButtonQuad('-10m',		135, 235, function()
+        if not config.targetAlt or config.targetAlt == 0 then
+			config.delta = -10
         else
             config.targetAlt = config.targetAlt - 10
         end
-        outputMsg = serialize(config) end,false,'#0b0578'),
-    ButtonQuad('Manual Control',     135, 285, function() config.manualControl = not config.manualControl config.targetAlt = 0 outputMsg = serialize(config) logMessage("Manual Control: "..outputMsg) end,false,mcColor),
+        outputMsg = serialize(config)
+		config.delta = nil; end, false,'#0b0578'),
+    ButtonQuad('Manual Control',	135, 285, function() config.manualControl = not config.manualControl config.targetAlt = 0 outputMsg = serialize(config) logMessage("Manual Control: "..outputMsg) end,false,mcColor),
     GenericButton('Emergency', 'Stop', eStopFont, 135, 400, 185, 165, eStopColor, function() config.estop = not config.estop outputMsg = serialize(config) end),
     GenericButton('Set RTB','',font3,135,515,185,30,'#006960',function() config.setBaseActive = true end),
-    GenericButton('Settings','',font3,360,515,185,30,'#006960',function() config.settingsActive = true end),
-
+    -- GenericButton('Settings','',font3,360,515,185,30,'#006960',function() config.settingsActive = true end),
 }
 local rtbButtons = {
     ButtonQuad('Set Base',rx/2-112.5, ry-155, function() config.setBaseReq = true
@@ -592,23 +594,21 @@ if config.floors ~= nil then
         spacing = spacing + 50
     end
 end
+
 -- STATS
-
-
 local statYPos = ry/4.5 + 5
 local statSpacing = 22
 local statsDraw = {}
-
 if stats.data then
-        --StatsLine(key,value,x,y,width,height)
-        table.insert(statsDraw,StatsLine('Elevation',mToKm(stats.data.elevation, 0.001),585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
-        table.insert(statsDraw,StatsLine('Velocity',utils.round((stats.data.velocity * 3.6), 0.01)..' km/h',585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
-        table.insert(statsDraw,StatsLine('Mass',massConvert(stats.data.mass,0.01),585,statYPos,  385,50)) statYPos = statYPos + statSpacing
-        table.insert(statsDraw,StatsLine('Gravity',utils.round(stats.data.gravity,0.001)..' m/s²',585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
-        table.insert(statsDraw,StatsLine('Target Altitude',mToKm(stats.data.target),585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
-        table.insert(statsDraw,StatsLine('Target Distance',mToKm(stats.data.target_dist,0.001),585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
-        table.insert(statsDraw,StatsLine('Brake Distance',mToKm(stats.data.brake_dist),585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
-        table.insert(statsDraw,StatsLine('Deviation',utils.round(stats.data.deviation,0.00001)..' m',585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
+	--StatsLine(key,value,x,y,width,height)
+	table.insert(statsDraw,StatsLine('Elevation',mToKm(stats.data.elevation, 0.001),585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
+	table.insert(statsDraw,StatsLine('Velocity',utils.round((stats.data.velocity * 3.6), 0.01)..' km/h',585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
+	table.insert(statsDraw,StatsLine('Mass',massConvert(stats.data.mass,0.01),585,statYPos,  385,50)) statYPos = statYPos + statSpacing
+	table.insert(statsDraw,StatsLine('Gravity',utils.round(stats.data.gravity,0.001)..' m/s²',585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
+	table.insert(statsDraw,StatsLine('Target Altitude',mToKm(stats.data.target),585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
+	table.insert(statsDraw,StatsLine('Target Distance',mToKm(stats.data.target_dist,0.001),585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
+	table.insert(statsDraw,StatsLine('Brake Distance',mToKm(stats.data.brake_dist),585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
+	table.insert(statsDraw,StatsLine('Deviation',utils.round(stats.data.deviation,0.00001)..' m',585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
 end
 
 local fgAtmo = {}

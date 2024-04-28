@@ -1,9 +1,8 @@
 --@class STEC_Config
 
-
+local P = system.print
 
 ship.hoverHeight = GEAS_Alt
---charMovement = true
 ship.autoShutdown = autoShutdown
 ship.altitudeHold = round2(ship.altitude,0)
 ship.inertialDampeningDesired = inertialDampening
@@ -24,75 +23,31 @@ ship.deviationThreshold = deviationThreshold
 ship.pocket = pocket
 ship.breadCrumbDist = breadCrumbDist
 
-if construct.setDockingMode(dockingMode) then
-    system.print("Docking mode set successfully")
-else
-    system.print("Invalid docking mode")
-end
-
 local shiftLock = false
 
-if flightModeDb ~= nil then
-    if flightModeDb.hasKey("verticalSpeedLimitAtmo") == 0 or updateSettings then
-        flightModeDb.setFloatValue("verticalSpeedLimitAtmo",verticalSpeedLimitAtmo)
-        ship.verticalSpeedLimitAtmo = verticalSpeedLimitAtmo
-    else ship.verticalSpeedLimitAtmo = flightModeDb.getFloatValue("verticalSpeedLimitAtmo") end
+function writeVecToDb(cVector, name) --customTargetX
+	if flightModeDb and name and vec3.isvector(cVector) then
+		flightModeDb.setFloatValue(name.."X", cVector.x)
+		flightModeDb.setFloatValue(name.."Y", cVector.y)
+		flightModeDb.setFloatValue(name.."Z", cVector.z)
+		if settingsActive then settingsActive = false end
+		P("[I] Wrote "..name..": "..tostring(cVector))
+	end
+end
 
-    if flightModeDb.hasKey("verticalSpeedLimitSpace") == 0 or updateSettings then
-        flightModeDb.setFloatValue("verticalSpeedLimitSpace",verticalSpeedLimitSpace)
-        ship.verticalSpeedLimitSpace = verticalSpeedLimitSpace
-    else ship.verticalSpeedLimitSpace = flightModeDb.getFloatValue("verticalSpeedLimitSpace") end
-
-    if flightModeDb.hasKey("approachSpeed") == 0 or updateSettings then
-        flightModeDb.setFloatValue("approachSpeed",approachSpeed)
-        ship.approachSpeed = approachSpeed
-    else ship.approachSpeed = flightModeDb.getFloatValue("approachSpeed") end
-
-    if flightModeDb.hasKey("altHoldPreset1") == 0 or updateSettings then
-        flightModeDb.setFloatValue("altHoldPreset1",altHoldPreset1)
-        ship.altHoldPreset1 = altHoldPreset1
-    else ship.altHoldPreset1 = flightModeDb.getFloatValue("altHoldPreset1") end
-
-    if flightModeDb.hasKey("altHoldPreset2") == 0 or updateSettings then
-        flightModeDb.setFloatValue("altHoldPreset2",altHoldPreset2)
-        ship.altHoldPreset2 = altHoldPreset2
-    else ship.altHoldPreset2 = flightModeDb.getFloatValue("altHoldPreset2") end
-
-    if flightModeDb.hasKey("altHoldPreset3") == 0 or updateSettings then
-        flightModeDb.setFloatValue("altHoldPreset3",altHoldPreset3)
-        ship.altHoldPreset3 = altHoldPreset3
-    else ship.altHoldPreset3 = flightModeDb.getFloatValue("altHoldPreset3") end
-
-    if flightModeDb.hasKey("altHoldPreset4") == 0 or updateSettings then
-        flightModeDb.setFloatValue("altHoldPreset4",altHoldPreset4)
-        ship.altHoldPreset4 = altHoldPreset4
-    else ship.altHoldPreset4 = flightModeDb.getFloatValue("altHoldPreset4") end
-
-    function writeTargetToDb(cVector, name) --customTargetX
-        if flightModeDb ~= nil then
-            flightModeDb.setFloatValue(name.."X", cVector.x)
-            flightModeDb.setFloatValue(name.."Y", cVector.y)
-            flightModeDb.setFloatValue(name.."Z", cVector.z)
-            if settingsActive then settingsActive = false end
-            system.print("Target Lock: "..tostring(cVector))
-        end
-    end
-
-    function readTargetFromDb(name)
-        if flightModeDb ~= nil then
-            local v = vec3(0,0,0)
-            v.x = flightModeDb.getFloatValue(name.."X")
-            v.y = flightModeDb.getFloatValue(name.."Y")
-            v.z = flightModeDb.getFloatValue(name.."Z")
-
-            system.print("Target Lock: "..tostring(v))
-            return v
-        end
-    end
+function readVecFromDb(name)
+	if flightModeDb and name then
+		local v = vec3(0,0,0)
+		v.x = flightModeDb.getFloatValue(name.."X")
+		v.y = flightModeDb.getFloatValue(name.."Y")
+		v.z = flightModeDb.getFloatValue(name.."Z")
+		P("[I] Read "..name..": "..tostring(v))
+		return v
+	end
 end
 
 function gearToggle()
-	if unit.isAnyLandingGearExtended() == 1 then
+	if unit.isAnyLandingGearExtended() then
 		unit.retractLandingGears()
 	else
 		unit.extendLandingGears()
@@ -108,12 +63,11 @@ function switchFlightMode(flightMode)
 end
 
 function switchControlMode()
-    if ship.alternateCM == false then ship.alternateCM = true
-        else ship.alternateCM = false end
+    ship.alternateCM = not ship.alternateCM
 end
 
 function swapForceFields()
-    if manualSwitches ~= nil then
+    if manualSwitches and #manualSwitches > 0 then
         if player.isFrozen() then
             manualSwitches[1].activate()
             for _, sw in ipairs(forceFields) do
@@ -127,43 +81,16 @@ function swapForceFields()
         end
     end
 end
-
-ship.baseAltitude = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
-system.print("Altitude: "..ship.baseAltitude)
-
-if flightModeDb ~= nil then
-    if flightModeDb.hasKey("BaseLocX") == 1 then
-        ship.baseLoc = readTargetFromDb("BaseLoc")
-    else
-        ship.baseLoc = ship.world.position
-        system.print("No RTB set")
-        config.setBaseActive = true
-    end
-    if flightModeDb.hasKey("BaseRotX") == 1 then
-        ship.rot = readTargetFromDb("BaseRot")
-    else
-        ship.rot = ship.world.forward
-        config.setBaseActive = true
-    end
-end
-config.rtb = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
 function setBase(a)
-    if a == nil then
+    ship.rot = ship.world.right:cross(ship.nearestPlanet:getGravity(construct.getWorldPosition()))
+    if type(a) ~= "string" or a == "" then
         ship.baseLoc = ship.world.position
-        ship.rot = ship.world.right:cross(ship.nearestPlanet:getGravity(construct.getWorldPosition()))
-        writeTargetToDb(ship.baseLoc,"BaseLoc")
-        writeTargetToDb(ship.rot, "BaseRot")
-
-        system.print("Base Position: "..tostring(ship.nearestPlanet:convertToMapPosition(ship.baseLoc)))
-    else
-        if string.find(a, "::pos") ~= nil then
-            ship.baseLoc = ship.nearestPlanet:convertToWorldCoordinates(a)
-            writeTargetToDb(ship.baseLoc,"BaseLoc")
-            writeTargetToDb(ship.rot, "BaseRot")
-            system.print("Base Position: "..tostring(ship.nearestPlanet:convertToMapPosition(ship.baseLoc)))
-        end
+    elseif string.find(a, "::pos") ~= nil then
+		ship.baseLoc = ship.nearestPlanet:convertToWorldCoordinates(a)
     end
-
+	writeVecToDb(ship.baseLoc,"BaseLoc")
+	writeVecToDb(ship.rot, "BaseRot")
+    system.print("Base: "..tostring(ship.nearestPlanet:convertToMapPosition(ship.baseLoc)))
     config.rtb = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
     ioScheduler.queueData(config)
 end
@@ -182,8 +109,6 @@ keybindPresets["keyboard"].Init = function()
     ship.throttle = 1
     --ship.direction.y = 0
 end
-
-
 
 -- keyboard
 keybindPresets["keyboard"].keyDown.up.Add(function () ship.direction.z = 1 if not ship.counterGravity then ship.counterGravity = true end end)
@@ -231,7 +156,7 @@ keybindPresets["keyboard"].keyUp["option5"].Add(function ()
     ship.verticalLock = true
     ship.lockVector = vec3(construct.getWorldOrientationUp())
     ship.lockPos = vec3(construct.getWorldPosition()) + (vec3(construct.getWorldOrientationUp()))
-    if flightModeDb ~= nil then
+    if flightModeDb then
         flightModeDb.setFloatValue("lockVectorX",ship.lockVector.x)
         flightModeDb.setFloatValue("lockVectorY",ship.lockVector.y)
         flightModeDb.setFloatValue("lockVectorZ",ship.lockVector.z)
@@ -246,7 +171,7 @@ keybindPresets["keyboard"].keyUp["option7"].Add(function()
     ship.altitudeHold = ship.baseAltitude ship.elevatorActive = true
     ship.targetDestination = moveWaypointZ(ship.baseLoc, 0)
 end, "RTB")
-keybindPresets["keyboard"].keyUp["option8"].Add(function () construct.setDockingMode(0); construct.undock() end,"Undock")
+keybindPresets["keyboard"].keyUp["option8"].Add(function () construct.setDockingMode(1); construct.undock() end,"Undock")
 --keybindPresets["keyboard"].keyUp["option8"].Add(function () emitter.send("door_control","open") end, "Open Door")
 --keybindPresets["keyboard"].keyUp["option9"].Add(function () if ship.targetDestination == nil then ship.targetDestination = moveWaypointZ(ship.baseLoc, 10000 - baseAltitude) else ship.targetDestination = nil end end, "Preset 2")
 --keybindPresets["keyboard"].keyUp.option9.Add(function () if flightModeDb ~= nil then flightModeDb.clear() system.print("DB Cleared") end end,"Clear Databank")
@@ -278,7 +203,7 @@ keybindPresets["screenui"].keyUp["option7"].Add(function()
     ship.altitudeHold = ship.baseAltitude ship.elevatorActive = true
     ship.targetDestination = moveWaypointZ(ship.baseLoc, 0)
 end, "RTB")
-keybindPresets["screenui"].keyUp["option8"].Add(function () construct.setDockingMode(0); construct.undock() end,"Undock")
+keybindPresets["screenui"].keyUp["option8"].Add(function () construct.setDockingMode(1); construct.undock() end,"Undock")
 keybindPresets["screenui"].keyUp["option9"].Add(function ()
     if shiftLock then
         flightModeDb.clear() system.print("DB Cleared");
@@ -290,11 +215,13 @@ keybindPresets["screenui"].keyUp["option9"].Add(function ()
         manualControlSwitch()
     end
     end,"Manual Mode Toggle")
+
+-- Note: in this elevator script version, the flight mode still contains "keyboard",
+-- which in later versions of Horizon is replaced with Standard/Maneuver
 if flightModeDb then
-   if flightModeDb.hasKey("flightMode") == 0 then flightModeDb.setStringValue("flightMode","keyboard") end
+   if not flightModeDb.hasKey("flightMode") then flightModeDb.setStringValue("flightMode","keyboard") end
    keybindPreset = flightModeDb.getStringValue("flightMode")
 else
-   system.print("No databank installed.")
    keybindPreset = "keyboard"
 end
 keybindPreset = "keyboard"
@@ -304,6 +231,7 @@ SHUD.Init(system, unit, keybindPresets[keybindPreset])
 Task(function()
     coroutine.yield()
     SHUD.FreezeUpdate = true
+	-- artificial pause to let system initialize
     local endTime = system.getArkTime() + 2
     while system.getArkTime() < endTime do
         coroutine.yield()
@@ -311,7 +239,6 @@ Task(function()
     SHUD.FreezeUpdate = false
     SHUD.IntroPassed = true
 end)
-
 
 player.freeze(true)
 ship.frozen = false
@@ -347,20 +274,93 @@ function autoLandingGear()
 	end
 end
 
-config.floors.floor1 = ship.altHoldPreset1
-config.floors.floor2 = ship.altHoldPreset2
-config.floors.floor3 = ship.altHoldPreset3
-config.floors.floor4 = ship.altHoldPreset4
-elevatorName = construct.getName()
-config.rtb = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
-config.targetAlt = 0
 
-system.print("Preset 1: "..config.floors.floor1)
-system.print("Preset 2: "..config.floors.floor2)
-system.print("Preset 3: "..config.floors.floor3)
-system.print("Preset 4: "..config.floors.floor4)
+function STEC_configInit()
+	-- default to current location/rotation
+	ship.baseLoc = ship.world.position
+	ship.rot = ship.world.forward
 
-ioScheduler.defaultData = stats
-ioScheduler.queueData(config)
-ioScheduler.queueData(fuelAtmo)
-ioScheduler.queueData(fuelSpace)
+	if not flightModeDb then
+		P("[E] No databank found!")
+	else
+		P("[I] Databank found.")
+		if not flightModeDb.hasKey("verticalSpeedLimitAtmo") or updateSettings then
+			flightModeDb.setFloatValue("verticalSpeedLimitAtmo",verticalSpeedLimitAtmo)
+			ship.verticalSpeedLimitAtmo = verticalSpeedLimitAtmo
+		else ship.verticalSpeedLimitAtmo = flightModeDb.getFloatValue("verticalSpeedLimitAtmo") end
+
+		if not flightModeDb.hasKey("verticalSpeedLimitSpace") or updateSettings then
+			flightModeDb.setFloatValue("verticalSpeedLimitSpace",verticalSpeedLimitSpace)
+			ship.verticalSpeedLimitSpace = verticalSpeedLimitSpace
+		else ship.verticalSpeedLimitSpace = flightModeDb.getFloatValue("verticalSpeedLimitSpace") end
+
+		if not flightModeDb.hasKey("approachSpeed") or updateSettings then
+			flightModeDb.setFloatValue("approachSpeed",approachSpeed)
+			ship.approachSpeed = approachSpeed
+		else ship.approachSpeed = flightModeDb.getFloatValue("approachSpeed") end
+
+		if not flightModeDb.hasKey("altHoldPreset1") or updateSettings then
+			flightModeDb.setFloatValue("altHoldPreset1",altHoldPreset1)
+			ship.altHoldPreset1 = altHoldPreset1
+		else ship.altHoldPreset1 = flightModeDb.getFloatValue("altHoldPreset1") end
+
+		if not flightModeDb.hasKey("altHoldPreset2") or updateSettings then
+			flightModeDb.setFloatValue("altHoldPreset2",altHoldPreset2)
+			ship.altHoldPreset2 = altHoldPreset2
+		else ship.altHoldPreset2 = flightModeDb.getFloatValue("altHoldPreset2") end
+
+		if not flightModeDb.hasKey("altHoldPreset3") or updateSettings then
+			flightModeDb.setFloatValue("altHoldPreset3",altHoldPreset3)
+			ship.altHoldPreset3 = altHoldPreset3
+		else ship.altHoldPreset3 = flightModeDb.getFloatValue("altHoldPreset3") end
+
+		if not flightModeDb.hasKey("altHoldPreset4") or updateSettings then
+			flightModeDb.setFloatValue("altHoldPreset4",altHoldPreset4)
+			ship.altHoldPreset4 = altHoldPreset4
+		else ship.altHoldPreset4 = flightModeDb.getFloatValue("altHoldPreset4") end
+
+		if flightModeDb.hasKey("BaseLocX") then
+			ship.baseLoc = readVecFromDb("BaseLoc")
+			-- only load rotation if location exists
+			if flightModeDb.hasKey("BaseRotX") then
+				ship.rot = readVecFromDb("BaseRot")
+			else
+				config.setBaseActive = true
+			end
+		else
+			config.setBaseActive = true
+		end
+	end
+
+	if config.setBaseActive or ship.baseLoc == vec3() then
+		config.rtb = helios:closestBody(ship.world.position):getAltitude(ship.world.position)
+		P("[I] No base location set!")
+	else
+		config.rtb = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
+		ship.baseAltitude = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
+		P("Base location: "..tostring(ship.baseLoc))
+		P("Altitude: "..tostring(ship.baseAltitude))
+	end
+end
+
+function ElevatorInit()
+	config.floors.floor1 = ship.altHoldPreset1
+	config.floors.floor2 = ship.altHoldPreset2
+	config.floors.floor3 = ship.altHoldPreset3
+	config.floors.floor4 = ship.altHoldPreset4
+	elevatorName = construct.getName()
+	if ship.baseLoc and ship.baseLoc ~= vec3() then
+		config.rtb = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
+	end
+	config.targetAlt = 0
+
+	P("Preset 1: "..config.floors.floor1)
+	P("Preset 2: "..config.floors.floor2)
+	P("Preset 3: "..config.floors.floor3)
+	P("Preset 4: "..config.floors.floor4)
+
+	ioScheduler.defaultData = stats
+	ioScheduler.queueData(config)
+	ioScheduler.queueData(fuelAtmo)
+	ioScheduler.queueData(fuelSpace)
+end
