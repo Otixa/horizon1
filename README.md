@@ -26,6 +26,7 @@ New maintainers on these repositories are working on updating the codebase to be
 command on channel "door_control" (if emitter is linked).  
 Manual action, no automation for it yet!
 * Requires dubuild 1.0.1!
+* **Installable files: /output/Elevator.json and /src/LuaScreen.lua !**
 
 #### 2024-02-26 *elevator-lua-screen* branch, @tobitege
 
