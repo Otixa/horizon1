@@ -1,7 +1,7 @@
 --@class CSS_SHUD
 
 CSS_SHUD = [[
-#horizon { 
+#horizon {
   left: 0;
   top: 0;
   position: fixed;
@@ -9,7 +9,7 @@ CSS_SHUD = [[
   height: 100vh;
   background: radial-gradient(ellipse 27vw 11vw at 50% 51vw, rgba(1,5,8,0.6) 50%,rgba(1,5,8,0) 90%);
   font-family: Verdana;
-  
+
 }
 #artificialHorizon
 {
@@ -236,7 +236,7 @@ CSS_SHUD = [[
   background: #]]..secondaryColor..[[aa;
   z-index: -50;
   filter: blur(0.2vw);
-  opacity: 0.3; 
+  opacity: 0.3;
 }
 #horizon-menu .item.locked {
   padding-left: 0.4vw;
@@ -265,7 +265,7 @@ CSS_SHUD = [[
   background: #]]..primaryColor..[[aa;
   z-index: -50;
   filter: blur(0.2vw);
-  opacity: 0.6; 
+  opacity: 0.6;
 }
 
 #horizon-menu::after {
