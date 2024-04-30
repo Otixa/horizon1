@@ -14,6 +14,19 @@ New maintainers on these repositories are working on updating the codebase to be
 
 ### Updates
 
+#### 2024-04-30 *elevator-lua-screen* branch, @tobitege
+
+* Elevator working, starts up as "Elevator v1.1.0"
+* Lots of tweaks during code review.
+* HUD is now on by default incl. fuel display.
+* Stats display on screen was broken due to fuel display.
+* If landed at startup, engines will be kept off.
+* Startup code with several sanity checks (e.g. missing components).
+* Added ALT+5 (open) and ALT+6 (close) for emitter to send open/close  
+command on channel "door_control" (if emitter is linked).  
+Manual action, no automation for it yet!
+* Requires dubuild 1.0.1!
+
 #### 2024-02-26 *elevator-lua-screen* branch, @tobitege
 
 * Codebase revised to fix deprecated DU API calls.
