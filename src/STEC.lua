@@ -305,6 +305,7 @@ function STEC(core, control)
 	end
 
 	function self.worldToLocal(vector)
+		if not vec3.isvector(vector) then return nil end
 		return vec3(
 			library.systemResolution3(
 				{self.world.right:unpack()},
@@ -338,7 +339,8 @@ function STEC(core, control)
 		local deltaTime = math.max(system.getArkTime() - lastUpdate, 0.001) --If delta is below 0.001 then something went wrong in game engine.
 		self.updateWorld()
 
-if not config.manualControl and self.isLanded and not self.targetDestination then return end
+		-- keep engines off when landed and resting with no target set?
+		if config.manualControl and self.isLanded and self.direction.z == 0 then return end
 
 		local tmp = self.thrust
 		local atmp = self.angularThrust
@@ -354,14 +356,11 @@ if not config.manualControl and self.isLanded and not self.targetDestination the
 		if not vec3.isvector(self.baseLoc) or self.baseLoc == vec3() then
 			self.baseLoc = nil
 		end
-
-		if lockVerticalToBase and self.baseLoc then
-			local body = helios:closestBody(self.baseLoc)
-			if body then
-				self.nearestPlanet = body
-				self.altitude = self.nearestPlanet:getAltitude(self.world.position)
-				self.atmosphereThreshold = self.nearestPlanet.atmosphereRadius - self.nearestPlanet.radius
-			end
+		local baseBody = self.baseLoc and helios:closestBody(self.baseLoc)
+		if lockVerticalToBase and baseBody then
+			self.nearestPlanet = baseBody
+			self.altitude = self.nearestPlanet:getAltitude(self.world.position)
+			self.atmosphereThreshold = self.nearestPlanet.atmosphereRadius - self.nearestPlanet.radius
 		end
 		if not self.elevatorActive then
 			self.inertialDampening = self.inertialDampeningDesired
@@ -454,7 +453,7 @@ if not config.manualControl and self.isLanded and not self.targetDestination the
 			end
 		end
 
-		if self.elevatorActive and self.targetDestination then
+		if self.elevatorActive and self.targetDestination and baseBody then
 			self.inertialDampening = true
 			self.counterGravity = true
 			self.targetVector = self.rot
@@ -462,9 +461,8 @@ if not config.manualControl and self.isLanded and not self.targetDestination the
 
 			local deltaAltitude = self.altitudeHold - self.altitude
 			local brakeBuffer, speed = 1000, 0
-			--local self.breadCrumbDist = 500
 			local distance = (self.world.position - self.targetDestination):len()
-			local realDistance = helios:closestBody(self.baseLoc):getAltitude(self.targetDestination) - self.altitude
+			local realDistance = baseBody:getAltitude(self.targetDestination) - self.altitude
 			local destination = self.targetDestination
 			local verticalSpeedLimit = 0
 
@@ -520,12 +518,8 @@ if not config.manualControl and self.isLanded and not self.targetDestination the
 			tmp = tmp - elevatorDestination * self.mass * utils.clamp(distance * 3.6,0.3,((math.abs(speed)/3.6) * self.IDIntensity))
 			--if breadCrumb ~= nil then system.print("Breadcrumb distance: "..(self.world.position - breadCrumb):len()) end
 			self.dockingClamps = false
-			if distance < 0.01 and not config.manualControl then
-				self.elevatorActive = false
-				self.targetVector = nil
-				self.stateMessage = "Idle"
-				self.dockingClamps = true
-			elseif distance < 2 and self.world.velocity:len() == 0 and not config.manualControl then
+			if (distance < 0.01 and not config.manualControl) or
+			   (distance < 2 and not config.manualControl and self.world.velocity:len() == 0) then
 				self.elevatorActive = false
 				self.targetVector = nil
 				self.stateMessage = "Idle"

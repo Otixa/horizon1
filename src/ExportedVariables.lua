@@ -4,7 +4,7 @@ shipName = ""
 updateSettings = false --export: Use these settings
 altHoldPreset1 = 150000  --export: Altitude Hold Preset 1
 altHoldPreset2 = 1000 --export: Altitude Hold Preset 2
-altHoldPreset3 = 100 --export: Altitude Hold Preset 3
+altHoldPreset3 = 500 --export: Altitude Hold Preset 3
 altHoldPreset4 = 2 --export: Altitude Hold Preset 4
 deviationThreshold = 0.5 --export: Deviation tolerace in m
 inertialDampening = true --export: Start with inertial dampening on/off
@@ -27,13 +27,28 @@ secondaryColor = "e30000" --export: Secondary color of HUD
 textShadow = "e81313" --export: Color of text shadow for speedometer
 fuelFontSize = 1.8 --export: Fuel Gauge Font Size
 
-showDockingWidget = false --export: Show Docking Widget
 dockingMode = 1 --export: Set docking mode (1:Manual, 2:Automatic, 3:Semi-Automatic)
+showDockingWidget = false --export: Show Docking Widget
+
 setBaseOnStart = false --export: Set RTB location on start
 useGEAS = false --export: use ground engine altitude stabilization (GEAS)?
 GEAS_Alt = 10 --export: default hover altitude for GEAS in meters
+
 activateFFonStart = false
-setactivateFFonStart = false --export: Activate force fields on start (connected to button)
+setactivateFFonStart = false --export: Activate force field(s) on start (if linked directly)?
+activateFFonStop = true
+setactivateFFonStop = true --export: Deactivate force field(s) on stop (if linked directly)?
+
+activateLasersOnStart = false
+setactivateLasersOnStart = false --export: Activate laser(s) on start (if linked directly)?
+activateLasersOnStop = true
+setactivateLasersOnStop = true --export: Deactivate laser(s) on stop (if linked directly)?
+
+activateSwitchOnStart = false
+setactivateSwitchOnStart = false --export: Activate linked switch(es) on start?
+activateSwitchOnStop = false
+setactivateSwitchOnStop = false --export: Deactivate linked switch(es) on stop?
+
 pocket = false
 setpocket = false --export: Pocket ship?
 mouseSensitivity = 1 --export: Enter your mouse sensativity setting

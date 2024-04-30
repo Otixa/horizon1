@@ -13,8 +13,14 @@ ElevatorScreen = (function ()
             stats.data.deviation = ship.deviation
             stats.data.deviationVec = ship.worldToLocal(ship.deviationVec)
             stats.data.deviationRot = ship.worldToLocal(ship.deviationRot)
+			stats.data.deviationRotAngle = angle_between(ship.world.forward, ship.rot) * (180 / math.pi)
             stats.data.state = ship.stateMessage
 			stats.data.delta = nil
+			stats.data.grounddistance = ship.GrndDist
+			stats.data.base = nil
+			if vec3.isvector(ship.baseLoc) and ship.baseLoc ~= vec3() then
+				stats.data.base = ship.baseLoc
+			end
         end
         self.updateStats()
         -- function self.updateScreenFuel()

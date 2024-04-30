@@ -50,7 +50,11 @@ stats = {
 		deviation = 0,
 		deviationVec = vec3(),
 		deviationRot = vec3(),
+		deviationRotAngle = 0,
 		state = "Idle",
+		delta = 0,
+		grounddistance = 0,
+		base = nil,
 	}
 }
 fuelAtmo = {
