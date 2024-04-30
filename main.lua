@@ -10,6 +10,7 @@
 --@require FuelTankHelper
 --@require KeybindControllerMin
 --@require IOScheduler
+--@require Utils3D
 --@require STEC
 --@require CSS_SHUD
 --@require SHUD
@@ -41,7 +42,9 @@ function manualControlSwitch()
 	ship.counterGravity = true
 	ship.frozen = not c
 	ship.elevatorActive = not c
-	ship.followGravity = c
+	ship.inertialDampening = c
+	ship.counterGravity = c
+	ship.followGravity = true
 	if c then
 		SHUD.Init(system, unit, keybindPresets["keyboard"])
 		ship.altitudeHold = ship.baseAltitude
@@ -67,7 +70,7 @@ function Unit.onStart()
 	getFuelRenderedHtml()
 	if system.showHelper then system.showHelper(false) end
 
-	P('Elevator 1.1.0 ===')
+	P('Elevator 1.1.0')
 	P('Customized by tobitege, v2024-04-30')
 
 	if construct.setDockingMode(dockingMode) then
@@ -132,7 +135,9 @@ function Unit.onStart()
 	end
 	if vec3.isvector(ship.baseLoc) and ship.baseLoc ~= vec3() then
 		P("Base: "..tostring(ship.baseLoc))
-		P("Map location: "..tostring(ship.nearestPlanet:convertToMapPosition(ship.baseLoc)))
+		local mapPos = tostring(ship.nearestPlanet:convertToMapPosition(ship.baseLoc))
+		P("Map location: "..mapPos)
+		system.setWaypoint(mapPos,false)
 	end
 
 	ship.brake = true
@@ -144,17 +149,14 @@ function Unit.onStart()
 		ship.followGravity = true
 		ship.inertialDampening = true
 	end
+	ship.followGravity = true
+	ship.inertialDampening = true
 	if ship.isLanded then
 		P("Landed.")
 	end
 
 	if emitter then
 		P("[I] Emitter range: "..emitter.getRange())
-	end
-	if activateFFonStart and manualSwitches and next(manualSwitches) ~= nil then
-		for _, sw in ipairs(manualSwitches) do
-			sw.activate()
-		end
 	end
 
 	manualControlSwitch()
@@ -166,7 +168,10 @@ function Unit.onStart()
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
 	unit.setTimer("DockingTrigger", 1)
-	if laser then laser.deactivate() end
+
+	toggleForceFields(activateFFonStart)
+	toggleLasers(activateLasersOnStart)
+	toggleSwitches(activateSwitchOnStart)
 
 	if showDockingWidget then
 		parentingPanelId = system.createWidgetPanel("Docking")
@@ -178,20 +183,13 @@ function Unit.onStart()
 end
 
 function Unit.onStop()
-	if next(manualSwitches) ~= nil then
-		for _, sw in ipairs(manualSwitches) do
-			sw.deactivate()
-		end
-	end
-	if next(forceFields) ~= nil then
-		for _, sw in ipairs(forceFields) do
-			sw.retract()
-		end
-	end
+	toggleForceFields(activateFFonStop)
+	toggleLasers(activateLasersOnStop)
+	toggleSwitches(activateSwitchOnStop)
+
 	config.shutDown = true
 	if screen then screen.setScriptInput(serialize(config)) end
 	system.showScreen(false)
-	if laser ~= nil then laser.deactivate() end
 end
 
 function Unit.onTimer(timer)
@@ -199,16 +197,15 @@ function Unit.onTimer(timer)
 		if SHUD then SHUD.Render() end
 	elseif timer == "FuelStatus" then
 		getFuelRenderedHtml()
-		-- do NOT send fuel data, it corrupts the screen ui!
+		-- Fix: do NOT send fuel data, it corrupts the screen ui!
 		-- if elevatorScreen then elevatorScreen.updateScreenFuel() end
 	elseif timer == "DockingTrigger" then
 		local telDistance
 		if telemeter then telDistance = telemeter.raycast().distance end
 		if ship.dockingClamps then
-			if laser ~= nil then laser.activate() end
+			toggleLasers(true)
 			if telDistance and telDistance > 0 and telDistance < 1 then
 				if ship.autoShutdown and not config.manualControl then
-					P(ship.altitude)
 					unit.exit()
 				end
 			end

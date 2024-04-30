@@ -7,68 +7,97 @@ radarUnitSpace = nil
 flightModeDb = nil
 manualSwitches = {}
 forceFields = {}
-laser = nil
+lasers = {}
 screen = nil
 settingsActive = false
 emitter = nil
 telemeter = nil
 
 function getElements()
-  for k,var in pairs(_G) do
-    if type(var) == "table" and var["getClass"] then
-      local class = var["getClass"]()
-      --system.print(class)
-      if class == "CoreUnitDynamic" or class == "CoreUnitStatic" or class == "CoreUnitSpace" then
-        core = var
-      end
+	for _,var in pairs(_G) do
+		if type(var) == "table" and var["getClass"] then
+			local class = string.lower(var["getClass"]())
+			--system.print(class)
+			if class == "coreunitdynamic" or class == "coreunitstatic" or class == "coreunitspace" then
+				core = var
+			end
+			-- if class == "atmofuelcontainer" or class == "spacefuelcontainer" then
+			-- 	var.showWidget()
+			-- end
+			if class == "warpdriveunit" then
+				warpDrive = var
+				var.showWidget()
+			end
+			if class == "radarpvpatmospheric" then
+				radarUnitAtmo = var
+				radarUnitAtmo.showWidget()
+			end
+			if class == "radarpvpspace" then
+				radarUnitSpace = var
+				radarUnitSpace.showWidget()
+			end
+			if class == "databankunit" then
+				flightModeDb = var
+			end
+			if class == "antigravitygeneratorunit" then
+				antigrav = var
+			end
+			if class == "manualswitchunit" then
+				table.insert(manualSwitches, var)
+			end
+			if class == "forcefieldunit" then
+				table.insert(forceFields, var)
+			end
+			if class == "screenunit" then
+				screen = var
+			end
+			if class == "laseremitterunit" then
+				table.insert(lasers, var)
+			end
+			if class == "emitterunit" then
+				emitter = var
+			end
+			if class == "telemeterunit" then
+				telemeter = var
+			end
+		end
+	end
+end
 
-      if class == "AtmoFuelContainer" or class == "SpaceFuelContainer" then
-        var.showWidget()
-      end
+function toggleForceFields(state)
+	if next(forceFields) then
+		for _, ff in ipairs(forceFields) do
+			if state then
+				ff.deploy()
+			else
+				ff.retract()
+			end
+		end
+	end
+end
 
-      if class == "WarpDriveUnit" then
-        warpDrive = var
-        var.showWidget()
-      end
+function toggleLasers(state)
+	if next(lasers) then
+		for _, laser in ipairs(lasers) do
+			if state then
+				laser.activate()
+			else
+				laser.deactivate()
+			end
+		end
+	end
+end
 
-      if class == "RadarPvPAtmospheric" then
-        radarUnitAtmo = var
-        radarUnitAtmo.showWidget()
-      end
-
-      if class == "RadarPvPSpace" then
-        radarUnitSpace = var
-        radarUnitSpace.showWidget()
-      end
-
-      if class == "DataBankUnit" then
-        flightModeDb = var
-      end
-
-      if class == "AntiGravityGeneratorUnit" then
-        antigrav = var
-      end
-      if class == "ManualSwitchUnit" then
-        table.insert(manualSwitches, var)
-      end
-      if class == "ForceFieldUnit" then
-        table.insert(forceFields, var)
-      end
-      if class == "ScreenUnit" then
-        screen = var
-      end
-      if class == "LaserEmitterUnit" then
-        laser = var
-        --table.insert(lasers, var)
-      end
-      if class == "EmitterUnit" then
-        emitter = var
-      end
-      if class == "TelemeterUnit" then
-        telemeter = var
-      end
-    end
-  end
+function toggleSwitches(state)
+	if next(manualSwitches) then
+		for _, sw in ipairs(manualSwitches) do
+			if state then
+				sw.activate()
+			else
+				sw.deactivate()
+			end
+		end
+	end
 end
 
 getElements()

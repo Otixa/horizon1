@@ -2,8 +2,8 @@
 local rslib = require('rslib')
 local utils = require('cpml/utils')
 local vec3 = require('cpml/vec3')
-local concat = table.concat
-local sFormat = string.format
+local concat, sFormat, round = table.concat, string.format, utils.round
+
 -- Libs and helper functions
 local function internalSerialize(v,tC,t) local check = type(v) local intSerial=internalSerialize if check=='table' then t[tC]='{' local tempC=tC+1 if #v==0 then for k,e in pairs(v) do if type(k)~='number' then t[tempC]=k t[tempC+1]='=' tempC=tempC+2 else t[tempC]='[' t[tempC+1]=k t[tempC+2]=']=' tempC=tempC+3 end tempC=intSerial(e,tempC,t) t[tempC]=',' tempC=tempC+1 end else for k,e in pairs(v) do tempC=intSerial(e,tempC,t) t[tempC]=',' tempC=tempC+1 end end if tempC==(tC+1) then t[tempC]='}' return tempC+1 else t[tempC-1]='}' return tempC end elseif check=='string' then t[tC]=sFormat("%q",v) return tC+1 elseif check=='number' then t[tC]=tostring(v) return tC+1 else t[tC]=v and 'true' or 'false' return tC+1 end end
 function serialize(v) local t={} local tC=1 local check = type(v) local intSerial=internalSerialize if check=='table' then t[tC]='{' tC=tC+1 local tempC=tC if #v==0 then for k,e in pairs(v) do if type(k)~='number' then t[tempC]=k t[tempC+1]='=' tempC=tempC+2 else t[tempC]='[' t[tempC+1]=k t[tempC+2]=']=' tempC=tempC+3 end tempC=intSerial(e,tempC,t) t[tempC]=',' tempC=tempC+1 end else for k,e in pairs(v) do tempC=intSerial(e,tempC,t) t[tempC]=',' tempC=tempC+1 end end if tempC==tC then t[tempC]='}' else t[tempC-1]='}' end elseif check=='string' then t[tC]=sFormat("%q",v) elseif check=='number' then t[tC]=tostring(v) else t[tC]=v and 'true' or 'false' end return concat(t) end
@@ -14,22 +14,22 @@ function convertFromHex(a)if a:sub(1,1)=="#"then a=a:sub(2,-1)end;if#a==8 then r
 function mToKm(n,p)
 	if n == nil then return "nan" end
 	if n >= 10000 then
-		local rtn = utils.round((n / 1000),p) or utils.round((n / 1000))
+		local rtn = round((n / 1000),p) or round((n / 1000))
 		return  rtn .. " km"
 	else
-		local rtn = utils.round(n,p) or utils.round(n)
+		local rtn = round(n,p) or round(n)
 		return rtn .. " m"
 	end end
 function massConvert(n,p)
 	if n == nil then return "nan" end
 	if n >= 1000 and n < 1000000 then
-		local rtn = utils.round((n / 1000),p) or utils.round((n / 1000))
+		local rtn = round((n / 1000),p) or round((n / 1000))
 		return  rtn .. " t"
 	elseif n >= 1000000 then
-		local rtn = utils.round((n / 1000000),p) or utils.round((n / 1000000))
+		local rtn = round((n / 1000000),p) or round((n / 1000000))
 		return  rtn .. " kt"
 	else
-		local rtn = utils.round(n,p) or utils.round(n)
+		local rtn = round(n,p) or round(n)
 		return rtn .. " kg"
 	end end
 
@@ -357,7 +357,7 @@ if not StatsContainer then
 		setNextFillColor(layer0, 0.3, 0, 0, 0.2)
 		setNextStrokeColor(layer0, 0.7, 0.7, 0.7, 1)
 		setNextStrokeWidth(layer0, 2)
-		addBoxRounded(layer0, rx/1.8, ry/4.5 - 25, 420, 195, 20)
+		addBoxRounded(layer0, rx/1.8, ry/4.5 - 25, 420, tablelength(stats.data)*18, 20)
 	end
 end
 
@@ -548,7 +548,11 @@ local btnX, padding = 135, 10
 local mcColor = config.manualControl and '#e707b3c9' or '#3c00b3'
 local eStopColor = config.estop and '#ff0000' or '#7a0101'
 local buttons = {
-	ButtonQuad('RTB',btnX,135,function() config.targetAlt = config.rtb outputMsg = serialize(config) end,false,'#006603'),
+	ButtonQuad('RTB',btnX,135,function()
+		config.manualControl = false
+		config.targetAlt = config.rtb
+		outputMsg = serialize(config)
+	end,false,'#006603'),
 	ButtonQuad('+10m',btnX,185,function()
 		if not config.targetAlt or config.targetAlt == 0 then
 			config.delta = 10
@@ -565,7 +569,13 @@ local buttons = {
 		end
 		outputMsg = serialize(config)
 		config.delta = nil; end, false,'#0b0578'),
-	ButtonQuad('Manual Control',btnX,285,function() config.manualControl = not config.manualControl config.targetAlt = 0 outputMsg = serialize(config) logMessage("Manual Control: "..outputMsg) end,false,mcColor),
+	ButtonQuad('Manual Control',btnX,285,function()
+		config.manualControl = not config.manualControl
+		if config.manualControl then
+			config.targetAlt = 0
+		end
+		outputMsg = serialize(config)
+	end, false, mcColor),
 	GenericButton('Emergency','Stop',eStopFont,btnX,400,185,165, eStopColor,function() config.estop = not config.estop outputMsg = serialize(config) end),
 	GenericButton('Set RTB','',font3,btnX,515,185,30,'#006960',function() config.setBaseActive = true end),
 	GenericButton('Settings','',font3,360,515,185,30,'#006960',function() config.settingsActive = true end),
@@ -595,21 +605,34 @@ if config.floors then
 end
 
 -- STATS
-local statYPos = ry/4.5 + 5
-local statSpacing = 22
+local statXPos, statYPos = 585, ry/4.5 + 5
+local statSpacing, statW, statH = 22, 385, 22 --50
 local statsDraw = {}
-if stats.data then
-	--StatsLine(key,value,x,y,width,height)
-	table.insert(statsDraw,StatsLine('Elevation',mToKm(stats.data.elevation, 0.001),585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
-	table.insert(statsDraw,StatsLine('Velocity',utils.round((stats.data.velocity * 3.6), 0.01)..' km/h',585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
-	table.insert(statsDraw,StatsLine('Mass',massConvert(stats.data.mass,0.01),585,statYPos,  385,50)) statYPos = statYPos + statSpacing
-	table.insert(statsDraw,StatsLine('Gravity',utils.round(stats.data.gravity,0.001)..' m/s²',585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
-	table.insert(statsDraw,StatsLine('Target Altitude',mToKm(stats.data.target),585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
-	table.insert(statsDraw,StatsLine('Target Distance',mToKm(stats.data.target_dist,0.001),585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
-	table.insert(statsDraw,StatsLine('Brake Distance',mToKm(stats.data.brake_dist),585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
-	table.insert(statsDraw,StatsLine('Deviation',utils.round(stats.data.deviation,0.00001)..' m',585,statYPos, 385, 50)) statYPos = statYPos + statSpacing
+
+-- Assuming statXPos, statW, statH, and statSpacing are defined at the file level
+function insertStatLine(key, value, yPos)
+    table.insert(statsDraw, StatsLine(key,value, statXPos, yPos, statW, statH)) --round(yPos)..': '..
+    return yPos + statSpacing
 end
 
+if stats.data then
+    local yPos = statYPos
+    yPos = insertStatLine('Elevation', mToKm(stats.data.elevation, 0.001), yPos)
+    yPos = insertStatLine('Ground Distance', mToKm(stats.data.grounddistance, 0.001), yPos)
+    yPos = insertStatLine('Velocity', round((stats.data.velocity * 3.6), 0.01)..' km/h', yPos)
+    yPos = insertStatLine('Mass', massConvert(stats.data.mass, 0.01), yPos)
+    yPos = insertStatLine('Gravity', round(stats.data.gravity, 0.001)..' m/s²', yPos)
+    yPos = insertStatLine('Target Altitude', mToKm(stats.data.target, 0.001), yPos)
+    yPos = insertStatLine('Target Distance', mToKm(stats.data.target_dist, 0.001), yPos)
+    yPos = insertStatLine('Brake Distance', mToKm(stats.data.brake_dist, 0.001), yPos)
+	if stats.data.deviation then
+    	yPos = insertStatLine('Deviation', round(stats.data.deviation, 0.00001)..' m', yPos)
+	end
+	if stats.data.deviationRot then
+		yPos = insertStatLine('Deviation Rot.', round(vec3(stats.data.deviationRot):len(), 0.00001)..' ', yPos)
+	end
+	yPos = insertStatLine('Deviation °', round(stats.data.deviationRotAngle, 0.00001)..' ', yPos)
+end
 -- tobitege, 2024-04-30: commented out fuel display, which corrupts
 -- the stats display AND because fuel is now in HUD itself!
 -- local fgAtmo = {}

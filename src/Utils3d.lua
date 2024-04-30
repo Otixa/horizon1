@@ -1,19 +1,31 @@
 --@class Utils3D
 
+-- safe version
+function angle_between(vec1, vec2)
+    if not(vec3.isvector(vec1) and vec3.isvector(vec2)) then return 0 end
+	local len1 = vec1:len()
+	local len2 = vec2:len()
+	if len1 ~= 0 and len2 ~= 0 then
+        local dotProd = vec1:dot(vec2)
+        return math.acos(dotProd / (len1 * len2))
+    end
+    return 0
+end
+
 Utils3d = (function ()
     local this = {}
     local mat4 = require("cpml/mat4")
 
-    function this.worldToLocal(pos, up, right, forward)
-        return vec3(
-            library.systemResolution3(
-                {right:unpack()},
-                {forward:unpack()},
-                {up:unpack()},
-                {pos:unpack()}
-            )
-        )
-    end
+    -- function this.worldToLocal(pos, up, right, forward)
+    --     return vec3(
+    --         library.systemResolution3(
+    --             {right:unpack()},
+    --             {forward:unpack()},
+    --             {up:unpack()},
+    --             {pos:unpack()}
+    --         )
+    --     )
+    -- end
 
     function this.localToRelative(pos, up, right, forward)
         -- this is horrible, can optimize?
