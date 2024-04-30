@@ -10,6 +10,10 @@ New maintainers on these repositories are working on updating the codebase to be
 
 > ❗ Branch *elevator-lua-screen* contains the elevator and screen script!
 
+**Installable, flyable scripts:**
+* [Elevator json](https://github.com/tobitege/horizon1/blob/elevator-lua-screen/output/Elevator.json)
+* [Elevator Screen lua](https://github.com/tobitege/horizon1/blob/elevator-lua-screen/src/LuaScreen.lua)
+
 ## Development
 
 ### Updates
