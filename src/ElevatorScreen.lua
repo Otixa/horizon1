@@ -17,20 +17,23 @@ ElevatorScreen = (function ()
 			stats.data.delta = nil
         end
         self.updateStats()
-        function self.updateScreenFuel()
-            fuelAtmo.tanks = {}
-            fuelSpace.tanks = {}
+        -- function self.updateScreenFuel()
+        --     fuelAtmo.tanks = {}
+        --     fuelSpace.tanks = {}
 
-            for _, tank in pairs(SHUD.fuel.atmo) do
-                table.insert(fuelAtmo.tanks,fuelTank(tank.time,math.ceil(100 * tank.level)))
-            end
-            for _, tank in pairs(SHUD.fuel.space) do
-                table.insert(fuelSpace.tanks,fuelTank(tank.time,math.ceil(100 * tank.level)))
-            end
-            --for _, tank in pairs(SHUD.fuel.rocket) do fuelHtmlRocket = fuelHtmlRocket .. mkTankHtml("rocket", tank) end
-            ioScheduler.queueData(fuelAtmo)
-            ioScheduler.queueData(fuelSpace)
-        end
+		-- 	if next(SHUD.fuel.atmo) then
+		-- 		for _, tank in pairs(SHUD.fuel.atmo) do
+		-- 			table.insert(fuelAtmo.tanks,fuelTank(tank.time,math.ceil(100 * tank.level)))
+		-- 		end
+		-- 	end
+		-- 	if next(SHUD.fuel.space) then
+		-- 		for _, tank in pairs(SHUD.fuel.space) do
+		-- 			table.insert(fuelSpace.tanks,fuelTank(tank.time,math.ceil(100 * tank.level)))
+		-- 		end
+        --     end
+        --     ioScheduler.queueData(fuelAtmo)
+        --     ioScheduler.queueData(fuelSpace)
+        -- end
         if screen then screen.clearScriptOutput() end
     return self
 end)()

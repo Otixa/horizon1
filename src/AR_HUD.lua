@@ -1,6 +1,5 @@
 --@class AR_HUD
 
-json = require('dkjson')
 quat = require('cpml/quat')
 vec3 = require('cpml/vec3')
 const = require('cpml/constants')
@@ -27,8 +26,8 @@ function scaleViewBoundsY(viewY)
 	return ((viewY - rMin) / (rMax - rMin)) * (tMax - tMin) + tMin
 end
 function scaleViewBoundsX(viewX)
-    local rMin = 1
-    local rMax = -1
+	local rMin = 1
+	local rMax = -1
 	if signum(forwardX.x) == -1  and signum(forwardX.y) == -1 then
 		rMin = -1
 		rMax = 1
@@ -36,12 +35,12 @@ function scaleViewBoundsX(viewX)
 		rMin = -1
 		rMax = 1
 	end
-    local tMin = -(system.getScreenHeight() / 2)
-    local tMax = system.getScreenHeight() / 2
-    return ((viewX - rMin) / (rMax - rMin)) * (tMax - tMin) + tMin
+	local tMin = -(system.getScreenHeight() / 2)
+	local tMax = system.getScreenHeight() / 2
+	return ((viewX - rMin) / (rMax - rMin)) * (tMax - tMin) + tMin
 end
 function scaleViewBound(rMin,rMax,tMin,tMax,input)
-    return ((input - rMin) / (rMax - rMin)) * (tMax - tMin) + tMin
+	return ((input - rMin) / (rMax - rMin)) * (tMax - tMin) + tMin
 end
 
 function deltaSum(sum, delta)
@@ -57,12 +56,15 @@ function deltaSum(sum, delta)
 end
 
 function updateAR()
-	---@TODO replace getMasterPlayerRelativeOrientation with ... ???
-	-- local mouseDelta = vec2(system.getMouseDeltaX(),system.getMouseDeltaY())
-	-- mouseDeltaSum = deltaSum(mouseDeltaSum,mouseDelta)
-	-- playerQ = quat(unit.getMasterPlayerRelativeOrientation())
-	-- forwardX = (playerQ * vec3(construct.getOrientationForward()))
-	-- ship.viewY = scaleViewBoundsY(mouseDeltaSum.y)
-	-- ship.viewX = scaleViewBoundsX(forwardX.x)
-    --system.print("x: "..ship.viewX..", y: "..ship.viewY)
+	local mouseDelta = vec2(system.getMouseDeltaX(),system.getMouseDeltaY())
+	mouseDeltaSum = deltaSum(mouseDeltaSum,mouseDelta)
+
+	-- use "player.getFoward()" here??
+	-- local playerQ = quat(unit.getMasterPlayerRelativeOrientation())
+	local playerQ = quat(player.getFoward())
+
+	forwardX = (playerQ * vec3(construct.getOrientationForward()))
+	ship.viewY = scaleViewBoundsY(mouseDeltaSum.y)
+	ship.viewX = scaleViewBoundsX(forwardX.x)
+	--system.print("x: "..ship.viewX..", y: "..ship.viewY)
 end

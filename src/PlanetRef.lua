@@ -270,7 +270,7 @@ function PlanetRef()
                             PlanetaryReference)
     end
 
-    PlanetaryReference.__index        = 
+    PlanetaryReference.__index        =
         function(t,i)
             if type(i) == 'number' then
                 local system = t.galaxyAtlas[i]
@@ -358,7 +358,7 @@ function PlanetRef()
                                             direction,
                                             sizeCalculator,
                                             bodyIds)
-        local sizeCalculator = sizeCalculator or 
+        local sizeCalculator = sizeCalculator or
                                 function (body) return 1.05*body.radius end
         local candidates = {}
 
@@ -440,14 +440,13 @@ function PlanetRef()
         if isMapPosition(overload) then
             bodyId = overload.bodyId
         end
-        assert(isSNumber(bodyId),
-                'Argument 1 (bodyId) must be a number:' .. type(bodyId))
+        assert(isSNumber(bodyId),'Argument 1 (bodyId) must be a number:' .. type(bodyId))
 
         return self[bodyId]
     end
 
     function PlanetarySystem:getPlanetarySystemId()
-        local k, v = next(self)
+        local _, v = next(self)
         return v and v.planetarySystemId
     end
 
@@ -474,7 +473,7 @@ function PlanetRef()
         assert(isTable(worldCoordinates),
             'Argument 1 (worldCoordinates) must be an array or vec3:' ..
             type(worldCoordinates))
-        local worldVec  = vec3(worldCoordinates) 
+        local worldVec  = vec3(worldCoordinates)
 
         if self.bodyId == 0 then
             return setmetatable({latitude  = worldVec.x,
@@ -503,7 +502,7 @@ function PlanetRef()
 
     function BodyParameters:convertToWorldCoordinates(overload)
         local mapPosition = isString(overload) and
-                                            mkMapPosition(overload) or overload
+                            mkMapPosition(overload) or overload
         if mapPosition.bodyId == 0 then -- support deep space map position
             return vec3(mapPosition.latitude,
                         mapPosition.longitude,
@@ -537,7 +536,7 @@ function PlanetRef()
     end
 
     return setmetatable(PlanetaryReference,
-                        { __call = function(_,...)
-                                        return mkPlanetaryReference(...)
-                                end })
+		{ __call = function(_,...)
+			return mkPlanetaryReference(...)
+		end })
 end

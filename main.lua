@@ -7,21 +7,20 @@
 --@require TaskManagerMin
 --@require DynamicDocumentMin
 --@require DUTTYMin
---@require CSS_SHUD
 --@require FuelTankHelper
---@require TagManagerMin
 --@require KeybindControllerMin
 --@require IOScheduler
 --@require STEC
+--@require CSS_SHUD
 --@require SHUD
 --@require STEC_Config
 --@require ElevatorScreen
 --@timer SHUDRender
 --@timer FuelStatus
 --@timer DockingTrigger
---@timer Debug
---@class Main
+-- timer Debug
 --@outFilename Elevator.json
+--@class Main
 
 _G.BuildUnit = {}
 local Unit = _G.BuildUnit
@@ -29,8 +28,37 @@ _G.BuildSystem = {}
 local System = _G.BuildSystem
 _G.BuildScreen = {}
 local buildScreen = _G.BuildScreen
-local elevatorScreen = nil
+_G.BuildEmitter = {}
+local buildEmitter = _G.BuildEmitter
+
 local P = system.print
+
+elevatorScreen = nil -- global!
+
+function manualControlSwitch()
+	local c = config.manualControl == true
+	player.freeze(c)
+	ship.counterGravity = true
+	ship.frozen = not c
+	ship.elevatorActive = not c
+	ship.followGravity = c
+	if c then
+		SHUD.Init(system, unit, keybindPresets["keyboard"])
+		ship.altitudeHold = ship.baseAltitude
+		ship.targetDestination = nil
+		ship.stateMessage = "Manual Control"
+		config.targetAlt = ship.baseAltitude
+	else
+		SHUD.Init(system, unit, keybindPresets["screenui"])
+		ship.stateMessage = "Idle"
+	end
+	-- P('Elevator active: '..tostring(ship.elevatorActive))
+	-- P('counterGravity: '..tostring(ship.counterGravity))
+	-- P('followGravity: '..tostring(ship.followGravity))
+	-- P('inertialDampening: '..tostring(ship.inertialDampening))
+	-- P('verticalLock: '..tostring(ship.verticalLock))
+	-- P('config.manualControl: '..tostring(config.manualControl))
+end
 
 function Unit.onStart()
 	--Events.Flush.Add(mouse.apply)
@@ -39,7 +67,8 @@ function Unit.onStart()
 	getFuelRenderedHtml()
 	if system.showHelper then system.showHelper(false) end
 
-	system.print('=== Horizon 1.0.1.16 ===')
+	P('Elevator 1.1.0 ===')
+	P('Customized by tobitege, v2024-04-30')
 
 	if construct.setDockingMode(dockingMode) then
 		P("[I] Docking mode set to: "..dockingMode)
@@ -60,26 +89,63 @@ function Unit.onStart()
 
 	STEC_configInit()
 
-	-- do not allow elevator mode if element(s) are missing
-	local cwp = construct.getWorldPosition()
+	-- STARTUP Sanity Checks
+	-- E.g. do not allow elevator mode if required element(s) are missing
+	-- or we are in space without a gravity well
+	ship.elevatorActive = false
+	config.manualControl = true
+	local body = ship.nearestPlanet
 	if screen and telemeter and flightModeDb then
-		manualControlSwitch()
-		ship.altitudeHold = helios:closestBody(ship.baseLoc):getAltitude(cwp)
-		ship.baseAltitude = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
-		--ship.elevatorActive = true
-		elevatorScreen = ElevatorScreen
-	else
-		ship.verticalLock = false
-		ship.intertialDampening = true
-		ship.elevatorActive = false
-		config.manualControl = true
-		manualControlSwitch()
-		P'[E] Elevator mode not possible, elements missing!'
-	end
-	P("[I] Altitude: "..helios:closestBody(cwp):getAltitude(cwp))
+		if not body then
+			P'[E] Elevator disabled: no planetary body as gravity well!'
+		else
+			if setBaseOnStart then setBase() end
 
+			-- in STEC_config the flag for setBaseActive could already be set:
+			if config.setBaseActive or not vec3.isvector(ship.baseLoc) then
+				config.setBaseActive = false
+				config.rtb = body:getAltitude(ship.world.position)
+				P("[I] No base location set, using current location!")
+			else
+				config.rtb = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
+				ship.baseAltitude = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
+				P("Base location: "..tostring(ship.baseLoc))
+			end
+
+			if ship.baseLoc and ship.baseLoc ~= vec3() then
+				body = helios:closestBody(ship.baseLoc)
+				if body then
+					config.manualControl = false
+					ship.altitudeHold = body:getAltitude(ship.world.position)
+					ship.baseAltitude = body:getAltitude(ship.baseLoc)
+					elevatorScreen = ElevatorScreen
+					P("[I] Altitude: "..round2(ship.baseAltitude,2))
+				end
+			end
+			if not elevatorScreen then
+				P'[E] Elevator disabled: no body of gravity influence!'
+			end
+		end
+	else
+		P'[E] Elevator disabled: elements missing!'
+		P'Check links for core, databank, telemeter and a screen!'
+	end
+	if vec3.isvector(ship.baseLoc) and ship.baseLoc ~= vec3() then
+		P("Base: "..tostring(ship.baseLoc))
+		P("Map location: "..tostring(ship.nearestPlanet:convertToMapPosition(ship.baseLoc)))
+	end
+
+	ship.brake = true
 	if elevatorScreen then
 		ElevatorInit()
+	else
+		ship.throttle = 0
+		ship.verticalLock = false
+		ship.followGravity = true
+		ship.inertialDampening = true
+	end
+	if ship.isLanded then
+		P("Landed.")
 	end
 
 	if emitter then
@@ -89,6 +155,12 @@ function Unit.onStart()
 		for _, sw in ipairs(manualSwitches) do
 			sw.activate()
 		end
+	end
+
+	manualControlSwitch()
+
+	if ship.isLanded then
+		P('Ground: '..(round2(ship.GrndDist, 2)..'m'))
 	end
 
 	unit.setTimer("SHUDRender", 0.02)
@@ -102,7 +174,6 @@ function Unit.onStart()
 		system.addDataToWidget(unit.getWidgetDataId(),parentingWidgetId)
 	end
 
-	if setBaseOnStart then setBase() end
 	--ioScheduler.queueData(config)
 end
 
@@ -112,46 +183,34 @@ function Unit.onStop()
 			sw.deactivate()
 		end
 	end
+	if next(forceFields) ~= nil then
+		for _, sw in ipairs(forceFields) do
+			sw.retract()
+		end
+	end
 	config.shutDown = true
 	if screen then screen.setScriptInput(serialize(config)) end
 	system.showScreen(false)
 	if laser ~= nil then laser.deactivate() end
-
-	for _, sw in ipairs(forceFields) do
-		sw.retract()
-	end
-end
-
-function manualControlSwitch()
-	if not config.manualControl then
-		SHUD.Init(system, unit, keybindPresets["screenui"])
-		system.showScreen(false)
-		player.freeze(false)
-		ship.frozen = true
-		ship.stateMessage = "Idle"
-	else
-		SHUD.Init(system, unit, keybindPresets["keyboard"])
-		system.showScreen(true)
-		player.freeze(true)
-		ship.frozen = false
-		ship.stateMessage = "Manual Control"
-	end
 end
 
 function Unit.onTimer(timer)
 	if timer == "SHUDRender" then
-		if (not screen or config.manualControl) and SHUD then
-			SHUD.Render()
-		end
+		if SHUD then SHUD.Render() end
 	elseif timer == "FuelStatus" then
 		getFuelRenderedHtml()
-		if elevatorScreen then elevatorScreen.updateScreenFuel() end
+		-- do NOT send fuel data, it corrupts the screen ui!
+		-- if elevatorScreen then elevatorScreen.updateScreenFuel() end
 	elseif timer == "DockingTrigger" then
+		local telDistance
 		if telemeter then telDistance = telemeter.raycast().distance end
 		if ship.dockingClamps then
 			if laser ~= nil then laser.activate() end
-			if telemeter and telDistance > 0 and telDistance < 1 then
-				if ship.autoShutdown and not config.manualControl then system.print(ship.altitude) unit.exit() end
+			if telDistance and telDistance > 0 and telDistance < 1 then
+				if ship.autoShutdown and not config.manualControl then
+					P(ship.altitude)
+					unit.exit()
+				end
 			end
 		end
 	end
@@ -173,47 +232,45 @@ function System.onActionLoop(action)
 end
 
 function System.onUpdate()
-	--system.print("Cust Target: "..tostring(vec3(ship.baseLoc)).." | alt: "..ship.altitude.." | baseAlt: "..ship.baseAltitude.." | worldPos: "..tostring(vec3(ship.world.position)).." | ")
+	--P("Target: "..tostring(vec3(ship.baseLoc)).." | alt: "..ship.altitude.." | baseAlt: "..ship.baseAltitude.." | worldPos: "..tostring(vec3(ship.world.position)).." | ")
 	--self.deviationVec = (moveWaypointZ(self.baseLoc, self.altitude - self.baseAltitude) - self.world.position)
 	ioScheduler.update()
 	if elevatorScreen then elevatorScreen.updateStats() end
 	if Events then Events.Update() end
-	TaskManager.Update()
+	if TaskManager then TaskManager.Update() end
 end
 
 function System.onFlush()
 	if Events then Events.Flush() end
 end
 
-function toggleVerticalLock()
-	local woup =construct.getWorldOrientationUp()
-	--ship.verticalLock = true
-    ship.lockVector = vec3(woup)
-    ship.lockPos = vec3(construct.getWorldPosition()) + (vec3(woup))
+function buildEmitter.onSent(channel, message, slot)
+	P("Sent: "..channel.." | "..message)
 end
 
-function createBreadcrumbTrail(endAlt)
-	--Create a set of waypoints starting from the current position to the destination spaced 1km apart
-	local startPosition = moveWaypointZ(ship.baseLoc, ship.world.atlasAltitude - ship.baseAltitude)
-	local endPosition = moveWaypointZ(ship.baseLoc, endAlt)
-	local distance = (startPosition - endAlt):len()
-	if distance > 1000 then
-		for i = 1, round2(distance / 1000,0), 1 do
-			if ship.nearestPlanet:getAltitude(startPosition) < ship.nearestPlanet:getAltitude(endPosition) then
-				table.insert(ship.breadCrumbs, moveWaypointZ(startPosition, 1000 * i))
-			else
-				table.insert(ship.breadCrumbs, moveWaypointZ(startPosition, -1000 * i))
-			end
-		end
-	end
-end
+-- function createBreadcrumbTrail(endAlt)
+-- 	--Create a set of waypoints starting from the current position to the destination spaced 1km apart
+-- 	local startPosition = moveWaypointZ(ship.baseLoc, ship.world.altitude - ship.baseAltitude)
+-- 	local endPosition = moveWaypointZ(ship.baseLoc, endAlt)
+-- 	local distance = (startPosition - endAlt):len()
+-- 	if distance > 1000 then
+-- 		for i = 1, round2(distance / 1000,0), 1 do
+-- 			if ship.nearestPlanet:getAltitude(startPosition) < ship.nearestPlanet:getAltitude(endPosition) then
+-- 				table.insert(ship.breadCrumbs, moveWaypointZ(startPosition, 1000 * i))
+-- 			else
+-- 				table.insert(ship.breadCrumbs, moveWaypointZ(startPosition, -1000 * i))
+-- 			end
+-- 		end
+-- 	end
+-- end
 --local btrail = createBreadcrumbTrail(3)
---system.print("Breadcrumbs:")
+--P("Breadcrumbs:")
 --for _, sw in ipairs(ship.breadCrumbs) do
---	system.print("POS: "..tostring(sw))
+--	P("POS: "..tostring(sw))
 --end
+
 function buildScreen.onMouseUp(x,y,slot)
---ship.baseAltitude = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
+--	ship.baseAltitude = helios:closestBody(ship.baseLoc):getAltitude(ship.baseLoc)
 --	if settingsActive then
 --		if mousex >= 0.1515 and mousex <= 0.4934 and mousey >= 0.5504 and mousey <= 0.7107 then --Setbase button
 --			setBase()
@@ -232,5 +289,5 @@ function buildScreen.onMouseUp(x,y,slot)
 --	end
 end
 function buildScreen.onMouseDown(x,y,slot)
-	--system.print("Mouse X: "..x..", Mouse Y: "..y)
+	--P("Mouse X: "..x..", Mouse Y: "..y)
 end
