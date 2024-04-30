@@ -5,28 +5,26 @@ FuelMass = {}
 FuelTime = {}
 fuelTypes = {
   atmo = {
-    density = 4.000,
+	density = 4.000,
   },
   space = {
-    density = 6.000,
+	density = 6.000,
   },
   rocket = {
-    density = 0.800,
+	density = 0.800,
   },
 }
 local function calcAtmoVolume(baseCap)
   if fuelTankHandlingAtmo > 0 then
-    return baseCap + (baseCap * (fuelTankHandlingAtmo * 0.2))
-  else
-    return baseCap
+	return baseCap + (baseCap * (fuelTankHandlingAtmo * 0.2))
   end
+  return baseCap
 end
 local function calcSpaceVolume(baseCap)
   if fuelTankHandlingSpace > 0 then
-    return baseCap + (baseCap * (fuelTankHandlingSpace * 0.2))
-  else
-    return baseCap
+	return baseCap + (baseCap * (fuelTankHandlingSpace * 0.2))
   end
+  return baseCap
 end
 local function calcMaxMass(cap, type)
   local maxMass = cap * fuelTypes[type].density
@@ -41,20 +39,20 @@ function normalizeHp(type,hp)
   local adjHp = 0
 
   if type == "atmo" then
-    if hp >= 50 and hp < 163 then adjHp = 50
-    elseif hp >= 163 and hp < 1315 then adjHp = 163
-    elseif hp >= 1315 and hp < 10461 then adjHp = 1315
-    elseif hp >= 10461 then adjHp = 10461 end
+	if hp >= 50 and hp < 163 then adjHp = 50
+	elseif hp >= 163 and hp < 1315 then adjHp = 163
+	elseif hp >= 1315 and hp < 10461 then adjHp = 1315
+	elseif hp >= 10461 then adjHp = 10461 end
   elseif type == "space" then
-    if hp >= 50 and hp < 187 then adjHp = 50
-    elseif hp >= 187 and hp < 1496 then adjHp = 187
-    elseif hp >= 1496 and hp < 15933 then adjHp = 1496
-    elseif hp >= 15933 then adjHp = 15933 end
+	if hp >= 50 and hp < 187 then adjHp = 50
+	elseif hp >= 187 and hp < 1496 then adjHp = 187
+	elseif hp >= 1496 and hp < 15933 then adjHp = 1496
+	elseif hp >= 15933 then adjHp = 15933 end
   elseif type == "rocket" then
-    if hp >= 366 and hp < 736 then adjHp = 366
-    elseif hp >= 736 and hp < 6231 then adjHp = 736
-    elseif hp >= 6231 and hp < 68824 then adjHp = 6231
-    elseif hp >= 68824 then adjHp = 68824 end
+	if hp >= 366 and hp < 736 then adjHp = 366
+	elseif hp >= 736 and hp < 6231 then adjHp = 736
+	elseif hp >= 6231 and hp < 68824 then adjHp = 6231
+	elseif hp >= 68824 then adjHp = 68824 end
   end
 
   return adjHp
@@ -66,110 +64,110 @@ function normalizeHpSpace(hp)
   -- 187
   -- 1496
   -- 15933
-
 end
+
 function normalizeHpRocket(hp)
   -- 366
   -- 736
   -- 6231
   -- 68824
-
 end
+
 fuelTankSpecsByMaxHP = {
   -- Atmo Tanks
   atmo = {
-    _50 = {
-      type = "atmo",
-      size = "XS",
-      capacity = function() return calcAtmoVolume(100) end,
-      baseWeight = 35.030,
-      maxWeight = function() return calcMaxMass(calcAtmoVolume(100),"atmo") end,
-    },
-    _163 = {
-      type = "atmo",
-      size = "S",
-      capacity = function() return calcAtmoVolume(400) end,
-      baseWeight = 182.670,
-      maxWeight = function() return calcMaxMass(calcAtmoVolume(400),"atmo") end,
-    },
-    _1315 = {
-      type = "atmo",
-      size = "M",
-      capacity = function() return calcAtmoVolume(1600) end,
-      baseWeight = 988.670,
-      maxWeight = function() return calcMaxMass(calcAtmoVolume(1600),"atmo") end,
-    },
-    _10461 = {
-      type = "atmo",
-      size = "L",
-      capacity = function() return calcAtmoVolume(12800) end,
-      baseWeight = 5480.000,
-      maxWeight = function() return calcMaxMass(calcAtmoVolume(12800),"atmo") end,
-    },
+	_50 = {
+	  type = "atmo",
+	  size = "XS",
+	  capacity = function() return calcAtmoVolume(100) end,
+	  baseWeight = 35.030,
+	  maxWeight = function() return calcMaxMass(calcAtmoVolume(100),"atmo") end,
+	},
+	_163 = {
+	  type = "atmo",
+	  size = "S",
+	  capacity = function() return calcAtmoVolume(400) end,
+	  baseWeight = 182.670,
+	  maxWeight = function() return calcMaxMass(calcAtmoVolume(400),"atmo") end,
+	},
+	_1315 = {
+	  type = "atmo",
+	  size = "M",
+	  capacity = function() return calcAtmoVolume(1600) end,
+	  baseWeight = 988.670,
+	  maxWeight = function() return calcMaxMass(calcAtmoVolume(1600),"atmo") end,
+	},
+	_10461 = {
+	  type = "atmo",
+	  size = "L",
+	  capacity = function() return calcAtmoVolume(12800) end,
+	  baseWeight = 5480.000,
+	  maxWeight = function() return calcMaxMass(calcAtmoVolume(12800),"atmo") end,
+	},
   },
 
   -- Space Tanks
   space = {
-    _50 = {
-      type = "space",
-      size = "XS",
-      capacity = function() return calcAtmoVolume(100) end,
-      baseWeight = 35.030,
-      maxWeight = function() return calcMaxMass(calcAtmoVolume(100),"space") end,
-    },
-    _187 = {
-      type = "space",
-      size = "S",
-      capacity = function() return calcSpaceVolume(400) end,
-      baseWeight = 182.670,
-      maxWeight = function() return calcMaxMass(calcAtmoVolume(400),"space") end,
-    },
-    _1496 = {
-      type = "space",
-      size = "M",
-      capacity = function() return calcSpaceVolume(1600) end,
-      baseWeight = 988.670,
-      maxWeight = function() return calcMaxMass(calcAtmoVolume(1600),"space") end,
-    },
-    _15933 = {
-      type = "space",
-      size = "L",
-      capacity = function() return calcSpaceVolume(12800) end,
-      baseWeight = 5480.000,
-      maxWeight = function() return calcMaxMass(calcAtmoVolume(12800),"space") end,
-    },
+	_50 = {
+	  type = "space",
+	  size = "XS",
+	  capacity = function() return calcAtmoVolume(100) end,
+	  baseWeight = 35.030,
+	  maxWeight = function() return calcMaxMass(calcAtmoVolume(100),"space") end,
+	},
+	_187 = {
+	  type = "space",
+	  size = "S",
+	  capacity = function() return calcSpaceVolume(400) end,
+	  baseWeight = 182.670,
+	  maxWeight = function() return calcMaxMass(calcAtmoVolume(400),"space") end,
+	},
+	_1496 = {
+	  type = "space",
+	  size = "M",
+	  capacity = function() return calcSpaceVolume(1600) end,
+	  baseWeight = 988.670,
+	  maxWeight = function() return calcMaxMass(calcAtmoVolume(1600),"space") end,
+	},
+	_15933 = {
+	  type = "space",
+	  size = "L",
+	  capacity = function() return calcSpaceVolume(12800) end,
+	  baseWeight = 5480.000,
+	  maxWeight = function() return calcMaxMass(calcAtmoVolume(12800),"space") end,
+	},
   },
 
   -- Rocket Tanks
   rocket = {
-    _366 = {
-      type = "rocket",
-      size = "XS",
-      capacity = function() return 400 end,
-      baseWeight = 173.420,
-      maxWeight = function() return calcMaxMass(calcAtmoVolume(400),"rocket") end,
-    },
-    _736 = {
-      type = "rocket",
-      size = "S",
-      capacity = function() return 800 end,
-      baseWeight = 886.720,
-      maxWeight = function() return calcMaxMass(calcAtmoVolume(800),"rocket") end,
-    },
-    _6231 = {
-      type = "rocket",
-      size = "M",
-      capacity = function() return 6400 end,
-      baseWeight = 4720.000,
-      maxWeight = function() return calcMaxMass(calcAtmoVolume(6400),"rocket") end,
-    },
-    _68824 = {
-      type = "rocket",
-      size = "L",
-      capacity = function() return 50000 end,
-      baseWeight = 25740.000,
-      maxWeight = function() return calcMaxMass(calcAtmoVolume(50000),"rocket") end,
-    },
+	_366 = {
+	  type = "rocket",
+	  size = "XS",
+	  capacity = function() return 400 end,
+	  baseWeight = 173.420,
+	  maxWeight = function() return calcMaxMass(calcAtmoVolume(400),"rocket") end,
+	},
+	_736 = {
+	  type = "rocket",
+	  size = "S",
+	  capacity = function() return 800 end,
+	  baseWeight = 886.720,
+	  maxWeight = function() return calcMaxMass(calcAtmoVolume(800),"rocket") end,
+	},
+	_6231 = {
+	  type = "rocket",
+	  size = "M",
+	  capacity = function() return 6400 end,
+	  baseWeight = 4720.000,
+	  maxWeight = function() return calcMaxMass(calcAtmoVolume(6400),"rocket") end,
+	},
+	_68824 = {
+	  type = "rocket",
+	  size = "L",
+	  capacity = function() return 50000 end,
+	  baseWeight = 25740.000,
+	  maxWeight = function() return calcMaxMass(calcAtmoVolume(50000),"rocket") end,
+	},
   },
 }
 
@@ -188,13 +186,13 @@ function disp_time(time)
   local minutes = math.floor(math.fmod(time,3600)/60)
   local seconds = math.floor(math.fmod(time,60))
   if time >= 86400 then
-      return string.format("%dd:%02dh",days,hours)
+	  return string.format("%dd:%02dh",days,hours)
   elseif time < 86400 and time > 3600 then
-      return string.format("%02dh:%02dm:%02ds",hours,minutes,seconds)
+	  return string.format("%02dh:%02dm:%02ds",hours,minutes,seconds)
   elseif time < 3600 and time > 60 then
-      return string.format("%02dm:%02ds",minutes,seconds)
+	  return string.format("%02dm:%02ds",minutes,seconds)
   else
-      return string.format("%02ds",seconds)
+	  return string.format("%02ds",seconds)
   end
 end
 
@@ -204,10 +202,10 @@ function fuelUsed(period)
 	local t = {}
 	function sum(a, ...)
 		if a then
-            return a-sum(...)
-        else
-            return 0
-        end
+			return a-sum(...)
+		else
+			return 0
+		end
 	end
 	function average(n)
 		if #t == period then table.remove(t, 1) end
@@ -217,22 +215,31 @@ function fuelUsed(period)
 	return average
 end
 
+local function sort(tanks)
+	if next(tanks) then
+		table.sort(tanks, function(a,b) return a.name < b.name end)
+	end
+end
+
 function getFuelSituation()
   local tanks = {
-    atmo = {},
-    space = {},
-    rocket = {},
+	atmo = {},
+	space = {},
+	rocket = {},
   }
 
   for id, specs in pairs(fuelTanks) do
-    table.insert(tanks[specs.type], {
-      name = core.getElementNameById(id),
-      level = getFuelTankLevel(id),
-      time = getFuelTime(id),
-      specs = specs,
-    })
+	table.insert(tanks[specs.type], {
+	  name = core.getElementNameById(id),
+	  level = getFuelTankLevel(id),
+	  time = getFuelTime(id),
+	  specs = specs,
+	})
   end
 
+  sort(tanks.atmo)
+  sort(tanks.space)
+  sort(tanks.rocket)
   return tanks
 end
 
@@ -271,20 +278,20 @@ end
 function getFuelTanks()
   local elementIds = core.getElementIdList()
   for k, elementId in pairs(elementIds) do
-    local elementType = core.getElementDisplayNameById(elementId)
-    -- Fuel tank configuration routine
-    if elementType == "Atmospheric Fuel Tank" then
-      --system.print(elementType.."_"..elementId)
-      local tank = getFuelTankSpecs("atmo", elementId)
-      fuelTanks[elementId] = tank
-      FuelMass[elementId] = fuelUsed(2)
-    elseif elementType == "Space Fuel Tank" then
-      fuelTanks[elementId] = getFuelTankSpecs("space", elementId)
-      FuelMass[elementId] = fuelUsed(2)
-    elseif elementType == "Rocket Fuel Tank" then
-      fuelTanks[elementId] = getFuelTankSpecs("rocket", elementId)
-      FuelMass[elementId] = fuelUsed(2)
-    end
+	local elementType = core.getElementDisplayNameById(elementId)
+	-- Fuel tank configuration routine
+	if elementType == "Atmospheric Fuel Tank" then
+	  --system.print(elementType.."_"..elementId)
+	  local tank = getFuelTankSpecs("atmo", elementId)
+	  fuelTanks[elementId] = tank
+	  FuelMass[elementId] = fuelUsed(2)
+	elseif elementType == "Space Fuel Tank" then
+	  fuelTanks[elementId] = getFuelTankSpecs("space", elementId)
+	  FuelMass[elementId] = fuelUsed(2)
+	elseif elementType == "Rocket Fuel Tank" then
+	  fuelTanks[elementId] = getFuelTankSpecs("rocket", elementId)
+	  FuelMass[elementId] = fuelUsed(2)
+	end
   end
 
 --   for _, v in ipairs(fuelTankSpecsByMaxHP) do

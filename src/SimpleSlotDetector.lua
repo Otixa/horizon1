@@ -49,8 +49,6 @@ function getElements()
         antigrav = var
       end
       if class == "ManualSwitchUnit" then
-        --manualSwitch = var
-
         table.insert(manualSwitches, var)
       end
       if class == "ForceFieldUnit" then

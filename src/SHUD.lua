@@ -1,16 +1,11 @@
 --@class SHUD
+
 vec2 = require('cpml/vec2')
 mat4 = require("cpml/mat4")
-local json = require("dkjson") -- For AGG
-local format = string.format
 
-
-if next(manualSwitches) ~= nil then
-	for _, sw in ipairs(manualSwitches) do
-	  system.print("Deactivate!")
-	  sw.deactivate()
-	end
-end
+altHoldAdjustment = 0.1
+altAdjustment = 3
+local P = system.print
 
 function SpeedConvert(value)
 	if not value or value == 0 then return {0,"00","km/h"} end
@@ -36,14 +31,8 @@ function CruiseControl(value)
 end
 
 function getControlMode()
-	if ship.alternateCM then
-		return "Cruise"
-	end
-	return "Travel"
+	return ship.alternateCM and "Cruise" or "Travel"
 end
-
-altHoldAdjustment = 0.1
-altAdjustment = 3
 
 function altHoldAdjustmentSetting()
 	return altHoldAdjustment * (10^altAdjustment)
@@ -115,7 +104,8 @@ SHUD =
 
 	shipPitch = scaleViewBounds(ship.pitchRatio)
 
-	self.SHUDFuelHtml = ""
+	self.SHUDAtmoFuelHtml = ""
+	self.SHUDSpaceFuelHtml = ""
 
 	self.Markers = {}
 
@@ -123,7 +113,8 @@ SHUD =
 
 	function self.worldToScreen(position)
 		local P = mat4():perspective(self.FOV, self.ScreenW/self.ScreenH, 0.1, 100000)
-		local adjustedPos = ship.world.position - vec3(system.getPlayerWorldPos())
+		--local adjustedPos = ship.world.position - vec3(system.getPlayerWorldPos())
+		local adjustedPos = ship.world.position - vec3(player.getWorldHeadPosition())
 		local V = mat4():look_at(adjustedPos, adjustedPos + ship.world.forward, ship.world.up)
 
 		local pos = V * P * { position.x, position.y, position.z, 1 }
@@ -181,14 +172,14 @@ SHUD =
 	self.MenuIcon = [[<span class="right"><i>&gt;&nbsp;</i></span>]]
 	self.BackButton = SMI([[<i>&lt;&nbsp;</i>&nbsp;]].."Back", function() SHUD.Menu = SHUD.MenuList.prev SHUD.CurrentIndex = 1 end)
 	self.Menu = {
-			SMI(DD([[<span>Throttle<span>]]..self.MakeSliderIndicator("round2(ship.throttle * 100)", "%")),
-				function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
-				function(system, _ , w) ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1) end),
+		SMI(DD([[<span>Throttle<span>]]..self.MakeSliderIndicator("round2(ship.throttle * 100)", "%")),
+			function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
+			function(system, _ , w) ship.throttle = utils.clamp(ship.throttle + (system.getMouseWheel() * 0.05),-1,1) end),
 
-			self.GenerateMenuLink("Stability Assist", "stability"),
-			self.GenerateMenuLink("Altitude Hold", "altHold"),
-			self.GenerateMenuLink("Ship Stats", "shipStats"),
-			SMI([[<i>&#9432;&nbsp;</i><span>&nbsp;Hotkeys</span>]]..self.MenuIcon, function() self.SelectMenu("hotkeys") end)
+		self.GenerateMenuLink("Stability Assist", "stability"),
+		self.GenerateMenuLink("Altitude Hold", "altHold"),
+		self.GenerateMenuLink("Ship Stats", "shipStats"),
+		SMI([[<i>&#9432;&nbsp;</i><span>&nbsp;Hotkeys</span>]]..self.MenuIcon, function() self.SelectMenu("hotkeys") end)
 	}
 	self.MenuList = {}
 	self.MenuList.flightMode = {}
@@ -213,6 +204,7 @@ SHUD =
 		ship.targetDestination = moveWaypointZ(ship.baseLoc, utils.clamp(ship.altitudeHold + (system.getMouseWheel() * altHoldAdjustmentSetting()),0,2000000) - ship.baseAltitude)
 		ship.altitudeHold = utils.clamp(ship.altitudeHold + (system.getMouseWheel() * altHoldAdjustmentSetting()),0,2000000)
 	end
+
 	self.MenuList.altHold = {
 		SMI(DD("<span>Altitude Hold<span>" .. self.MakeBooleanIndicator("ship.elevatorActive")), function() ship.elevatorActive = not ship.elevatorActive end),
 		SMI(DD([[<span>Multiplier<span>]]..self.MakeSliderIndicator("round2(altHoldAdjustmentSetting(),3)", "")),
@@ -221,7 +213,7 @@ SHUD =
 		SMI(DD([[<span>Alt Setpoint<span>]]..self.MakeSliderIndicator("round2(ship.altitudeHold,3)", "m")),
 			   function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
 			   function(system, _ , w) self.updateTargetDest() end),
-		SMI(DD([[<span>Preset 1:</span><span class="right">]].. mToKm(ship.altHoldPreset1).."</span>"), function() ship.altitudeHold = ship.altHoldPreset1 ship.elevatorActive = true end),
+		SMI(DD([[<span>Preset 1:</span><span class="right">]].. mToKm(ship.altHoldPreset1).."</span>"), function() ship.altitudeHold = ship.altHoldPreqset1 ship.elevatorActive = true end),
 		SMI(DD([[<span>Preset 2:</span><span class="right">]].. mToKm(ship.altHoldPreset2).."</span>"), function() ship.altitudeHold = ship.altHoldPreset2 ship.elevatorActive = true end),
 		SMI(DD([[<span>Preset 3:</span><span class="right">]].. mToKm(ship.altHoldPreset3).."</span>"), function() ship.altitudeHold = ship.altHoldPreset3 ship.elevatorActive = true end),
 		SMI(DD([[<span>Preset 4:</span><span class="right">]].. mToKm(ship.altHoldPreset4).."</span>"), function() ship.altitudeHold = ship.altHoldPreset4 ship.elevatorActive = true end),
@@ -233,58 +225,67 @@ SHUD =
 	local fa = "<style>" .. CSS_SHUD .. "</style>"
 	self.fuel = nil
 	function getFuelRenderedHtml()
-		local fuelHtmlAtmo = ""
-		local fuelHtmlSpace = ""
-		local fuelHtmlRocket = ""
-
 		self.fuel = getFuelSituation()
-		local fuelHtml = ""
 
 		local mkTankHtml = (function (type, tank)
 			local tankLevel = 100 * tank.level
 			local tankLiters = tank.level * tank.specs.capacity()
-			return '<div class="fuel-meter fuel-type-' .. type .. '"><hr class="fuel-level" style="width:' .. tankLevel .. '%%;" />' .. tank.time .. ' (' .. math.floor(tankLevel) .. '%%, ' .. math.floor(tankLiters) .. 'L)</div>'
+
+			return '<div class="fuel-meter fuel-type-' .. type ..'"><hr class="fuel-level" style="width:'..
+				tankLevel..'%%;" /><span>'..tank.name..': '..tank.time..' ('..
+				math.floor(tankLevel)..'%%, '..math.floor(tankLiters)..'L)</span></div>'
 		end)
 
-		for _, tank in pairs(self.fuel.atmo) do fuelHtml = fuelHtml .. mkTankHtml("atmo", tank) end
-		for _, tank in pairs(self.fuel.space) do fuelHtml = fuelHtml .. mkTankHtml("space", tank) end
-		for _, tank in pairs(self.fuel.rocket) do fuelHtml = fuelHtml .. mkTankHtml("rocket", tank) end
+		self.SHUDAtmoFuelHtml = ''
+		self.SHUDSpaceFuelHtml = ''
+		if next(self.fuel.atmo) then
+			local fuelHtml = '<div class="fuel-tanks fuel-type-atmo">'
+			for _, tank in pairs(self.fuel.atmo) do fuelHtml = fuelHtml .. mkTankHtml("atmo", tank) end
+			self.SHUDAtmoFuelHtml = fuelHtml ..'</div>'
+		end
+		if next(self.fuel.space) then
+			fuelHtml = '<div class="fuel-tanks fuel-type-space">'
+			for _, tank in pairs(self.fuel.space) do fuelHtml = fuelHtml .. mkTankHtml("space", tank) end
+			self.SHUDSpaceFuelHtml = fuelHtml ..'</div>'
+		end
 
-		self.SHUDFuelHtml = fuelHtml
+		-- we ignore rocket tanks for now
+		-- fuelHtml = '<div class="fuel-tanks fuel-type-rocket">'
+		-- for _, tank in pairs(self.fuel.rocket) do fuelHtml = fuelHtml .. mkTankHtml("rocket", tank) end
+		-- self.SHUDRocketFuelHtml = fuelHtml ..'</div>'
 	end
 
-	opacity = 1.0
+	opacity = 0.5
 	local template = DD(fa..[[
 	<div id="horizon" style="opacity: {{opacity}};">
 		<div id="speedometerBar">&nbsp;</div>
-		   <div id="speedometer">
-			   <span class="display">
-				<span class="major">{{SpeedConvert(ship.world.velocity:len())[1]}}</span>
-				<span class="minor">{{SpeedConvert(ship.world.velocity:len())[2]}}</span>
-				<span class="unit">{{SpeedConvert(ship.world.velocity:len())[3]}}</span>
-			   </span>
-			   <span class="accel">
-				<span class="major">{{round2(ship.world.acceleration:len(), 1)}}</span>
-				<span class="unit">m/s</span>
-			   </span>
-			   <span class="vertical">
-				{{round2(ship.world.velocity:dot(-ship.world.gravity:normalize()), 1)}}
-			   </span>
-			   <span class="alt">
-				{{round2(ship.altitude)}}m
-			   </span>
+			<div id="speedometer">
+				<span class="display">
+					<span class="major">{{SpeedConvert(ship.world.velocity:len())[1]}}</span>
+					<span class="minor">{{SpeedConvert(ship.world.velocity:len())[2]}}</span>
+					<span class="unit">{{SpeedConvert(ship.world.velocity:len())[3]}}</span>
+				</span>
+				<span class="accel">
+					<span class="major">{{round2(ship.world.acceleration:len(), 1)}}</span>
+					<span class="unit">m/s</span>
+				</span>
+					<span class="vertical">
+					{{round2(ship.world.velocity:dot(-ship.world.gravity:normalize()), 1)}}
+				</span>
+				<span class="alt">{{round2(ship.altitude)}}m</span>
 
-			   <span class="misc">ATM {{round2(ship.world.atmosphericDensity, 2)}} | G {{round2(ship.world.gravity:len(), 2)}}m/s</span>
-			   <span dd-if="not ship.alternateCM" class="throttle">Throttle {{round2(ship.throttle * 100)}}%</span>
-			 <span dd-if="ship.alternateCM" class="throttle">Cruise {{round2(ship.cruiseSpeed)}} km/h</span>
+				<span class="misc">ATM {{round2(ship.world.atmosphericDensity, 2)}} | G {{round2(ship.world.gravity:len(), 2)}}m/s</span>
+				<span dd-if="not ship.alternateCM" class="throttle">Throttle {{round2(ship.throttle * 100)}}%</span>
+				<span dd-if="ship.alternateCM" class="throttle">Cruise {{round2(ship.cruiseSpeed)}} km/h</span>
 			</div>
 
-			<div id="horizon-menu">
-				{{_SHUDBUFFER}}
-			</div>
+			<div id="horizon-menu">{{_SHUDBUFFER}}</div>
 
-			</div>
-			<div id="fuelTanks">{{ SHUD.SHUDFuelHtml }}</div>
+		</div>
+		<div id="fuelTanks">
+			{{ SHUD.SHUDAtmoFuelHtml }}
+			{{ SHUD.SHUDSpaceFuelHtml }}
+		</div>
 	</div>
 	]])
 	local itemTemplate = [[<div class="item {{class}}">{{content}}</div>]]
@@ -329,21 +330,24 @@ SHUD =
 		else
 			ship.frozen = player.isFrozen()
 			_ENV["_SHUDBUFFER"] = DD([[<div class="item helpText">Press ]] .. "[" .. self.system.getActionKeyName("speedup") .. "]" .. [[ to  toggle menu</div>
-					<div class="item helpText"><span>Character Movement:</span>]].. self.MakeBooleanIndicator("ship.frozen") .. [[</div>
-					<div class="item helpText"><span>Vertical Lock:</span>]].. self.MakeBooleanIndicator("ship.verticalLock") .. [[</div>
-					<div class="item helpText"><span>Inertial Dampening:</span>]].. self.MakeBooleanIndicator("ship.inertialDampening") .. [[</div>
-					<div class="item helpText"><span>Gravity Follow:</span>]].. self.MakeBooleanIndicator("ship.followGravity") .. [[</div>
-					<div class="item helpText"><span>Gravity Supression:</span>]].. self.MakeBooleanIndicator("ship.counterGravity") .. [[</div>
-					]]).Read()
+				<div class="item helpText"><span>Character Movement:</span>]].. self.MakeBooleanIndicator("ship.frozen") .. [[</div>
+				<div class="item helpText"><span>Vertical Lock:</span>]].. self.MakeBooleanIndicator("ship.verticalLock") .. [[</div>
+				<div class="item helpText"><span>Inertial Dampening:</span>]].. self.MakeBooleanIndicator("ship.inertialDampening") .. [[</div>
+				<div class="item helpText"><span>Gravity Follow:</span>]].. self.MakeBooleanIndicator("ship.followGravity") .. [[</div>
+				<div class="item helpText"><span>Gravity Supression:</span>]].. self.MakeBooleanIndicator("ship.counterGravity") .. [[</div>
+				<div class="item helpText"><span>Open Door:</span><span class="right">F5</span></div>
+				<div class="item helpText"><span>Close Door:</span><span class="right">F6</span></div>
+				]]).Read()
 		end
 		if not self.FreezeUpdate then self.system.setScreen(template.Read()) end
 	end
 
 	function self.Update()
-		if useGEAS then
-			unit.activateGroundEngineAltitudeStabilization(ship.hoverHeight)
-		end
-		if player.isFrozen() or self.Enabled then
+		updateGEAS()
+		-- if useGEAS then
+		-- 	unit.activateGroundEngineAltitudeStabilization(ship.hoverHeight)
+		-- end
+		if self.Enabled then
 			opacity = 1
 		else
 			opacity = 0.5
@@ -386,7 +390,6 @@ SHUD =
 				keybindPresets[keybindPreset].Init()
 			end))
 		end
-
 		keybinds.Init()
 	end
 

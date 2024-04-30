@@ -85,8 +85,8 @@ HandleOutput = (function()
 		end
 		if s.dataType == "config" then
 			config = s
+			-- fix for +/- 10m buttons: use "delta" as altitude-delta
 			local delta = tonumber(config.delta)
-			-- fix for +/- 10m buttons:
 			if delta ~= nil then
 				config.targetAlt = ship.altitude + delta
 			end
@@ -94,8 +94,8 @@ HandleOutput = (function()
 			self.Execute()
 		elseif s.updateReq then
 			ioScheduler.queueData(config)
-		else
-			system.print(tostring(s))
+		-- else
+		-- 	system.print(tostring(s))
 		end
     end
 
@@ -116,9 +116,8 @@ HandleOutput = (function()
         else
             ship.brake = false
         end
-        if ship.altitudeHold and ship.altitudeHold ~= 0 then
+        if not config.manualControl and ship.altitudeHold > 0 then
             ship.elevatorActive = true
-            system.print("Alt. diff: "..(config.targetAlt - ship.baseAltitude))
             ship.targetDestination = moveWaypointZ(ship.baseLoc, config.targetAlt - ship.baseAltitude)
         end
         if config.setBaseReq then
