@@ -64,9 +64,9 @@ function Unit.onStart()
 	getFuelRenderedHtml()
 	if system.showHelper then system.showHelper(false) end
 
-	P('Horizon Elevator 1.1.1')
+	P('Horizon Elevator 1.1.2')
 	P('Created by ShadowTemplar')
-	P('Customized by tobitege, v2024-05-01')
+	P('Customized by tobitege, v2024-05-02')
 
 	if construct.setDockingMode(dockingMode) then
 		P("[I] Docking mode set to: "..dockingMode)

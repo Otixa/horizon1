@@ -33,7 +33,7 @@ function massConvert(n,p)
 		return rtn .. " kg"
 	end end
 
-local stLogo = loadImage("assets.prod.novaquark.com/31879/70c4eeac-9aad-4fce-952f-db5dac287832.png")
+-- local stLogo = loadImage("assets.prod.novaquark.com/31879/70c4eeac-9aad-4fce-952f-db5dac287832.png")
 local stCover = loadImage("assets.prod.novaquark.com/27707/a8a9beb8-73de-4cd3-a0fb-d84e11e7a942.png")
 
 font = loadFont('Play-Bold', 22)
@@ -114,7 +114,7 @@ if not bkGround then
 		setNextStrokeColor(layer0, 1, 1, 1, 0.6)
 		setNextStrokeWidth(layer0, 2)
 		addBoxRounded(layer0,rx - (rx/2-40),ry/6,bgWidth,bgHeight,20)
-		addImage(layer0, stLogo, rx - (rx/2-40),ry/6 + 30,rx/2-60,ry/2+100)
+		-- addImage(layer0, stLogo, rx - (rx/2-40),ry/6 + 30,rx/2-60,ry/2+100)
 	end
 end
 
@@ -304,53 +304,53 @@ if not ButtonQuad then
 	end
 end
 
-if not FuelGauge then
-	local mt = {}
-	mt.__index = mt
-	function FuelGauge (text, x, y, ft, tm, pct, split, font)
-		return setmetatable({
-			text = text,
-			x = x,
-			y = y,
-			ft = ft,
-			tm = tm,
-			pct = pct,
-			split = split,
-			font = font or font2,
-		}, mt)
-	end
-	function mt:draw ()
-		local sx, sy = 200, 17 --self:getSize()
-		--container
-		if self.split then sx = sx / 2 end
-		setNextFillColor(layer, 0.4, 0.4, 0.4, 0.8)
-		setNextStrokeColor(layer, 0.2, 0.2, 0.2, 0.8)
-		setNextStrokeWidth(layer, 1)
-		addBoxRounded(layer, self.x - sx/2, self.y - sy/2, sx, sy, 3)
-		setNextTextAlign(layer, AlignH_Center, AlignV_Middle)
-		setNextFillColor(layer, 0, 0, 0, 1)
-		addText(layer, self.font, self.tm.." ("..self.pct.."%)", self.x, self.y)
-		--fill
-		local fr,fg,fb
-		if self.ft == "atmo" then
-			fr = 0.1137
-			fg = 0.8196
-			fb = 0.9764
-		elseif self.ft == "space" then
-			fr = 0.9803
-			fg = 0.7647
-			fb = 0.1176
-		end
-		setNextFillColor(layer, fr, fg, fb, 0.8)
-		local pctFixed = utils.clamp(self.pct,0,100)
-		local fWidth = utils.map(pctFixed,0,100,0,sx)
-		addBoxRounded(layer, self.x - sx/2, self.y - sy/2, fWidth, sy, 3)
-		setNextTextAlign(layer, AlignH_Center, AlignV_Middle)
-	end
-	function mt:setPos (x, y)
-		self.x, self.y = x, y
-	end
-end
+-- if not FuelGauge then
+-- 	local mt = {}
+-- 	mt.__index = mt
+-- 	function FuelGauge (text, x, y, ft, tm, pct, split, font)
+-- 		return setmetatable({
+-- 			text = text,
+-- 			x = x,
+-- 			y = y,
+-- 			ft = ft,
+-- 			tm = tm,
+-- 			pct = pct,
+-- 			split = split,
+-- 			font = font or font2,
+-- 		}, mt)
+-- 	end
+-- 	function mt:draw ()
+-- 		local sx, sy = 200, 17 --self:getSize()
+-- 		--container
+-- 		if self.split then sx = sx / 2 end
+-- 		setNextFillColor(layer, 0.4, 0.4, 0.4, 0.8)
+-- 		setNextStrokeColor(layer, 0.2, 0.2, 0.2, 0.8)
+-- 		setNextStrokeWidth(layer, 1)
+-- 		addBoxRounded(layer, self.x - sx/2, self.y - sy/2, sx, sy, 3)
+-- 		setNextTextAlign(layer, AlignH_Center, AlignV_Middle)
+-- 		setNextFillColor(layer, 0, 0, 0, 1)
+-- 		addText(layer, self.font, self.tm.." ("..self.pct.."%)", self.x, self.y)
+-- 		--fill
+-- 		local fr,fg,fb
+-- 		if self.ft == "atmo" then
+-- 			fr = 0.1137
+-- 			fg = 0.8196
+-- 			fb = 0.9764
+-- 		elseif self.ft == "space" then
+-- 			fr = 0.9803
+-- 			fg = 0.7647
+-- 			fb = 0.1176
+-- 		end
+-- 		setNextFillColor(layer, fr, fg, fb, 0.8)
+-- 		local pctFixed = utils.clamp(self.pct,0,100)
+-- 		local fWidth = utils.map(pctFixed,0,100,0,sx)
+-- 		addBoxRounded(layer, self.x - sx/2, self.y - sy/2, fWidth, sy, 3)
+-- 		setNextTextAlign(layer, AlignH_Center, AlignV_Middle)
+-- 	end
+-- 	function mt:setPos (x, y)
+-- 		self.x, self.y = x, y
+-- 	end
+-- end
 
 if not StatsContainer then
 	function StatsContainer()
