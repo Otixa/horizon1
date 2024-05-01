@@ -15,7 +15,7 @@
 			- ship.rotation.z - yaw
 		- See comments for additional functionality
 ]]
-local atlas, P = require('atlas'), system.print
+local atlas = require('atlas')
 json = require('dkjson')
 planetaryReference = PlanetRef()
 galaxyReference = planetaryReference(atlas)
@@ -448,7 +448,6 @@ function STEC(core, control)
 		if config.manualControl and self.isLanded and self.localVelocity:len() < 1 and
 			(self.direction.z == 0 and self.direction.y == 0 and self.direction.x == 0) then
 			self.brake = false
-			-- P(system.getArkTime()..' landed, engines off.')
 			self.control.setEngineCommand("atmospheric_engine,space_engine,airfoil,brake,torque,vertical,lateral,longitudinal",
 				{vec3():unpack()}, {vec3():unpack()}, false, false,
 				self.priorityTags1,
