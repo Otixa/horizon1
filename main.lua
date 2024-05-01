@@ -38,12 +38,12 @@ elevatorScreen = nil -- global!
 
 function manualControlSwitch()
 	local c = config.manualControl == true
-	ship.frozen = unit.isRemoteControlled() and not c
+	ship.frozen = unit.isRemoteControlled() and c
 	ship.elevatorActive = not c
 	ship.counterGravity = true
 	ship.followGravity = true
 	ship.inertialDampening = true
-	ship.verticalLock = lockVerticalToBase
+	ship.verticalLock = lockVerticalToBase and not c
 	player.freeze(ship.frozen)
 	if c then
 		config.targetAlt = ship.baseAltitude
@@ -151,6 +151,11 @@ function Unit.onStart()
 		P("[I] Emitter range: "..emitter.getRange())
 	end
 
+	if ship.isLanded then
+		P('Landed: '..(round2(ship.GrndDist or 0, 2)..' m'))
+		config.manualControl = true
+	end
+	P('Manual Control: '..(config.manualControl and 'On' or 'Off'))
 	manualControlSwitch()
 
 	unit.setTimer("SHUDRender", 0.02)
