@@ -126,7 +126,7 @@ function setAgl(a)
 end
 
 function setBase(a)
-	if not ship.nearestPlanet then return end
+	if not ship.nearestPlanet then return P'[E] No gravity well for setting base!' end
 	ship.rot = ship.world.right:cross(ship.nearestPlanet:getGravity(construct.getWorldPosition()))
 	if type(a) ~= "string" or a == "" then
 		ship.baseLoc = ship.world.position
@@ -273,7 +273,7 @@ local function sendDoorCommand(cmd)
 end
 
 local tty = DUTTY
-tty.onCommand('setbase', function(a) P'setBase' setBase(a) end)
+tty.onCommand('setbase', function(a) setBase(a) end)
 tty.onCommand('setagl', function(a) setAgl(a) end)
 
 keybindPresets["keyboard"] = KeybindController()
@@ -335,10 +335,8 @@ keybindPresets["keyboard"].keyUp["option5"].Add(function ()
 	ship.verticalLock = true
 	ship.lockVector = vec3(construct.getWorldOrientationUp())
 	ship.lockPos = vec3(construct.getWorldPosition()) + (vec3(construct.getWorldOrientationUp()))
-	if flightModeDb then
-		writeVecToDb(ship.lockVector,"lockVector")
-		writeVecToDb(ship.lockPos,"lockPos")
-	end
+	writeVecToDb(ship.lockVector,"lockVector")
+	writeVecToDb(ship.lockPos,"lockPos")
 end,"Set Vertical Lock")
 keybindPresets["keyboard"].keyUp["option6"].Add(function () ship.verticalLock = not ship.verticalLock end,"Toggle Vertical Lock")
 --keybindPresets["keyboard"].keyUp["option7"].Add(function () ship.verticalCruise = not ship.verticalCruise end, "Vertical Cruise")
@@ -357,6 +355,7 @@ keybindPresets["screenui"].Init = function()
 	ship.throttle = 1
 	player.freeze(ship.frozen)
 end
+keybindPresets["screenui"].keyUp.speedup.Add(function () SHUD.Enabled = not SHUD.Enabled end)
 keybindPresets["screenui"].keyDown.lshift.Add(function () shiftLock = true end,"Shift Modifier")
 keybindPresets["screenui"].keyUp.lshift.Add(function () shiftLock = false end)
 keybindPresets["screenui"].keyDown.brake.Add(function () ship.brake = true end)
@@ -401,9 +400,6 @@ Task(function()
 	end
 	SHUD.FreezeUpdate = false
 	SHUD.IntroPassed = true
-	if ship.hasGndDet then
-		P('Ground: '..(round2(ship.GrndDist or 0, 2)..' m'))
-	end
 end)
 
 ship.frozen = false

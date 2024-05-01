@@ -56,7 +56,7 @@ function SHUDMenuItem(content, action, update)
 	end
 
 	function self.Enable()
-		self.True = false
+		self.Enabled = true
 		return self
 	end
 
@@ -341,7 +341,9 @@ SHUD =
 				<div class="item helpText"><span>Close Door:</span><span class="right">F6</span></div>
 				]]).Read()
 		end
-		if not self.FreezeUpdate then self.system.setScreen(template.Read()) end
+		if not self.FreezeUpdate then
+			self.system.setScreen(template.Read())
+		end
 	end
 
 	function self.Update()
@@ -394,7 +396,6 @@ SHUD =
 			end))
 		end
 		keybinds.Init()
-		self.Render()
 	end
 
 	return self

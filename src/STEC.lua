@@ -176,6 +176,7 @@ function STEC(core, control)
 	self.priorityTags1 = "brake,airfoil,torque,vertical,lateral,longitudinal"
 	self.priorityTags2 = "atmospheric_engine,space_engine"
 	self.priorityTags3 = ""
+	self.bodyGravity = 0
 
 	local lastUpdate = system.getArkTime()
 
@@ -228,12 +229,12 @@ function STEC(core, control)
 
 		self.altitude = core.getAltitude()
 		self.atmosphereThreshold = 0
+		self.bodyGravity = 0
 		self.nearestPlanet = helios:closestBody(cwp)
 		if self.nearestPlanet then
 			self.altitude = self.nearestPlanet:getAltitude(cwp)
 			self.atmosphereThreshold = self.nearestPlanet.atmosphereRadius - self.nearestPlanet.radius
-			--system.print("Planet Radius: ".. self.nearestPlanet.radius)
-			--system.print("atmosphereThreshold = " .. self.atmosphereThreshold)
+			self.bodyGravity = self.nearestPlanet:getGravity(self.world.position)
 		end
 
 		self.mass = self.construct.getTotalMass()
@@ -336,11 +337,8 @@ function STEC(core, control)
 	end
 
 	function self.apply()
-		local deltaTime = math.max(system.getArkTime() - lastUpdate, 0.001) --If delta is below 0.001 then something went wrong in game engine.
+		-- local deltaTime = math.max(system.getArkTime() - lastUpdate, 0.001) --If delta is below 0.001 then something went wrong in game engine.
 		self.updateWorld()
-
-		-- keep engines off when landed and resting with no target set?
-		if config.manualControl and self.isLanded and self.direction.z == 0 then return end
 
 		local tmp = self.thrust
 		local atmp = self.angularThrust
@@ -415,18 +413,21 @@ function STEC(core, control)
 			if self.targetVectorAutoUnlock then
 				self.targetVector = nil
 			end
-		elseif self.followGravity and self.nearestPlanet then
+		elseif self.followGravity then
 			--local current = self.localVelocity:len() * self.mass
 			--if ship.localVelocity:len() > 10 then
 			--    scale = self.gravityFollowSpeed * math.min(math.max(current / self.fMax, 0.1), 1) * 10
 			--else
 			--    scale = self.gravityFollowSpeed
 			--end
-			local scale, grav = 1, -self.nearestPlanet:getGravity(self.world.position)
-			local gFollow = self.world.up:cross(grav)
+			--and self.nearestPlanet
+			local scale, grav, gFollow = 1, vec3(), vec3()
 			if lockVerticalToBase and baseBody then
-				gFollow = self.world.up:cross(-baseBody:getGravity(self.baseLoc))
+				grav = -baseBody:getGravity(self.baseLoc)
+			elseif self.bodyGravity then
+				grav = -self.bodyGravity
 			end
+			gFollow = self.world.up:cross(grav)
 			if self.pocket then
 				if self.direction.x < 0  then
 					scale = 0.25
@@ -439,6 +440,21 @@ function STEC(core, control)
 				end
 			end
 			atmp = atmp + gFollow * scale
+		end
+
+		-- keep engines off when landed and resting with no target set?
+		-- if config.manualControl and self.isLanded and self.direction.z == 0 then return end
+
+		if config.manualControl and self.isLanded and self.localVelocity:len() < 1 and
+			(self.direction.z == 0 and self.direction.y == 0 and self.direction.x == 0) then
+			self.brake = false
+			-- P(system.getArkTime()..' landed, engines off.')
+			self.control.setEngineCommand("atmospheric_engine,space_engine,airfoil,brake,torque,vertical,lateral,longitudinal",
+				{vec3():unpack()}, {vec3():unpack()}, false, false,
+				self.priorityTags1,
+				self.priorityTags2,
+				self.priorityTags3)
+			return
 		end
 
 		self.deviation = 0

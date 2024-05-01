@@ -545,7 +545,7 @@ end
 
 -- BUTTONS
 local btnX, padding = 135, 10
-local mcColor = config.manualControl and '#e707b3c9' or '#3c00b3'
+local mcColor = config.manualControl and '#fd5421c9' or '#3c00b3'
 local eStopColor = config.estop and '#ff0000' or '#7a0101'
 local buttons = {
 	ButtonQuad('RTB',btnX,135,function()
@@ -554,6 +554,7 @@ local buttons = {
 		outputMsg = serialize(config)
 	end,false,'#006603'),
 	ButtonQuad('+10m',btnX,185,function()
+		config.manualControl = false
 		if not config.targetAlt or config.targetAlt == 0 then
 			config.delta = 10
 		else
@@ -562,6 +563,7 @@ local buttons = {
 		outputMsg = serialize(config)
 		config.delta = nil; end, false,'#0b0578'),
 	ButtonQuad('-10m',btnX,235,function()
+		config.manualControl = false
 		if not config.targetAlt or config.targetAlt == 0 then
 			config.delta = -10
 		else
@@ -597,7 +599,7 @@ if config.floors then
 		if tostring(v) == tostring(config.targetAlt) then
 			color = "#7a3907"
 		end
-		local button = ButtonQuad(mToKm(v,0.01), 360, 135+spacing, function() config.targetAlt = v; outputMsg = serialize(config) end,true,color)
+		local button = ButtonQuad(mToKm(v,0.01), 360, 135+spacing, function() config.manualControl = false; config.targetAlt = v; outputMsg = serialize(config) end,true,color)
 		table.insert(buttons,button)
 		spacing = spacing + spacingDelta
 	end
