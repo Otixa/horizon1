@@ -89,7 +89,6 @@ function STEC(core, control)
 	self.dockingClamps = false
 	self.IDIntensity = 5
 	self.deviationThreshold = 0.05
-	self.playerId = player.getId()
 	self.targetVectorVertical = nil
 	self.breadCrumbDist = 1000
 	self.deviated = false
@@ -171,9 +170,9 @@ function STEC(core, control)
 	-- Pitch
 	self.pitchRatio = self.world.vertical:angle_between(self.world.forward) / math.pi - 0.5
 	--Vertical Cruise Toggle (for elevator stuff)
-	self.verticalCruise = false
+	-- self.verticalCruise = false
 	--Vertical Cruise Speed (for elevator stuff)
-	self.verticalCruiseSpeed = 0
+	-- self.verticalCruiseSpeed = 0
 	self.priorityTags1 = "brake,airfoil,torque,vertical,lateral,longitudinal"
 	self.priorityTags2 = "atmospheric_engine,space_engine"
 	self.priorityTags3 = ""
@@ -184,16 +183,17 @@ function STEC(core, control)
 		self.hasGndDet = false
 		self.isLanded = false
 		self.telemeterDist = nil
+		self.GrndDist = nil
 		if not telemeter then return end
 
-		self.hasGndDet = true -- ground detection
+		self.hasGndDet = true
 		---@TODO support hovers+vertical boosters
-		-- telemeter has precedence with detection up to 100m
+		-- telemeter has precedence with detection of up to 100m
 		local ray = telemeter.raycast()
 		if ray.hit then
-			self.GrndDist = ray.distance
-			self.telemeterDist = self.GrndDist
-			self.isLanded = self.GrndDist > 0 and self.GrndDist <= 0.5 and vec3(construct.getWorldVelocity()):len() < 1
+			self.telemeterDist = ray.distance
+			self.GrndDist = ray.distance - (self.agl or 0)
+			self.isLanded = self.GrndDist <= 0.5 and vec3(construct.getWorldVelocity()):len() < 1
 		end
 	end
 	self.checkGrndDist()
@@ -356,7 +356,7 @@ function STEC(core, control)
 		if not vec3.isvector(self.baseLoc) or self.baseLoc == vec3() then
 			self.baseLoc = nil
 		end
-		local baseBody = self.baseLoc and helios:closestBody(self.baseLoc)
+		local baseBody = self.baseLoc and helios:closestBody(self.baseLoc) or nil
 		if lockVerticalToBase and baseBody then
 			self.nearestPlanet = baseBody
 			self.altitude = self.nearestPlanet:getAltitude(self.world.position)
@@ -424,8 +424,8 @@ function STEC(core, control)
 			--end
 			local scale, grav = 1, -self.nearestPlanet:getGravity(self.world.position)
 			local gFollow = self.world.up:cross(grav)
-			if lockVerticalToBase and self.baseLoc then
-				gFollow = self.world.up:cross(-self.nearestPlanet:getGravity(self.baseLoc))
+			if lockVerticalToBase and baseBody then
+				gFollow = self.world.up:cross(-baseBody:getGravity(self.baseLoc))
 			end
 			if self.pocket then
 				if self.direction.x < 0  then
@@ -438,8 +438,7 @@ function STEC(core, control)
 					gFollow = gFollow + ship.world.forward:cross(grav * 0.25)
 				end
 			end
-			gFollow = gFollow * scale
-			atmp = atmp + gFollow
+			atmp = atmp + gFollow * scale
 		end
 
 		self.deviation = 0
@@ -479,8 +478,10 @@ function STEC(core, control)
 			--system.print("Deviation threshold: "..deviationThreshold)
 			self.deviated = self.deviation > (deviationThreshold + self.world.velocity:len() * 10^-2)
 			if self.deviated then
-			--if self.deviation > deviationThreshold then
-				destination = moveWaypointZ(self.baseLoc, (self.altitude - self.baseAltitude))
+				local altDiff = self.altitude - self.baseAltitude
+				if altDiff ~= 0 and not self.isLanded then
+					destination = moveWaypointZ(self.baseLoc, altDiff)
+				end
 				speed = self.deviation * self.IDIntensity
 				self.stateMessage = "Correcting Deviation"
 			end
@@ -496,7 +497,6 @@ function STEC(core, control)
 			--system.print("realDistance: "..realDistance)
 			local breadCrumb
 			--local breadCrumbDist = utils.clamp(math.abs(self.world.velocity:len()),10,self.breadCrumbDist - (self.deviation * 100))
-
 			--system.print(breadCrumbDist)
 			if ship.nearestPlanet then
 				if realDistance > self.breadCrumbDist and not self.deviated then
@@ -504,7 +504,6 @@ function STEC(core, control)
 					destination = breadCrumb
 					local waypointString = ship.nearestPlanet:convertToMapPosition(destination)
 					system.setWaypoint(waypointString,false)
-					--system.print(tostring(waypointString))
 				elseif realDistance < -self.breadCrumbDist and not self.deviated then
 					breadCrumb = moveWaypointZ(self.baseLoc, (self.altitude - self.baseAltitude) - self.breadCrumbDist)
 					destination = breadCrumb
@@ -514,9 +513,8 @@ function STEC(core, control)
 			end
 
 			local elevatorDestination = (self.world.position - destination):normalize()
-
 			tmp = tmp - elevatorDestination * self.mass * utils.clamp(distance * 3.6,0.3,((math.abs(speed)/3.6) * self.IDIntensity))
-			--if breadCrumb ~= nil then system.print("Breadcrumb distance: "..(self.world.position - breadCrumb):len()) end
+			--if breadCrumb then system.print("Breadcrumb distance: "..(self.world.position - breadCrumb):len()) end
 			self.dockingClamps = false
 			if (distance < 0.01 and not config.manualControl) or
 			   (distance < 2 and not config.manualControl and self.world.velocity:len() == 0) then

@@ -116,6 +116,7 @@ HandleOutput = (function()
         else
             ship.brake = false
         end
+        manualControlSwitch()
         if not config.manualControl and ship.altitudeHold > 0 then
             ship.elevatorActive = true
             ship.targetDestination = moveWaypointZ(ship.baseLoc, config.targetAlt - ship.baseAltitude)
@@ -129,7 +130,6 @@ HandleOutput = (function()
         --    config.updateReq = false
         --    ioScheduler.queue(config)
         --end
-        manualControlSwitch()
     end
 
     return self

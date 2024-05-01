@@ -6,19 +6,36 @@ released the sources to the public in spring of 2024.
 
 New maintainers on these repositories are working on updating the codebase to become compatible with the latest game version's LUA API.
 
-> ❗ Horizon 1 in *master* branch is solely a **FLIGHT** script, **NOT** the elevator script!
+> ❗Horizon 1 in *master* branch is solely the **FLIGHT** script for ships!
 
-> ❗ Branch *elevator-lua-screen* contains the elevator and screen script!
+> ❗The **elevator** script is in branch *elevator-lua-screen* and contains both the elevator and screen lua script!
 
-**Installable, flyable scripts:**
-* [Elevator json](https://github.com/tobitege/horizon1/blob/elevator-lua-screen/output/Elevator.json)
-* [Elevator Screen lua](https://github.com/tobitege/horizon1/blob/elevator-lua-screen/src/LuaScreen.lua)
+## **Installation:**
 
-## Development
+* [Main elevator script](https://github.com/tobitege/horizon1/blob/elevator-lua-screen/output/Elevator.json) ("Elevator.json")  
+Copy its content to clipboard, right-click on remote controller or piloting chair,  
+"Advanced" -> "Paste LUA configuration from clipboard".
 
-### Updates
+* [Elevator screen lua](https://github.com/tobitege/horizon1/blob/elevator-lua-screen/src/LuaScreen.lua) ("LuaScreen.lua")  
+Copy its content to clipboard, then  
+  * point at screen and hit CTRL+L  
+  *or*  
+  * right-click screen, "Advanced" -> "Edit content"  
 
-#### 2024-04-30 *elevator-lua-screen* branch, @tobitege
+  Then paste clipboard content into LUA editor. "Mode" must be LUA in top-right corner!
+
+## Development Updates
+
+### 2024-05-01 *elevator-lua-screen* branch, @tobitege
+
+* Elevator starts up as "Horizon Elevator v1.1.1"
+* Added "setagl" command to set above ground level (in meters). This compensates the distance from telemeter to ground when landed, so Ground distance reports 0 when landed.
+* Added AGL display to screen.
+* Player should no longer be frozen when using remote control on startup.
+* Fixed: vertical lock is now on by default.
+* Fixed an issue which didn't let the elevator move when landed.
+
+### 2024-04-30 *elevator-lua-screen* branch, @tobitege
 
 * Elevator working, starts up as "Elevator v1.1.0"
 * Lots of tweaks during code review.
@@ -29,10 +46,10 @@ New maintainers on these repositories are working on updating the codebase to be
 * Added ALT+5 (open) and ALT+6 (close) for emitter to send open/close  
 command on channel "door_control" (if emitter is linked).  
 Manual action, no automation for it yet!
-* Requires dubuild 1.0.1!
+* Requires [dubuild](https://github.com/Otixa/dubuild/releases) 1.0.1 or higher, if you want to build the script yourself!
 * **Installable files: /output/Elevator.json and /src/LuaScreen.lua !**
 
-#### 2024-02-26 *elevator-lua-screen* branch, @tobitege
+### 2024-02-26 *elevator-lua-screen* branch, @tobitege
 
 * Codebase revised to fix deprecated DU API calls.
 * Updated this README.md file.

@@ -12,7 +12,7 @@ function spairs(a,b)local c={}for d in pairs(a)do c[#c+1]=d end;if b then table.
 function tablelength(T) local count = 0 for _ in pairs(T) do count = count + 1 end return count end
 function convertFromHex(a)if a:sub(1,1)=="#"then a=a:sub(2,-1)end;if#a==8 then return tonumber("0x"..a:sub(1,2))/255,tonumber("0x"..a:sub(3,4))/255,tonumber("0x"..a:sub(5,6))/255,tonumber("0x"..a:sub(7,8))/255 elseif#a==6 then return tonumber("0x"..a:sub(1,2))/255,tonumber("0x"..a:sub(3,4))/255,tonumber("0x"..a:sub(5,6))/255,1 elseif#a==3 then return tonumber("0x"..a:sub(1,1))/15,tonumber("0x"..a:sub(2,2))/15,tonumber("0x"..a:sub(3,3))/15,1 else return 1,1,1,1 end end
 function mToKm(n,p)
-	if n == nil then return "nan" end
+	if n == nil then return "---" end
 	if n >= 10000 then
 		local rtn = round((n / 1000),p) or round((n / 1000))
 		return  rtn .. " km"
@@ -587,7 +587,6 @@ local rtbButtons = {
 	ButtonQuad('Cancel',rx/2+112.5, ry-155, function() config.setBaseActive = false end,true,'#450101',settingsLayer),
 }
 
---logMessage(stats.data.target)
 local spacing = 0
 local spacingDelta = 50
 --Floors
@@ -598,7 +597,7 @@ if config.floors then
 		if tostring(v) == tostring(config.targetAlt) then
 			color = "#7a3907"
 		end
-		local button = ButtonQuad(mToKm(v), 360, 135+spacing, function() config.targetAlt = v; outputMsg = serialize(config) end,true,color)
+		local button = ButtonQuad(mToKm(v,0.01), 360, 135+spacing, function() config.targetAlt = v; outputMsg = serialize(config) end,true,color)
 		table.insert(buttons,button)
 		spacing = spacing + spacingDelta
 	end
@@ -618,20 +617,25 @@ end
 if stats.data then
     local yPos = statYPos
     yPos = insertStatLine('Elevation', mToKm(stats.data.elevation, 0.001), yPos)
-    yPos = insertStatLine('Ground Distance', mToKm(stats.data.grounddistance, 0.001), yPos)
+	if stats.data.grounddistance then
+    	yPos = insertStatLine('Ground Distance', round(stats.data.grounddistance, 0.01)..' m', yPos)
+		if stats.data.agl then
+			yPos = insertStatLine('AGL', round(stats.data.agl, 0.01)..' m', yPos)
+		end
+	end
     yPos = insertStatLine('Velocity', round((stats.data.velocity * 3.6), 0.01)..' km/h', yPos)
-    yPos = insertStatLine('Mass', massConvert(stats.data.mass, 0.01), yPos)
+    yPos = insertStatLine('Mass', massConvert(stats.data.mass, 0.001), yPos)
     yPos = insertStatLine('Gravity', round(stats.data.gravity, 0.001)..' m/s²', yPos)
     yPos = insertStatLine('Target Altitude', mToKm(stats.data.target, 0.001), yPos)
     yPos = insertStatLine('Target Distance', mToKm(stats.data.target_dist, 0.001), yPos)
     yPos = insertStatLine('Brake Distance', mToKm(stats.data.brake_dist, 0.001), yPos)
 	if stats.data.deviation then
-    	yPos = insertStatLine('Deviation', round(stats.data.deviation, 0.00001)..' m', yPos)
+    	yPos = insertStatLine('Deviation', round(stats.data.deviation, 0.01)..' m', yPos)
 	end
 	if stats.data.deviationRot then
-		yPos = insertStatLine('Deviation Rot.', round(vec3(stats.data.deviationRot):len(), 0.00001)..' ', yPos)
+		yPos = insertStatLine('Dev. Rot.', round(vec3(stats.data.deviationRot):len(), 0.01)..' ', yPos)
 	end
-	yPos = insertStatLine('Deviation °', round(stats.data.deviationRotAngle, 0.00001)..' ', yPos)
+	yPos = insertStatLine('Dev. Angle', round(stats.data.deviationRotAngle, 0.0001)..' ', yPos)
 end
 -- tobitege, 2024-04-30: commented out fuel display, which corrupts
 -- the stats display AND because fuel is now in HUD itself!

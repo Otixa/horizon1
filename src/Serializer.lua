@@ -55,6 +55,7 @@ stats = {
 		delta = 0,
 		grounddistance = 0,
 		base = nil,
+    	agl = 0,
 	}
 }
 fuelAtmo = {

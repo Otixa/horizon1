@@ -53,6 +53,6 @@ pocket = false
 setpocket = false --export: Pocket ship?
 mouseSensitivity = 1 --export: Enter your mouse sensativity setting
 
-lockVerticalToBase = false --export: FOR ELEVATORS ONLY!
+lockVerticalToBase = true --export: FOR ELEVATORS ONLY!
 
 --charMovement = true --export: Enable/Disable Character Movement
