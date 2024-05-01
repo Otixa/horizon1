@@ -205,20 +205,22 @@ SHUD =
 		ship.altitudeHold = utils.clamp(ship.altitudeHold + (system.getMouseWheel() * altHoldAdjustmentSetting()),0,2000000)
 	end
 
-	self.MenuList.altHold = {
-		SMI(DD("<span>Altitude Hold<span>" .. self.MakeBooleanIndicator("ship.elevatorActive")), function() ship.elevatorActive = not ship.elevatorActive end),
-		SMI(DD([[<span>Multiplier<span>]]..self.MakeSliderIndicator("round2(altHoldAdjustmentSetting(),3)", "")),
-			   function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
-			   function(system, _ , w) altAdjustment = utils.clamp(altAdjustment + (system.getMouseWheel()),-1,4) end),
-		SMI(DD([[<span>Alt Setpoint<span>]]..self.MakeSliderIndicator("round2(ship.altitudeHold,3)", "m")),
-			   function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
-			   function(system, _ , w) self.updateTargetDest() end),
-		SMI(DD([[<span>Preset 1:</span><span class="right">]].. mToKm(ship.altHoldPreset1).."</span>"), function() ship.altitudeHold = ship.altHoldPreqset1 ship.elevatorActive = true end),
-		SMI(DD([[<span>Preset 2:</span><span class="right">]].. mToKm(ship.altHoldPreset2).."</span>"), function() ship.altitudeHold = ship.altHoldPreset2 ship.elevatorActive = true end),
-		SMI(DD([[<span>Preset 3:</span><span class="right">]].. mToKm(ship.altHoldPreset3).."</span>"), function() ship.altitudeHold = ship.altHoldPreset3 ship.elevatorActive = true end),
-		SMI(DD([[<span>Preset 4:</span><span class="right">]].. mToKm(ship.altHoldPreset4).."</span>"), function() ship.altitudeHold = ship.altHoldPreset4 ship.elevatorActive = true end),
-		SMI(DD([[<span>Altitude:</span><span class="right">{{round2(ship.altitude,4)}}</span>]])).Disable(),
-	}
+	function self.updateAltHoldMenu()
+		self.MenuList.altHold = {
+			SMI(DD("<span>Altitude Hold<span>" .. self.MakeBooleanIndicator("ship.elevatorActive")), function() ship.elevatorActive = not ship.elevatorActive end),
+			SMI(DD([[<span>Multiplier<span>]]..self.MakeSliderIndicator("round2(altHoldAdjustmentSetting(),3)", "")),
+				function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
+				function(system, _ , w) altAdjustment = utils.clamp(altAdjustment + (system.getMouseWheel()),-1,4) end),
+			SMI(DD([[<span>Alt Setpoint<span>]]..self.MakeSliderIndicator("round2(ship.altitudeHold,3)", "m")),
+				function(_, _, w) if w.Active then w.Unlock() else w.Lock() end end,
+				function(system, _ , w) self.updateTargetDest() end),
+			SMI(DD([[<span>Preset 1:</span><span class="right">]].. mToKm(ship.altHoldPreset1).."</span>"), function() ship.altitudeHold = ship.altHoldPreset1 ship.elevatorActive = true end),
+			SMI(DD([[<span>Preset 2:</span><span class="right">]].. mToKm(ship.altHoldPreset2).."</span>"), function() ship.altitudeHold = ship.altHoldPreset2 ship.elevatorActive = true end),
+			SMI(DD([[<span>Preset 3:</span><span class="right">]].. mToKm(ship.altHoldPreset3).."</span>"), function() ship.altitudeHold = ship.altHoldPreset3 ship.elevatorActive = true end),
+			SMI(DD([[<span>Preset 4:</span><span class="right">]].. mToKm(ship.altHoldPreset4).."</span>"), function() ship.altitudeHold = ship.altHoldPreset4 ship.elevatorActive = true end),
+			SMI(DD([[<span>Altitude:</span><span class="right">{{round2(ship.altitude,4)}}</span>]])).Disable(),
+		}
+	end
 
 	self.MenuList.hotkeys = {}
 
@@ -329,7 +331,7 @@ SHUD =
 			_ENV["_SHUDBUFFER"] = esc(buffer)
 		else
 			ship.frozen = player.isFrozen()
-			_ENV["_SHUDBUFFER"] = DD([[<div class="item helpText">Press ]] .. "[" .. self.system.getActionKeyName("speedup") .. "]" .. [[ to  toggle menu</div>
+			_ENV["_SHUDBUFFER"] = DD([[<div class="item helpText">Press ]] .. "[" .. self.system.getActionKeyName("speedup") .. "]" .. [[ to toggle menu</div>
 				<div class="item helpText"><span>Character Movement:</span>]].. self.MakeBooleanIndicator("ship.frozen") .. [[</div>
 				<div class="item helpText"><span>Vertical Lock:</span>]].. self.MakeBooleanIndicator("ship.verticalLock") .. [[</div>
 				<div class="item helpText"><span>Inertial Dampening:</span>]].. self.MakeBooleanIndicator("ship.inertialDampening") .. [[</div>
@@ -375,6 +377,7 @@ SHUD =
 		system.showScreen(true)
 		unit.hideWidget()
 		local keys = keybinds.GetNamedKeybinds()
+		self.updateAltHoldMenu()
 		self.MenuList.hotkeys = {}
 		for i=1,#keys do
 			local key = keys[i]
@@ -391,6 +394,7 @@ SHUD =
 			end))
 		end
 		keybinds.Init()
+		self.Render()
 	end
 
 	return self

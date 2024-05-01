@@ -17,6 +17,7 @@ ElevatorScreen = (function ()
             stats.data.state = ship.stateMessage
 			stats.data.delta = nil
 			stats.data.grounddistance = ship.GrndDist
+			stats.data.agl = ship.agl
 			stats.data.base = nil
 			if vec3.isvector(ship.baseLoc) and ship.baseLoc ~= vec3() then
 				stats.data.base = ship.baseLoc

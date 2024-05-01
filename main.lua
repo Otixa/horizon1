@@ -38,29 +38,23 @@ elevatorScreen = nil -- global!
 
 function manualControlSwitch()
 	local c = config.manualControl == true
-	player.freeze(c)
-	ship.counterGravity = true
-	ship.frozen = not c
+	ship.frozen = unit.isRemoteControlled() and not c
 	ship.elevatorActive = not c
-	ship.inertialDampening = c
-	ship.counterGravity = c
+	ship.counterGravity = true
 	ship.followGravity = true
+	ship.inertialDampening = true
+	ship.verticalLock = lockVerticalToBase
+	player.freeze(ship.frozen)
 	if c then
-		SHUD.Init(system, unit, keybindPresets["keyboard"])
+		config.targetAlt = ship.baseAltitude
 		ship.altitudeHold = ship.baseAltitude
 		ship.targetDestination = nil
 		ship.stateMessage = "Manual Control"
-		config.targetAlt = ship.baseAltitude
+		switchFlightMode("keyboard")
 	else
-		SHUD.Init(system, unit, keybindPresets["screenui"])
 		ship.stateMessage = "Idle"
+		switchFlightMode("screenui")
 	end
-	-- P('Elevator active: '..tostring(ship.elevatorActive))
-	-- P('counterGravity: '..tostring(ship.counterGravity))
-	-- P('followGravity: '..tostring(ship.followGravity))
-	-- P('inertialDampening: '..tostring(ship.inertialDampening))
-	-- P('verticalLock: '..tostring(ship.verticalLock))
-	-- P('config.manualControl: '..tostring(config.manualControl))
 end
 
 function Unit.onStart()
@@ -70,8 +64,9 @@ function Unit.onStart()
 	getFuelRenderedHtml()
 	if system.showHelper then system.showHelper(false) end
 
-	P('Elevator 1.1.0')
-	P('Customized by tobitege, v2024-04-30')
+	P('Horizon Elevator 1.1.1')
+	P('Created by ShadowTemplar')
+	P('Customized by tobitege, v2024-05-01')
 
 	if construct.setDockingMode(dockingMode) then
 		P("[I] Docking mode set to: "..dockingMode)
@@ -151,19 +146,12 @@ function Unit.onStart()
 	end
 	ship.followGravity = true
 	ship.inertialDampening = true
-	if ship.isLanded then
-		P("Landed.")
-	end
 
 	if emitter then
 		P("[I] Emitter range: "..emitter.getRange())
 	end
 
 	manualControlSwitch()
-
-	if ship.isLanded then
-		P('Ground: '..(round2(ship.GrndDist, 2)..'m'))
-	end
 
 	unit.setTimer("SHUDRender", 0.02)
 	unit.setTimer("FuelStatus", 3)
